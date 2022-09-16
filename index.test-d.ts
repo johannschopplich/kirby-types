@@ -11,12 +11,15 @@ interface KirbySite {
 }
 
 // Query
+expectAssignable<KirbyQuery>("site");
 expectAssignable<KirbyQuery>('kirby.page("about")');
 expectAssignable<KirbyQuery>('collection("notes")');
+expectAssignable<KirbyQuery<"custom">>("custom");
+expectAssignable<KirbyQuery<"custom">>("custom.cover");
 expectNotAssignable<KirbyQuery>("kirby(");
 expectNotAssignable<KirbyQuery>('kirby("about');
 
-// Query Request
+// KQL Query Request
 expectAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
@@ -32,7 +35,7 @@ expectAssignable<KirbyQueryRequest>({
   },
 });
 
-// Query Response
+// KQL Query Response
 expectAssignable<KirbyQueryResponse<KirbySite>>({
   code: 200,
   status: "OK",
