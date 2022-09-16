@@ -36,6 +36,6 @@ export interface KirbyLayoutColumn {
 
 export interface KirbyLayout {
   id: string;
-  attrs: string[];
+  attrs: Record<string, any> | string[];
   columns: KirbyLayoutColumn[];
 }
