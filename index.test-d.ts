@@ -1,5 +1,10 @@
 import { expectAssignable, expectNotAssignable } from "tsd";
-import type { KirbyQuery, KirbyQueryRequest, KirbyQueryResponse } from ".";
+import type {
+  KirbyBlock,
+  KirbyQuery,
+  KirbyQueryRequest,
+  KirbyQueryResponse,
+} from ".";
 
 interface KirbySite {
   title: string;
@@ -18,6 +23,20 @@ expectAssignable<KirbyQuery<"custom">>("custom");
 expectAssignable<KirbyQuery<"custom">>("custom.cover");
 expectNotAssignable<KirbyQuery>("kirby(");
 expectNotAssignable<KirbyQuery>('kirby("about');
+
+// Blocks
+expectAssignable<KirbyBlock<"text">>({
+  content: { text: "Hello World" },
+  id: "1",
+  isHidden: false,
+  type: "text",
+});
+expectAssignable<KirbyBlock<"custom", { foo: string }>>({
+  content: { foo: "Hello World" },
+  id: "1",
+  isHidden: false,
+  type: "custom",
+});
 
 // KQL Query Request
 expectAssignable<KirbyQueryRequest>({
