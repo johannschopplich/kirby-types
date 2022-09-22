@@ -2,7 +2,7 @@
   "name": "kirby-fest",
   "type": "module",
   "version": "0.3.0",
-  "packageManager": "pnpm@7.11.0",
+  "packageManager": "pnpm@7.12.1",
   "description": "A Collection of TypeScript types for the Kirby CMS",
   "author": "Johann Schopplich <pkg@johannschopplich.com>",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "lint": "eslint \"**/*.ts\" --ignore-path .gitignore",
     "lint:fix": "npm run lint -- --fix",
     "release": "bumpp --commit --push --tag",
-    "test": "tsc --noEmit && tsd"
+    "test": "tsd"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.38.0",
