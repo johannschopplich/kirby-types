@@ -43,12 +43,37 @@ expectAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
     title: true,
+  },
+});
+expectAssignable<KirbyQueryRequest>({
+  query: "site",
+  select: {
+    children: {
+      query: "site.children",
+      select: ["id", "title", "isListed"],
+    },
+  },
+});
+expectAssignable<KirbyQueryRequest>({
+  query: "site",
+  select: {
     children: {
       query: "site.children",
       select: {
         id: true,
         title: true,
-        isListed: true,
+        isListed: "page.isListed",
+      },
+    },
+  },
+});
+expectNotAssignable<KirbyQueryRequest>({
+  query: "site",
+  select: {
+    children: {
+      query: "site.children",
+      select: {
+        id: null,
       },
     },
   },

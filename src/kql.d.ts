@@ -1,8 +1,13 @@
 import type { KirbyQuery } from "./query";
 
-export interface KirbyQueryRequest {
+export interface KirbyQuerySchema {
   query: KirbyQuery;
-  select?: Record<string, any> | string[];
+  select?:
+    | string[]
+    | Record<string, string | number | boolean | KirbyQuerySchema>;
+}
+
+export interface KirbyQueryRequest extends KirbyQuerySchema {
   pagination?: {
     /** @default 100 */
     limit?: number;

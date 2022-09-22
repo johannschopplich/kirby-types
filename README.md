@@ -44,6 +44,7 @@ Click the type names for complete docs.
 
 ### KQL
 
+- [`KirbyQuerySchema`](./src/kql.d.ts) - Matches a [KQL query schema](https://github.com/getkirby/kql).
 - [`KirbyQueryRequest`](./src/kql.d.ts) - Matches any [KQL request](https://github.com/getkirby/kql).
 - [`KirbyQueryResponse`](./src/kql.d.ts) - Matches any [KQL response](https://github.com/getkirby/kql).
 
