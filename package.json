@@ -35,7 +35,7 @@
     "lint": "eslint \"**/*.ts\" --ignore-path .gitignore",
     "lint:fix": "npm run lint -- --fix",
     "release": "bumpp --commit --push --tag",
-    "test": "tsd"
+    "test": "tsd -f \"src/**/*.test-d.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.38.0",

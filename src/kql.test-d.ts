@@ -1,10 +1,5 @@
 import { expectAssignable, expectNotAssignable } from "tsd";
-import type {
-  KirbyBlock,
-  KirbyQuery,
-  KirbyQueryRequest,
-  KirbyQueryResponse,
-} from ".";
+import type { KirbyQueryRequest, KirbyQueryResponse } from "./kql";
 
 interface KirbySite {
   title: string;
@@ -15,36 +10,17 @@ interface KirbySite {
   }[];
 }
 
-// Query
-expectAssignable<KirbyQuery>("site");
-expectAssignable<KirbyQuery>('kirby.page("about")');
-expectAssignable<KirbyQuery>('collection("notes")');
-expectAssignable<KirbyQuery<"custom">>("custom");
-expectAssignable<KirbyQuery<"custom">>("custom.cover");
-expectNotAssignable<KirbyQuery>("kirby(");
-expectNotAssignable<KirbyQuery>('kirby("about');
+/**
+ * KQL Query Request
+ */
 
-// Blocks
-expectAssignable<KirbyBlock<"text">>({
-  content: { text: "Hello World" },
-  id: "1",
-  isHidden: false,
-  type: "text",
-});
-expectAssignable<KirbyBlock<"custom", { foo: string }>>({
-  content: { foo: "Hello World" },
-  id: "1",
-  isHidden: false,
-  type: "custom",
-});
-
-// KQL Query Request
 expectAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
     title: true,
   },
 });
+
 expectAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
@@ -54,6 +30,7 @@ expectAssignable<KirbyQueryRequest>({
     },
   },
 });
+
 expectAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
@@ -67,6 +44,7 @@ expectAssignable<KirbyQueryRequest>({
     },
   },
 });
+
 expectNotAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
@@ -79,7 +57,10 @@ expectNotAssignable<KirbyQueryRequest>({
   },
 });
 
-// KQL Query Response
+/**
+ * KQL Query Response
+ */
+
 expectAssignable<KirbyQueryResponse<KirbySite>>({
   code: 200,
   status: "OK",
