@@ -1,14 +1,14 @@
-// https://github.com/getkirby/kql/blob/66abd20093e5656b0f7e6f51ee04f630ab38f2a3/src/Kql/Kql.php#L73
-export type KirbyQueryModel<T extends string = never> =
+// https://github.com/getkirby/kql/blob/4c8cdd88c076cdef5323efcd4f0fda38c0865eed/src/Kql/Kql.php#L73
+export type KirbyQueryModel<CustomModel extends string = never> =
   | "collection"
   | "file"
   | "kirby"
   | "page"
   | "site"
   | "user"
-  | T;
+  | CustomModel;
 
-export type KirbyQuery<T extends string = never> =
-  | KirbyQueryModel<T>
-  | `${KirbyQueryModel<T>}.${string}`
-  | `${KirbyQueryModel<T>}(${string})`;
+export type KirbyQuery<CustomModel extends string = never> =
+  | KirbyQueryModel<CustomModel>
+  | `${KirbyQueryModel<CustomModel>}.${string}`
+  | `${KirbyQueryModel<CustomModel>}(${string})${string}`;
