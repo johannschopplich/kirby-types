@@ -6,6 +6,9 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "page"
   | "site"
   | "user"
+  | "arrayItem"
+  | "structureItem"
+  | "block"
   | CustomModel;
 
 export type KirbyQuery<CustomModel extends string = never> =
