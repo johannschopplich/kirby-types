@@ -17,7 +17,7 @@ npm i -D kirby-fest
 ## Basic Usage
 
 ```ts
-import type { KirbyQuery } from "type-fest";
+import type { KirbyQuery } from "kirby-fest";
 
 // Strictly typed query for the Kirby Query Language
 const query: KirbyQuery = 'kirby.page("about")';
@@ -50,4 +50,4 @@ Click the type names for complete docs.
 
 ## License
 
-[MIT](./LICENSE) License © 2022 [Johann Schopplich](https://github.com/johannschopplich)
+[MIT](./LICENSE) License © 2022-present [Johann Schopplich](https://github.com/johannschopplich)
