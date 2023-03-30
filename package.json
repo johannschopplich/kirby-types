@@ -2,7 +2,7 @@
   "name": "kirby-fest",
   "type": "module",
   "version": "0.3.2",
-  "packageManager": "pnpm@7.30.0",
+  "packageManager": "pnpm@8.1.0",
   "description": "A collection of TypeScript types for the Kirby CMS",
   "author": "Johann Schopplich <pkg@johannschopplich.com>",
   "license": "MIT",
@@ -39,11 +39,11 @@
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^0.1.1",
-    "bumpp": "^9.0.0",
-    "eslint": "^8.36.0",
+    "bumpp": "^9.1.0",
+    "eslint": "^8.37.0",
     "eslint-config-prettier": "^8.8.0",
-    "prettier": "^2.8.6",
-    "tsd": "^0.28.0",
+    "prettier": "^2.8.7",
+    "tsd": "^0.28.1",
     "typescript": "^5.0.2"
   }
 }
