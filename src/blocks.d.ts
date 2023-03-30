@@ -13,9 +13,11 @@ export type KirbyBlockType =
 
 export interface KirbyBlock<
   T extends string = KirbyBlockType,
-  U = Record<string, any>
+  U extends Record<string, any> | undefined = undefined
 > {
-  content: T extends "code"
+  content: U extends Record<string, any>
+    ? U
+    : T extends "code"
     ? { code: string; language: string }
     : T extends "gallery"
     ? { images: string[] }
@@ -32,8 +34,6 @@ export interface KirbyBlock<
         ratio: string;
         crop: boolean;
       }
-    : T extends "line"
-    ? Record<string, never>
     : T extends "list"
     ? { text: string }
     : T extends "markdown"
@@ -44,7 +44,7 @@ export interface KirbyBlock<
     ? { text: string }
     : T extends "video"
     ? { url: string; caption: string }
-    : U;
+    : Record<string, never>;
   id: string;
   isHidden: boolean;
   type: T;
