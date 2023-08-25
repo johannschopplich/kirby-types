@@ -50,4 +50,4 @@ Click the type names for complete docs.
 
 ## License
 
-[MIT](./LICENSE) License © 2022-present [Johann Schopplich](https://github.com/johannschopplich)
+[MIT](./LICENSE) License © 2022-PRESENT [Johann Schopplich](https://github.com/johannschopplich)

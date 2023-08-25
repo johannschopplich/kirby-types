@@ -17,7 +17,7 @@ export interface KirbyQueryRequest extends KirbyQuerySchema {
 
 export interface KirbyQueryResponse<
   T = any,
-  Pagination extends boolean = false
+  Pagination extends boolean = false,
 > {
   code: number;
   status: string;

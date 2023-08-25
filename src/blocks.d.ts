@@ -13,7 +13,7 @@ export type KirbyBlockType =
 
 export interface KirbyBlock<
   T extends string = KirbyBlockType,
-  U extends Record<string, any> | undefined = undefined
+  U extends Record<string, any> | undefined = undefined,
 > {
   content: U extends Record<string, any>
     ? U
