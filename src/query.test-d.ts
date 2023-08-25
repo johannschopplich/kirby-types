@@ -1,16 +1,14 @@
 import { expectAssignable, expectNotAssignable } from "tsd";
 import type { KirbyQuery } from "./query";
 
-expectAssignable<KirbyQuery>("collection");
-expectAssignable<KirbyQuery>("file");
-expectAssignable<KirbyQuery>("kirby");
-expectAssignable<KirbyQuery>("page");
 expectAssignable<KirbyQuery>("site");
-expectAssignable<KirbyQuery>("user");
-expectAssignable<KirbyQuery>('collection("notes")');
-expectAssignable<KirbyQuery>('kirby.page("notes")');
-expectAssignable<KirbyQuery>('page("notes").children.listed');
-expectAssignable<KirbyQuery<"customModel">>("customModel");
+expectAssignable<KirbyQuery>("site.title");
+expectAssignable<KirbyQuery>('page("notes")');
+expectAssignable<KirbyQuery>('page.children.filterBy("featured", true)');
+expectAssignable<KirbyQuery>(
+  'site.find("notes").children.listed.filterBy("tags", "ocean", ",")',
+);
+expectAssignable<KirbyQuery>('page.images.template("image")');
 expectAssignable<KirbyQuery<"customModel">>("customModel.cover");
 
 expectNotAssignable<KirbyQuery>("kirby(");
