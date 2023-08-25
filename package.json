@@ -1,7 +1,7 @@
 {
   "name": "kirby-fest",
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "packageManager": "pnpm@8.6.12",
   "description": "A collection of TypeScript types for Kirby CMS",
   "author": "Johann Schopplich <pkg@johannschopplich.com>",
