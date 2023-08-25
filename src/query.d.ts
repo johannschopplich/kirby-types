@@ -11,7 +11,7 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "block"
   | CustomModel;
 
-type KirbyChainQuery =
+type KirbyQueryChain =
   // Allows for `site.title` but also `site.title.upper`, etc.
   | `${string}.${string}`
   // Allows for `page("id")<string>`, etc.
@@ -20,4 +20,4 @@ type KirbyChainQuery =
 export type KirbyQuery<CustomModel extends string = never> =
   | KirbyQueryModel<CustomModel>
   // Ensures that it must match the pattern exactly, but not more broadly
-  | (string extends KirbyChainQuery ? never : KirbyChainQuery);
+  | (string extends KirbyQueryChain ? never : KirbyQueryChain);
