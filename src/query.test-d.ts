@@ -10,8 +10,8 @@ expectAssignable<KirbyQuery>("user");
 expectAssignable<KirbyQuery>('collection("notes")');
 expectAssignable<KirbyQuery>('kirby.page("notes")');
 expectAssignable<KirbyQuery>('page("notes").children.listed');
-expectAssignable<KirbyQuery>("customModel");
-expectAssignable<KirbyQuery>("customModel.cover");
+expectAssignable<KirbyQuery<"customModel">>("customModel");
+expectAssignable<KirbyQuery<"customModel">>("customModel.cover");
 
 expectNotAssignable<KirbyQuery>("kirby(");
 expectNotAssignable<KirbyQuery>("kirby)");
