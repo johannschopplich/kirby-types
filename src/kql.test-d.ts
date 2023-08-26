@@ -10,9 +10,7 @@ interface KirbySite {
   }[];
 }
 
-/**
- * KQL Query Request
- */
+// --- KQL Query Request ---
 
 expectAssignable<KirbyQueryRequest>({
   query: "site",
@@ -45,6 +43,20 @@ expectAssignable<KirbyQueryRequest>({
   },
 });
 
+// Unsupported query model
+expectNotAssignable<KirbyQueryRequest>({
+  query: "site",
+  select: {
+    children: {
+      query: "some.children",
+      select: {
+        id: null,
+      },
+    },
+  },
+});
+
+// Invalid `id` argument
 expectNotAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
@@ -57,9 +69,7 @@ expectNotAssignable<KirbyQueryRequest>({
   },
 });
 
-/**
- * KQL Query Response
- */
+// --- KQL Query Response ---
 
 expectAssignable<KirbyQueryResponse<KirbySite>>({
   code: 200,

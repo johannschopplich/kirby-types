@@ -11,5 +11,6 @@ expectAssignable<KirbyQuery>(
 expectAssignable<KirbyQuery>('page.images.template("image")');
 expectAssignable<KirbyQuery<"customModel">>("customModel.cover");
 
+expectNotAssignable<KirbyQuery>("unknown"); // Not a valid model
 expectNotAssignable<KirbyQuery>('site("'); // Empty parentheses
 expectNotAssignable<KirbyQuery>('site("value"'); // Missing closing parenthesis
