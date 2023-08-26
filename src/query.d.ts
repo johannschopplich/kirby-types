@@ -11,7 +11,7 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "block"
   | CustomModel;
 
-// For simple dot-based queries like `site.title`, `page.image`, etc.
+// For simple dot-based queries like `site.title`, `page.images`, etc.
 type DotNotationQuery<M extends string = never> =
   `${KirbyQueryModel<M>}.${string}`;
 
