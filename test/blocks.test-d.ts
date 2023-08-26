@@ -1,5 +1,5 @@
 import { expectAssignable } from "tsd";
-import type { KirbyBlock } from "./blocks";
+import type { KirbyBlock } from "../src/blocks";
 
 expectAssignable<KirbyBlock<"text">>({
   content: { text: "Hello World" },

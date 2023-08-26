@@ -1,5 +1,5 @@
 import { expectAssignable, expectNotAssignable } from "tsd";
-import type { KirbyQueryRequest, KirbyQueryResponse } from "./kql";
+import type { KirbyQueryRequest, KirbyQueryResponse } from "../src/kql";
 
 interface KirbySite {
   title: string;

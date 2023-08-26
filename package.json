@@ -37,7 +37,7 @@
     "format": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --write",
     "format:check": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --check",
     "release": "bumpp --commit --push --tag",
-    "test": "tsd -f \"src/**/*.test-d.ts\""
+    "test": "tsd -f \"test/**/*.test-d.ts\""
   },
   "devDependencies": {
     "@nuxt/eslint-config": "^0.1.1",
