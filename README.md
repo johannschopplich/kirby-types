@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/kirby-types?color=a1b858&label=)](https://www.npmjs.com/package/kirby-types)
 
-A collection of TypeScript types to work with Kirby, mainly in the context of the Kirby Query Language.
+A collection of TypeScript types to work with [Kirby CMS](https://getkirby.com), mainly in the context of the Kirby Query Language.
 
 ## Setup
 
@@ -22,13 +22,19 @@ yarn add -D kirby-types
 ```ts
 import type { KirbyQuery } from "kirby-types";
 
-// Strictly typed query for the Kirby Query Language
-const query: KirbyQuery = 'kirby.page("about")';
+// Strictly typed query
+const query: KirbyQuery = 'page.children.filterBy("featured", true)';
+
+// Invalid queries will throw a type error
+let invalidQuery: KirbyQuery;
+invalidQuery = "unknown"; // Not a valid model
+invalidQuery = 'site("'; // Empty parentheses
+invalidQuery = 'site("value"'; // Missing closing parenthesis
 ```
 
 ## API
 
-Click the type names for complete docs.
+By clicking on a type name, you will be redirected to the corresponding TypeScript definition file.
 
 ### Query
 
@@ -37,8 +43,9 @@ Click the type names for complete docs.
 
 ### Blocks
 
-- [`KirbyBlockType`](./src/blocks.d.ts) - Matches any [Kirby block type](https://getkirby.com/docs/reference/panel/blocks).
 - [`KirbyBlock`](./src/blocks.d.ts) - Matches a [Kirby block](https://getkirby.com/docs/guide/page-builder).
+- [`KirbyDefaultBlockType`](./src/blocks.d.ts) - Matches any [Kirby default block type](https://getkirby.com/docs/reference/panel/blocks).
+- [`KirbyDefaultBlocks`](./src/blocks.d.ts) - Maps each of [Kirby's default block type](https://getkirby.com/docs/reference/panel/blocks) to its corresponding block content.
 
 ### Layout
 
