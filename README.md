@@ -1,6 +1,6 @@
-# kirby-fest
+# kirby-types
 
-[![NPM version](https://img.shields.io/npm/v/kirby-fest?color=a1b858&label=)](https://www.npmjs.com/package/kirby-fest)
+[![NPM version](https://img.shields.io/npm/v/kirby-types?color=a1b858&label=)](https://www.npmjs.com/package/kirby-types)
 
 A collection of TypeScript types to work with Kirby, mainly in the context of the Kirby Query Language.
 
@@ -8,16 +8,19 @@ A collection of TypeScript types to work with Kirby, mainly in the context of th
 
 ```bash
 # pnpm
-pnpm add -D kirby-fest
+pnpm add -D kirby-types
 
 # npm
-npm i -D kirby-fest
+npm i -D kirby-types
+
+# yarn
+yarn add -D kirby-types
 ```
 
 ## Basic Usage
 
 ```ts
-import type { KirbyQuery } from "kirby-fest";
+import type { KirbyQuery } from "kirby-types";
 
 // Strictly typed query for the Kirby Query Language
 const query: KirbyQuery = 'kirby.page("about")';
