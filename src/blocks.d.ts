@@ -21,7 +21,7 @@ export interface KirbyDefaultBlocks {
 
 export interface KirbyBlock<
   T extends string = keyof KirbyDefaultBlocks,
-  U extends Record<string, unknown> | undefined = undefined,
+  U extends Record<string, unknown> = Record<never, never>,
 > {
   content: U extends Record<string, unknown>
     ? U
