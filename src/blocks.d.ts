@@ -1,4 +1,4 @@
-export type KirbyDefaultBlocks = {
+export interface KirbyDefaultBlocks {
   code: { code: string; language: string };
   gallery: { images: string[] };
   heading: { level: string; text: string };
@@ -17,9 +17,7 @@ export type KirbyDefaultBlocks = {
   quote: { text: string; citation: string };
   text: { text: string };
   video: { url: string; caption: string };
-};
-
-export type KirbyDefaultBlockType = keyof KirbyDefaultBlocks;
+}
 
 export interface KirbyBlock<
   T extends string = keyof KirbyDefaultBlocks,
@@ -34,3 +32,5 @@ export interface KirbyBlock<
   isHidden: boolean;
   type: T;
 }
+
+export type KirbyDefaultBlockType = keyof KirbyDefaultBlocks;
