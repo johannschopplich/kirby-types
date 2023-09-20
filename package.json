@@ -2,7 +2,7 @@
   "name": "kirby-types",
   "type": "module",
   "version": "0.6.2",
-  "packageManager": "pnpm@8.7.5",
+  "packageManager": "pnpm@8.7.6",
   "description": "A collection of TypeScript types for the Kirby CMS",
   "author": "Johann Schopplich <pkg@johannschopplich.com>",
   "license": "MIT",
@@ -41,7 +41,7 @@
     "test": "tsd -f \"test/**/*.test-d.ts\""
   },
   "devDependencies": {
-    "@byjohann/eslint-config": "^0.1.3",
+    "@byjohann/eslint-config": "^0.2.2",
     "bumpp": "^9.2.0",
     "eslint": "^8.49.0",
     "prettier": "^3.0.3",
