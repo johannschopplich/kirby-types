@@ -25,17 +25,17 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "import": "./stub.js",
-      "require": "./stub.js"
+      "import": "./index.js",
+      "require": "./index.js"
     }
   },
-  "main": "./stub.js",
-  "module": "./stub.js",
+  "main": "./index.js",
+  "module": "./index.js",
   "types": "./index.d.ts",
   "files": [
     "src",
     "index.d.ts",
-    "stub.js"
+    "index.js"
   ],
   "scripts": {
     "lint": "eslint \"**/*.ts\" --ignore-path .gitignore",
