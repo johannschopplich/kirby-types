@@ -22,10 +22,20 @@
     "typescript"
   ],
   "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./stub.js",
+      "require": "./stub.js"
+    }
+  },
+  "main": "./stub.js",
+  "module": "./stub.js",
   "types": "./index.d.ts",
   "files": [
     "src",
-    "index.d.ts"
+    "index.d.ts",
+    "stub.js"
   ],
   "scripts": {
     "lint": "eslint \"**/*.ts\" --ignore-path .gitignore",
