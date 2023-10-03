@@ -22,11 +22,6 @@
     "typescript"
   ],
   "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./index.d.ts"
-    }
-  },
   "types": "./index.d.ts",
   "files": [
     "src",
