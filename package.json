@@ -24,18 +24,13 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "import": "./index.js",
-      "require": "./index.js"
+      "types": "./index.d.ts"
     }
   },
-  "main": "./index.js",
-  "module": "./index.js",
   "types": "./index.d.ts",
   "files": [
     "src",
-    "index.d.ts",
-    "index.js"
+    "index.d.ts"
   ],
   "scripts": {
     "lint": "eslint \"**/*.ts\" --ignore-path .gitignore",
