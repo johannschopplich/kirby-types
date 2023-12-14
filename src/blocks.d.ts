@@ -26,8 +26,8 @@ export interface KirbyBlock<
   content: U extends Record<string, unknown>
     ? U
     : T extends keyof KirbyDefaultBlocks
-    ? KirbyDefaultBlocks[T]
-    : Record<string, never>;
+      ? KirbyDefaultBlocks[T]
+      : Record<string, never>;
   id: string;
   isHidden: boolean;
   type: T;
