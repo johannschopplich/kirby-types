@@ -1,10 +1,11 @@
 export type KirbyQueryModel<CustomModel extends string = never> =
   | "collection"
-  | "file"
   | "kirby"
-  | "page"
   | "site"
+  | "page"
   | "user"
+  | "file"
+  | "content"
   | "item"
   | "arrayItem"
   | "structureItem"
