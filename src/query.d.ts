@@ -1,4 +1,3 @@
-// https://github.com/getkirby/kql/blob/4c8cdd88c076cdef5323efcd4f0fda38c0865eed/src/Kql/Kql.php#L73
 export type KirbyQueryModel<CustomModel extends string = never> =
   | "collection"
   | "file"
@@ -6,6 +5,7 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "page"
   | "site"
   | "user"
+  | "item"
   | "arrayItem"
   | "structureItem"
   | "block"
