@@ -26,9 +26,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install
-        run: pnpm install
-
       - name: Publish to npm
         run: npm publish --access public
         env:
