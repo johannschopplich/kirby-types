@@ -1,3 +1,4 @@
+import type { KirbyApiResponse } from "./api";
 import type { KirbyQuery } from "./query";
 
 export interface KirbyQuerySchema {
@@ -15,13 +16,11 @@ export interface KirbyQueryRequest extends KirbyQuerySchema {
   };
 }
 
-export interface KirbyQueryResponse<
+export type KirbyQueryResponse<
   T = any,
   Pagination extends boolean = false,
-> {
-  code: number;
-  status: string;
-  result?: Pagination extends true
+> = KirbyApiResponse<
+  Pagination extends true
     ? {
         data: T;
         pagination: {
@@ -32,5 +31,5 @@ export interface KirbyQueryResponse<
           total: number;
         };
       }
-    : T;
-}
+    : T
+>;

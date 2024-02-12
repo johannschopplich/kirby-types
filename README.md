@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/kirby-types?color=a1b858&label=)](https://www.npmjs.com/package/kirby-types)
 
-A collection of TypeScript types to work with [Kirby CMS](https://getkirby.com), mainly in the context of the Kirby Query Language.
+A collection of TypeScript types to work with [Kirby CMS](https://getkirby.com), mainly in the context of the Kirby Query Language and [headless Kirby usage](https://github.com/johannschopplich/kirby-headless).
 
 ## Setup
 
@@ -36,9 +36,13 @@ invalidQuery = 'site("value"'; // Missing closing parenthesis
 
 By clicking on a type name, you will be redirected to the corresponding TypeScript definition file.
 
+### API
+
+- [`KirbyApiResponse`](./src/api.d.ts) - Matches the response of a [Kirby API request](https://getkirby.com/docs/reference/api).
+
 ### Query
 
-- [`KirbyQueryModel`](./src/query.d.ts) - Matches any [supported KirbyQL model](https://github.com/getkirby/kql/blob/66abd20093e5656b0f7e6f51ee04f630ab38f2a3/src/Kql/Kql.php#L73).
+- [`KirbyQueryModel`](./src/query.d.ts) - Matches any supported KirbyQL model.
 - [`KirbyQuery`](./src/query.d.ts) - Matches a KirbyQL [`query`](https://getkirby.com/docs/guide/blueprints/query-language).
 
 ### Blocks
