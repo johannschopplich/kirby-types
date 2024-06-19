@@ -2,9 +2,9 @@
   "name": "kirby-types",
   "type": "module",
   "version": "0.7.0",
-  "packageManager": "pnpm@8.15.4",
+  "packageManager": "pnpm@9.4.0",
   "description": "A collection of TypeScript types for the Kirby CMS",
-  "author": "Johann Schopplich <pkg@johannschopplich.com>",
+  "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
   "homepage": "https://github.com/johannschopplich/kirby-types#readme",
   "repository": {
@@ -41,11 +41,11 @@
     "test": "tsd -f \"test/**/*.test-d.ts\""
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.8.1",
-    "bumpp": "^9.4.0",
-    "eslint": "^8.57.0",
-    "prettier": "^3.2.5",
-    "tsd": "^0.30.7",
-    "typescript": "^5.4.2"
+    "@antfu/eslint-config": "^2.21.1",
+    "bumpp": "^9.4.1",
+    "eslint": "^9.5.0",
+    "prettier": "^3.3.2",
+    "tsd": "^0.31.1",
+    "typescript": "^5.4.5"
   }
 }
