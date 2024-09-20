@@ -1,5 +1,5 @@
-import { expectAssignable, expectNotAssignable } from "tsd";
 import type { KirbyQuery } from "../src/query";
+import { expectAssignable, expectNotAssignable } from "tsd";
 
 expectAssignable<KirbyQuery>("site");
 expectAssignable<KirbyQuery>("site.title");
