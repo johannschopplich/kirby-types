@@ -102,7 +102,6 @@ expectAssignable<KirbyQuery>('page.filterBy("count", 100)');
 
 expectAssignable<KirbyQuery<"customModel">>("customModel");
 expectAssignable<KirbyQuery<"customModel">>("customModel.cover");
-// expectAssignable<KirbyQuery<"customModel">>('customModel("foo").cover'); // Known limitation
 
 // Union custom models
 expectAssignable<KirbyQuery<"product" | "category">>("product.price");
