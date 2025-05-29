@@ -1,7 +1,5 @@
 # kirby-types
 
-[![NPM version](https://img.shields.io/npm/v/kirby-types?color=a1b858&label=)](https://www.npmjs.com/package/kirby-types)
-
 A collection of TypeScript types to work with [Kirby CMS](https://getkirby.com), mainly in the context of the Kirby Query Language and [headless Kirby usage](https://github.com/johannschopplich/kirby-headless).
 
 ## Setup
