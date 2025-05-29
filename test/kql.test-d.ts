@@ -1,6 +1,10 @@
 import type { KirbyQueryRequest, KirbyQueryResponse } from "../src/kql";
 import { expectAssignable, expectNotAssignable } from "tsd";
 
+// =============================================================================
+// KQL TESTS
+// =============================================================================
+
 interface KirbySite {
   title: string;
   children: {
@@ -10,7 +14,7 @@ interface KirbySite {
   }[];
 }
 
-// --- KQL Query Request ---
+// --- 1. Basic Query Requests ---
 
 expectAssignable<KirbyQueryRequest>({
   query: "site",
@@ -18,6 +22,13 @@ expectAssignable<KirbyQueryRequest>({
     title: true,
   },
 });
+
+expectAssignable<KirbyQueryRequest>({
+  query: "page.children.listed",
+  select: ["id", "title", "slug", "content"],
+});
+
+// --- 2. Nested Query Requests ---
 
 expectAssignable<KirbyQueryRequest>({
   query: "site",
@@ -43,33 +54,29 @@ expectAssignable<KirbyQueryRequest>({
   },
 });
 
-// Unsupported query model
-expectNotAssignable<KirbyQueryRequest>({
-  query: "site",
+// --- 3. Pagination ---
+
+expectAssignable<KirbyQueryRequest>({
+  query: "site.children",
   select: {
-    children: {
-      query: "some.children",
-      select: {
-        id: null,
-      },
-    },
+    id: true,
+    title: true,
+  },
+  pagination: {
+    limit: 10,
+    page: 1,
   },
 });
 
-// Invalid `id` argument
-expectNotAssignable<KirbyQueryRequest>({
-  query: "site",
-  select: {
-    children: {
-      query: "site.children",
-      select: {
-        id: null,
-      },
-    },
+expectAssignable<KirbyQueryRequest>({
+  query: "page.children",
+  select: ["title", "slug"],
+  pagination: {
+    limit: 5,
   },
 });
 
-// --- KQL Query Response ---
+// --- 4. Query Response Tests ---
 
 expectAssignable<KirbyQueryResponse<KirbySite>>({
   code: 200,
@@ -83,5 +90,43 @@ expectAssignable<KirbyQueryResponse<KirbySite>>({
         isListed: true,
       },
     ],
+  },
+});
+
+// Error response
+expectAssignable<KirbyQueryResponse<never>>({
+  code: 404,
+  status: "Not Found",
+});
+
+// =============================================================================
+// NEGATIVE TESTS (INVALID KQL)
+// =============================================================================
+
+// --- 1. Invalid Query Models ---
+
+expectNotAssignable<KirbyQueryRequest>({
+  query: "site",
+  select: {
+    children: {
+      query: "some.children", // Invalid query model
+      select: {
+        id: true,
+      },
+    },
+  },
+});
+
+// --- 2. Invalid Select Values ---
+
+expectNotAssignable<KirbyQueryRequest>({
+  query: "site",
+  select: {
+    children: {
+      query: "site.children",
+      select: {
+        id: null, // null is not allowed
+      },
+    },
   },
 });

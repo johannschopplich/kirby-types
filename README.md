@@ -20,16 +20,39 @@ yarn add -D kirby-types
 ## Basic Usage
 
 ```ts
-import type { KirbyQuery } from "kirby-types";
+import type { KirbyQuery, ParseKirbyQuery } from "kirby-types";
 
 // Strictly typed query
 const query: KirbyQuery = 'page.children.filterBy("featured", true)';
 
-// Invalid queries will throw a type error
-let invalidQuery: KirbyQuery;
-invalidQuery = "unknown"; // Not a valid model
-invalidQuery = 'site("'; // Empty parentheses
-invalidQuery = 'site("value"'; // Missing closing parenthesis
+// Parse query strings into structured objects
+type BasicQuery = ParseKirbyQuery<"site">;
+// Result: { model: "site"; chain: [] }
+
+type DotNotationQuery = ParseKirbyQuery<"page.children.listed">;
+// Result: {
+//   model: "page";
+//   chain: [
+//     { type: "property"; name: "children" },
+//     { type: "property"; name: "listed" }
+//   ]
+// }
+
+type MethodQuery = ParseKirbyQuery<'site("home")'>;
+// Result: {
+//   model: "site";
+//   chain: [{ type: "method"; name: "site"; params: '"home"' }]
+// }
+
+type ComplexQuery =
+  ParseKirbyQuery<'page.children.filterBy("status", "published")'>;
+// Result: {
+//   model: "page";
+//   chain: [
+//     { type: "property"; name: "children" },
+//     { type: "method"; name: "filterBy"; params: '"status", "published"' }
+//   ]
+// }
 ```
 
 ## API
@@ -44,6 +67,7 @@ By clicking on a type name, you will be redirected to the corresponding TypeScri
 
 - [`KirbyQueryModel`](./src/query.d.ts) - Matches any supported KirbyQL model.
 - [`KirbyQuery`](./src/query.d.ts) - Matches a KirbyQL [`query`](https://getkirby.com/docs/guide/blueprints/query-language).
+- [`ParseKirbyQuery`](./src/query.d.ts) - Parses a KirbyQL query string into a structured object with model and chain information.
 
 ### Blocks
 

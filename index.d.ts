@@ -10,4 +10,9 @@ export type {
   KirbyQuerySchema,
 } from "./src/kql";
 export type { KirbyLayout, KirbyLayoutColumn } from "./src/layout";
-export type { KirbyQuery, KirbyQueryChain, KirbyQueryModel } from "./src/query";
+export type {
+  KirbyQuery,
+  KirbyQueryChain,
+  KirbyQueryModel,
+  ParseKirbyQuery,
+} from "./src/query";
