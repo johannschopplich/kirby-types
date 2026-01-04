@@ -2,9 +2,9 @@
 
 A collection of TypeScript types for [Kirby CMS](https://getkirby.com), covering:
 
-- **Backend API types** for headless Kirby usage and KQL
-- **Block and layout types** for page builder content
-- **Panel types** for Kirby Panel plugin development
+- 🪟 **Panel types** for Kirby Panel plugin development
+- 🔌 **Backend API types** for headless Kirby usage and KQL
+- 🧱 **Block and layout types** for page builder content
 
 ## Setup
 
@@ -21,24 +21,90 @@ yarn add -D kirby-types
 
 ## Features
 
+### Panel Types
+
+- **Panel API**: Complete API client method types.
+- **State Management**: State, Feature, and Modal hierarchies.
+- **Features**: Views, dialogs, drawers, notifications, uploads, and more.
+- **Helpers**: Array, string, object, URL, and other utility types.
+- **Libraries**: Color manipulation, dayjs, and autosize types.
+- **Writer**: ProseMirror-based rich text editor utilities.
+
 ### Backend Types
 
-- **API Response** - Type-safe API responses
-- **Blocks** - All 11 default block types with content structures
-- **Layouts** - Layout and column types with width unions
-- **KQL** - Query Language request/response types
-- **Query Parsing** - Parse query strings into structured objects at the type level
+- **API Response**: Type-safe API responses.
+- **Blocks**: All 11 default block types with content structures.
+- **Layouts**: Layout and column types with width unions.
+- **KQL**: Query Language request/response types.
+- **Query Parsing**: Parse query strings into structured objects at the type level.
+
+## Basic Usage
 
 ### Panel Types
 
-- **Panel API** - Complete API client method types
-- **State Management** - State, Feature, and Modal hierarchies
-- **Features** - Views, dialogs, drawers, notifications, uploads, and more
-- **Helpers** - Array, string, object, URL, and other utility types
-- **Libraries** - Color manipulation, dayjs, and autosize types
-- **Writer** - ProseMirror-based rich text editor utilities
+Type the global `window.panel` object for Panel plugin development:
 
-## Basic Usage
+```ts
+import type { Panel } from "kirby-types";
+
+// Augment the global Window interface
+declare global {
+  interface Window {
+    panel: Panel;
+  }
+}
+
+// Now window.panel is fully typed
+window.panel.notification.success("Page saved!");
+window.panel.dialog.open("pages/create");
+```
+
+Common Panel operations with full type safety:
+
+```ts
+// Notifications
+window.panel.notification.success("Changes saved");
+window.panel.notification.error("Something went wrong");
+
+// Theme
+window.panel.theme.set("dark");
+const currentTheme = window.panel.theme.current; // "light" | "dark"
+
+// Navigation
+await window.panel.view.open("/pages/blog");
+await window.panel.dialog.open("/dialogs/pages/create");
+
+// API calls
+const page = await window.panel.api.pages.read("blog");
+await window.panel.api.pages.update("blog", { title: "New Title" });
+
+// Content state
+const hasChanges = window.panel.content.hasChanges;
+await window.panel.content.save();
+
+// User info
+const user = window.panel.user;
+console.log(user.email, user.role);
+```
+
+### Writer Extensions
+
+For ProseMirror-based Writer extensions (requires optional ProseMirror peer dependencies):
+
+```ts
+import type { WriterMarkContext } from "kirby-types";
+
+// In a Writer mark extension
+class Bold {
+  commands({ type, utils }: WriterMarkContext) {
+    return () => utils.toggleMark(type);
+  }
+
+  inputRules({ type, utils }: WriterMarkContext) {
+    return [utils.markInputRule(/\*\*([^*]+)\*\*$/, type)];
+  }
+}
+```
 
 ### API Responses
 
@@ -92,40 +158,12 @@ const heroBlock: KirbyBlock<"hero", HeroContent> = {
     cta: "Learn more",
   },
 };
-
-// Check if a block type is a default type
-function isDefaultBlock(type: string): type is KirbyDefaultBlockType {
-  const defaults: KirbyDefaultBlockType[] = [
-    "code",
-    "gallery",
-    "heading",
-    "image",
-    "line",
-    "list",
-    "markdown",
-    "quote",
-    "table",
-    "text",
-    "video",
-  ];
-  return defaults.includes(type as KirbyDefaultBlockType);
-}
 ```
 
 ### Layouts
 
 ```ts
-import type {
-  KirbyLayout,
-  KirbyLayoutColumn,
-  KirbyLayoutColumnWidth,
-} from "kirby-types";
-
-const column: KirbyLayoutColumn = {
-  id: "col-abc123",
-  width: "1/2",
-  blocks: [],
-};
+import type { KirbyLayout, KirbyLayoutColumn } from "kirby-types";
 
 const layout: KirbyLayout = {
   id: "layout-xyz789",
@@ -135,17 +173,6 @@ const layout: KirbyLayout = {
     { id: "col-2", width: "2/3", blocks: [] },
   ],
 };
-
-// All valid column widths
-const validWidths: KirbyLayoutColumnWidth[] = [
-  "1/1",
-  "1/2",
-  "1/3",
-  "1/4",
-  "2/3",
-  "3/4",
-  // ... and many more fractions
-];
 ```
 
 ### KQL Queries
@@ -155,11 +182,7 @@ import type {
   KirbyQuery,
   KirbyQueryRequest,
   KirbyQueryResponse,
-  ParseKirbyQuery,
 } from "kirby-types";
-
-// Strictly typed query
-const query: KirbyQuery = 'page.children.filterBy("featured", true)';
 
 // KQL request with pagination
 const request: KirbyQueryRequest = {
@@ -167,33 +190,22 @@ const request: KirbyQueryRequest = {
   select: {
     title: "page.title",
     date: "page.date.toDate",
-    excerpt: "page.excerpt.kirbytext",
   },
-  pagination: {
-    limit: 10,
-    page: 1,
-  },
+  pagination: { limit: 10 },
 };
 
-// Typed response with pagination
+// Typed response
 interface BlogPost {
   title: string;
   date: string;
-  excerpt: string;
 }
 
 const response: KirbyQueryResponse<BlogPost[], true> = {
   code: 200,
   status: "ok",
   result: {
-    data: [{ title: "Post 1", date: "2024-01-01", excerpt: "..." }],
-    pagination: {
-      page: 1,
-      pages: 5,
-      offset: 0,
-      limit: 10,
-      total: 50,
-    },
+    data: [{ title: "Post 1", date: "2024-01-01" }],
+    pagination: { page: 1, pages: 5, offset: 0, limit: 10, total: 50 },
   },
 };
 ```
@@ -205,26 +217,7 @@ Parse query strings into structured objects at the type level:
 ```ts
 import type { ParseKirbyQuery } from "kirby-types";
 
-type BasicQuery = ParseKirbyQuery<"site">;
-// Result: { model: "site"; chain: [] }
-
-type DotNotationQuery = ParseKirbyQuery<"page.children.listed">;
-// Result: {
-//   model: "page";
-//   chain: [
-//     { type: "property"; name: "children" },
-//     { type: "property"; name: "listed" }
-//   ]
-// }
-
-type MethodQuery = ParseKirbyQuery<'site("home")'>;
-// Result: {
-//   model: "site";
-//   chain: [{ type: "method"; name: "site"; params: '"home"' }]
-// }
-
-type ComplexQuery =
-  ParseKirbyQuery<'page.children.filterBy("status", "published")'>;
+type Parsed = ParseKirbyQuery<'page.children.filterBy("status", "published")'>;
 // Result: {
 //   model: "page";
 //   chain: [
@@ -234,54 +227,28 @@ type ComplexQuery =
 // }
 ```
 
-### Panel Types
-
-For Panel plugin development:
-
-```ts
-import type { Panel, PanelApi, PanelHelpers } from "kirby-types";
-
-// Access the global panel object
-declare global {
-  interface Window {
-    panel: Panel;
-  }
-}
-
-// Use helper utilities in Vue components
-// this.$helper.string.slug("Hello World") -> "hello-world"
-// this.$helper.uuid() -> "550e8400-e29b-41d4-a716-446655440000"
-
-// Type-safe API calls
-async function createPage(
-  parent: string,
-  data: { title: string; slug: string },
-) {
-  const api: PanelApi = window.panel.api;
-  return api.pages.create(parent, data);
-}
-```
-
-### Writer Extensions
-
-For ProseMirror-based Writer extensions (requires optional ProseMirror peer dependencies):
-
-```ts
-import type { WriterMarkContext, WriterUtils } from "kirby-types";
-
-// In a Writer mark extension
-class Bold {
-  commands({ type, utils }: WriterMarkContext) {
-    return () => utils.toggleMark(type);
-  }
-
-  inputRules({ type, utils }: WriterMarkContext) {
-    return [utils.markInputRule(/\*\*([^*]+)\*\*$/, type)];
-  }
-}
-```
-
 ## API Reference
+
+### Panel
+
+| Type                                         | Description                         |
+| -------------------------------------------- | ----------------------------------- |
+| [`Panel`](./src/panel/index.d.ts)            | Main Panel interface                |
+| [`PanelApi`](./src/panel/api.d.ts)           | API client methods                  |
+| [`PanelState`](./src/panel/base.d.ts)        | Base state interface                |
+| [`PanelFeature`](./src/panel/base.d.ts)      | Feature with loading states         |
+| [`PanelModal`](./src/panel/base.d.ts)        | Modal (dialog/drawer) interface     |
+| [`PanelHelpers`](./src/panel/helpers.d.ts)   | Utility functions                   |
+| [`PanelLibrary`](./src/panel/libraries.d.ts) | Libraries (colors, dayjs, autosize) |
+
+### Writer
+
+| Type                                                | Description                        |
+| --------------------------------------------------- | ---------------------------------- |
+| [`WriterUtils`](./src/panel/writer.d.ts)            | ProseMirror commands and utilities |
+| [`WriterMarkContext`](./src/panel/writer.d.ts)      | Context for mark extensions        |
+| [`WriterNodeContext`](./src/panel/writer.d.ts)      | Context for node extensions        |
+| [`WriterExtensionContext`](./src/panel/writer.d.ts) | Context for generic extensions     |
 
 ### API
 
@@ -322,27 +289,6 @@ class Bold {
 | [`KirbyQueryModel<M>`](./src/query.d.ts) | Supported query models                |
 | [`KirbyQueryChain<M>`](./src/query.d.ts) | Query chain patterns                  |
 | [`ParseKirbyQuery<T>`](./src/query.d.ts) | Parse query string to structured type |
-
-### Panel
-
-| Type                                         | Description                         |
-| -------------------------------------------- | ----------------------------------- |
-| [`Panel`](./src/panel/index.d.ts)            | Main Panel interface                |
-| [`PanelApi`](./src/panel/api.d.ts)           | API client methods                  |
-| [`PanelState`](./src/panel/base.d.ts)        | Base state interface                |
-| [`PanelFeature`](./src/panel/base.d.ts)      | Feature with loading states         |
-| [`PanelModal`](./src/panel/base.d.ts)        | Modal (dialog/drawer) interface     |
-| [`PanelHelpers`](./src/panel/helpers.d.ts)   | Utility functions                   |
-| [`PanelLibrary`](./src/panel/libraries.d.ts) | Libraries (colors, dayjs, autosize) |
-
-### Writer
-
-| Type                                                | Description                        |
-| --------------------------------------------------- | ---------------------------------- |
-| [`WriterUtils`](./src/panel/writer.d.ts)            | ProseMirror commands and utilities |
-| [`WriterMarkContext`](./src/panel/writer.d.ts)      | Context for mark extensions        |
-| [`WriterNodeContext`](./src/panel/writer.d.ts)      | Context for node extensions        |
-| [`WriterExtensionContext`](./src/panel/writer.d.ts) | Context for generic extensions     |
 
 ## Optional Dependencies
 
