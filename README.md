@@ -87,25 +87,6 @@ const user = window.panel.user;
 console.log(user.email, user.role);
 ```
 
-### Writer Extensions
-
-For ProseMirror-based Writer extensions (requires optional ProseMirror peer dependencies):
-
-```ts
-import type { WriterMarkContext } from "kirby-types";
-
-// In a Writer mark extension
-class Bold {
-  commands({ type, utils }: WriterMarkContext) {
-    return () => utils.toggleMark(type);
-  }
-
-  inputRules({ type, utils }: WriterMarkContext) {
-    return [utils.markInputRule(/\*\*([^*]+)\*\*$/, type)];
-  }
-}
-```
-
 ### API Responses
 
 ```ts
@@ -225,6 +206,25 @@ type Parsed = ParseKirbyQuery<'page.children.filterBy("status", "published")'>;
 //     { type: "method"; name: "filterBy"; params: '"status", "published"' }
 //   ]
 // }
+```
+
+### Writer Extensions
+
+For ProseMirror-based Writer extensions (requires optional ProseMirror peer dependencies):
+
+```ts
+import type { WriterMarkContext } from "kirby-types";
+
+// In a Writer mark extension
+class Bold {
+  commands({ type, utils }: WriterMarkContext) {
+    return () => utils.toggleMark(type);
+  }
+
+  inputRules({ type, utils }: WriterMarkContext) {
+    return [utils.markInputRule(/\*\*([^*]+)\*\*$/, type)];
+  }
+}
 ```
 
 ## API Reference
