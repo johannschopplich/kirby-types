@@ -172,20 +172,20 @@ export type KirbyQuery<CustomModel extends string = never> =
  * @template M - Optional custom model names to include in validation
  */
 export type ParseKirbyQuery<T extends string, M extends string = never> =
-  // Case 1: Simple model name (e.g., "site", "page")
+  // Case 1: Simple model name (e.g., `site`, `page`)
   T extends KirbyQueryModel<M>
     ? { model: T; chain: [] }
-    : // Case 2: Dot notation (e.g., "page.children.listed")
+    : // Case 2: Dot notation (e.g., `page.children.listed`)
       T extends `${infer Model}.${infer Chain}`
       ? Model extends KirbyQueryModel<M>
         ? { model: Model; chain: ParseQueryChain<Chain> }
         : never
-      : // Case 3: Method call only (e.g., 'site("home")')
+      : // Case 3: Method call only (e.g., `site("home")`)
         T extends `${infer Model}(${infer Params})`
         ? Model extends KirbyQueryModel<M>
           ? { model: Model; chain: [ParseQuerySegment<T>] }
           : never
-        : // Case 4: Method call followed by chain (e.g., 'site("home").children')
+        : // Case 4: Method call followed by chain (e.g., `site("home").children`)
           T extends `${infer Model}(${infer Params})${infer Rest}`
           ? Model extends KirbyQueryModel<M>
             ? Rest extends `.${infer Chain}`

@@ -2,7 +2,7 @@
   "name": "kirby-types",
   "type": "module",
   "version": "1.0.0",
-  "packageManager": "pnpm@9.15.9",
+  "packageManager": "pnpm@10.27.0",
   "description": "A collection of TypeScript types for the Kirby CMS",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
@@ -16,6 +16,7 @@
     "getkirby",
     "kirby-cms",
     "kirby",
+    "kirby-panel",
     "kql",
     "query-language",
     "query",
@@ -41,12 +42,40 @@
     "release": "bumpp --commit --push --tag",
     "test": "tsd -f \"test/**/*.test-d.ts\""
   },
+  "peerDependencies": {
+    "prosemirror-commands": "^1.0.0",
+    "prosemirror-inputrules": "^1.0.0",
+    "prosemirror-model": "^1.0.0",
+    "prosemirror-schema-list": "^1.0.0",
+    "prosemirror-state": "^1.0.0",
+    "vue": "^2.7.0"
+  },
+  "peerDependenciesMeta": {
+    "prosemirror-commands": {
+      "optional": true
+    },
+    "prosemirror-inputrules": {
+      "optional": true
+    },
+    "prosemirror-model": {
+      "optional": true
+    },
+    "prosemirror-schema-list": {
+      "optional": true
+    },
+    "prosemirror-state": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.16.0",
-    "bumpp": "^9.11.1",
-    "eslint": "^9.27.0",
-    "prettier": "^3.5.3",
-    "tsd": "^0.32.0",
-    "typescript": "^5.8.3"
+    "@antfu/eslint-config": "^6.7.3",
+    "bumpp": "^10.3.2",
+    "eslint": "^9.39.2",
+    "prettier": "^3.7.4",
+    "tsd": "^0.33.0",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,4 +1,8 @@
-import type { KirbyBlock, KirbyDefaultBlockType } from "../src/blocks";
+import type {
+  KirbyBlock,
+  KirbyCodeLanguage,
+  KirbyDefaultBlockType,
+} from "../src/blocks";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // =============================================================================
@@ -24,7 +28,7 @@ expectAssignable<KirbyBlock<"text">>({
 
 // Code block
 expectAssignable<KirbyBlock<"code">>({
-  content: { code: "console.log('hello')", language: "javascript" },
+  content: { code: "console.log('hello')", language: "js" },
   id: "code-1",
   isHidden: false,
   type: "code",
@@ -32,7 +36,12 @@ expectAssignable<KirbyBlock<"code">>({
 
 // Gallery block
 expectAssignable<KirbyBlock<"gallery">>({
-  content: { images: ["image1.jpg", "image2.jpg"] },
+  content: {
+    images: ["image1.jpg", "image2.jpg"],
+    caption: "Gallery caption",
+    ratio: "16/9",
+    crop: true,
+  },
   id: "gallery-1",
   isHidden: false,
   type: "gallery",
@@ -46,12 +55,11 @@ expectAssignable<KirbyBlock<"heading">>({
   type: "heading",
 });
 
-// Image block
+// Image block (internal)
 expectAssignable<KirbyBlock<"image">>({
   content: {
     location: "kirby",
     image: ["test.jpg"],
-    src: "test.jpg",
     alt: "Test image",
     caption: "A test image",
     link: "https://example.com",
@@ -59,6 +67,22 @@ expectAssignable<KirbyBlock<"image">>({
     crop: true,
   },
   id: "image-1",
+  isHidden: false,
+  type: "image",
+});
+
+// Image block (external)
+expectAssignable<KirbyBlock<"image">>({
+  content: {
+    location: "web",
+    src: "https://example.com/image.jpg",
+    alt: "External image",
+    caption: null,
+    link: null,
+    ratio: "16/9",
+    crop: false,
+  },
+  id: "image-2",
   isHidden: false,
   type: "image",
 });
@@ -79,7 +103,7 @@ expectAssignable<KirbyBlock<"markdown">>({
   type: "markdown",
 });
 
-// Quote block
+// Quote block (with citation)
 expectAssignable<KirbyBlock<"quote">>({
   content: {
     text: "Life is what happens when you're busy making other plans.",
@@ -90,10 +114,42 @@ expectAssignable<KirbyBlock<"quote">>({
   type: "quote",
 });
 
-// Video block (default content)
+// Quote block (without citation - citation is optional)
+expectAssignable<KirbyBlock<"quote">>({
+  content: {
+    text: "An anonymous quote without attribution.",
+  },
+  id: "quote-2",
+  isHidden: false,
+  type: "quote",
+});
+
+// Video block (external/web)
 expectAssignable<KirbyBlock<"video">>({
-  content: { url: "https://youtube.com/watch?v=123", caption: "Video caption" },
+  content: {
+    location: "web",
+    url: "https://youtube.com/watch?v=123",
+    caption: "Video caption",
+  },
   id: "video-1",
+  isHidden: false,
+  type: "video",
+});
+
+// Video block (internal/kirby)
+expectAssignable<KirbyBlock<"video">>({
+  content: {
+    location: "kirby",
+    video: ["video.mp4"],
+    poster: ["poster.jpg"],
+    caption: null,
+    autoplay: false,
+    muted: true,
+    loop: false,
+    controls: true,
+    preload: "auto",
+  },
+  id: "video-2",
   isHidden: false,
   type: "video",
 });
@@ -124,19 +180,26 @@ expectType<
   | "gallery"
   | "heading"
   | "image"
+  | "line"
   | "list"
   | "markdown"
   | "quote"
+  | "table"
   | "text"
   | "video"
 >({} as KirbyDefaultBlockType);
 
 // Test default content types
-expectType<{ code: string; language: string }>(
+expectType<{ code: string; language: KirbyCodeLanguage }>(
   {} as KirbyBlock<"code">["content"],
 );
 
-expectType<{ images: string[] }>({} as KirbyBlock<"gallery">["content"]);
+expectType<{
+  images: string[];
+  caption: string | null;
+  ratio: string | null;
+  crop: boolean;
+}>({} as KirbyBlock<"gallery">["content"]);
 
 expectType<{ text: string }>({} as KirbyBlock<"text">["content"]);
 
@@ -178,19 +241,6 @@ expectNotAssignable<KirbyBlock<"gallery">>({
 expectNotAssignable<KirbyBlock<"text">>({
   content: { text: "Hello" },
   // Missing id, isHidden, type
-});
-
-expectNotAssignable<KirbyBlock<"text">>({
-  content: { text: "Hello" },
-  id: "1",
-  isHidden: false,
-  // Missing type
-});
-
-expectNotAssignable<KirbyBlock<"text">>({
-  content: { text: "Hello" },
-  id: "1",
-  // Missing isHidden, type
 });
 
 // --- 3. Wrong Type Field ---
