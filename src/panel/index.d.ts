@@ -249,6 +249,19 @@ export type {
 } from "./libraries";
 
 // =============================================================================
+// Re-exports from panel.writer.ts
+// =============================================================================
+
+export type {
+  // Writer Utilities
+  WriterUtils,
+  // Writer Contexts
+  WriterMarkContext,
+  WriterNodeContext,
+  WriterExtensionContext,
+} from "./writer";
+
+// =============================================================================
 // Panel App
 // =============================================================================
 
