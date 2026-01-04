@@ -1,7 +1,7 @@
 {
   "name": "kirby-types",
   "type": "module",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "packageManager": "pnpm@10.27.0",
   "description": "A collection of TypeScript types for the Kirby CMS",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
