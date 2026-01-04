@@ -3,7 +3,7 @@ import type {
   KirbyLayoutColumn,
   KirbyLayoutColumnWidth,
 } from "../src/layout";
-import { expectAssignable, expectNotAssignable, expectType } from "tsd";
+import { expectAssignable, expectNotAssignable } from "tsd";
 
 // =============================================================================
 // LAYOUT TYPE TESTS

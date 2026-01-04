@@ -1,17 +1,11 @@
 import type {
-  Panel,
   PanelConfig,
-  PanelPermissions,
-  PanelUser,
-  PanelUserDefaults,
   PanelNotification,
   PanelNotificationDefaults,
-  PanelView,
-  PanelDialog,
-  PanelDrawer,
+  PanelPermissions,
   PanelUploadFile,
-  PanelTheme,
-  PanelLanguage,
+  PanelUser,
+  PanelUserDefaults,
 } from "../src/panel";
 import { expectAssignable, expectType } from "tsd";
 
