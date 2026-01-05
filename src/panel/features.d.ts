@@ -429,12 +429,14 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   /**
    * Creates an error notification.
    * Opens error dialog in view context.
+   * May redirect to logout for auth errors.
    *
    * @param error - Error object, string, or Error instance
+   * @returns Notification state, or void if redirected
    */
   error: (
     error: Error | string | PanelErrorObject,
-  ) => PanelNotificationDefaults;
+  ) => PanelNotificationDefaults | void;
 
   /**
    * Creates a fatal error notification.
@@ -814,13 +816,10 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   /**
    * Opens a legacy Vue component dialog.
    *
+   * @param dialog - Vue component instance
    * @deprecated Since 4.0.0 - Use `open()` with component object instead
    */
-  openComponent: (dialog: {
-    component: string;
-    props?: Record<string, any>;
-    on?: PanelEventListenerMap;
-  }) => Promise<void>;
+  openComponent: (dialog: any) => Promise<PanelDialogDefaults>;
 }
 
 // -----------------------------------------------------------------------------
@@ -862,8 +861,9 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
    * Switches drawer tabs.
    *
    * @param tab - Tab name to switch to
+   * @returns False if no tabs exist, void otherwise
    */
-  tab: (tab: string) => void;
+  tab: (tab: string) => void | false;
 }
 
 // -----------------------------------------------------------------------------

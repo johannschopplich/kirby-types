@@ -796,8 +796,12 @@ export interface Panel {
    *
    * @param error - Error or message
    * @param openNotification - Whether to show notification (default: true)
+   * @returns Notification state if opened, void otherwise
    */
-  error: (error: Error | string, openNotification?: boolean) => void;
+  error: (
+    error: Error | string,
+    openNotification?: boolean,
+  ) => void | PanelFeatures.PanelNotificationDefaults;
 
   /**
    * Sends a GET request through the Panel router.
@@ -832,13 +836,6 @@ export interface Panel {
    * @returns Array of open overlay types
    */
   overlays: () => ("drawer" | "dialog")[];
-
-  /**
-   * Registers a plugin or plugin module.
-   *
-   * @param args - Plugin arguments
-   */
-  plugin: (...args: any[]) => void;
 
   /**
    * Sends a POST request through the Panel router.

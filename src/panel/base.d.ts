@@ -527,8 +527,9 @@ export interface PanelModal<
    * Reloads the modal by closing and reopening at the same URL.
    *
    * @param options - Request options
+   * @returns False if no path exists, otherwise void
    */
-  reload: (options?: PanelRequestOptions) => Promise<void>;
+  reload: (options?: PanelRequestOptions) => Promise<void | false>;
 
   /**
    * Sets modal state, auto-generating an ID if not provided.
