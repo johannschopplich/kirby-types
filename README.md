@@ -1,10 +1,15 @@
+<div align="center">
+  <img src="./.github/favicon.svg" alt="kirby-types logo" width="144">
+
 # kirby-types
 
-A collection of TypeScript types for [Kirby CMS](https://getkirby.com), covering:
+A collection of TypeScript types for [Kirby CMS](https://getkirby.com).
 
-- 🪟 **Panel types** for Kirby Panel plugin development
-- 🔌 **Backend API types** for headless Kirby usage and KQL
-- 🧱 **Block and layout types** for page builder content
+[🪟 Panel types](#panel-types) •
+[🔌 Backend API types](#backend-types) •
+[🧱 Block and layout types](#layouts)
+
+</div>
 
 ## Setup
 
@@ -21,7 +26,13 @@ yarn add -D kirby-types
 
 ## Features
 
-### Panel Types
+<table>
+<tr>
+<th>🪟 Panel Types</th>
+<th>🔌 Backend Types</th>
+</tr>
+<tr>
+<td>
 
 - **Panel API**: Complete API client method types.
 - **State Management**: State, Feature, and Modal hierarchies.
@@ -30,13 +41,18 @@ yarn add -D kirby-types
 - **Libraries**: Color manipulation, dayjs, and autosize types.
 - **Writer**: ProseMirror-based rich text editor utilities.
 
-### Backend Types
+</td>
+<td>
 
 - **API Response**: Type-safe API responses.
 - **Blocks**: All 11 default block types with content structures.
 - **Layouts**: Layout and column types with width unions.
 - **KQL**: Query Language request/response types.
 - **Query Parsing**: Parse query strings into structured objects at the type level.
+
+</td>
+</tr>
+</table>
 
 ## Basic Usage
 
