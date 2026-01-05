@@ -1,8 +1,23 @@
 import type {
+  Panel,
+  PanelApi,
   PanelConfig,
+  PanelContent,
+  PanelDialog,
+  PanelDialogDefaults,
+  PanelDrawer,
+  PanelEventListenerMap,
+  PanelFeature,
+  PanelFeatureDefaults,
+  PanelHistory,
+  PanelHistoryMilestone,
+  PanelModal,
+  PanelModalListeners,
   PanelNotification,
   PanelNotificationDefaults,
   PanelPermissions,
+  PanelSearchResult,
+  PanelSuccessResponse,
   PanelUploadFile,
   PanelUser,
   PanelUserDefaults,
@@ -10,10 +25,29 @@ import type {
 import { expectAssignable, expectType } from "tsd";
 
 // =============================================================================
-// PANEL TYPE TESTS
+// 1. CONFIGURATION
 // =============================================================================
 
-// --- 1. PanelUserDefaults ---
+expectAssignable<PanelConfig>({
+  api: { methodOverride: false },
+  debug: true,
+  kirbytext: true,
+  theme: "light",
+  translation: "en",
+  upload: 10485760,
+});
+
+expectType<boolean>({} as PanelPermissions["access"]["panel"]);
+expectType<boolean>({} as PanelPermissions["files"]["create"]);
+expectType<boolean>({} as PanelPermissions["languages"]["update"]);
+expectType<boolean>({} as PanelPermissions["pages"]["changeSlug"]);
+expectType<boolean>({} as PanelPermissions["site"]["update"]);
+expectType<boolean>({} as PanelPermissions["users"]["changeRole"]);
+expectType<boolean>({} as PanelPermissions["user"]["delete"]);
+
+// =============================================================================
+// 2. STATE DEFAULTS
+// =============================================================================
 
 expectAssignable<PanelUserDefaults>({
   email: "test@example.com",
@@ -30,8 +64,6 @@ expectAssignable<PanelUserDefaults>({
   role: null,
   username: null,
 });
-
-// --- 2. PanelNotificationDefaults ---
 
 expectAssignable<PanelNotificationDefaults>({
   context: null,
@@ -55,88 +87,6 @@ expectAssignable<PanelNotificationDefaults>({
   type: "error",
 });
 
-// --- 3. PanelConfig ---
-
-expectAssignable<PanelConfig>({
-  api: { methodOverride: false },
-  debug: true,
-  kirbytext: true,
-  theme: "light",
-  translation: "en",
-  upload: 10485760,
-});
-
-// --- 4. PanelPermissions (partial check) ---
-
-expectAssignable<PanelPermissions>({
-  access: {
-    account: true,
-    languages: true,
-    panel: true,
-    site: true,
-    system: false,
-    users: true,
-  },
-  files: {
-    access: true,
-    changeName: true,
-    changeTemplate: true,
-    create: true,
-    delete: true,
-    list: true,
-    read: true,
-    replace: true,
-    sort: true,
-    update: true,
-  },
-  languages: {
-    create: false,
-    delete: false,
-    update: false,
-  },
-  pages: {
-    access: true,
-    changeSlug: true,
-    changeStatus: true,
-    changeTemplate: true,
-    changeTitle: true,
-    create: true,
-    delete: true,
-    duplicate: true,
-    list: true,
-    move: true,
-    preview: true,
-    read: true,
-    sort: true,
-    update: true,
-  },
-  site: {
-    changeTitle: true,
-    update: true,
-  },
-  users: {
-    changeEmail: true,
-    changeLanguage: true,
-    changeName: true,
-    changePassword: true,
-    changeRole: false,
-    create: false,
-    delete: false,
-    update: true,
-  },
-  user: {
-    changeEmail: true,
-    changeLanguage: true,
-    changeName: true,
-    changePassword: true,
-    changeRole: false,
-    delete: false,
-    update: true,
-  },
-});
-
-// --- 5. PanelUploadFile ---
-
 expectAssignable<PanelUploadFile>({
   id: "upload-1",
   src: {} as File,
@@ -153,14 +103,133 @@ expectAssignable<PanelUploadFile>({
   model: null,
 });
 
-// --- 6. Type inference checks ---
+// =============================================================================
+// 3. PANEL STATE (base)
+// =============================================================================
 
-// PanelUser extends PanelState
+declare const userState: PanelUser;
+
+// Generic contract
+expectType<PanelUserDefaults>(userState.defaults());
+expectType<PanelUserDefaults>(userState.reset());
+expectType<PanelUserDefaults>(userState.set({ email: "new@test.com" }));
+expectType<PanelUserDefaults>(userState.state());
+expectType<string>(userState.key());
+expectType<boolean>(userState.validateState({}));
+
+// Property types
 expectType<string | null>({} as PanelUser["email"]);
 expectType<string | null>({} as PanelUser["id"]);
 expectType<string | null>({} as PanelUser["language"]);
 expectType<string | null>({} as PanelUser["role"]);
 expectType<string | null>({} as PanelUser["username"]);
 
-// PanelNotification has required methods
+// =============================================================================
+// 4. PANEL FEATURE (extends State)
+// =============================================================================
+
+declare const feature: PanelFeature<PanelFeatureDefaults>;
+
+// HTTP methods with union returns
+expectType<Promise<any | false>>(feature.get("/api/test"));
+expectType<Promise<any | false>>(feature.post({}));
+expectType<Promise<PanelFeatureDefaults>>(feature.load("/pages/home"));
+expectType<Promise<PanelFeatureDefaults>>(feature.open("/pages/home"));
+expectType<Promise<void | false>>(feature.reload());
+expectType<Promise<PanelFeatureDefaults | undefined>>(feature.refresh());
+expectType<URL>(feature.url());
+
+// Event listeners (mixin)
+expectType<void>(feature.addEventListener("load", () => {}));
+expectType<boolean>(feature.hasEventListener("load"));
+expectType<PanelEventListenerMap<string>>(feature.listeners());
+
+// =============================================================================
+// 5. PANEL HISTORY
+// =============================================================================
+
+declare const history: PanelHistory;
+
+expectType<PanelHistoryMilestone | undefined>(history.at(-1));
+expectType<PanelHistoryMilestone | undefined>(history.last());
+expectType<boolean>(history.has("id"));
+expectType<boolean>(history.isEmpty());
+expectType<number>(history.index("id"));
+expectType<PanelHistoryMilestone | undefined>(history.goto("id"));
+
+// =============================================================================
+// 6. PANEL MODAL (extends Feature)
+// =============================================================================
+
+declare const modal: PanelModal<PanelDialogDefaults>;
+
+// Lifecycle methods
+expectType<Promise<void>>(modal.cancel());
+expectType<Promise<PanelDialogDefaults | void>>(modal.close());
+expectType<Promise<any>>(modal.submit({}));
+expectType<void>(modal.goTo("milestone-id"));
+expectType<void>(modal.input({ field: "value" }));
+expectType<PanelModalListeners>(modal.listeners());
+
+// Success handling
+expectType<PanelSuccessResponse>(modal.success("Done"));
+expectType<PanelSuccessResponse>(
+  modal.success({ message: "Success", redirect: "/home" }),
+);
+expectType<false | void | Promise<void>>(
+  modal.successRedirect({ redirect: "/" }),
+);
+
+// =============================================================================
+// 7. DIALOG & DRAWER
+// =============================================================================
+
+declare const dialog: PanelDialog;
+expectType<Promise<PanelDialogDefaults>>(
+  dialog.open({ component: "k-remove-dialog", props: { text: "Delete?" } }),
+);
+
+expectType<void | false>({} as ReturnType<PanelDrawer["tab"]>);
+
+// =============================================================================
+// 8. PANEL NOTIFICATION & PANEL CONTENT
+// =============================================================================
+
+// Notifications
 expectType<() => PanelNotificationDefaults>({} as PanelNotification["close"]);
+expectType<PanelNotificationDefaults | void>(
+  {} as ReturnType<PanelNotification["error"]>,
+);
+
+// Content
+declare const content: PanelContent;
+expectType<boolean>(content.hasDiff());
+expectType<boolean>(content.isCurrent());
+expectType<boolean>(content.isLocked());
+expectType<Promise<void>>(content.save());
+expectType<Promise<void>>(content.publish());
+expectType<Promise<void>>(content.discard());
+
+// =============================================================================
+// 9. PANEL (top-level)
+// =============================================================================
+
+declare const panel: Panel;
+
+// Search overloads
+expectType<void>(panel.search("pages"));
+expectType<Promise<PanelSearchResult>>(panel.search("pages", "test"));
+
+// Error handling
+expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
+
+// API structure
+expectType<string>({} as PanelApi["csrf"]);
+expectType<string>({} as PanelApi["endpoint"]);
+expectAssignable<PanelApi["auth"]>({
+  login: async () => ({}),
+  logout: async () => {},
+  ping: async () => {},
+  user: async () => ({}),
+  verifyCode: async () => ({}),
+});
