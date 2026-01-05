@@ -215,6 +215,7 @@ export type {
   PanelDebounceOptions,
   PanelThrottleOptions,
   PanelDebouncedFunction,
+  PanelThrottledFunction,
   PanelSortOptions,
   PanelComparator,
   // Main Helpers Interface
@@ -236,11 +237,13 @@ export type {
   PanelLibraryColors,
   // Dayjs Types
   PanelDayjsISOFormat,
+  PanelDayjsRoundUnit,
+  PanelDayjsMergeUnit,
   PanelDayjsPatternPart,
   PanelDayjsPattern,
+  PanelDayjsExtensions,
   PanelDayjsInstance,
-  PanelDayjsInput,
-  PanelDayjsUnit,
+  PanelDayjsStaticExtensions,
   PanelLibraryDayjs,
   // Autosize
   PanelLibraryAutosize,

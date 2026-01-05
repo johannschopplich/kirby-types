@@ -13,12 +13,12 @@ import type {
   NotificationTheme,
   NotificationType,
   PanelEventCallback,
-  PanelEventListenerMap,
   PanelEventListeners,
   PanelFeature,
   PanelFeatureDefaults,
   PanelHistory,
   PanelModal,
+  PanelModalListeners,
   PanelRequestOptions,
   PanelState,
 } from "./base";
