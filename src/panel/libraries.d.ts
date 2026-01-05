@@ -129,7 +129,9 @@ export interface PanelLibraryColors {
    * @param string - CSS color string
    * @returns Parsed color or null if invalid
    */
-  parse: (string: string) => string | PanelColorRGB | PanelColorHSL | null;
+  parse: (
+    string: string,
+  ) => string | PanelColorRGB | PanelColorHSL | null | false;
 
   /**
    * Parses a color string and converts to target format.
@@ -178,11 +180,13 @@ export type PanelDayjsISOFormat = "date" | "time" | "datetime";
  * Pattern part information.
  */
 export interface PanelDayjsPatternPart {
-  /** Pattern token */
-  token: string;
-  /** Start position */
+  /** Part index in pattern */
+  index: number;
+  /** Unit type or undefined for separators */
+  unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
+  /** Start position in pattern string */
   start: number;
-  /** End position */
+  /** End position in pattern string */
   end: number;
 }
 
@@ -343,12 +347,12 @@ export interface PanelLibraryDayjs {
    * Tries multiple format variations automatically.
    *
    * @param input - Input string
-   * @param format - Expected format type
+   * @param format - Expected format type (default: `"date"`)
    * @returns Dayjs instance
    */
   interpret: (
     input: string,
-    format?: PanelDayjsISOFormat,
+    format?: "date" | "time",
   ) => PanelDayjsInstance | null;
 
   /**
@@ -358,7 +362,10 @@ export interface PanelLibraryDayjs {
    * @param format - ISO format type
    * @returns Dayjs instance
    */
-  iso: (value: string, format?: PanelDayjsISOFormat) => PanelDayjsInstance | null;
+  iso: (
+    value: string,
+    format?: PanelDayjsISOFormat,
+  ) => PanelDayjsInstance | null;
 
   /**
    * Creates a pattern analyzer.
