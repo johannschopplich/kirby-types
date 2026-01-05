@@ -5,9 +5,9 @@
 
 A collection of TypeScript types for [Kirby CMS](https://getkirby.com).
 
-[🪟 Panel types](#panel-types) •
-[🔌 Backend API types](#backend-types) •
-[🧱 Block and layout types](#layouts)
+[Panel types](#panel-types) •
+[Backend API types](#backend-types) •
+[Block and layout types](#layouts)
 
 </div>
 
