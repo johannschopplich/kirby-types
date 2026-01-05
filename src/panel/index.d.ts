@@ -881,30 +881,26 @@ export interface Panel {
   ) => Promise<PanelRequestResponse | false>;
 
   /**
-   * Opens the search dialog.
+   * Opens the search dialog or performs a search query.
    *
    * When called without a query, opens the search dialog
    * with the specified search type pre-selected.
-   *
-   * @param type - Search type ('pages', 'files', 'users')
-   */
-  search: (type: string) => void;
-
-  /**
-   * Performs a search query.
    *
    * When called with a query, performs the search and returns results.
    *
    * @param type - Search type ('pages', 'files', 'users')
    * @param query - Search query string
    * @param options - Search options (page, limit)
-   * @returns Search results
+   * @returns Search results when query provided, void otherwise
    */
-  search: (
-    type: string,
-    query: string,
-    options?: PanelFeatures.PanelSearchOptions,
-  ) => Promise<PanelFeatures.PanelSearchResult>;
+  search: {
+    (type: string): void;
+    (
+      type: string,
+      query: string,
+      options?: PanelFeatures.PanelSearchOptions,
+    ): Promise<PanelFeatures.PanelSearchResult>;
+  };
 
   /**
    * Sets global Panel state.

@@ -359,8 +359,9 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Reloads the feature by re-opening its current URL.
    *
    * @param options - Request options
+   * @returns False if no path exists, otherwise void
    */
-  reload: (options?: PanelRequestOptions) => Promise<void>;
+  reload: (options?: PanelRequestOptions) => Promise<void | false>;
 
   /**
    * Creates a full URL object for the current path and query.
