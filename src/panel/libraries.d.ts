@@ -8,7 +8,7 @@
  * @since 4.0.0
  */
 
-import type { ConfigType, Dayjs, OpUnitType } from "dayjs";
+import type { ConfigType, Dayjs, OpUnitType, PluginFunc } from "dayjs";
 
 // -----------------------------------------------------------------------------
 // Color Types
@@ -375,11 +375,7 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
 
   /** Extends dayjs with a plugin */
   extend: <T = unknown>(
-    plugin: (
-      option: T,
-      dayjsClass: typeof Dayjs,
-      dayjsFactory: typeof import("dayjs"),
-    ) => void,
+    plugin: PluginFunc<T>,
     option?: T,
   ) => typeof import("dayjs");
 
