@@ -166,7 +166,7 @@ export interface KirbyDefaultBlocks {
    * Table block for tabular data.
    * Content structure is dynamic based on rows/columns.
    */
-  table: Record<string, unknown>;
+  table: Record<string, any>;
 
   /**
    * Rich text block (WYSIWYG editor).
@@ -242,13 +242,13 @@ export interface KirbyDefaultBlocks {
  */
 export interface KirbyBlock<
   T extends string = keyof KirbyDefaultBlocks,
-  U extends Record<string, unknown> | undefined = undefined,
+  U extends Record<string, any> | undefined = undefined,
 > {
   /**
    * The block's content fields.
    * Structure depends on the block type or custom content definition.
    */
-  content: U extends Record<string, unknown>
+  content: U extends Record<string, any>
     ? U
     : T extends keyof KirbyDefaultBlocks
       ? KirbyDefaultBlocks[T]

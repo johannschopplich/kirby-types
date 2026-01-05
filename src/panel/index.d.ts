@@ -474,25 +474,25 @@ export interface PanelUrls {
 /**
  * Third-party plugin data.
  */
-export type PanelPluginsThirdParty = Record<string, unknown>;
+export type PanelPluginsThirdParty = Record<string, any>;
 
 /**
  * Custom view button definitions.
  */
 export type PanelPluginsViewButtons = Record<
   string,
-  ComponentPublicInstance | Record<string, unknown>
+  ComponentPublicInstance | Record<string, any>
 >;
 
 /**
  * Custom writer node definitions.
  */
-export type PanelPluginsWriterNodes = Record<string, Record<string, unknown>>;
+export type PanelPluginsWriterNodes = Record<string, Record<string, any>>;
 
 /**
  * Custom view definitions.
  */
-export type PanelPluginsViews = Record<string, Record<string, unknown>>;
+export type PanelPluginsViews = Record<string, Record<string, any>>;
 
 /**
  * Panel plugin system.
@@ -508,18 +508,18 @@ export interface PanelPlugins {
   resolveComponentExtension: (
     name: string,
     extension: string,
-    fallback?: unknown,
-  ) => unknown;
+    fallback?: any,
+  ) => any;
 
   /**
    * Resolves all mixins for a component.
    */
-  resolveComponentMixins: (name: string) => unknown[];
+  resolveComponentMixins: (name: string) => any[];
 
   /**
    * Resolves the render function for a component.
    */
-  resolveComponentRender: (name: string) => unknown;
+  resolveComponentRender: (name: string) => any;
 
   /** Registered Vue components */
   components: Record<string, ComponentPublicInstance>;
@@ -534,7 +534,7 @@ export interface PanelPlugins {
   login: ComponentPublicInstance | null;
 
   /** Custom textarea buttons */
-  textareaButtons: Record<string, Record<string, unknown>>;
+  textareaButtons: Record<string, Record<string, any>>;
 
   /** Third-party plugin data */
   thirdParty: PanelPluginsThirdParty;
@@ -542,19 +542,19 @@ export interface PanelPlugins {
   /**
    * Registers plugins with the Panel.
    */
-  use: (plugins: Record<string, unknown>) => unknown[];
+  use: (plugins: Record<string, any>) => any[];
 
   /** Custom view buttons */
   viewButtons: PanelPluginsViewButtons;
 
   /** Custom writer marks */
-  writerMarks: Record<string, Record<string, unknown>>;
+  writerMarks: Record<string, Record<string, any>>;
 
   /** Custom writer nodes */
   writerNodes: PanelPluginsWriterNodes;
 
   /** Custom routes */
-  routes: Array<Record<string, unknown>>;
+  routes: Array<Record<string, any>>;
 
   /** Custom views */
   views: PanelPluginsViews;
@@ -589,7 +589,7 @@ export interface PanelLanguageInfo {
  */
 export interface PanelGlobalState {
   activation: PanelFeatures.PanelActivationDefaults;
-  content: Record<string, unknown>;
+  content: Record<string, any>;
   dialog: PanelFeatures.PanelDialogDefaults;
   drag: PanelFeatures.PanelDragDefaults;
   drawer: PanelFeatures.PanelDrawerDefaults;
@@ -761,7 +761,7 @@ export interface Panel {
    * @param plugins - Optional plugins to register
    * @returns The Panel instance
    */
-  create: (plugins?: Record<string, unknown>) => Panel;
+  create: (plugins?: Record<string, any>) => Panel;
 
   /**
    * Logs a deprecation warning.
@@ -785,7 +785,7 @@ export interface Panel {
    * @param options - Request options
    * @returns Response data
    */
-  get: (url: string | URL, options?: PanelRequestOptions) => Promise<unknown>;
+  get: (url: string | URL, options?: PanelRequestOptions) => Promise<any>;
 
   /**
    * Opens a URL through the Panel router.
@@ -807,7 +807,7 @@ export interface Panel {
    *
    * @param args - Plugin arguments
    */
-  plugin: (...args: unknown[]) => void;
+  plugin: (...args: any[]) => void;
 
   /**
    * Sends a POST request through the Panel router.
@@ -819,9 +819,9 @@ export interface Panel {
    */
   post: (
     url: string | URL,
-    data?: unknown,
+    data?: any,
     options?: PanelRequestOptions,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Navigates to a different Panel path.
@@ -861,7 +861,7 @@ export interface Panel {
     type: string,
     query: string,
     options?: PanelRequestOptions,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Sets global Panel state.
@@ -884,7 +884,7 @@ export interface Panel {
    * @param args - Replacement values
    * @returns Translated string
    */
-  t: (key: string, ...args: unknown[]) => string;
+  t: (key: string, ...args: any[]) => string;
 
   /**
    * Creates a URL object for a Panel path.
@@ -894,7 +894,7 @@ export interface Panel {
    * @param origin - Base origin
    * @returns URL object
    */
-  url: (path?: string, query?: Record<string, unknown>, origin?: string) => URL;
+  url: (path?: string, query?: Record<string, any>, origin?: string) => URL;
 }
 
 // =============================================================================
@@ -943,8 +943,8 @@ export interface PanelViewPropsPermissions {
  * Version information.
  */
 export interface PanelViewPropsVersions {
-  latest: Record<string, unknown>;
-  changes: Record<string, unknown>;
+  latest: Record<string, any>;
+  changes: Record<string, any>;
 }
 
 /**
@@ -953,7 +953,7 @@ export interface PanelViewPropsVersions {
 export interface PanelViewPropsTab {
   label: string;
   icon: string;
-  columns: Array<Record<string, unknown>>;
+  columns: Array<Record<string, any>>;
   link: string;
   name: string;
 }
@@ -1009,7 +1009,7 @@ export interface PanelViewProps {
   link: string;
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
-  tabs: Array<Record<string, unknown>>;
+  tabs: Array<Record<string, any>>;
   uuid: string;
   versions: PanelViewPropsVersions;
   tab: PanelViewPropsTab;

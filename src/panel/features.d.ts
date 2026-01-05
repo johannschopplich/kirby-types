@@ -99,7 +99,7 @@ export interface PanelDragDefaults {
   /** Type of item being dragged */
   type: string | null;
   /** Data associated with the dragged item */
-  data: Record<string, unknown>;
+  data: Record<string, any>;
 }
 
 /**
@@ -112,7 +112,7 @@ export interface PanelDrag extends PanelState<PanelDragDefaults> {
   /** Type of item being dragged */
   type: string | null;
   /** Data associated with the dragged item */
-  data: Record<string, unknown>;
+  data: Record<string, any>;
 
   /** Whether a drag operation is in progress */
   readonly isDragging: boolean;
@@ -123,7 +123,7 @@ export interface PanelDrag extends PanelState<PanelDragDefaults> {
    * @param type - Drag item type (e.g., `'page'`, `'file'`)
    * @param data - Associated data
    */
-  start: (type: string, data: Record<string, unknown>) => void;
+  start: (type: string, data: Record<string, any>) => void;
 
   /**
    * Stops the current drag operation and resets state.
@@ -334,7 +334,7 @@ export interface PanelNotificationDefaults {
   /** Context where notification appears */
   context: NotificationContext | null;
   /** Additional details (for error dialogs) */
-  details: Record<string, unknown> | null;
+  details: Record<string, any> | null;
   /** Icon name */
   icon: string | null;
   /** Whether notification is visible */
@@ -356,7 +356,7 @@ export interface PanelNotificationOptions {
   /** Context where notification appears */
   context?: NotificationContext;
   /** Additional details */
-  details?: Record<string, unknown>;
+  details?: Record<string, any>;
   /** Icon name */
   icon?: string;
   /** Notification message */
@@ -376,7 +376,7 @@ export interface PanelErrorObject {
   /** Error message */
   message: string;
   /** Additional error details */
-  details?: Record<string, unknown>;
+  details?: Record<string, any>;
   /** Error key for special handling */
   key?: string;
 }
@@ -394,7 +394,7 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   /** Context where notification appears */
   context: NotificationContext | null;
   /** Additional details (for error dialogs) */
-  details: Record<string, unknown> | null;
+  details: Record<string, any> | null;
   /** Icon name */
   icon: string | null;
   /** Whether notification is visible */
@@ -571,7 +571,7 @@ export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
    */
   translate: (
     key: string,
-    data?: Record<string, unknown>,
+    data?: Record<string, any>,
     fallback?: string | null,
   ) => string | undefined;
 }
@@ -716,7 +716,7 @@ export interface PanelDropdownOption {
   /** Whether option is disabled */
   disabled?: boolean;
   /** Additional properties */
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 /**
@@ -776,7 +776,7 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
   /** Whether using legacy Vue component */
   legacy: boolean;
   /** Reference to legacy component */
-  ref: unknown;
+  ref: any;
 }
 
 /**
@@ -791,7 +791,7 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   /** Whether using legacy Vue component */
   legacy: boolean;
   /** Reference to legacy component */
-  ref: unknown;
+  ref: any;
 
   /**
    * Closes the dialog, handling legacy components.
@@ -806,7 +806,7 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
       | string
       | URL
       | Partial<PanelDialogDefaults>
-      | { component: string; props?: Record<string, unknown> },
+      | { component: string; props?: Record<string, any> },
     options?: PanelRequestOptions | PanelEventCallback,
   ) => Promise<PanelDialogDefaults>;
 
@@ -816,7 +816,7 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
    */
   openComponent: (dialog: {
     component: string;
-    props?: Record<string, unknown>;
+    props?: Record<string, any>;
     on?: PanelEventListenerMap;
   }) => Promise<void>;
 }
@@ -872,7 +872,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
  * Content version representing saved or changed state.
  */
 export interface PanelContentVersion {
-  [field: string]: unknown;
+  [field: string]: any;
 }
 
 /**
@@ -930,7 +930,7 @@ export interface PanelContent {
 
   /** Throttled save function (1000ms) */
   saveLazy: ((
-    values?: Record<string, unknown>,
+    values?: Record<string, any>,
     env?: PanelContentEnv,
   ) => Promise<void>) & { cancel: () => void };
 
@@ -945,7 +945,7 @@ export interface PanelContent {
    * @param env - Environment context
    * @throws Error if called for another view
    */
-  diff: (env?: PanelContentEnv) => Record<string, unknown>;
+  diff: (env?: PanelContentEnv) => Record<string, any>;
 
   /**
    * Discards all unpublished changes.
@@ -964,7 +964,7 @@ export interface PanelContent {
    */
   emit: (
     event: string,
-    options?: Record<string, unknown>,
+    options?: Record<string, any>,
     env?: PanelContentEnv,
   ) => void;
 
@@ -1019,9 +1019,9 @@ export interface PanelContent {
    * @throws Error if called for another view
    */
   merge: (
-    values?: Record<string, unknown>,
+    values?: Record<string, any>,
     env?: PanelContentEnv,
-  ) => Record<string, unknown>;
+  ) => Record<string, any>;
 
   /**
    * Publishes current changes.
@@ -1031,7 +1031,7 @@ export interface PanelContent {
    * @throws Error if called for another view
    */
   publish: (
-    values?: Record<string, unknown>,
+    values?: Record<string, any>,
     env?: PanelContentEnv,
   ) => Promise<void>;
 
@@ -1044,9 +1044,9 @@ export interface PanelContent {
    */
   request: (
     method?: "save" | "publish" | "discard",
-    values?: Record<string, unknown>,
+    values?: Record<string, any>,
     env?: PanelContentEnv,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Saves current changes.
@@ -1054,10 +1054,7 @@ export interface PanelContent {
    * @param values - Values to save
    * @param env - Environment context
    */
-  save: (
-    values?: Record<string, unknown>,
-    env?: PanelContentEnv,
-  ) => Promise<void>;
+  save: (values?: Record<string, any>, env?: PanelContentEnv) => Promise<void>;
 
   /**
    * Updates form values and saves.
@@ -1066,7 +1063,7 @@ export interface PanelContent {
    * @param env - Environment context
    */
   update: (
-    values?: Record<string, unknown>,
+    values?: Record<string, any>,
     env?: PanelContentEnv,
   ) => Promise<void>;
 
@@ -1076,7 +1073,7 @@ export interface PanelContent {
    * @param values - Values to update
    * @param env - Environment context
    */
-  updateLazy: (values?: Record<string, unknown>, env?: PanelContentEnv) => void;
+  updateLazy: (values?: Record<string, any>, env?: PanelContentEnv) => void;
 
   /**
    * Returns a specific version of content.
@@ -1119,7 +1116,7 @@ export interface PanelSearchOptions {
  */
 export interface PanelSearchResult {
   /** Result list (null if query too short) */
-  results: unknown[] | null;
+  results: any[] | null;
   /** Pagination info */
   pagination: PanelSearchPagination;
 }
@@ -1199,7 +1196,7 @@ export interface PanelUploadFile {
   /** Error message if failed */
   error: string | null;
   /** Response model after successful upload */
-  model: unknown | null;
+  model: any | null;
 }
 
 /**
@@ -1211,7 +1208,7 @@ export interface PanelUploadDefaults {
   /** Accepted file types */
   accept: string;
   /** Additional file attributes */
-  attributes: Record<string, unknown>;
+  attributes: Record<string, any>;
   /** Files to upload */
   files: PanelUploadFile[];
   /** Maximum number of files */
@@ -1219,7 +1216,7 @@ export interface PanelUploadDefaults {
   /** Whether multiple files allowed */
   multiple: boolean;
   /** File preview data */
-  preview: Record<string, unknown>;
+  preview: Record<string, any>;
   /** File being replaced */
   replacing: PanelUploadFile | null;
   /** Upload endpoint URL */
@@ -1242,7 +1239,7 @@ export interface PanelUpload
   /** Accepted file types */
   accept: string;
   /** Additional file attributes */
-  attributes: Record<string, unknown>;
+  attributes: Record<string, any>;
   /** Files to upload */
   files: PanelUploadFile[];
   /** Maximum number of files */
@@ -1250,7 +1247,7 @@ export interface PanelUpload
   /** Whether multiple files allowed */
   multiple: boolean;
   /** File preview data */
-  preview: Record<string, unknown>;
+  preview: Record<string, any>;
   /** File being replaced */
   replacing: PanelUploadFile | null;
   /** Upload endpoint URL */
@@ -1363,7 +1360,7 @@ export interface PanelUpload
    */
   upload: (
     file: PanelUploadFile,
-    attributes?: Record<string, unknown>,
+    attributes?: Record<string, any>,
   ) => Promise<void>;
 }
 
@@ -1380,9 +1377,9 @@ export type PanelKeychain = string;
  * Event emitter interface (mitt-compatible).
  */
 export interface PanelEventEmitter {
-  emit: (event: string, ...args: unknown[]) => void;
-  on: (event: string, handler: (...args: unknown[]) => void) => void;
-  off: (event: string, handler?: (...args: unknown[]) => void) => void;
+  emit: (event: string, ...args: any[]) => void;
+  on: (event: string, handler: (...args: any[]) => void) => void;
+  off: (event: string, handler?: (...args: any[]) => void) => void;
 }
 
 /**

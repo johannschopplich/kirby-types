@@ -62,7 +62,7 @@ export interface WriterUtils {
    * @param type - The mark type to get attributes for
    * @returns The mark attributes or an empty object
    */
-  getMarkAttrs: (state: EditorState, type: MarkType) => Record<string, unknown>;
+  getMarkAttrs: (state: EditorState, type: MarkType) => Record<string, any>;
 
   /**
    * Gets the attributes of the active node of the given type.
@@ -70,7 +70,7 @@ export interface WriterUtils {
    * @param type - The node type to get attributes for
    * @returns The node attributes or an empty object
    */
-  getNodeAttrs: (state: EditorState, type: NodeType) => Record<string, unknown>;
+  getNodeAttrs: (state: EditorState, type: NodeType) => Record<string, any>;
 
   /**
    * Creates a command that inserts a node of the given type.
@@ -78,7 +78,7 @@ export interface WriterUtils {
    * @param attrs - Optional attributes for the node
    * @returns A ProseMirror command
    */
-  insertNode: (type: NodeType, attrs?: Record<string, unknown>) => Command;
+  insertNode: (type: NodeType, attrs?: Record<string, any>) => Command;
 
   /**
    * Creates an input rule that applies a mark when the pattern matches.
@@ -90,7 +90,7 @@ export interface WriterUtils {
   markInputRule: (
     regexp: RegExp,
     type: MarkType,
-    getAttrs?: (match: RegExpMatchArray) => Record<string, unknown>,
+    getAttrs?: (match: RegExpMatchArray) => Record<string, any>,
   ) => InputRule;
 
   /**
@@ -111,7 +111,7 @@ export interface WriterUtils {
   markPasteRule: (
     regexp: RegExp,
     type: MarkType,
-    getAttrs?: (match: string) => Record<string, unknown>,
+    getAttrs?: (match: string) => Record<string, any>,
   ) => Plugin;
 
   /**
@@ -133,7 +133,7 @@ export interface WriterUtils {
   nodeInputRule: (
     regexp: RegExp,
     type: NodeType,
-    getAttrs?: (match: RegExpMatchArray) => Record<string, unknown>,
+    getAttrs?: (match: RegExpMatchArray) => Record<string, any>,
   ) => InputRule;
 
   /**
@@ -146,7 +146,7 @@ export interface WriterUtils {
   nodeIsActive: (
     state: EditorState,
     type: NodeType,
-    attrs?: Record<string, unknown>,
+    attrs?: Record<string, any>,
   ) => boolean;
 
   /**
@@ -159,7 +159,7 @@ export interface WriterUtils {
   pasteRule: (
     regexp: RegExp,
     type: MarkType,
-    getAttrs?: (url: string) => Record<string, unknown>,
+    getAttrs?: (url: string) => Record<string, any>,
   ) => Plugin;
 
   /**
@@ -179,7 +179,7 @@ export interface WriterUtils {
   toggleBlockType: (
     type: NodeType,
     toggleType: NodeType,
-    attrs?: Record<string, unknown>,
+    attrs?: Record<string, any>,
   ) => Command;
 
   /**
@@ -203,7 +203,7 @@ export interface WriterUtils {
    * @param attrs - The new attributes
    * @returns A ProseMirror command
    */
-  updateMark: (type: MarkType, attrs: Record<string, unknown>) => Command;
+  updateMark: (type: MarkType, attrs: Record<string, any>) => Command;
 }
 
 /**

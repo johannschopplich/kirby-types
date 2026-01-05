@@ -371,9 +371,9 @@ export interface PanelLibraryDayjs {
   pattern: (pattern: string) => PanelDayjsPattern;
 
   // Standard dayjs static methods
-  extend: (plugin: unknown) => void;
+  extend: (plugin: any) => void;
   locale: (locale?: string) => string;
-  isDayjs: (value: unknown) => value is PanelDayjsInstance;
+  isDayjs: (value: any) => value is PanelDayjsInstance;
 }
 
 // -----------------------------------------------------------------------------

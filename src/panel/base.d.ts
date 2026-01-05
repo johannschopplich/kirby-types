@@ -30,9 +30,7 @@
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/state.js
  */
-export interface PanelState<
-  TDefaults extends object = Record<string, unknown>,
-> {
+export interface PanelState<TDefaults extends object = Record<string, any>> {
   /**
    * Returns the state key identifier.
    * Used by backend responses to target the correct state object.
@@ -70,7 +68,7 @@ export interface PanelState<
    * Validates that the state is a plain object.
    * @throws Error if state is not an object
    */
-  validateState: (state: unknown) => boolean;
+  validateState: (state: any) => boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -84,11 +82,11 @@ export interface PanelState<
  */
 export interface PanelStateBase {
   key: () => string;
-  defaults: () => Record<string, unknown>;
-  reset: () => Record<string, unknown>;
-  set: (state: Record<string, unknown>) => Record<string, unknown>;
-  state: () => Record<string, unknown>;
-  validateState: (state: unknown) => boolean;
+  defaults: () => Record<string, any>;
+  reset: () => Record<string, any>;
+  set: (state: Record<string, any>) => Record<string, any>;
+  state: () => Record<string, any>;
+  validateState: (state: any) => boolean;
 }
 
 /**
@@ -100,8 +98,8 @@ export interface PanelFeatureBase extends PanelStateBase, PanelEventListeners {
   component: string | null;
   isLoading: boolean;
   path: string | null;
-  props: Record<string, unknown>;
-  query: Record<string, unknown>;
+  props: Record<string, any>;
+  query: Record<string, any>;
   referrer: string | null;
   timestamp: number | null;
 }
@@ -131,9 +129,7 @@ export interface PanelHistoryBase {
 /**
  * Event callback function type.
  */
-export type PanelEventCallback<TReturn = unknown> = (
-  ...args: unknown[]
-) => TReturn;
+export type PanelEventCallback<TReturn = any> = (...args: any[]) => TReturn;
 
 /**
  * Map of event names to their callback functions.
@@ -193,9 +189,9 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * @param args - Arguments to pass to the listener
    * @returns Listener result, or a noop function if no listener exists
    */
-  emit: <TReturn = unknown>(
+  emit: <TReturn = any>(
     event: TEvents,
-    ...args: unknown[]
+    ...args: any[]
   ) => TReturn | (() => void);
 
   /**
@@ -225,8 +221,8 @@ export interface PanelFeatureDefaults {
   isLoading: boolean;
   on: PanelEventListenerMap;
   path: string | null;
-  props: Record<string, unknown>;
-  query: Record<string, unknown>;
+  props: Record<string, any>;
+  query: Record<string, any>;
   referrer: string | null;
   timestamp: number | null;
 }
@@ -283,12 +279,12 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Props passed to the Vue component.
    * Contains all data from the backend response.
    */
-  props: Record<string, unknown>;
+  props: Record<string, any>;
 
   /**
    * URL query parameters from the latest request.
    */
-  query: Record<string, unknown>;
+  query: Record<string, any>;
 
   /**
    * Previous path for navigation and redirects.
@@ -311,7 +307,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   get: (
     url: string | URL,
     options?: PanelRequestOptions,
-  ) => Promise<unknown | false>;
+  ) => Promise<any | false>;
 
   /**
    * Loads a feature from the server and opens it.
@@ -348,10 +344,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * @returns Response data or false on error
    * @throws Error if feature has no path
    */
-  post: (
-    value?: unknown,
-    options?: PanelRequestOptions,
-  ) => Promise<unknown | false>;
+  post: (value?: any, options?: PanelRequestOptions) => Promise<any | false>;
 
   /**
    * Reloads properties from the server to refresh state.
@@ -397,8 +390,8 @@ export type PanelModalEvent =
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
   close: (id?: string | boolean) => Promise<void>;
-  input: (value: unknown) => void;
-  submit: (value?: unknown, options?: PanelRequestOptions) => Promise<unknown>;
+  input: (value: any) => void;
+  submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
   success: (response: PanelSuccessResponse) => void;
   /** Additional custom event listeners */
   [key: string]: ((...args: any[]) => any) | undefined;
@@ -421,7 +414,7 @@ export interface PanelSuccessResponse {
   /** Whether to reload the view */
   reload?: boolean | PanelRequestOptions;
   /** Additional properties */
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 /**
@@ -474,7 +467,7 @@ export interface PanelModal<
    * Quick access to `props.value`.
    * Dialogs and drawers often contain forms.
    */
-  readonly value: unknown;
+  readonly value: any;
 
   /**
    * Cancels the modal by emitting 'cancel' and closing.
@@ -509,7 +502,7 @@ export interface PanelModal<
    *
    * @param value - New form value
    */
-  input: (value: unknown) => void;
+  input: (value: any) => void;
 
   /**
    * Returns bound listener functions for the Fiber component.
@@ -553,7 +546,7 @@ export interface PanelModal<
    * @param options - Request options
    * @returns Response from listener, POST, or closes if no handler
    */
-  submit: (value?: unknown, options?: PanelRequestOptions) => Promise<unknown>;
+  submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
 
   /**
    * Handles success response after submission.
@@ -601,7 +594,7 @@ export interface PanelHistoryMilestone {
   /** Unique identifier for this milestone */
   id: string;
   /** Additional state properties */
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 /**
@@ -731,7 +724,7 @@ export interface PanelRequestOptions {
   /** Request headers */
   headers?: Record<string, string>;
   /** Request body for POST/PATCH */
-  body?: unknown;
+  body?: any;
   /** Query parameters */
   query?: Record<string, string | number | boolean>;
   /** AbortSignal for request cancellation */

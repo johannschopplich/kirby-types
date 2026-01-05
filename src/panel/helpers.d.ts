@@ -45,7 +45,7 @@ export interface PanelHelpersArray {
    * @param options - Search options
    * @returns Filtered array
    */
-  search: <T extends Record<string, unknown>>(
+  search: <T extends Record<string, any>>(
     array: T[],
     query: string,
     options?: PanelArraySearchOptions,
@@ -58,10 +58,7 @@ export interface PanelHelpersArray {
    * @param sortBy - Sort specification (e.g., `'name asc'`, `'date desc'`)
    * @returns Sorted array
    */
-  sortBy: <T extends Record<string, unknown>>(
-    array: T[],
-    sortBy: string,
-  ) => T[];
+  sortBy: <T extends Record<string, any>>(array: T[], sortBy: string) => T[];
 
   /**
    * Splits array into subarrays using delimiter element.
@@ -203,7 +200,7 @@ export interface PanelHelpersString {
    * @param values - Replacement values
    * @returns Interpolated string
    */
-  template: (string: string, values?: Record<string, unknown>) => string;
+  template: (string: string, values?: Record<string, any>) => string;
 
   /**
    * Converts first letter to uppercase.
@@ -262,7 +259,7 @@ export interface PanelHelpersObject {
    * @param predicate - Filter function
    * @returns Filtered object
    */
-  filter: <T extends Record<string, unknown>>(
+  filter: <T extends Record<string, any>>(
     object: T,
     predicate: (value: T[keyof T], key: string) => boolean,
   ) => Partial<T>;
@@ -273,7 +270,7 @@ export interface PanelHelpersObject {
    * @param value - Value to check
    * @returns True if empty
    */
-  isEmpty: (value: unknown) => boolean;
+  isEmpty: (value: any) => boolean;
 
   /**
    * Checks if input is a plain object (not array, null, etc.).
@@ -281,7 +278,7 @@ export interface PanelHelpersObject {
    * @param input - Value to check
    * @returns True if plain object
    */
-  isObject: (input: unknown) => input is Record<string, unknown>;
+  isObject: (input: any) => input is Record<string, any>;
 
   /**
    * Counts keys in an object.
@@ -289,7 +286,7 @@ export interface PanelHelpersObject {
    * @param object - Object to count
    * @returns Number of keys
    */
-  length: (object: Record<string, unknown>) => number;
+  length: (object: Record<string, any>) => number;
 
   /**
    * Recursively merges source into target.
@@ -298,10 +295,7 @@ export interface PanelHelpersObject {
    * @param source - Source object
    * @returns Merged object
    */
-  merge: <T extends Record<string, unknown>>(
-    target: T,
-    source?: Partial<T>,
-  ) => T;
+  merge: <T extends Record<string, any>>(target: T, source?: Partial<T>) => T;
 
   /**
    * Compares objects by JSON stringification.
@@ -310,7 +304,7 @@ export interface PanelHelpersObject {
    * @param b - Second object
    * @returns True if identical
    */
-  same: (a: unknown, b: unknown) => boolean;
+  same: (a: any, b: any) => boolean;
 
   /**
    * Converts all object keys to lowercase.
@@ -433,7 +427,7 @@ export interface PanelHelpersClipboard {
    * @param value - Value to write
    * @param event - ClipboardEvent for event-based writing
    */
-  write: (value: unknown, event?: ClipboardEvent) => void;
+  write: (value: any, event?: ClipboardEvent) => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -485,17 +479,17 @@ export interface PanelFieldDefinition {
   /** Field type */
   type?: string;
   /** Default value */
-  default?: unknown;
+  default?: any;
   /** Whether field is disabled */
   disabled?: boolean;
   /** Conditional visibility */
-  when?: Record<string, unknown>;
+  when?: Record<string, any>;
   /** API endpoint */
   endpoints?: { field?: string; section?: string };
   /** Nested fields */
   fields?: Record<string, PanelFieldDefinition>;
   /** Additional properties */
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 /**
@@ -510,7 +504,7 @@ export interface PanelHelpersField {
    * @param field - Field definition
    * @returns Default value
    */
-  defaultValue: (field: PanelFieldDefinition) => unknown;
+  defaultValue: (field: PanelFieldDefinition) => any;
 
   /**
    * Creates form values object from field definitions.
@@ -518,9 +512,7 @@ export interface PanelHelpersField {
    * @param fields - Field definitions
    * @returns Form values object
    */
-  form: (
-    fields: Record<string, PanelFieldDefinition>,
-  ) => Record<string, unknown>;
+  form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
    * Checks if field is visible based on 'when' conditions.
@@ -531,7 +523,7 @@ export interface PanelHelpersField {
    */
   isVisible: (
     field: PanelFieldDefinition,
-    values: Record<string, unknown>,
+    values: Record<string, any>,
   ) => boolean;
 
   /**
@@ -645,7 +637,7 @@ export interface PanelLinkPreview {
   /** Display label */
   label: string;
   /** Preview image */
-  image?: { url: string; [key: string]: unknown };
+  image?: { url: string; [key: string]: any };
 }
 
 /**
@@ -772,7 +764,7 @@ export type PanelUploadProgressCallback = (
 export type PanelUploadCompleteCallback = (
   xhr: XMLHttpRequest,
   file: File,
-  response: unknown,
+  response: any,
 ) => void;
 
 /**
@@ -792,7 +784,7 @@ export interface PanelUploadParams {
   /** Request headers */
   headers?: Record<string, string>;
   /** Additional form attributes */
-  attributes?: Record<string, unknown>;
+  attributes?: Record<string, any>;
   /** AbortSignal for cancellation */
   abort?: AbortSignal;
   /** Progress callback */
@@ -832,9 +824,7 @@ export interface PanelThrottleOptions {
 /**
  * Debounced/throttled function with cancel method.
  */
-export interface PanelDebouncedFunction<
-  T extends (...args: unknown[]) => unknown,
-> {
+export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): ReturnType<T> | undefined;
   /** Cancels pending invocation */
   cancel: () => void;
@@ -907,7 +897,7 @@ export interface PanelHelpers {
    * @param options - Debounce options
    * @returns Debounced function with cancel method
    */
-  debounce: <T extends (...args: unknown[]) => unknown>(
+  debounce: <T extends (...args: any[]) => any>(
     fn: T,
     delay: number,
     options?: PanelDebounceOptions,
@@ -1004,7 +994,7 @@ export interface PanelHelpers {
    * @param options - Throttle options
    * @returns Throttled function with cancel method
    */
-  throttle: <T extends (...args: unknown[]) => unknown>(
+  throttle: <T extends (...args: any[]) => any>(
     fn: T,
     delay: number,
     options?: PanelThrottleOptions,
@@ -1017,7 +1007,7 @@ export interface PanelHelpers {
    * @param params - Upload parameters
    * @returns Promise resolving to response
    */
-  upload: (file: File, params: PanelUploadParams) => Promise<unknown>;
+  upload: (file: File, params: PanelUploadParams) => Promise<any>;
 
   /** URL utilities */
   url: PanelHelpersUrl;

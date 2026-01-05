@@ -71,7 +71,7 @@ export interface PanelApiAuth {
    * @param data - Login credentials
    * @returns User data
    */
-  login: (data: PanelApiLoginData) => Promise<unknown>;
+  login: (data: PanelApiLoginData) => Promise<any>;
 
   /**
    * Logs out the current user.
@@ -91,9 +91,9 @@ export interface PanelApiAuth {
    * @returns User data
    */
   user: (
-    query?: Record<string, unknown>,
+    query?: Record<string, any>,
     options?: PanelApiRequestOptions,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Verifies a 2FA code.
@@ -102,10 +102,7 @@ export interface PanelApiAuth {
    * @param data - Additional data
    * @returns Verification result
    */
-  verifyCode: (
-    code: string,
-    data?: Record<string, unknown>,
-  ) => Promise<unknown>;
+  verifyCode: (code: string, data?: Record<string, any>) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -130,7 +127,7 @@ export interface PanelApiFiles {
     parent: string | null,
     filename: string,
     to: string,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Deletes a file.
@@ -151,8 +148,8 @@ export interface PanelApiFiles {
   get: (
     parent: string | null,
     filename: string,
-    query?: Record<string, unknown>,
-  ) => Promise<unknown>;
+    query?: Record<string, any>,
+  ) => Promise<any>;
 
   /**
    * Converts file ID/UUID to API format.
@@ -183,8 +180,8 @@ export interface PanelApiFiles {
   update: (
     parent: string | null,
     filename: string,
-    data: Record<string, unknown>,
-  ) => Promise<unknown>;
+    data: Record<string, any>,
+  ) => Promise<any>;
 
   /**
    * Gets API URL for a file.
@@ -232,7 +229,7 @@ export interface PanelApiLanguages {
    * @param data - Language data
    * @returns Created language
    */
-  create: (code: string, data: PanelApiLanguageData) => Promise<unknown>;
+  create: (code: string, data: PanelApiLanguageData) => Promise<any>;
 
   /**
    * Deletes a language.
@@ -247,14 +244,14 @@ export interface PanelApiLanguages {
    * @param code - Language code
    * @returns Language data
    */
-  get: (code: string) => Promise<unknown>;
+  get: (code: string) => Promise<any>;
 
   /**
    * Lists all languages.
    *
    * @returns Array of languages
    */
-  list: () => Promise<unknown[]>;
+  list: () => Promise<any[]>;
 
   /**
    * Updates a language.
@@ -263,10 +260,7 @@ export interface PanelApiLanguages {
    * @param data - Updated data
    * @returns Updated language
    */
-  update: (
-    code: string,
-    data: Partial<PanelApiLanguageData>,
-  ) => Promise<unknown>;
+  update: (code: string, data: Partial<PanelApiLanguageData>) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -284,7 +278,7 @@ export interface PanelApiPageCreateData {
   /** Page template */
   template?: string;
   /** Initial content */
-  content?: Record<string, unknown>;
+  content?: Record<string, any>;
   /** Initial status */
   status?: "draft" | "unlisted" | "listed";
 }
@@ -311,7 +305,7 @@ export interface PanelApiPages {
    * @param parent - Page ID
    * @returns Blueprint data
    */
-  blueprint: (parent: string) => Promise<unknown>;
+  blueprint: (parent: string) => Promise<any>;
 
   /**
    * Gets available blueprints for a page.
@@ -320,7 +314,7 @@ export interface PanelApiPages {
    * @param section - Section name
    * @returns Array of blueprints
    */
-  blueprints: (parent: string, section?: string) => Promise<unknown[]>;
+  blueprints: (parent: string, section?: string) => Promise<any[]>;
 
   /**
    * Changes a page's slug.
@@ -329,7 +323,7 @@ export interface PanelApiPages {
    * @param slug - New slug
    * @returns Updated page
    */
-  changeSlug: (id: string, slug: string) => Promise<unknown>;
+  changeSlug: (id: string, slug: string) => Promise<any>;
 
   /**
    * Changes a page's status.
@@ -343,7 +337,7 @@ export interface PanelApiPages {
     id: string,
     status: "draft" | "unlisted" | "listed",
     position?: number,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Changes a page's template.
@@ -352,7 +346,7 @@ export interface PanelApiPages {
    * @param template - New template
    * @returns Updated page
    */
-  changeTemplate: (id: string, template: string) => Promise<unknown>;
+  changeTemplate: (id: string, template: string) => Promise<any>;
 
   /**
    * Changes a page's title.
@@ -361,7 +355,7 @@ export interface PanelApiPages {
    * @param title - New title
    * @returns Updated page
    */
-  changeTitle: (id: string, title: string) => Promise<unknown>;
+  changeTitle: (id: string, title: string) => Promise<any>;
 
   /**
    * Searches children pages.
@@ -370,7 +364,7 @@ export interface PanelApiPages {
    * @param query - Search query
    * @returns Search results
    */
-  children: (id: string, query?: PanelApiSearchQuery) => Promise<unknown>;
+  children: (id: string, query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Creates a new page.
@@ -379,10 +373,7 @@ export interface PanelApiPages {
    * @param data - Page data
    * @returns Created page
    */
-  create: (
-    parent: string | null,
-    data: PanelApiPageCreateData,
-  ) => Promise<unknown>;
+  create: (parent: string | null, data: PanelApiPageCreateData) => Promise<any>;
 
   /**
    * Deletes a page.
@@ -404,7 +395,7 @@ export interface PanelApiPages {
     id: string,
     slug: string,
     options?: PanelApiPageDuplicateOptions,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Gets a page.
@@ -413,7 +404,7 @@ export interface PanelApiPages {
    * @param query - Query parameters
    * @returns Page data
    */
-  get: (id: string, query?: Record<string, unknown>) => Promise<unknown>;
+  get: (id: string, query?: Record<string, any>) => Promise<any>;
 
   /**
    * Converts page ID/UUID to API format.
@@ -430,7 +421,7 @@ export interface PanelApiPages {
    * @param query - Search query
    * @returns Search results
    */
-  files: (id: string, query?: PanelApiSearchQuery) => Promise<unknown>;
+  files: (id: string, query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Gets Panel link for a page.
@@ -455,10 +446,7 @@ export interface PanelApiPages {
    * @param query - Search query
    * @returns Search results
    */
-  search: (
-    parent: string | null,
-    query?: PanelApiSearchQuery,
-  ) => Promise<unknown>;
+  search: (parent: string | null, query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Updates a page's content.
@@ -467,7 +455,7 @@ export interface PanelApiPages {
    * @param data - Content data
    * @returns Updated page
    */
-  update: (id: string, data: Record<string, unknown>) => Promise<unknown>;
+  update: (id: string, data: Record<string, any>) => Promise<any>;
 
   /**
    * Gets API URL for a page.
@@ -495,7 +483,7 @@ export interface PanelApiRoles {
    * @param name - Role name
    * @returns Role data
    */
-  get: (name: string) => Promise<unknown>;
+  get: (name: string) => Promise<any>;
 
   /**
    * Lists available roles.
@@ -504,7 +492,7 @@ export interface PanelApiRoles {
    * @param query - Query parameters
    * @returns Array of roles
    */
-  list: (user?: string, query?: Record<string, unknown>) => Promise<unknown[]>;
+  list: (user?: string, query?: Record<string, any>) => Promise<any[]>;
 }
 
 // -----------------------------------------------------------------------------
@@ -522,14 +510,14 @@ export interface PanelApiSite {
    *
    * @returns Blueprint data
    */
-  blueprint: () => Promise<unknown>;
+  blueprint: () => Promise<any>;
 
   /**
    * Gets available blueprints for the site.
    *
    * @returns Array of blueprints
    */
-  blueprints: () => Promise<unknown[]>;
+  blueprints: () => Promise<any[]>;
 
   /**
    * Changes the site title.
@@ -538,7 +526,7 @@ export interface PanelApiSite {
    * @param language - Language code
    * @returns Updated site
    */
-  changeTitle: (title: string, language?: string) => Promise<unknown>;
+  changeTitle: (title: string, language?: string) => Promise<any>;
 
   /**
    * Searches site children.
@@ -549,8 +537,8 @@ export interface PanelApiSite {
    */
   children: (
     query?: PanelApiSearchQuery,
-    options?: Record<string, unknown>,
-  ) => Promise<unknown>;
+    options?: Record<string, any>,
+  ) => Promise<any>;
 
   /**
    * Gets the site.
@@ -558,7 +546,7 @@ export interface PanelApiSite {
    * @param query - Query parameters
    * @returns Site data
    */
-  get: (query?: Record<string, unknown>) => Promise<unknown>;
+  get: (query?: Record<string, any>) => Promise<any>;
 
   /**
    * Updates the site content.
@@ -567,10 +555,7 @@ export interface PanelApiSite {
    * @param language - Language code
    * @returns Updated site
    */
-  update: (
-    data: Record<string, unknown>,
-    language?: string,
-  ) => Promise<unknown>;
+  update: (data: Record<string, any>, language?: string) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -611,7 +596,7 @@ export interface PanelApiSystem {
    * @param query - Query parameters
    * @returns System data
    */
-  get: (query?: Record<string, unknown>) => Promise<unknown>;
+  get: (query?: Record<string, any>) => Promise<any>;
 
   /**
    * Installs Kirby with initial user.
@@ -622,8 +607,8 @@ export interface PanelApiSystem {
    */
   install: (
     data: PanelApiSystemInstallData,
-    query?: Record<string, unknown>,
-  ) => Promise<unknown>;
+    query?: Record<string, any>,
+  ) => Promise<any>;
 
   /**
    * Registers a license.
@@ -634,8 +619,8 @@ export interface PanelApiSystem {
    */
   register: (
     data: PanelApiSystemRegisterData,
-    query?: Record<string, unknown>,
-  ) => Promise<unknown>;
+    query?: Record<string, any>,
+  ) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -654,14 +639,14 @@ export interface PanelApiTranslations {
    * @param code - Translation code
    * @returns Translation data
    */
-  get: (code: string) => Promise<unknown>;
+  get: (code: string) => Promise<any>;
 
   /**
    * Lists all translations.
    *
    * @returns Array of translations
    */
-  list: () => Promise<unknown[]>;
+  list: () => Promise<any[]>;
 }
 
 // -----------------------------------------------------------------------------
@@ -696,7 +681,7 @@ export interface PanelApiUsers {
    * @param id - User ID
    * @returns Blueprint data
    */
-  blueprint: (id: string) => Promise<unknown>;
+  blueprint: (id: string) => Promise<any>;
 
   /**
    * Gets available blueprints for users.
@@ -705,10 +690,7 @@ export interface PanelApiUsers {
    * @param query - Query parameters
    * @returns Array of blueprints
    */
-  blueprints: (
-    user?: string,
-    query?: Record<string, unknown>,
-  ) => Promise<unknown[]>;
+  blueprints: (user?: string, query?: Record<string, any>) => Promise<any[]>;
 
   /**
    * Changes a user's email.
@@ -717,7 +699,7 @@ export interface PanelApiUsers {
    * @param email - New email
    * @returns Updated user
    */
-  changeEmail: (id: string, email: string) => Promise<unknown>;
+  changeEmail: (id: string, email: string) => Promise<any>;
 
   /**
    * Changes a user's language.
@@ -726,7 +708,7 @@ export interface PanelApiUsers {
    * @param language - New language code
    * @returns Updated user
    */
-  changeLanguage: (id: string, language: string) => Promise<unknown>;
+  changeLanguage: (id: string, language: string) => Promise<any>;
 
   /**
    * Changes a user's name.
@@ -735,7 +717,7 @@ export interface PanelApiUsers {
    * @param name - New name
    * @returns Updated user
    */
-  changeName: (id: string, name: string) => Promise<unknown>;
+  changeName: (id: string, name: string) => Promise<any>;
 
   /**
    * Changes a user's password.
@@ -749,7 +731,7 @@ export interface PanelApiUsers {
     id: string,
     password: string,
     confirmation: string,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Changes a user's role.
@@ -758,7 +740,7 @@ export interface PanelApiUsers {
    * @param role - New role
    * @returns Updated user
    */
-  changeRole: (id: string, role: string) => Promise<unknown>;
+  changeRole: (id: string, role: string) => Promise<any>;
 
   /**
    * Creates a new user.
@@ -767,7 +749,7 @@ export interface PanelApiUsers {
    * @param data - User data
    * @returns Created user
    */
-  create: (id: string, data: PanelApiUserCreateData) => Promise<unknown>;
+  create: (id: string, data: PanelApiUserCreateData) => Promise<any>;
 
   /**
    * Deletes a user.
@@ -790,7 +772,7 @@ export interface PanelApiUsers {
    * @param query - Query parameters
    * @returns User data
    */
-  get: (id: string, query?: Record<string, unknown>) => Promise<unknown>;
+  get: (id: string, query?: Record<string, any>) => Promise<any>;
 
   /**
    * Gets Panel link for a user.
@@ -807,7 +789,7 @@ export interface PanelApiUsers {
    * @param query - Query parameters
    * @returns Array of users
    */
-  list: (query?: Record<string, unknown>) => Promise<unknown[]>;
+  list: (query?: Record<string, any>) => Promise<any[]>;
 
   /**
    * Gets roles available to a user.
@@ -815,7 +797,7 @@ export interface PanelApiUsers {
    * @param id - User ID
    * @returns Array of roles
    */
-  roles: (id: string) => Promise<unknown[]>;
+  roles: (id: string) => Promise<any[]>;
 
   /**
    * Searches users.
@@ -826,8 +808,8 @@ export interface PanelApiUsers {
    */
   search: (
     query?: PanelApiSearchQuery,
-    options?: Record<string, unknown>,
-  ) => Promise<unknown>;
+    options?: Record<string, any>,
+  ) => Promise<any>;
 
   /**
    * Updates a user's content.
@@ -836,7 +818,7 @@ export interface PanelApiUsers {
    * @param data - Content data
    * @returns Updated user
    */
-  update: (id: string, data: Record<string, unknown>) => Promise<unknown>;
+  update: (id: string, data: Record<string, any>) => Promise<any>;
 
   /**
    * Gets API URL for a user.
@@ -906,7 +888,7 @@ export interface PanelApi {
     path: string,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Makes a GET request.
@@ -919,10 +901,10 @@ export interface PanelApi {
    */
   get: (
     path: string,
-    query?: Record<string, unknown>,
+    query?: Record<string, any>,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Makes a POST request.
@@ -936,11 +918,11 @@ export interface PanelApi {
    */
   post: (
     path: string,
-    data?: unknown,
+    data?: any,
     options?: PanelApiRequestOptions,
     silent?: boolean,
     upload?: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Makes a PATCH request.
@@ -953,10 +935,10 @@ export interface PanelApi {
    */
   patch: (
     path: string,
-    data?: unknown,
+    data?: any,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /**
    * Makes a DELETE request.
@@ -969,10 +951,10 @@ export interface PanelApi {
    */
   delete: (
     path: string,
-    data?: unknown,
+    data?: any,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<unknown>;
+  ) => Promise<any>;
 
   /** Authentication methods */
   auth: PanelApiAuth;
