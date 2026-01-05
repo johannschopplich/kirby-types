@@ -9,19 +9,19 @@ importers:
   .:
     dependencies:
       prosemirror-commands:
-        specifier: ^1.0.0
+        specifier: ^1.7.1
         version: 1.7.1
       prosemirror-inputrules:
-        specifier: ^1.0.0
+        specifier: ^1.5.1
         version: 1.5.1
       prosemirror-model:
-        specifier: ^1.0.0
+        specifier: ^1.25.4
         version: 1.25.4
       prosemirror-schema-list:
-        specifier: ^1.0.0
+        specifier: ^1.5.1
         version: 1.5.1
       prosemirror-state:
-        specifier: ^1.0.0
+        specifier: ^1.4.4
         version: 1.4.4
       vue:
         specifier: ^2.7.0
