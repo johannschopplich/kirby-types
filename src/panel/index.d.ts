@@ -275,8 +275,8 @@ export type {
  * @example
  * ```ts
  * // In a Vue component
- * const slug = this.$helper.slug('My Page Title');
- * const date = this.$library.dayjs('2024-01-15').format('DD.MM.YYYY');
+ * const slug = this.$helper.slug("My Page Title");
+ * const date = this.$library.dayjs("2024-01-15").format("DD.MM.YYYY");
  * ```
  */
 export type PanelApp = InstanceType<VueConstructor> & {
@@ -589,7 +589,7 @@ export interface PanelPlugins {
  * Language information for multi-language sites.
  */
 export interface PanelLanguageInfo {
-  /** Language code (e.g., `'en'`, `'de'`) */
+  /** Language code (e.g., `"en"`, `"de"`) */
   code: string;
   /** Whether this is the default language */
   default: boolean;
@@ -641,13 +641,13 @@ export interface PanelGlobalState {
  * const panel = window.$panel;
  *
  * // Navigate to a page
- * await panel.view.open('/pages/home');
+ * await panel.view.open("/pages/home");
  *
  * // Open a dialog
- * await panel.dialog.open('/dialogs/pages/create');
+ * await panel.dialog.open("/dialogs/pages/create");
  *
  * // Make an API request
- * const data = await panel.get('/api/pages/home');
+ * const data = await panel.get("/api/pages/home");
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/panel.js

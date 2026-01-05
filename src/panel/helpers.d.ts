@@ -17,7 +17,7 @@
 export interface PanelArraySearchOptions {
   /** Minimum query length (default: 0) */
   min?: number;
-  /** Field to search in (default: `'text'`) */
+  /** Field to search in (default: `"text"`) */
   field?: string;
   /** Maximum results to return */
   limit?: number;
@@ -173,8 +173,8 @@ export interface PanelHelpersString {
    *
    * @param string - String to convert
    * @param rules - Language/ASCII conversion rules
-   * @param allowed - Allowed characters (default: `'a-z0-9'`)
-   * @param separator - Separator character (default: `'-'`)
+   * @param allowed - Allowed characters (default: `"a-z0-9"`)
+   * @param separator - Separator character (default: `"-"`)
    * @returns Slug string
    */
   slug: (
@@ -569,7 +569,7 @@ export interface PanelHelpersFile {
    * Formats byte size as human-readable string.
    *
    * @param size - Size in bytes
-   * @returns Formatted size (e.g., `'1.2 MB'`)
+   * @returns Formatted size (e.g., `"1.2 MB"`)
    */
   niceSize: (size: number) => string;
 }
@@ -587,7 +587,7 @@ export interface PanelHelpersKeyboard {
   /**
    * Returns the meta key name for the current OS.
    *
-   * @returns 'cmd' on Mac, 'ctrl' on other OS
+   * @returns `"cmd"` on Mac, `"ctrl"` on other OS
    */
   metaKey: () => "cmd" | "ctrl";
 }
@@ -775,9 +775,9 @@ export type PanelUploadCompleteCallback = (
 export interface PanelUploadParams {
   /** Upload endpoint URL */
   url: string;
-  /** HTTP method (default: `'POST'`) */
+  /** HTTP method (default: `"POST"`) */
   method?: string;
-  /** Form field name (default: `'file'`) */
+  /** Form field name (default: `"file"`) */
   field?: string;
   /** Override filename */
   filename?: string;
@@ -861,7 +861,7 @@ export type PanelComparator = (a: string, b: string) => number;
  * @example
  * ```ts
  * // In a Vue component
- * this.$helper.string.slug('Hello World');
+ * this.$helper.string.slug("Hello World");
  * this.$helper.clone(someObject);
  * this.$helper.uuid();
  * ```
@@ -957,8 +957,8 @@ export interface PanelHelpers {
   /**
    * Converts aspect ratio to percentage.
    *
-   * @param fraction - Ratio string (e.g., `'3/2'`)
-   * @param fallback - Fallback value (default: `'100%'`)
+   * @param fraction - Ratio string (e.g., `"3/2"`)
+   * @param fallback - Fallback value (default: `"100%"`)
    * @param vertical - Calculate for vertical orientation
    * @returns Percentage string
    */

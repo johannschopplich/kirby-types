@@ -25,7 +25,7 @@
  * ```ts
  * // State is used by: language, menu, notification, system, translation, user, drag, theme
  * const notification: PanelState<PanelNotificationDefaults> = panel.notification;
- * notification.set({ message: 'Saved!' });
+ * notification.set({ message: "Saved!" });
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/state.js
@@ -149,11 +149,11 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
  *
  * @example
  * ```ts
- * panel.dialog.addEventListener('submit', (value) => {
- *   console.log('Dialog submitted:', value);
+ * panel.dialog.addEventListener("submit", (value) => {
+ *   console.log("Dialog submitted:", value);
  * });
  *
- * panel.dialog.emit('submit', formData);
+ * panel.dialog.emit("submit", formData);
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/listeners.js
@@ -241,10 +241,10 @@ export interface PanelFeatureDefaults {
  * @example
  * ```ts
  * // Load a view
- * await panel.view.load('/pages/home');
+ * await panel.view.load("/pages/home");
  *
  * // Open a dropdown with options
- * await panel.dropdown.open('/dropdowns/pages/home/options');
+ * await panel.dropdown.open("/dropdowns/pages/home/options");
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/feature.js
@@ -405,7 +405,7 @@ export interface PanelSuccessResponse {
   message?: string;
   /** Events to emit (string or array of strings) */
   event?: string | string[];
-  /** Whether to emit the global 'success' event (default: true) */
+  /** Whether to emit the global `"success"` event (default: true) */
   emit?: boolean;
   /** URL to navigate to */
   route?: string | { url: string; options?: PanelRequestOptions };
@@ -431,14 +431,14 @@ export interface PanelSuccessResponse {
  * @example
  * ```ts
  * // Open a dialog
- * await panel.dialog.open('/dialogs/pages/create', {
+ * await panel.dialog.open("/dialogs/pages/create", {
  *   on: {
- *     submit: (value) => console.log('Created:', value)
+ *     submit: (value) => console.log("Created:", value)
  *   }
  * });
  *
  * // Close with history navigation
- * panel.drawer.goTo('previous-drawer-id');
+ * panel.drawer.goTo("previous-drawer-id");
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/modal.js

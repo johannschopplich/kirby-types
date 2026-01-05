@@ -842,13 +842,13 @@ export interface PanelApiUsers {
  * @example
  * ```ts
  * // Get a page
- * const page = await panel.api.pages.get('home');
+ * const page = await panel.api.pages.get("home");
  *
  * // Create a new page
- * await panel.api.pages.create('blog', {
- *   slug: 'new-post',
- *   title: 'New Post',
- *   template: 'article'
+ * await panel.api.pages.create("blog", {
+ *   slug: "new-post",
+ *   title: "New Post",
+ *   template: "article"
  * });
  * ```
  *

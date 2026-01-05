@@ -120,7 +120,7 @@ export interface PanelDrag extends PanelState<PanelDragDefaults> {
   /**
    * Starts a drag operation with type and data.
    *
-   * @param type - Drag item type (e.g., `'page'`, `'file'`)
+   * @param type - Drag item type (e.g., `"page"`, `"file"`)
    * @param data - Associated data
    */
   start: (type: string, data: Record<string, any>) => void;
@@ -197,7 +197,7 @@ export interface PanelTheme extends Omit<
  * Default state for content language.
  */
 export interface PanelLanguageDefaults {
-  /** Language code (e.g., `'en'`, `'de'`) */
+  /** Language code (e.g., `"en"`, `"de"`) */
   code: string | null;
   /** Whether this is the default language */
   default: boolean;
@@ -218,7 +218,7 @@ export interface PanelLanguageDefaults {
  * @since 4.0.0
  */
 export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
-  /** Language code (e.g., `'en'`, `'de'`) */
+  /** Language code (e.g., `"en"`, `"de"`) */
   code: string | null;
   /** Whether this is the default language */
   default: boolean;
@@ -523,7 +523,7 @@ export interface PanelSystem extends PanelState<PanelSystemDefaults> {
  * Default state for interface translation.
  */
 export interface PanelTranslationDefaults {
-  /** Translation code (e.g., `'en'`, `'de'`) */
+  /** Translation code (e.g., `"en"`, `"de"`) */
   code: string;
   /** Translation strings by key */
   data: Record<string, string>;
@@ -545,7 +545,7 @@ export interface PanelTranslationDefaults {
  * @since 4.0.0
  */
 export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
-  /** Translation code (e.g., `'en'`, `'de'`) */
+  /** Translation code (e.g., `"en"`, `"de"`) */
   code: string;
   /** Translation strings by key */
   data: Record<string, string>;
@@ -847,7 +847,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Breadcrumb from history milestones */
   readonly breadcrumb: PanelHistory["milestones"];
 
-  /** Drawer icon, defaults to 'box' */
+  /** Drawer icon, defaults to `"box"` */
   readonly icon: string;
 
   /**
@@ -1144,7 +1144,7 @@ export interface PanelSearcher {
   /**
    * Opens the search dialog.
    *
-   * @param type - Search type (e.g., `'pages'`, `'files'`, `'users'`)
+   * @param type - Search type (e.g., `"pages"`, `"files"`, `"users"`)
    */
   open: (type?: string) => void;
 
@@ -1185,7 +1185,7 @@ export interface PanelUploadFile {
   filename: string;
   /** File size in bytes */
   size: number;
-  /** Formatted file size (e.g., `'1.2 MB'`) */
+  /** Formatted file size (e.g., `"1.2 MB"`) */
   niceSize: string;
   /** MIME type */
   type: string;

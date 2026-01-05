@@ -78,9 +78,9 @@ export type PanelColorInput = string | PanelColorObject;
  *
  * @example
  * ```ts
- * const rgb = this.$library.colors.parse('hsl(180 50% 50%)');
- * const hex = this.$library.colors.convert(rgb, 'hex');
- * const css = this.$library.colors.toString(hex, 'rgb');
+ * const rgb = this.$library.colors.parse("hsl(180 50% 50%)");
+ * const hex = this.$library.colors.convert(rgb, "hex");
+ * const css = this.$library.colors.toString(hex, "rgb");
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/colors.js
@@ -230,7 +230,7 @@ export interface PanelDayjsInstance {
    *
    * @param boundary - Boundary date
    * @param type - Validation type
-   * @param unit - Comparison unit (default: `'day'`)
+   * @param unit - Comparison unit (default: `"day"`)
    * @returns Whether valid
    */
   validate: (
@@ -254,7 +254,7 @@ export interface PanelDayjsInstance {
   /**
    * Rounds to nearest unit step.
    *
-   * @param unit - Unit to round (default: `'date'`)
+   * @param unit - Unit to round (default: `"date"`)
    * @param size - Step size (default: 1)
    * @returns Rounded dayjs instance
    */
@@ -322,9 +322,9 @@ export type PanelDayjsUnit =
  *
  * @example
  * ```ts
- * const dt = this.$library.dayjs('2024-01-15');
- * const iso = dt.toISO('date'); // '2024-01-15'
- * const rounded = dt.round('hour', 15); // Round to 15-minute intervals
+ * const dt = this.$library.dayjs("2024-01-15");
+ * const iso = dt.toISO("date"); // "2024-01-15"
+ * const rounded = dt.round("hour", 15); // Round to 15-minute intervals
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/dayjs.js
@@ -431,8 +431,8 @@ export interface PanelLibraryAutosize {
  * @example
  * ```ts
  * // In a Vue component
- * const hex = this.$library.colors.toString({ r: 255, g: 0, b: 0 }, 'hex');
- * const date = this.$library.dayjs('2024-01-15').format('DD.MM.YYYY');
+ * const hex = this.$library.colors.toString({ r: 255, g: 0, b: 0 }, "hex");
+ * const date = this.$library.dayjs("2024-01-15").format("DD.MM.YYYY");
  * this.$library.autosize(this.$refs.textarea);
  * ```
  *
