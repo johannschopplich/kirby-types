@@ -8,6 +8,8 @@
  * @since 4.0.0
  */
 
+import type { ConfigType, Dayjs, OpUnitType } from "dayjs";
+
 // -----------------------------------------------------------------------------
 // Color Types
 // -----------------------------------------------------------------------------
@@ -122,12 +124,12 @@ export interface PanelLibraryColors {
    * Parses a CSS color string to HEX string or color object.
    *
    * Supports:
-   * - HEX: #fff, #ffffff, #ffffffff
-   * - RGB: rgb(255 255 255), rgb(255, 255, 255), rgba(255 255 255 / 0.5)
-   * - HSL: hsl(180 50% 50%), hsl(180deg 50% 50% / 0.5)
+   * - HEX: `#fff`, `#ffffff`, `#ffffffff`
+   * - RGB: `rgb(255 255 255)`, `rgb(255, 255, 255)`, `rgba(255 255 255 / 0.5)`
+   * - HSL: `hsl(180 50% 50%)`, `hsl(180deg 50% 50% / 0.5)`
    *
    * @param string - CSS color string
-   * @returns Parsed color or null if invalid
+   * @returns Parsed color or `null` if invalid
    */
   parse: (
     string: string,
@@ -138,7 +140,7 @@ export interface PanelLibraryColors {
    *
    * @param string - CSS color string
    * @param format - Target format
-   * @returns Converted color or false if invalid
+   * @returns Converted color or `false` if invalid
    */
   parseAs: {
     (string: string, format: "hex"): string | false;
@@ -156,9 +158,9 @@ export interface PanelLibraryColors {
    *
    * @param color - Color to format (string or object)
    * @param format - Target format (optional, converts if needed)
-   * @param alpha - Include alpha channel (default: true)
+   * @param alpha - Include alpha channel (default: `true`)
    * @returns CSS color string
-   * @throws Error if unsupported color
+   * @throws Error if unsupported color or format (HSV cannot be output as CSS)
    */
   toString: (
     color: PanelColorInput,
@@ -172,9 +174,35 @@ export interface PanelLibraryColors {
 // -----------------------------------------------------------------------------
 
 /**
- * ISO format type.
+ * ISO format type for Kirby's `toISO`/`iso` methods.
  */
 export type PanelDayjsISOFormat = "date" | "time" | "datetime";
+
+/**
+ * Valid units for Kirby's `round()` method.
+ *
+ * Note: `day` is an alias for `date`. Units `week` and `millisecond`
+ * are NOT supported by `round()` and will throw an error.
+ */
+export type PanelDayjsRoundUnit =
+  | "second"
+  | "minute"
+  | "hour"
+  | "day"
+  | "date"
+  | "month"
+  | "year";
+
+/**
+ * Valid units for Kirby's `merge()` method.
+ */
+export type PanelDayjsMergeUnit =
+  | "year"
+  | "month"
+  | "date"
+  | "hour"
+  | "minute"
+  | "second";
 
 /**
  * Pattern part information.
@@ -191,7 +219,7 @@ export interface PanelDayjsPatternPart {
 }
 
 /**
- * Pattern analyzer object.
+ * Pattern analyzer object returned by `dayjs.pattern()`.
  */
 export interface PanelDayjsPattern {
   /** Original pattern string */
@@ -199,10 +227,10 @@ export interface PanelDayjsPattern {
   /** Parsed pattern parts */
   parts: PanelDayjsPatternPart[];
   /**
-   * Gets part information at position range.
+   * Gets part information at cursor position/selection range.
    *
    * @param start - Start position
-   * @param end - End position
+   * @param end - End position (defaults to start)
    * @returns Part info or undefined
    */
   at: (start: number, end?: number) => PanelDayjsPatternPart | undefined;
@@ -210,145 +238,83 @@ export interface PanelDayjsPattern {
    * Formats a dayjs instance using this pattern.
    *
    * @param dt - Dayjs instance
-   * @returns Formatted string
+   * @returns Formatted string or `null` if invalid
    */
-  format: (dt: PanelDayjsInstance) => string | null;
+  format: (dt: Dayjs) => string | null;
 }
 
 /**
- * Extended dayjs instance with Kirby plugins.
+ * Kirby plugin extensions for dayjs instances.
+ *
+ * These methods are added by Kirby's custom dayjs plugins.
  */
-export interface PanelDayjsInstance {
+export interface PanelDayjsExtensions {
   /**
-   * Formats as ISO string.
+   * Formats as ISO string (Kirby format).
    *
-   * @param format - 'date', 'time', or 'datetime'
+   * @param format - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"`
    * @returns ISO formatted string
    */
   toISO: (format?: PanelDayjsISOFormat) => string;
 
   /**
-   * Validates against a boundary.
+   * Validates datetime against an upper or lower (min/max) boundary.
    *
    * @param boundary - Boundary as ISO string
-   * @param type - Validation type
+   * @param type - `"min"` or `"max"`
    * @param unit - Comparison unit (default: `"day"`)
-   * @returns Whether valid
+   * @returns Whether the date is valid against the boundary
    */
   validate: (
     boundary: string,
     type: "min" | "max",
-    unit?: PanelDayjsUnit,
+    unit?: OpUnitType,
   ) => boolean;
 
   /**
-   * Merges date or time parts from another dayjs.
+   * Merges date or time parts from another dayjs instance.
    *
-   * @param dt - Dayjs to merge from
-   * @param units - 'date', 'time', or array of units
-   * @returns New dayjs instance
+   * @param dt - Dayjs instance to merge from
+   * @param units - `"date"`, `"time"`, or array of specific units
+   * @returns New dayjs instance (returns `this` if `dt` is invalid)
    */
   merge: (
-    dt: PanelDayjsInput,
-    units?: "date" | "time" | PanelDayjsUnit[],
-  ) => PanelDayjsInstance;
+    dt: Dayjs | null | undefined,
+    units?: "date" | "time" | PanelDayjsMergeUnit[],
+  ) => Dayjs & PanelDayjsExtensions;
 
   /**
    * Rounds to nearest unit step.
    *
    * @param unit - Unit to round (default: `"date"`)
-   * @param size - Step size (default: 1)
+   * @param size - Step size (default: `1`). Must divide evenly into the unit's range.
    * @returns Rounded dayjs instance
+   * @throws Error if unit is invalid or size doesn't divide evenly
    */
-  round: (unit?: PanelDayjsUnit, size?: number) => PanelDayjsInstance;
-
-  // Standard dayjs methods
-  format: (template?: string) => string;
-  valueOf: () => number;
-  unix: () => number;
-  toString: () => string;
-  toDate: () => Date;
-  toJSON: () => string;
-  toISOString: () => string;
-  isValid: () => boolean;
-  isSame: (date?: PanelDayjsInput, unit?: PanelDayjsUnit) => boolean;
-  isBefore: (date?: PanelDayjsInput, unit?: PanelDayjsUnit) => boolean;
-  isAfter: (date?: PanelDayjsInput, unit?: PanelDayjsUnit) => boolean;
-  year: () => number;
-  month: () => number;
-  date: () => number;
-  day: () => number;
-  hour: () => number;
-  minute: () => number;
-  second: () => number;
-  millisecond: () => number;
-  set: (unit: PanelDayjsUnit, value: number) => PanelDayjsInstance;
-  add: (value: number, unit?: PanelDayjsUnit) => PanelDayjsInstance;
-  subtract: (value: number, unit?: PanelDayjsUnit) => PanelDayjsInstance;
-  startOf: (unit: PanelDayjsUnit) => PanelDayjsInstance;
-  endOf: (unit: PanelDayjsUnit) => PanelDayjsInstance;
-  clone: () => PanelDayjsInstance;
-  locale: (locale?: string) => PanelDayjsInstance | string;
+  round: (
+    unit?: PanelDayjsRoundUnit,
+    size?: number,
+  ) => Dayjs & PanelDayjsExtensions;
 }
 
 /**
- * Dayjs input types.
+ * Kirby-extended dayjs instance type.
+ *
+ * Combines the standard dayjs `Dayjs` class with Kirby's plugin extensions.
  */
-export type PanelDayjsInput =
-  | string
-  | number
-  | Date
-  | PanelDayjsInstance
-  | null
-  | undefined;
+export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
- * Dayjs unit types.
+ * Kirby plugin extensions for the dayjs function (static methods).
  */
-export type PanelDayjsUnit =
-  | "year"
-  | "month"
-  | "week"
-  | "day"
-  | "date"
-  | "hour"
-  | "minute"
-  | "second"
-  | "millisecond";
-
-/**
- * Extended dayjs library with Kirby plugins.
- *
- * Provides date manipulation with additional methods
- * for Panel-specific date handling.
- *
- * @example
- * ```ts
- * const dt = this.$library.dayjs("2024-01-15");
- * const iso = dt.toISO("date"); // "2024-01-15"
- * const rounded = dt.round("hour", 15); // Round to 15-minute intervals
- * ```
- *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/dayjs.js
- * @since 4.0.0
- */
-export interface PanelLibraryDayjs {
+export interface PanelDayjsStaticExtensions {
   /**
-   * Creates a dayjs instance.
-   *
-   * @param date - Date input
-   * @param format - Parse format
-   * @returns Dayjs instance
-   */
-  (date?: PanelDayjsInput, format?: string): PanelDayjsInstance;
-
-  /**
-   * Interprets date/time from various formats.
+   * Interprets date/time from various human-readable formats.
    * Tries multiple format variations automatically.
    *
-   * @param input - Input string
+   * @param input - Input string to parse
    * @param format - Expected format type (default: `"date"`)
-   * @returns Dayjs instance
+   * @returns Dayjs instance or `null` if no format matched
    */
   interpret: (
     input: string,
@@ -359,8 +325,8 @@ export interface PanelLibraryDayjs {
    * Parses ISO formatted string.
    *
    * @param value - ISO string
-   * @param format - ISO format type
-   * @returns Dayjs instance
+   * @param format - ISO format type. If omitted, tries all three formats.
+   * @returns Dayjs instance or `null` if invalid
    */
   iso: (
     value: string,
@@ -368,17 +334,63 @@ export interface PanelLibraryDayjs {
   ) => PanelDayjsInstance | null;
 
   /**
-   * Creates a pattern analyzer.
+   * Creates a pattern analyzer for date/time formatting.
    *
-   * @param pattern - Date format pattern
+   * @param pattern - Date format pattern (e.g., "YYYY-MM-DD")
    * @returns Pattern analyzer object
    */
   pattern: (pattern: string) => PanelDayjsPattern;
+}
 
-  // Standard dayjs static methods
-  extend: (plugin: any) => void;
-  locale: (locale?: string) => string;
-  isDayjs: (value: any) => value is PanelDayjsInstance;
+/**
+ * Extended dayjs library with Kirby plugins.
+ *
+ * Provides date manipulation with additional methods
+ * for Panel-specific date handling. Extends the official
+ * dayjs types with Kirby's custom plugins.
+ *
+ * @example
+ * ```ts
+ * const dt = this.$library.dayjs("2024-01-15");
+ * const iso = dt.toISO("date"); // "2024-01-15"
+ * const rounded = dt.round("minute", 15); // Round to 15-minute intervals
+ * const parsed = this.$library.dayjs.interpret("Jan 15 2024", "date");
+ * ```
+ *
+ * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/dayjs.js
+ * @since 4.0.0
+ */
+export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
+  /**
+   * Creates a dayjs instance.
+   */
+  (date?: ConfigType): PanelDayjsInstance;
+  (date?: ConfigType, format?: string, strict?: boolean): PanelDayjsInstance;
+  (
+    date?: ConfigType,
+    format?: string,
+    locale?: string,
+    strict?: boolean,
+  ): PanelDayjsInstance;
+
+  /** Extends dayjs with a plugin */
+  extend: <T = unknown>(
+    plugin: (
+      option: T,
+      dayjsClass: typeof Dayjs,
+      dayjsFactory: typeof import("dayjs"),
+    ) => void,
+    option?: T,
+  ) => typeof import("dayjs");
+
+  /** Gets or sets the global locale */
+  locale: (preset?: string, object?: object, isLocal?: boolean) => string;
+
+  /** Type guard for dayjs instances */
+  isDayjs: (value: unknown) => value is PanelDayjsInstance;
+
+  /** Creates a dayjs instance from Unix timestamp (seconds) */
+  unix: (t: number) => PanelDayjsInstance;
 }
 
 // -----------------------------------------------------------------------------
@@ -388,7 +400,6 @@ export interface PanelLibraryDayjs {
 /**
  * Autosize library for textarea auto-resizing.
  *
- * External library from npm package "autosize".
  * Automatically adjusts textarea height based on content.
  *
  * @see https://www.npmjs.com/package/autosize
