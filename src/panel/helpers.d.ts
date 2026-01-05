@@ -417,17 +417,18 @@ export interface PanelHelpersClipboard {
    *
    * @param event - ClipboardEvent or string
    * @param plain - Read as plain text only
-   * @returns Clipboard content
+   * @returns Clipboard content or null if empty
    */
-  read: (event: ClipboardEvent | string, plain?: boolean) => string;
+  read: (event: ClipboardEvent | string, plain?: boolean) => string | null;
 
   /**
    * Writes to clipboard. Objects are auto-JSONified.
    *
    * @param value - Value to write
    * @param event - ClipboardEvent for event-based writing
+   * @returns True if successful
    */
-  write: (value: any, event?: ClipboardEvent) => void;
+  write: (value: any, event?: ClipboardEvent) => boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -445,27 +446,27 @@ export interface PanelHelpersEmbed {
    *
    * @param url - YouTube video URL
    * @param doNotTrack - Enable privacy-enhanced mode
-   * @returns Embed URL or null
+   * @returns Embed URL or false if not valid
    */
-  youtube: (url: string, doNotTrack?: boolean) => string | null;
+  youtube: (url: string, doNotTrack?: boolean) => string | false;
 
   /**
    * Converts Vimeo URL to embed URL.
    *
    * @param url - Vimeo video URL
    * @param doNotTrack - Enable do-not-track mode
-   * @returns Embed URL or null
+   * @returns Embed URL or false if not valid
    */
-  vimeo: (url: string, doNotTrack?: boolean) => string | null;
+  vimeo: (url: string, doNotTrack?: boolean) => string | false;
 
   /**
    * Auto-detects provider and converts to embed URL.
    *
    * @param url - Video URL
    * @param doNotTrack - Privacy mode
-   * @returns Embed URL or null
+   * @returns Embed URL or false if not valid
    */
-  video: (url: string, doNotTrack?: boolean) => string | null;
+  video: (url: string, doNotTrack?: boolean) => string | false;
 }
 
 // -----------------------------------------------------------------------------
@@ -485,7 +486,7 @@ export interface PanelFieldDefinition {
   /** Conditional visibility */
   when?: Record<string, any>;
   /** API endpoint */
-  endpoints?: { field?: string; section?: string };
+  endpoints?: { field?: string; section?: string; model?: string };
   /** Nested fields */
   fields?: Record<string, PanelFieldDefinition>;
   /** Additional properties */
@@ -651,12 +652,12 @@ export interface PanelHelpersLink {
    *
    * @param value - Link value to detect
    * @param types - Custom type definitions
-   * @returns Detection result
+   * @returns Detection result or undefined if no match
    */
   detect: (
     value: string,
     types?: Record<string, PanelLinkType>,
-  ) => PanelLinkDetection;
+  ) => PanelLinkDetection | undefined;
 
   /**
    * Converts file permalink to file:// UUID.
@@ -719,14 +720,18 @@ export interface PanelHelpersLink {
  * Page status button props.
  */
 export interface PanelPageStatusProps {
-  /** Status text */
-  text: string;
+  /** Status title */
+  title: string;
   /** Status icon */
   icon: string;
   /** Status color */
   theme?: string;
   /** Whether disabled */
   disabled?: boolean;
+  /** Button size */
+  size: string;
+  /** Button style */
+  style: string;
 }
 
 /**
@@ -822,9 +827,16 @@ export interface PanelThrottleOptions {
 }
 
 /**
- * Debounced/throttled function with cancel method.
+ * Debounced function (without cancel method).
  */
 export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
+  (...args: Parameters<T>): ReturnType<T> | undefined;
+}
+
+/**
+ * Throttled function with cancel method.
+ */
+export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): ReturnType<T> | undefined;
   /** Cancels pending invocation */
   cancel: () => void;
@@ -885,9 +897,9 @@ export interface PanelHelpers {
    * Resolves CSS color to CSS variable.
    *
    * @param value - Color name or value
-   * @returns CSS variable or original value
+   * @returns CSS variable or original value, undefined if not a string
    */
-  color: (value: string) => string;
+  color: (value: string) => string | undefined;
 
   /**
    * Creates a debounced function.
@@ -917,8 +929,9 @@ export interface PanelHelpers {
    *
    * @param element - Selector or element
    * @param field - Specific input name to focus
+   * @returns The focused element, or false if nothing could be focused
    */
-  focus: (element: string | HTMLElement, field?: string) => void;
+  focus: (element: string | HTMLElement, field?: string) => HTMLElement | false;
 
   /**
    * Checks if component is registered globally.
@@ -998,7 +1011,7 @@ export interface PanelHelpers {
     fn: T,
     delay: number,
     options?: PanelThrottleOptions,
-  ) => PanelDebouncedFunction<T>;
+  ) => PanelThrottledFunction<T>;
 
   /**
    * Uploads a file via XMLHttpRequest.
