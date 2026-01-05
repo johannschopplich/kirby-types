@@ -127,11 +127,9 @@ export interface PanelLibraryColors {
    * - HSL: hsl(180 50% 50%), hsl(180deg 50% 50% / 0.5)
    *
    * @param string - CSS color string
-   * @returns Parsed color or null/false if invalid
+   * @returns Parsed color or null if invalid
    */
-  parse: (
-    string: string,
-  ) => string | PanelColorRGB | PanelColorHSL | null | false;
+  parse: (string: string) => string | PanelColorRGB | PanelColorHSL | null;
 
   /**
    * Parses a color string and converts to target format.
@@ -203,14 +201,14 @@ export interface PanelDayjsPattern {
    * @param end - End position
    * @returns Part info or undefined
    */
-  at: (start: number, end: number) => PanelDayjsPatternPart | undefined;
+  at: (start: number, end?: number) => PanelDayjsPatternPart | undefined;
   /**
    * Formats a dayjs instance using this pattern.
    *
    * @param dt - Dayjs instance
    * @returns Formatted string
    */
-  format: (dt: PanelDayjsInstance) => string;
+  format: (dt: PanelDayjsInstance) => string | null;
 }
 
 /**
@@ -228,13 +226,13 @@ export interface PanelDayjsInstance {
   /**
    * Validates against a boundary.
    *
-   * @param boundary - Boundary date
+   * @param boundary - Boundary as ISO string
    * @param type - Validation type
    * @param unit - Comparison unit (default: `"day"`)
    * @returns Whether valid
    */
   validate: (
-    boundary: PanelDayjsInput,
+    boundary: string,
     type: "min" | "max",
     unit?: PanelDayjsUnit,
   ) => boolean;
@@ -351,7 +349,7 @@ export interface PanelLibraryDayjs {
   interpret: (
     input: string,
     format?: PanelDayjsISOFormat,
-  ) => PanelDayjsInstance;
+  ) => PanelDayjsInstance | null;
 
   /**
    * Parses ISO formatted string.
@@ -360,7 +358,7 @@ export interface PanelLibraryDayjs {
    * @param format - ISO format type
    * @returns Dayjs instance
    */
-  iso: (value: string, format?: PanelDayjsISOFormat) => PanelDayjsInstance;
+  iso: (value: string, format?: PanelDayjsISOFormat) => PanelDayjsInstance | null;
 
   /**
    * Creates a pattern analyzer.
