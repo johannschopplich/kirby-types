@@ -745,7 +745,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 
   /**
    * Opens a dropdown asynchronously.
-   * @deprecated Use `open()` instead (since 4.0.0)
+   *
+   * @deprecated Since 4.0.0 - Use `open()` instead
    */
   openAsync: (
     dropdown: string | URL | Partial<PanelFeatureDefaults>,
@@ -812,7 +813,8 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
 
   /**
    * Opens a legacy Vue component dialog.
-   * @deprecated Since 4.0.0
+   *
+   * @deprecated Since 4.0.0 - Use `open()` with component object instead
    */
   openComponent: (dialog: {
     component: string;

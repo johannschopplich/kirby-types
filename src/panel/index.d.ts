@@ -468,6 +468,27 @@ export interface PanelUrls {
 }
 
 // =============================================================================
+// Panel Request Response
+// =============================================================================
+
+/**
+ * Response object from Panel requests.
+ *
+ * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/request.js
+ */
+export interface PanelRequestResponse {
+  /** The original Request object */
+  request: Request;
+  /** The parsed response */
+  response: {
+    /** Parsed JSON data */
+    json: any;
+    /** Raw response text */
+    text: string;
+  };
+}
+
+// =============================================================================
 // Panel Plugins
 // =============================================================================
 
@@ -788,19 +809,29 @@ export interface Panel {
   get: (url: string | URL, options?: PanelRequestOptions) => Promise<any>;
 
   /**
-   * Opens a URL through the Panel router.
+   * Opens a URL through the Panel router and sets the state.
    *
-   * @param url - URL to open
+   * Unlike `get()`, this method also updates the Panel state
+   * based on the response.
+   *
+   * @param url - URL to open or state object
    * @param options - Request options
+   * @returns The new Panel state
    */
-  open: (url: string | URL, options?: PanelRequestOptions) => Promise<void>;
+  open: (
+    url: string | URL | Partial<PanelGlobalState>,
+    options?: PanelRequestOptions,
+  ) => Promise<PanelGlobalState>;
 
   /**
-   * Returns all open overlay contexts.
+   * Returns all open overlay types.
    *
-   * @returns Array of contexts ('view', 'dialog', 'drawer')
+   * Returns an array of currently open overlays in order.
+   * Only includes "drawer" and "dialog" - the view is not an overlay.
+   *
+   * @returns Array of open overlay types
    */
-  overlays: () => PanelContext[];
+  overlays: () => ("drawer" | "dialog")[];
 
   /**
    * Registers a plugin or plugin module.
@@ -840,28 +871,43 @@ export interface Panel {
   /**
    * Sends a request through the Panel router.
    *
+   * Returns an object with both the request and parsed response,
+   * or `false` if the request was redirected externally.
+   *
    * @param url - URL to request
    * @param options - Request options including method
-   * @returns Fetch Response
+   * @returns Request/response object or false on redirect
    */
   request: (
     url: string | URL,
     options?: PanelRequestOptions,
-  ) => Promise<Response>;
+  ) => Promise<PanelRequestResponse | false>;
 
   /**
-   * Performs a search.
+   * Opens the search dialog.
+   *
+   * When called without a query, opens the search dialog
+   * with the specified search type pre-selected.
    *
    * @param type - Search type ('pages', 'files', 'users')
-   * @param query - Search query
-   * @param options - Request options
+   */
+  search: (type: string) => void;
+
+  /**
+   * Performs a search query.
+   *
+   * When called with a query, performs the search and returns results.
+   *
+   * @param type - Search type ('pages', 'files', 'users')
+   * @param query - Search query string
+   * @param options - Search options (page, limit)
    * @returns Search results
    */
   search: (
     type: string,
     query: string,
-    options?: PanelRequestOptions,
-  ) => Promise<any>;
+    options?: PanelFeatures.PanelSearchOptions,
+  ) => Promise<PanelFeatures.PanelSearchResult>;
 
   /**
    * Sets global Panel state.
