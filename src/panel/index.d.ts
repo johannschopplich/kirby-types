@@ -282,6 +282,8 @@ export type {
 export type PanelApp = InstanceType<VueConstructor> & {
   $library: PanelLibrary;
   $helper: PanelHelpers;
+  /** Shortcut for escaping HTML (alias for `$helper.string.escapeHTML`) */
+  $esc: (string: string) => string;
 };
 
 // =============================================================================
@@ -519,66 +521,80 @@ export type PanelPluginsViews = Record<string, Record<string, any>>;
  * Panel plugin system.
  *
  * Manages Vue components, icons, and extensions registered by plugins.
+ * Properties are ordered to match `panel/public/js/plugins.js`.
  *
  * @see https://getkirby.com/docs/reference/plugins/extensions
  */
 export interface PanelPlugins {
-  /**
-   * Resolves component extensions by name.
-   */
-  resolveComponentExtension: (
-    name: string,
-    extension: string,
-    fallback?: any,
-  ) => any;
+  // ---------------------------------------------------------------------------
+  // Helper Functions (from panel/src/panel/plugins.js)
+  // ---------------------------------------------------------------------------
 
   /**
-   * Resolves all mixins for a component.
+   * Resolves a component extension if defined as component name.
+   *
+   * @param app - Vue application instance
+   * @param name - Component name being registered
+   * @param component - Component options object
+   * @returns Updated/extended component options
    */
-  resolveComponentMixins: (name: string) => any[];
+  resolveComponentExtension: (app: any, name: string, component: any) => any;
 
   /**
-   * Resolves the render function for a component.
+   * Resolves available mixins if they are defined.
+   *
+   * @param component - Component options object
+   * @returns Updated component options with resolved mixins
    */
-  resolveComponentRender: (name: string) => any;
+  resolveComponentMixins: (component: any) => any;
+
+  /**
+   * Resolves a component's competing template/render options.
+   *
+   * @param component - Component options object
+   * @returns Updated component options
+   */
+  resolveComponentRender: (component: any) => any;
+
+  // ---------------------------------------------------------------------------
+  // Plugin Data (ordered as in panel/public/js/plugins.js)
+  // ---------------------------------------------------------------------------
 
   /** Registered Vue components */
   components: Record<string, ComponentPublicInstance>;
 
-  /** Hooks to run after Panel creation */
+  /** Callbacks to run after Panel creation */
   created: Array<() => void>;
 
   /** Registered SVG icons */
   icons: Record<string, string>;
 
-  /** Custom login component */
+  /** Custom login component (set dynamically by plugins) */
   login: ComponentPublicInstance | null;
 
-  /** Custom textarea buttons */
+  /** Registered Panel routes */
+  routes: Record<string, any>[];
+
+  /** Registered textarea toolbar buttons */
   textareaButtons: Record<string, Record<string, any>>;
 
-  /** Third-party plugin data */
+  /** Registered third-party plugin data */
   thirdParty: PanelPluginsThirdParty;
 
-  /**
-   * Registers plugins with the Panel.
-   */
-  use: (plugins: Record<string, any>) => any[];
+  /** Installed Vue plugins via `Vue.use()` */
+  use: any[];
 
-  /** Custom view buttons */
+  /** Registered view buttons */
   viewButtons: PanelPluginsViewButtons;
 
-  /** Custom writer marks */
+  /** Registered Panel views */
+  views: PanelPluginsViews;
+
+  /** Registered writer marks */
   writerMarks: Record<string, Record<string, any>>;
 
-  /** Custom writer nodes */
+  /** Registered writer nodes */
   writerNodes: PanelPluginsWriterNodes;
-
-  /** Custom routes */
-  routes: Array<Record<string, any>>;
-
-  /** Custom views */
-  views: PanelPluginsViews;
 }
 
 // =============================================================================
@@ -610,7 +626,6 @@ export interface PanelLanguageInfo {
  */
 export interface PanelGlobalState {
   activation: PanelFeatures.PanelActivationDefaults;
-  content: Record<string, any>;
   dialog: PanelFeatures.PanelDialogDefaults;
   drag: PanelFeatures.PanelDragDefaults;
   drawer: PanelFeatures.PanelDrawerDefaults;
@@ -992,7 +1007,7 @@ export interface PanelViewPropsVersions {
 export interface PanelViewPropsTab {
   label: string;
   icon: string;
-  columns: Array<Record<string, any>>;
+  columns: Record<string, any>[];
   link: string;
   name: string;
 }
@@ -1048,7 +1063,7 @@ export interface PanelViewProps {
   link: string;
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
-  tabs: Array<Record<string, any>>;
+  tabs: Record<string, any>[];
   uuid: string;
   versions: PanelViewPropsVersions;
   tab: PanelViewPropsTab;

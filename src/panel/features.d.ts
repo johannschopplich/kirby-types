@@ -121,9 +121,9 @@ export interface PanelDrag extends PanelState<PanelDragDefaults> {
    * Starts a drag operation with type and data.
    *
    * @param type - Drag item type (e.g., `"page"`, `"file"`)
-   * @param data - Associated data
+   * @param data - Associated data (string or object)
    */
-  start: (type: string, data: Record<string, any>) => void;
+  start: (type: string, data: string | Record<string, any>) => void;
 
   /**
    * Stops the current drag operation and resets state.
@@ -284,9 +284,10 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
 
   /**
    * Handles outside clicks to close mobile menu.
+   * Returns false if not mobile/open, void otherwise.
    * @internal
    */
-  blur: (event: Event) => void;
+  blur: (event: Event) => false | void;
 
   /**
    * Collapses the sidebar menu.
@@ -296,9 +297,10 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
 
   /**
    * Handles escape key to close mobile menu.
+   * Returns false if not mobile/open, void otherwise.
    * @internal
    */
-  escape: () => void;
+  escape: () => false | void;
 
   /**
    * Expands the sidebar menu.
@@ -753,7 +755,7 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   openAsync: (
     dropdown: string | URL | Partial<PanelFeatureDefaults>,
     options?: PanelRequestOptions | PanelEventCallback,
-  ) => () => Promise<PanelFeatureDefaults>;
+  ) => (ready?: () => void) => Promise<PanelFeatureDefaults>;
 
   /**
    * Returns dropdown options array from props.
@@ -864,6 +866,11 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
    * @returns False if no tabs exist, void otherwise
    */
   tab: (tab: string) => void | false;
+
+  /**
+   * Returns drawer event listeners for Vue component binding.
+   */
+  listeners: () => PanelModalListeners;
 }
 
 // -----------------------------------------------------------------------------
@@ -1205,8 +1212,8 @@ export interface PanelUploadFile {
  * Default state for upload feature.
  */
 export interface PanelUploadDefaults {
-  /** Abort callback for current upload */
-  abort: (() => void) | null;
+  /** AbortController for current upload */
+  abort: AbortController | null;
   /** Accepted file types */
   accept: string;
   /** Additional file attributes */
@@ -1236,8 +1243,8 @@ export interface PanelUploadDefaults {
  */
 export interface PanelUpload
   extends PanelState<PanelUploadDefaults>, PanelEventListeners {
-  /** Abort callback for current upload */
-  abort: (() => void) | null;
+  /** AbortController for current upload */
+  abort: AbortController | null;
   /** Accepted file types */
   accept: string;
   /** Additional file attributes */
@@ -1278,10 +1285,12 @@ export interface PanelUpload
 
   /**
    * Finds duplicate file by comparing properties.
+   * Returns the index of the duplicate file, or false if not found.
    *
    * @param file - File to check
+   * @returns Index of duplicate file or false
    */
-  findDuplicate: (file: File) => PanelUploadFile | undefined;
+  findDuplicate: (file: File) => number | false;
 
   /**
    * Checks if file has a unique name.
@@ -1394,9 +1403,6 @@ export interface PanelEventEmitter {
  * @since 4.0.0
  */
 export interface PanelEvents extends PanelEventEmitter {
-  /** Internal mitt emitter instance */
-  emitter: PanelEventEmitter;
-
   /** Element that was entered during drag */
   entered: Element | null;
 
