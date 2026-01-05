@@ -481,15 +481,15 @@ export interface PanelSystemDefaults {
   /** ASCII character replacements for slugs */
   ascii: Record<string, string>;
   /** CSRF token for API requests */
-  csrf: string | null;
+  csrf: string;
   /** Whether running on localhost */
-  isLocal: boolean | null;
+  isLocal: boolean;
   /** Locale names by code */
   locales: Record<string, string>;
   /** Slug rules by language */
   slugs: Record<string, string>;
   /** Site title */
-  title: string | null;
+  title: string;
 }
 
 /**
@@ -504,15 +504,15 @@ export interface PanelSystem extends PanelState<PanelSystemDefaults> {
   /** ASCII character replacements for slugs */
   ascii: Record<string, string>;
   /** CSRF token for API requests */
-  csrf: string | null;
+  csrf: string;
   /** Whether running on localhost */
-  isLocal: boolean | null;
+  isLocal: boolean;
   /** Locale names by code */
   locales: Record<string, string>;
   /** Slug rules by language */
   slugs: Record<string, string>;
   /** Site title */
-  title: string | null;
+  title: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -524,13 +524,13 @@ export interface PanelSystem extends PanelState<PanelSystemDefaults> {
  */
 export interface PanelTranslationDefaults {
   /** Translation code (e.g., `'en'`, `'de'`) */
-  code: string | null;
+  code: string;
   /** Translation strings by key */
   data: Record<string, string>;
   /** Text direction */
   direction: "ltr" | "rtl";
   /** Translation name */
-  name: string | null;
+  name: string;
   /** First day of week (`0`=Sunday, `1`=Monday) */
   weekday: number;
 }
@@ -546,13 +546,13 @@ export interface PanelTranslationDefaults {
  */
 export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
   /** Translation code (e.g., `'en'`, `'de'`) */
-  code: string | null;
+  code: string;
   /** Translation strings by key */
   data: Record<string, string>;
   /** Text direction */
   direction: "ltr" | "rtl";
   /** Translation name */
-  name: string | null;
+  name: string;
   /** First day of week (`0`=Sunday, `1`=Monday) */
   weekday: number;
 
