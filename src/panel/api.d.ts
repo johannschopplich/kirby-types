@@ -76,33 +76,28 @@ export interface PanelApiAuth {
   /**
    * Logs out the current user.
    */
-  logout: () => Promise<void>;
+  logout: () => Promise<any>;
 
   /**
    * Pings the server to keep session alive.
    */
-  ping: () => Promise<void>;
+  ping: () => Promise<any>;
 
   /**
    * Gets the current user.
    *
    * @param query - Query parameters
-   * @param options - Request options
    * @returns User data
    */
-  user: (
-    query?: Record<string, any>,
-    options?: PanelApiRequestOptions,
-  ) => Promise<any>;
+  user: (query?: Record<string, any>) => Promise<any>;
 
   /**
    * Verifies a 2FA code.
    *
    * @param code - Verification code
-   * @param data - Additional data
    * @returns Verification result
    */
-  verifyCode: (code: string, data?: Record<string, any>) => Promise<any>;
+  verifyCode: (code: string) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -135,7 +130,7 @@ export interface PanelApiFiles {
    * @param parent - Parent page/site path
    * @param filename - Filename to delete
    */
-  delete: (parent: string | null, filename: string) => Promise<void>;
+  delete: (parent: string | null, filename: string) => Promise<any>;
 
   /**
    * Gets a file.
@@ -225,18 +220,17 @@ export interface PanelApiLanguages {
   /**
    * Creates a new language.
    *
-   * @param code - Language code
-   * @param data - Language data
+   * @param data - Language data (including code)
    * @returns Created language
    */
-  create: (code: string, data: PanelApiLanguageData) => Promise<any>;
+  create: (data: PanelApiLanguageData) => Promise<any>;
 
   /**
    * Deletes a language.
    *
    * @param code - Language code
    */
-  delete: (code: string) => Promise<void>;
+  delete: (code: string) => Promise<any>;
 
   /**
    * Gets a language.
@@ -381,7 +375,7 @@ export interface PanelApiPages {
    * @param id - Page ID
    * @param data - Delete options
    */
-  delete: (id: string, data?: { force?: boolean }) => Promise<void>;
+  delete: (id: string, data?: { force?: boolean }) => Promise<any>;
 
   /**
    * Duplicates a page.
@@ -488,11 +482,10 @@ export interface PanelApiRoles {
   /**
    * Lists available roles.
    *
-   * @param user - User ID for context
-   * @param query - Query parameters
+   * @param params - Query parameters
    * @returns Array of roles
    */
-  list: (user?: string, query?: Record<string, any>) => Promise<any[]>;
+  list: (params?: Record<string, any>) => Promise<any[]>;
 }
 
 // -----------------------------------------------------------------------------
@@ -523,22 +516,17 @@ export interface PanelApiSite {
    * Changes the site title.
    *
    * @param title - New title
-   * @param language - Language code
    * @returns Updated site
    */
-  changeTitle: (title: string, language?: string) => Promise<any>;
+  changeTitle: (title: string) => Promise<any>;
 
   /**
    * Searches site children.
    *
    * @param query - Search query
-   * @param options - Query options
    * @returns Search results
    */
-  children: (
-    query?: PanelApiSearchQuery,
-    options?: Record<string, any>,
-  ) => Promise<any>;
+  children: (query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Gets the site.
@@ -552,10 +540,9 @@ export interface PanelApiSite {
    * Updates the site content.
    *
    * @param data - Content data
-   * @param language - Language code
    * @returns Updated site
    */
-  update: (data: Record<string, any>, language?: string) => Promise<any>;
+  update: (data: Record<string, any>) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -602,25 +589,17 @@ export interface PanelApiSystem {
    * Installs Kirby with initial user.
    *
    * @param data - Installation data
-   * @param query - Query parameters
    * @returns Installation result
    */
-  install: (
-    data: PanelApiSystemInstallData,
-    query?: Record<string, any>,
-  ) => Promise<any>;
+  install: (data: PanelApiSystemInstallData) => Promise<any>;
 
   /**
    * Registers a license.
    *
    * @param data - Registration data
-   * @param query - Query parameters
    * @returns Registration result
    */
-  register: (
-    data: PanelApiSystemRegisterData,
-    query?: Record<string, any>,
-  ) => Promise<any>;
+  register: (data: PanelApiSystemRegisterData) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -686,11 +665,11 @@ export interface PanelApiUsers {
   /**
    * Gets available blueprints for users.
    *
-   * @param user - User ID for context
-   * @param query - Query parameters
+   * @param id - User ID for context
+   * @param section - Section name to filter by
    * @returns Array of blueprints
    */
-  blueprints: (user?: string, query?: Record<string, any>) => Promise<any[]>;
+  blueprints: (id: string, section?: string) => Promise<any[]>;
 
   /**
    * Changes a user's email.
@@ -724,13 +703,13 @@ export interface PanelApiUsers {
    *
    * @param id - User ID
    * @param password - New password
-   * @param confirmation - Password confirmation
+   * @param currentPassword - Current password for verification
    * @returns Updated user
    */
   changePassword: (
     id: string,
     password: string,
-    confirmation: string,
+    currentPassword: string,
   ) => Promise<any>;
 
   /**
@@ -745,25 +724,24 @@ export interface PanelApiUsers {
   /**
    * Creates a new user.
    *
-   * @param id - User ID (usually email)
-   * @param data - User data
+   * @param data - User data (including email as identifier)
    * @returns Created user
    */
-  create: (id: string, data: PanelApiUserCreateData) => Promise<any>;
+  create: (data: PanelApiUserCreateData) => Promise<any>;
 
   /**
    * Deletes a user.
    *
    * @param id - User ID
    */
-  delete: (id: string) => Promise<void>;
+  delete: (id: string) => Promise<any>;
 
   /**
    * Deletes a user's avatar.
    *
    * @param id - User ID
    */
-  deleteAvatar: (id: string) => Promise<void>;
+  deleteAvatar: (id: string) => Promise<any>;
 
   /**
    * Gets a user.
@@ -913,7 +891,6 @@ export interface PanelApi {
    * @param data - Request body
    * @param options - Request options
    * @param silent - Skip loading indicator
-   * @param upload - Whether uploading file
    * @returns Response data
    */
   post: (
@@ -921,7 +898,6 @@ export interface PanelApi {
     data?: any,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-    upload?: boolean,
   ) => Promise<any>;
 
   /**
