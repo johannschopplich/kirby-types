@@ -906,7 +906,7 @@ export interface Panel {
    *
    * When called with a query, performs the search and returns results.
    *
-   * @param type - Search type ('pages', 'files', 'users')
+   * @param type - Search type (`"pages"`, `"files"`, `"users"`)
    * @param query - Search query string
    * @param options - Search options (page, limit)
    * @returns Search results when query provided, void otherwise

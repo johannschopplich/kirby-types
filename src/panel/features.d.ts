@@ -967,7 +967,7 @@ export interface PanelContent {
   /**
    * Emits a content event with environment context.
    *
-   * @param event - Event name (prefixed with 'content.')
+   * @param event - Event name (prefixed with `"content."`)
    * @param options - Additional event data
    * @param env - Environment context
    */

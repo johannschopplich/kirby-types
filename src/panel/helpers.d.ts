@@ -265,7 +265,7 @@ export interface PanelHelpersObject {
   ) => Partial<T>;
 
   /**
-   * Checks if value is empty (null, undefined, '', empty object/array).
+   * Checks if value is empty (`null`, `undefined`, `""`, empty object/array).
    *
    * @param value - Value to check
    * @returns True if empty
@@ -743,7 +743,7 @@ export interface PanelHelpersPage {
   /**
    * Returns props for page status button.
    *
-   * @param status - Page status ('draft', 'unlisted', 'listed')
+   * @param status - Page status (`"draft"`, `"unlisted"`, `"listed"`)
    * @param disabled - Whether to disable
    * @returns Button props
    */
