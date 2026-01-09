@@ -43,13 +43,13 @@
     "test": "tsd -f \"test/**/*.test-d.ts\""
   },
   "peerDependencies": {
-    "dayjs": "^1.0.0",
+    "dayjs": "^1.11.13",
     "prosemirror-commands": "^1.7.1",
     "prosemirror-inputrules": "^1.5.1",
     "prosemirror-model": "^1.25.4",
     "prosemirror-schema-list": "^1.5.1",
     "prosemirror-state": "^1.4.4",
-    "vue": "^2.7.0"
+    "vue": "^2.7.16"
   },
   "peerDependenciesMeta": {
     "dayjs": {
