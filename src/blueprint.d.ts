@@ -144,7 +144,7 @@ export interface KirbyNumberFieldProps extends KirbyFieldProps {
   max?: number;
   /** Minimum value */
   min?: number;
-  /** Step increment, or `'any'` to allow any decimal value */
+  /** Step increment, or `"any"` to allow any decimal value */
   step?: number | "any";
   value?: number;
 }
@@ -156,7 +156,7 @@ export interface KirbyNumberFieldProps extends KirbyFieldProps {
  */
 export interface KirbyOptionsFieldProps extends KirbyFieldProps {
   type: "select" | "radio" | "checkboxes" | "multiselect" | "toggles";
-  /** Input acceptance mode for multiselect: `'all'` or `'options'` */
+  /** Input acceptance mode for multiselect: `"all"` or `"options"` */
   accept?: "all" | "options";
   /** Whether to show batch select toggle (checkboxes only) */
   batch?: boolean;
@@ -190,16 +190,6 @@ export interface KirbyToggleFieldProps extends KirbyFieldProps {
 }
 
 /**
- * Step configuration for date/time fields.
- */
-export interface KirbyDateTimeStep {
-  /** Step size */
-  size: number;
-  /** Step unit: `'minute'`, `'hour'`, `'day'`, etc. */
-  unit: string;
-}
-
-/**
  * Props for date and time fields.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/date
@@ -216,8 +206,8 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
   min?: string;
   /** Hour notation: `12` or `24` (time only) */
   notation?: 12 | 24;
-  /** Step configuration for rounding */
-  step?: KirbyDateTimeStep;
+  /** Step configuration for rounding (size and unit like `"minute"`, `"hour"`, `"day"`) */
+  step?: { size: number; unit: string };
   /** Whether to include time picker (date only) */
   time?: boolean | Record<string, unknown>;
   value?: string;
@@ -265,7 +255,7 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   query?: string;
   /** Whether to show search field in picker */
   search?: boolean;
-  /** Whether to store `'uuid'` or `'id'` in content file */
+  /** Whether to store `"uuid"` or `"id"` in content file */
   store?: "uuid" | "id";
   /** Text template for each item */
   text?: string;
@@ -302,16 +292,6 @@ export interface KirbyColorOption {
 }
 
 /**
- * Range tooltip configuration.
- */
-export interface KirbyRangeTooltip {
-  /** Text shown before the value */
-  before?: string;
-  /** Text shown after the value */
-  after?: string;
-}
-
-/**
  * Props for range fields (slider input).
  *
  * @see https://getkirby.com/docs/reference/panel/fields/range
@@ -322,10 +302,10 @@ export interface KirbyRangeFieldProps extends KirbyFieldProps {
   max?: number;
   /** Minimum value */
   min?: number;
-  /** Step increment, or `'any'` for any decimal value */
+  /** Step increment, or `"any"` for any decimal value */
   step?: number | "any";
-  /** Tooltip configuration or boolean to enable/disable */
-  tooltip?: boolean | KirbyRangeTooltip;
+  /** Tooltip configuration (before/after text) or boolean to enable/disable */
+  tooltip?: boolean | { before?: string; after?: string };
   value?: number;
 }
 
@@ -346,11 +326,11 @@ export interface KirbyTagsSearch {
  */
 export interface KirbyTagsFieldProps extends KirbyFieldProps {
   type: "tags";
-  /** Input acceptance: `'all'` for any input, `'options'` for predefined only */
+  /** Input acceptance: `"all"` for any input, `"options"` for predefined only */
   accept?: "all" | "options";
   /** Tag icon */
   icon?: string;
-  /** Display layout: `'list'` for full-width tags */
+  /** Display layout: `"list"` for full-width tags */
   layout?: "list" | null;
   /** Maximum number of tags */
   max?: number;
@@ -368,18 +348,6 @@ export interface KirbyTagsFieldProps extends KirbyFieldProps {
 }
 
 /**
- * Link type options for link fields.
- */
-export type KirbyLinkType =
-  | "anchor"
-  | "url"
-  | "page"
-  | "file"
-  | "email"
-  | "tel"
-  | "custom";
-
-/**
  * Props for link fields.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/link
@@ -387,7 +355,7 @@ export type KirbyLinkType =
 export interface KirbyLinkFieldProps extends KirbyFieldProps {
   type: "link";
   /** Allowed link types */
-  options?: KirbyLinkType[];
+  options?: ("anchor" | "url" | "page" | "file" | "email" | "tel" | "custom")[];
   value?: string;
 }
 
@@ -482,16 +450,6 @@ export interface KirbyBlocksFieldProps extends KirbyFieldProps {
 }
 
 /**
- * Layout selector configuration.
- */
-export interface KirbyLayoutSelector {
-  /** Selector size: `'small'`, `'medium'`, `'large'`, or `'huge'` */
-  size?: "small" | "medium" | "large" | "huge";
-  /** Number of columns in the selector */
-  columns?: number;
-}
-
-/**
  * Props for layout fields.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/layout
@@ -512,8 +470,11 @@ export interface KirbyLayoutFieldProps extends KirbyFieldProps {
   max?: number;
   /** Minimum number of layouts */
   min?: number;
-  /** Layout selector styling options */
-  selector?: KirbyLayoutSelector;
+  /** Layout selector styling options (size: `"small"`|`"medium"`|`"large"`|`"huge"`, columns count) */
+  selector?: {
+    size?: "small" | "medium" | "large" | "huge";
+    columns?: number;
+  };
   /** Layout settings fieldset (rendered via `Fieldset->toArray()`) */
   settings?: KirbyFieldsetProps;
   value?: KirbyLayoutValue[];

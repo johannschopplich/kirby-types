@@ -1,6 +1,5 @@
 import type {
   TextareaButton,
-  TextareaCommand,
   TextareaToolbarContext,
   WriterMarkExtension,
   WriterMarkSchema,
@@ -189,7 +188,8 @@ expectAssignable<WriterNodeExtension>({
     return {
       toggleHeading: (attrs) =>
         utils.toggleBlockType(type, schema.nodes.paragraph, attrs),
-      h1: () => utils.toggleBlockType(type, schema.nodes.paragraph, { level: 1 }),
+      h1: () =>
+        utils.toggleBlockType(type, schema.nodes.paragraph, { level: 1 }),
     };
   },
   inputRules({ type, utils }) {
@@ -248,25 +248,17 @@ expectAssignable<TextareaButton>({
 });
 
 // =============================================================================
-// 7. TEXTAREA COMMAND TYPE
-// =============================================================================
-
-expectType<TextareaCommand>("dialog" as TextareaCommand);
-expectType<TextareaCommand>("insert" as TextareaCommand);
-expectType<TextareaCommand>("prepend" as TextareaCommand);
-expectType<TextareaCommand>("toggle" as TextareaCommand);
-expectType<TextareaCommand>("upload" as TextareaCommand);
-expectType<TextareaCommand>("wrap" as TextareaCommand);
-expectType<TextareaCommand>("file" as TextareaCommand);
-
-// =============================================================================
-// 8. TEXTAREA TOOLBAR CONTEXT
+// 7. TEXTAREA TOOLBAR CONTEXT
 // =============================================================================
 
 declare const context: TextareaToolbarContext;
 
 expectType<void>(context.command("toggle", "**"));
-expectType<void>(context.command("insert", (input: string, selection: string) => selection.toUpperCase()));
+expectType<void>(
+  context.command("insert", (input: string, selection: string) =>
+    selection.toUpperCase(),
+  ),
+);
 expectType<void>(context.close());
 expectType<string>(context.$t("toolbar.button.bold"));
 

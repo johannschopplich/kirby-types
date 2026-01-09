@@ -404,8 +404,8 @@ expectAssignable<KirbyObjectFieldProps>({
   width: "1/1",
 });
 
-// Object value can be empty string (Kirby quirk)
-expectType<Record<string, unknown> | "">(
+// Object value can be empty string (Kirby quirk) or undefined
+expectType<Record<string, unknown> | "" | undefined>(
   {} as KirbyObjectFieldProps["value"],
 );
 

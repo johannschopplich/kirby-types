@@ -174,37 +174,6 @@ export interface PanelLibraryColors {
 // -----------------------------------------------------------------------------
 
 /**
- * ISO format type for Kirby's `toISO`/`iso` methods.
- */
-export type PanelDayjsISOFormat = "date" | "time" | "datetime";
-
-/**
- * Valid units for Kirby's `round()` method.
- *
- * Note: `day` is an alias for `date`. Units `week` and `millisecond`
- * are NOT supported by `round()` and will throw an error.
- */
-export type PanelDayjsRoundUnit =
-  | "second"
-  | "minute"
-  | "hour"
-  | "day"
-  | "date"
-  | "month"
-  | "year";
-
-/**
- * Valid units for Kirby's `merge()` method.
- */
-export type PanelDayjsMergeUnit =
-  | "year"
-  | "month"
-  | "date"
-  | "hour"
-  | "minute"
-  | "second";
-
-/**
  * Pattern part information.
  */
 export interface PanelDayjsPatternPart {
@@ -255,7 +224,7 @@ export interface PanelDayjsExtensions {
    * @param format - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"`
    * @returns ISO formatted string
    */
-  toISO: (format?: PanelDayjsISOFormat) => string;
+  toISO: (format?: "date" | "time" | "datetime") => string;
 
   /**
    * Validates datetime against an upper or lower (min/max) boundary.
@@ -275,16 +244,22 @@ export interface PanelDayjsExtensions {
    * Merges date or time parts from another dayjs instance.
    *
    * @param dt - Dayjs instance to merge from
-   * @param units - `"date"`, `"time"`, or array of specific units
+   * @param units - `"date"`, `"time"`, or array of specific units (`"year"`, `"month"`, `"date"`, `"hour"`, `"minute"`, `"second"`)
    * @returns New dayjs instance (returns `this` if `dt` is invalid)
    */
   merge: (
     dt: Dayjs | null | undefined,
-    units?: "date" | "time" | PanelDayjsMergeUnit[],
+    units?:
+      | "date"
+      | "time"
+      | ("year" | "month" | "date" | "hour" | "minute" | "second")[],
   ) => Dayjs & PanelDayjsExtensions;
 
   /**
    * Rounds to nearest unit step.
+   *
+   * Note: `day` is an alias for `date`. Units `week` and `millisecond`
+   * are NOT supported and will throw an error.
    *
    * @param unit - Unit to round (default: `"date"`)
    * @param size - Step size (default: `1`). Must divide evenly into the unit's range.
@@ -292,7 +267,7 @@ export interface PanelDayjsExtensions {
    * @throws Error if unit is invalid or size doesn't divide evenly
    */
   round: (
-    unit?: PanelDayjsRoundUnit,
+    unit?: "second" | "minute" | "hour" | "day" | "date" | "month" | "year",
     size?: number,
   ) => Dayjs & PanelDayjsExtensions;
 }
@@ -330,7 +305,7 @@ export interface PanelDayjsStaticExtensions {
    */
   iso: (
     value: string,
-    format?: PanelDayjsISOFormat,
+    format?: "date" | "time" | "datetime",
   ) => PanelDayjsInstance | null;
 
   /**

@@ -178,7 +178,7 @@ export interface WriterToolbarButton {
  *
  * @see https://prosemirror.net/docs/ref/#model.MarkSpec
  */
-export interface WriterMarkSchema extends MarkSpec {
+export interface WriterMarkSchema extends Omit<MarkSpec, "parseDOM" | "toDOM"> {
   /** Attribute definitions with defaults */
   attrs?: Record<
     string,
@@ -186,14 +186,6 @@ export interface WriterMarkSchema extends MarkSpec {
       default?: any;
     }
   >;
-  /** Whether the mark should be excluded by other marks */
-  excludes?: string;
-  /** Whether content should be parsed exclusively by this mark */
-  inclusive?: boolean;
-  /** Which marks this mark can coexist with */
-  group?: string;
-  /** Whether this mark spans across content */
-  spanning?: boolean;
   /** DOM parsing rules */
   parseDOM?: Array<{
     tag?: string;
@@ -214,7 +206,7 @@ export interface WriterMarkSchema extends MarkSpec {
  *
  * @see https://prosemirror.net/docs/ref/#model.NodeSpec
  */
-export interface WriterNodeSchema extends NodeSpec {
+export interface WriterNodeSchema extends Omit<NodeSpec, "parseDOM" | "toDOM"> {
   /** Attribute definitions with defaults */
   attrs?: Record<
     string,
@@ -222,26 +214,6 @@ export interface WriterNodeSchema extends NodeSpec {
       default?: any;
     }
   >;
-  /** Content expression defining allowed children */
-  content?: string;
-  /** Whether this is a block or inline node */
-  group?: string;
-  /** Whether this is an inline node */
-  inline?: boolean;
-  /** Whether this node is an atom (not directly editable) */
-  atom?: boolean;
-  /** Whether this node is selectable as a whole */
-  selectable?: boolean;
-  /** Whether this node can be dragged */
-  draggable?: boolean;
-  /** Whether this is a code block */
-  code?: boolean;
-  /** Whether whitespace should be preserved */
-  whitespace?: "pre" | "normal";
-  /** Whether this node defines its own boundary */
-  defining?: boolean;
-  /** Whether this node is isolating */
-  isolating?: boolean;
   /** DOM parsing rules */
   parseDOM?: Array<{
     tag?: string;
@@ -675,6 +647,15 @@ export interface TextareaToolbarContext {
   /**
    * Emits a command to the textarea input component.
    *
+   * Available commands:
+   * - `"dialog"` - Opens a dialog component
+   * - `"insert"` - Inserts the given text at the current selection
+   * - `"prepend"` - Prepends the given text to the current selection/line
+   * - `"toggle"` - Toggles wrapping of current selection (accepts before, after texts)
+   * - `"upload"` - Opens the file upload dialog
+   * - `"wrap"` - Wraps the current selection with the given text
+   * - `"file"` - Opens the file picker
+   *
    * @param name - Command name
    * @param args - Command arguments
    *
@@ -686,7 +667,10 @@ export interface TextareaToolbarContext {
    * this.command("insert", (input, selection) => selection.toUpperCase());
    * ```
    */
-  command: (name: TextareaCommand, ...args: any[]) => void;
+  command: (
+    name: "dialog" | "insert" | "prepend" | "toggle" | "upload" | "wrap" | "file",
+    ...args: any[]
+  ) => void;
 
   /**
    * Closes all dropdowns.
@@ -698,22 +682,3 @@ export interface TextareaToolbarContext {
    */
   $t: (key: string, ...args: any[]) => string;
 }
-
-/**
- * Available textarea commands.
- */
-export type TextareaCommand =
-  /** Opens a dialog component */
-  | "dialog"
-  /** Inserts the given text at the current selection */
-  | "insert"
-  /** Prepends the given text to the current selection/line */
-  | "prepend"
-  /** Toggles wrapping of current selection (accepts before, after texts) */
-  | "toggle"
-  /** Opens the file upload dialog */
-  | "upload"
-  /** Wraps the current selection with the given text */
-  | "wrap"
-  /** Opens the file picker */
-  | "file";

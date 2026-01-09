@@ -55,7 +55,7 @@ export interface PanelHelpersArray {
    * Sorts array by field and direction.
    *
    * @param array - Array to sort
-   * @param sortBy - Sort specification (e.g., `'name asc'`, `'date desc'`)
+   * @param sortBy - Sort specification (e.g., `"name asc"`, `"date desc"`)
    * @returns Sorted array
    */
   sortBy: <T extends Record<string, any>>(array: T[], sortBy: string) => T[];

@@ -1384,11 +1384,6 @@ export interface PanelUpload
 // -----------------------------------------------------------------------------
 
 /**
- * Keychain modifier string (e.g., `'cmd.shift.s'`).
- */
-export type PanelKeychain = string;
-
-/**
  * Event emitter interface (mitt-compatible).
  */
 export interface PanelEventEmitter {
@@ -1483,13 +1478,13 @@ export interface PanelEvents extends PanelEventEmitter {
   focus: (event: FocusEvent) => void;
 
   /**
-   * Creates keychain modifier string.
+   * Creates keychain modifier string (e.g., `"keydown.cmd.shift.s"`).
    *
    * @param type - Event type
    * @param event - KeyboardEvent
-   * @returns Keychain string (e.g., `'keydown.cmd.shift.s'`)
+   * @returns Keychain string
    */
-  keychain: (type: "keydown" | "keyup", event: KeyboardEvent) => PanelKeychain;
+  keychain: (type: "keydown" | "keyup", event: KeyboardEvent) => string;
 
   /**
    * Handles window keydown event.

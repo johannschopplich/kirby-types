@@ -116,9 +116,6 @@ export type {
   WriterEditorOptions,
   // Writer Toolbar
   WriterToolbarButton,
-  // Writer Extension Contexts
-  WriterMarkExtensionContext,
-  WriterNodeExtensionContext,
   // Writer Schemas
   WriterMarkSchema,
   WriterNodeSchema,
@@ -129,7 +126,6 @@ export type {
   TextareaButton,
   TextareaDropdownItem,
   TextareaToolbarContext,
-  TextareaCommand,
 } from "./extensions";
 
 // =============================================================================
@@ -199,7 +195,6 @@ export type {
   PanelUploadDefaults,
   PanelUpload,
   // Events
-  PanelKeychain,
   PanelEventEmitter,
   PanelEvents,
 } from "./features";
@@ -267,9 +262,6 @@ export type {
   PanelColorInput,
   PanelLibraryColors,
   // Dayjs Types
-  PanelDayjsISOFormat,
-  PanelDayjsRoundUnit,
-  PanelDayjsMergeUnit,
   PanelDayjsPatternPart,
   PanelDayjsPattern,
   PanelDayjsExtensions,
@@ -325,21 +317,16 @@ export type PanelApp = InstanceType<VueConstructor> & {
 // =============================================================================
 
 /**
- * Panel API configuration.
- */
-export interface PanelConfigApi {
-  /** Whether to use method override for PUT/PATCH/DELETE */
-  methodOverride: boolean;
-}
-
-/**
  * Global Panel configuration.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/config/config.js
  */
 export interface PanelConfig {
   /** API configuration */
-  api: PanelConfigApi;
+  api: {
+    /** Whether to use method override for PUT/PATCH/DELETE */
+    methodOverride: boolean;
+  };
   /** Whether debug mode is enabled */
   debug: boolean;
   /** Whether KirbyText is enabled */
@@ -529,45 +516,6 @@ export interface PanelRequestResponse {
 // =============================================================================
 
 /**
- * Third-party plugin data.
- */
-export type PanelPluginsThirdParty = Record<string, any>;
-
-/**
- * Custom view button definitions.
- */
-export type PanelPluginsViewButtons = Record<
-  string,
-  ComponentPublicInstance | Record<string, any>
->;
-
-/**
- * Custom textarea toolbar button definitions.
- *
- * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
- */
-export type PanelPluginsTextareaButtons = Record<string, TextareaButton>;
-
-/**
- * Custom writer mark definitions.
- *
- * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks
- */
-export type PanelPluginsWriterMarks = Record<string, WriterMarkExtension>;
-
-/**
- * Custom writer node definitions.
- *
- * @see https://getkirby.com/docs/reference/plugins/extensions/writer-nodes
- */
-export type PanelPluginsWriterNodes = Record<string, WriterNodeExtension>;
-
-/**
- * Custom view definitions.
- */
-export type PanelPluginsViews = Record<string, Record<string, any>>;
-
-/**
  * Panel plugin system.
  *
  * Manages Vue components, icons, and extensions registered by plugins.
@@ -625,26 +573,35 @@ export interface PanelPlugins {
   /** Registered Panel routes */
   routes: Record<string, any>[];
 
-  /** Registered textarea toolbar buttons */
-  textareaButtons: PanelPluginsTextareaButtons;
+  /**
+   * Registered textarea toolbar buttons.
+   * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
+   */
+  textareaButtons: Record<string, TextareaButton>;
 
   /** Registered third-party plugin data */
-  thirdParty: PanelPluginsThirdParty;
+  thirdParty: Record<string, any>;
 
   /** Installed Vue plugins via `Vue.use()` */
   use: any[];
 
   /** Registered view buttons */
-  viewButtons: PanelPluginsViewButtons;
+  viewButtons: Record<string, ComponentPublicInstance | Record<string, any>>;
 
   /** Registered Panel views */
-  views: PanelPluginsViews;
+  views: Record<string, Record<string, any>>;
 
-  /** Registered writer marks */
-  writerMarks: PanelPluginsWriterMarks;
+  /**
+   * Registered writer marks.
+   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks
+   */
+  writerMarks: Record<string, WriterMarkExtension>;
 
-  /** Registered writer nodes */
-  writerNodes: PanelPluginsWriterNodes;
+  /**
+   * Registered writer nodes.
+   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-nodes
+   */
+  writerNodes: Record<string, WriterNodeExtension>;
 }
 
 // =============================================================================
