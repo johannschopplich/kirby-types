@@ -649,6 +649,8 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
   id: string | null;
   /** View link */
   link: string | null;
+  /** Relative path to this view */
+  path: string;
   /** Default search type */
   search: string;
   /** View title */
@@ -678,6 +680,8 @@ export interface PanelView extends Omit<
   id: string | null;
   /** View link */
   link: string | null;
+  /** Relative path to this view */
+  path: string;
   /** Default search type */
   search: string;
   /** View title */
