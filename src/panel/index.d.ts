@@ -23,6 +23,11 @@ import type {
   PanelFeatureDefaults,
   PanelRequestOptions,
 } from "./base";
+import type {
+  TextareaButton,
+  WriterMarkExtension,
+  WriterNodeExtension,
+} from "./extensions";
 import type * as PanelFeatures from "./features";
 import type { PanelHelpers } from "./helpers";
 import type { PanelLibrary } from "./libraries";
@@ -100,6 +105,32 @@ export type {
   NotificationType,
   NotificationTheme,
 } from "./base";
+
+// =============================================================================
+// Re-exports from panel.extensions.ts
+// =============================================================================
+
+export type {
+  // Writer Editor
+  WriterEditor,
+  WriterEditorOptions,
+  // Writer Toolbar
+  WriterToolbarButton,
+  // Writer Extension Contexts
+  WriterMarkExtensionContext,
+  WriterNodeExtensionContext,
+  // Writer Schemas
+  WriterMarkSchema,
+  WriterNodeSchema,
+  // Writer Extensions
+  WriterMarkExtension,
+  WriterNodeExtension,
+  // Textarea
+  TextareaButton,
+  TextareaDropdownItem,
+  TextareaToolbarContext,
+  TextareaCommand,
+} from "./extensions";
 
 // =============================================================================
 // Re-exports from panel.features.ts
@@ -511,9 +542,25 @@ export type PanelPluginsViewButtons = Record<
 >;
 
 /**
- * Custom writer node definitions.
+ * Custom textarea toolbar button definitions.
+ *
+ * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
  */
-export type PanelPluginsWriterNodes = Record<string, Record<string, any>>;
+export type PanelPluginsTextareaButtons = Record<string, TextareaButton>;
+
+/**
+ * Custom writer mark definitions.
+ *
+ * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks
+ */
+export type PanelPluginsWriterMarks = Record<string, WriterMarkExtension>;
+
+/**
+ * Custom writer node definitions.
+ *
+ * @see https://getkirby.com/docs/reference/plugins/extensions/writer-nodes
+ */
+export type PanelPluginsWriterNodes = Record<string, WriterNodeExtension>;
 
 /**
  * Custom view definitions.
@@ -579,7 +626,7 @@ export interface PanelPlugins {
   routes: Record<string, any>[];
 
   /** Registered textarea toolbar buttons */
-  textareaButtons: Record<string, Record<string, any>>;
+  textareaButtons: PanelPluginsTextareaButtons;
 
   /** Registered third-party plugin data */
   thirdParty: PanelPluginsThirdParty;
@@ -594,7 +641,7 @@ export interface PanelPlugins {
   views: PanelPluginsViews;
 
   /** Registered writer marks */
-  writerMarks: Record<string, Record<string, any>>;
+  writerMarks: PanelPluginsWriterMarks;
 
   /** Registered writer nodes */
   writerNodes: PanelPluginsWriterNodes;

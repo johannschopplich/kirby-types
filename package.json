@@ -49,6 +49,7 @@
     "prosemirror-model": "^1.25.4",
     "prosemirror-schema-list": "^1.5.1",
     "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.41.4",
     "vue": "^2.7.16"
   },
   "peerDependenciesMeta": {
@@ -68,6 +69,9 @@
       "optional": true
     },
     "prosemirror-state": {
+      "optional": true
+    },
+    "prosemirror-view": {
       "optional": true
     },
     "vue": {

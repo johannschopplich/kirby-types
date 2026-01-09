@@ -9,6 +9,31 @@ export type {
   KirbyDefaultBlockType,
 } from "./src/blocks";
 
+// Blueprint types
+export type {
+  KirbyAnyFieldProps,
+  KirbyBlocksFieldProps,
+  KirbyBlockValue,
+  KirbyDateFieldProps,
+  KirbyFieldProps,
+  KirbyFieldsetGroup,
+  KirbyFieldsetProps,
+  KirbyFieldsetTab,
+  KirbyFilesFieldProps,
+  KirbyLayoutColumnValue,
+  KirbyLayoutFieldProps,
+  KirbyLayoutValue,
+  KirbyNumberFieldProps,
+  KirbyObjectFieldProps,
+  KirbyOption,
+  KirbyOptionsFieldProps,
+  KirbyStructureColumn,
+  KirbyStructureFieldProps,
+  KirbyTextFieldProps,
+  KirbyToggleFieldProps,
+  KirbyWriterFieldProps,
+} from "./src/blueprint";
+
 // KQL types
 export type {
   KirbyQueryRequest,

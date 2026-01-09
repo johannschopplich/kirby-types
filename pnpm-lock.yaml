@@ -23,6 +23,9 @@ importers:
       prosemirror-state:
         specifier: ^1.4.4
         version: 1.4.4
+      prosemirror-view:
+        specifier: ^1.41.4
+        version: 1.41.4
       vue:
         specifier: ^2.7.16
         version: 2.7.16

@@ -45,6 +45,7 @@ yarn add -D kirby-types
 <td>
 
 - **API Response**: Type-safe API responses.
+- **Blueprints**: Field definitions, fieldsets, and field options.
 - **Blocks**: All 11 default block types with content structures.
 - **Layouts**: Layout and column types with width unions.
 - **KQL**: Query Language request/response types.
@@ -122,6 +123,73 @@ const response: KirbyApiResponse<PageData> = {
     title: "Home",
     url: "/",
   },
+};
+```
+
+### Blueprints
+
+Types for field props and fieldsets as returned by Kirby's `Field->toArray()` and `Fieldset->toArray()`:
+
+```ts
+import type {
+  KirbyFieldProps,
+  KirbyFieldsetProps,
+  KirbyOption,
+  KirbyTextFieldProps,
+} from "kirby-types";
+
+// Base field props (returned by Field->toArray())
+const field: KirbyFieldProps = {
+  name: "title",
+  type: "text",
+  label: "Title",
+  required: true,
+  disabled: false,
+  hidden: false,
+  saveable: true,
+  translate: true,
+  autofocus: false,
+  width: "1/2",
+};
+
+// Type-specific field props
+const textField: KirbyTextFieldProps = {
+  ...field,
+  type: "text",
+  counter: true,
+  font: "sans-serif",
+  spellcheck: false,
+  maxlength: 100,
+};
+
+// Fieldset (block type definition from Fieldset->toArray())
+const fieldset: KirbyFieldsetProps = {
+  disabled: false,
+  editable: true,
+  icon: "text",
+  label: null,
+  name: "Heading",
+  preview: "fields",
+  tabs: {
+    content: {
+      name: "content",
+      label: "Content",
+      fields: { text: field },
+    },
+  },
+  translate: true,
+  type: "heading",
+  unset: false,
+  wysiwyg: false,
+};
+
+// Option (from Option->render())
+const option: KirbyOption = {
+  disabled: false,
+  icon: "page",
+  info: null,
+  text: "Draft",
+  value: "draft",
 };
 ```
 
@@ -271,6 +339,30 @@ class Bold {
 | Type                                    | Description                           |
 | --------------------------------------- | ------------------------------------- |
 | [`KirbyApiResponse<T>`](./src/api.d.ts) | Standard Kirby API response structure |
+
+### Blueprints
+
+| Type                                               | Description                                    |
+| -------------------------------------------------- | ---------------------------------------------- |
+| [`KirbyAnyFieldProps`](./src/blueprint.d.ts)       | Union of all field prop types                  |
+| [`KirbyBlocksFieldProps`](./src/blueprint.d.ts)    | Blocks field props with fieldsets              |
+| [`KirbyColorFieldProps`](./src/blueprint.d.ts)     | Color picker field props                       |
+| [`KirbyDateFieldProps`](./src/blueprint.d.ts)      | Date and time field props                      |
+| [`KirbyFieldProps`](./src/blueprint.d.ts)          | Base field props from `Field->toArray()`       |
+| [`KirbyFieldsetProps`](./src/blueprint.d.ts)       | Fieldset from `Fieldset->toArray()`            |
+| [`KirbyFilesFieldProps`](./src/blueprint.d.ts)     | Files/pages/users picker field props           |
+| [`KirbyLayoutFieldProps`](./src/blueprint.d.ts)    | Layout field props with fieldsets and settings |
+| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)      | Link field props                               |
+| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)    | Number field props                             |
+| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)    | Object field props with nested fields          |
+| [`KirbyOption`](./src/blueprint.d.ts)              | Option from `Option->render()`                 |
+| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)   | Select/radio/checkboxes/multiselect/toggles    |
+| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)     | Range slider field props                       |
+| [`KirbyStructureFieldProps`](./src/blueprint.d.ts) | Structure field props with nested fields       |
+| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)      | Tags field props                               |
+| [`KirbyTextFieldProps`](./src/blueprint.d.ts)      | Text/textarea field props                      |
+| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)    | Toggle (boolean) field props                   |
+| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)    | Writer (rich text) field props                 |
 
 ### Blocks
 
