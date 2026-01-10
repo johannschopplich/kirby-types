@@ -370,7 +370,7 @@ export interface WriterMarkExtension {
    * ```js
    * pasteRules({ type, utils }) {
    *   return [
-   *     utils.markPasteRule(/\*\*([^*]+)\*\*​/g, type)
+   *     utils.markPasteRule(/\*\*([^*]+)\*\*\/g, type)
    *   ];
    * }
    * ```
