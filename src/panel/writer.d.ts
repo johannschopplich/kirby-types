@@ -276,6 +276,8 @@ export interface WriterToolbarButton {
   attrs?: Record<string, any>;
   /** Show separator line after this button */
   separator?: boolean;
+  /** Whether this is an inline node button (shown inline, not in dropdown) */
+  inline?: boolean;
   /** Node types when this button should be visible */
   when?: string[];
 }
@@ -619,7 +621,7 @@ export interface WriterExtension {
   name?: string;
 
   /** Extension type identifier */
-  type?: "extension";
+  type?: string;
 
   /**
    * The editor instance, available after `bindEditor()` is called.
@@ -639,7 +641,7 @@ export interface WriterExtension {
   /**
    * Called after the editor is bound to the extension.
    */
-  init?: () => void;
+  init?: () => null | void;
 
   /**
    * Commands provided by this extension.
@@ -897,7 +899,7 @@ export interface WriterMarkExtension {
    *
    * Use this for initialization logic that requires access to `this.editor`.
    */
-  init?: () => void;
+  init?: () => null | void;
 
   // ---------------------------------------------------------------------------
   // Mark Helper Methods (inherited from Mark base class)
@@ -1081,5 +1083,5 @@ export interface WriterNodeExtension {
    *
    * Use this for initialization logic that requires access to `this.editor`.
    */
-  init?: () => void;
+  init?: () => null | void;
 }
