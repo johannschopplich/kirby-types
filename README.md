@@ -329,10 +329,15 @@ class Bold {
 
 | Type                                                | Description                        |
 | --------------------------------------------------- | ---------------------------------- |
-| [`WriterUtils`](./src/panel/writer.d.ts)            | ProseMirror commands and utilities |
+| [`WriterEditor`](./src/panel/writer.d.ts)           | Main editor instance               |
+| [`WriterExtensions`](./src/panel/writer.d.ts)       | Extensions manager                 |
+| [`WriterExtension`](./src/panel/writer.d.ts)        | Generic extension interface        |
+| [`WriterMarkExtension`](./src/panel/writer.d.ts)    | Mark extension interface           |
+| [`WriterNodeExtension`](./src/panel/writer.d.ts)    | Node extension interface           |
 | [`WriterMarkContext`](./src/panel/writer.d.ts)      | Context for mark extensions        |
 | [`WriterNodeContext`](./src/panel/writer.d.ts)      | Context for node extensions        |
 | [`WriterExtensionContext`](./src/panel/writer.d.ts) | Context for generic extensions     |
+| [`WriterUtils`](./src/panel/writer.d.ts)            | ProseMirror commands and utilities |
 
 ### API
 

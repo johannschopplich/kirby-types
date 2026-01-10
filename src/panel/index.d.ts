@@ -191,10 +191,8 @@ export type {
   WriterMarkContext,
   WriterNodeContext,
   WriterExtensionContext,
-  // Writer Schemas
-  WriterMarkSchema,
-  WriterNodeSchema,
   // Writer Extensions
+  WriterExtension,
   WriterMarkExtension,
   WriterNodeExtension,
 } from "./writer";

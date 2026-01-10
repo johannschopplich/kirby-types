@@ -1,10 +1,9 @@
 import type {
   TextareaButton,
   TextareaToolbarContext,
+  WriterExtension,
   WriterMarkExtension,
-  WriterMarkSchema,
   WriterNodeExtension,
-  WriterNodeSchema,
   WriterToolbarButton,
 } from "../src/panel";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
@@ -30,57 +29,54 @@ expectAssignable<WriterToolbarButton>({
 });
 
 // =============================================================================
-// 2. WRITER MARK SCHEMA
+// 2. WRITER GENERIC EXTENSION
 // =============================================================================
 
-expectAssignable<WriterMarkSchema>({
-  parseDOM: [{ tag: "strong" }],
-  toDOM: () => ["strong", 0],
+// Minimal generic extension
+expectAssignable<WriterExtension>({
+  name: "history",
+  type: "extension",
 });
 
-expectAssignable<WriterMarkSchema>({
-  attrs: {
-    href: { default: null },
-    target: { default: null },
+// Generic extension with commands (like History)
+expectAssignable<WriterExtension>({
+  name: "history",
+  defaults: {
+    depth: 100,
+    newGroupDelay: 500,
   },
-  inclusive: false,
-  parseDOM: [
-    {
-      tag: "a[href]",
-      getAttrs: (dom) => ({
-        href: (dom as HTMLElement).getAttribute("href"),
-      }),
-    },
-  ],
-  toDOM: (mark) => ["a", { href: mark.attrs.href }, 0],
+  commands() {
+    return {
+      undo: () => true,
+      redo: () => true,
+    };
+  },
+  keys() {
+    return {
+      "Mod-z": () => true,
+      "Mod-y": () => true,
+    };
+  },
+  plugins() {
+    return [];
+  },
+});
+
+// Generic extension with custom keyboard shortcuts (like Keys)
+expectAssignable<WriterExtension>({
+  name: "customKeys",
+  keys() {
+    return {
+      "Ctrl-s": () => {
+        // Custom save handler
+        return true;
+      },
+    };
+  },
 });
 
 // =============================================================================
-// 3. WRITER NODE SCHEMA
-// =============================================================================
-
-expectAssignable<WriterNodeSchema>({
-  content: "inline*",
-  group: "block",
-  parseDOM: [{ tag: "p" }],
-  toDOM: () => ["p", 0],
-});
-
-expectAssignable<WriterNodeSchema>({
-  attrs: { level: { default: 1 } },
-  content: "inline*",
-  group: "block",
-  defining: true,
-  draggable: false,
-  parseDOM: [
-    { tag: "h1", attrs: { level: 1 } },
-    { tag: "h2", attrs: { level: 2 } },
-  ],
-  toDOM: (node) => [`h${node.attrs.level}`, 0],
-});
-
-// =============================================================================
-// 4. WRITER MARK EXTENSION
+// 3. WRITER MARK EXTENSION
 // =============================================================================
 
 // Minimal mark extension
@@ -154,7 +150,7 @@ expectAssignable<WriterMarkExtension>({
 });
 
 // =============================================================================
-// 5. WRITER NODE EXTENSION
+// 4. WRITER NODE EXTENSION
 // =============================================================================
 
 // Minimal node extension
@@ -203,7 +199,7 @@ expectAssignable<WriterNodeExtension>({
 });
 
 // =============================================================================
-// 6. TEXTAREA BUTTON
+// 5. TEXTAREA BUTTON
 // =============================================================================
 
 expectAssignable<TextareaButton>({
@@ -248,7 +244,7 @@ expectAssignable<TextareaButton>({
 });
 
 // =============================================================================
-// 7. TEXTAREA TOOLBAR CONTEXT
+// 6. TEXTAREA TOOLBAR CONTEXT
 // =============================================================================
 
 declare const context: TextareaToolbarContext;
