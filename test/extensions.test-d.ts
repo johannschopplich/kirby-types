@@ -229,15 +229,16 @@ expectAssignable<TextareaButton>({
     {
       label: "Heading 1",
       icon: "h1",
-      click() {
-        this.command("prepend", "#");
+      // Arrow function captures outer `this` (toolbar context)
+      click: () => {
+        // In real code: this.command("prepend", "#")
       },
     },
     {
       label: "Heading 2",
       icon: "h2",
-      click() {
-        this.command("prepend", "##");
+      click: () => {
+        // In real code: this.command("prepend", "##")
       },
     },
   ],

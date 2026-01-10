@@ -150,11 +150,47 @@ export interface TextareaButton {
   shortcut?: string;
 
   /**
+   * Keyboard event handler for the button.
+   *
+   * Called when a key is pressed while the button is focused.
+   * This is different from `shortcut`, which is triggered globally
+   * with Cmd/Ctrl modifier.
+   *
+   * @param event - The native keyboard event
+   */
+  key?: (event: KeyboardEvent) => void;
+
+  /**
    * Dropdown menu items.
    *
    * If provided, the button shows a dropdown instead of executing click directly.
    */
   dropdown?: TextareaDropdownItem[];
+
+  /**
+   * Conditional rendering. If false, the button won't be shown.
+   */
+  when?: boolean;
+
+  /**
+   * Disables the button.
+   */
+  disabled?: boolean;
+
+  /**
+   * Sets the aria-current attribute for active state styling.
+   */
+  current?: boolean | string;
+
+  /**
+   * Alternative tooltip text (defaults to label).
+   */
+  title?: string;
+
+  /**
+   * Custom CSS class for the button.
+   */
+  class?: string;
 }
 
 // =============================================================================
@@ -164,14 +200,23 @@ export interface TextareaButton {
 /**
  * A dropdown menu item for textarea toolbar buttons.
  *
+ * **Important:** Unlike the main button's `click` handler, dropdown item clicks
+ * are NOT called with the toolbar context as `this`. The `this` context is
+ * bound to the DropdownContent component which doesn't have `command()`.
+ *
+ * For this reason, dropdown items should use arrow functions and access
+ * the toolbar's functionality through closures or other means.
+ *
  * @example
  * ```js
+ * // Built-in buttons use arrow functions to capture toolbar's `this`
  * dropdown: [
  *   {
  *     label: "Option 1",
  *     icon: "check",
- *     click() {
- *       this.command("insert", "text");
+ *     click: () => {
+ *       // Access toolbar methods through closure
+ *       toolbar.command("insert", "text");
  *     }
  *   }
  * ]
@@ -182,11 +227,28 @@ export interface TextareaDropdownItem {
   label: string;
 
   /** Icon name */
-  icon: string;
+  icon?: string;
 
   /**
-   * Click handler. Called with `this` bound to the toolbar context.
-   * Use a regular function (not arrow function) to access `this.command()`.
+   * Click handler.
+   *
+   * Note: Unlike main button clicks, `this` is NOT bound to the toolbar context.
+   * Use arrow functions and capture any needed references through closures.
    */
-  click: (this: TextareaToolbarContext) => void;
+  click: () => void;
+
+  /**
+   * Conditional rendering. If false, the item won't be shown.
+   */
+  when?: boolean;
+
+  /**
+   * Disables the dropdown item.
+   */
+  disabled?: boolean;
+
+  /**
+   * Sets the aria-current attribute for active state styling.
+   */
+  current?: boolean | string;
 }
