@@ -1,4 +1,4 @@
-import type { ComponentPublicInstance } from "vue";
+import type { DefineComponent } from "vue";
 import type {
   Panel,
   PanelApp,
@@ -378,7 +378,7 @@ expectType<void>(
 );
 
 // Access to plugins storage
-expectType<Record<string, ComponentPublicInstance>>(panel.plugins.components);
+expectType<Record<string, DefineComponent>>(panel.plugins.components);
 expectType<Record<string, string>>(panel.plugins.icons);
 expectType<Record<string, TextareaButton>>(panel.plugins.textareaButtons);
 expectType<Record<string, WriterMarkExtension>>(panel.plugins.writerMarks);

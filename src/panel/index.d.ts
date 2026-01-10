@@ -20,7 +20,7 @@
 
 import type {
   ComponentOptions,
-  ComponentPublicInstance,
+  DefineComponent,
   PluginFunction,
   PluginObject,
   VNode,
@@ -242,11 +242,11 @@ export type PanelApp = InstanceType<VueConstructor> & {
  * - Component that extends another component by name
  */
 export type PanelComponentExtension =
-  | ComponentPublicInstance
+  | DefineComponent
   | ComponentOptions<any>
   | {
       /** Extend another component by name (e.g., `"k-text-field"`) */
-      extends?: string | ComponentPublicInstance;
+      extends?: string | DefineComponent;
       /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects */
       mixins?: (string | ComponentOptions<any>)[];
       /** Template string */
@@ -668,11 +668,11 @@ export interface PanelPlugins {
   resolveComponentRender: (component: any) => any;
 
   // ---------------------------------------------------------------------------
-  // Plugin Data (ordered as in panel/public/js/plugins.js)
+  // Plugin Data
   // ---------------------------------------------------------------------------
 
   /** Registered Vue components */
-  components: Record<string, ComponentPublicInstance>;
+  components: Record<string, DefineComponent>;
 
   /** Callbacks to run after Panel creation */
   created: (() => void)[];
@@ -681,7 +681,7 @@ export interface PanelPlugins {
   icons: Record<string, string>;
 
   /** Custom login component (set dynamically by plugins) */
-  login: ComponentPublicInstance | null;
+  login: DefineComponent | null;
 
   /** Registered Panel routes */
   routes: Record<string, any>[];
@@ -699,7 +699,7 @@ export interface PanelPlugins {
   use: any[];
 
   /** Registered view buttons */
-  viewButtons: Record<string, ComponentPublicInstance | Record<string, any>>;
+  viewButtons: Record<string, DefineComponent | Record<string, any>>;
 
   /** Registered Panel views */
   views: Record<string, Record<string, any>>;
