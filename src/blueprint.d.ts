@@ -74,7 +74,7 @@ export interface KirbyFieldProps {
   /** Optional text shown before the input */
   before?: string;
   /** Default value for new content */
-  default?: unknown;
+  default?: any;
   /** Whether the field is disabled */
   disabled: boolean;
   /** Help text below the field (supports Markdown) */
@@ -98,9 +98,9 @@ export interface KirbyFieldProps {
   /** Field type identifier (e.g., `text`, `textarea`, `blocks`) */
   type: string;
   /** Current field value */
-  value?: unknown;
+  value?: any;
   /** Conditional visibility rules */
-  when?: Record<string, unknown>;
+  when?: Record<string, any>;
   /** Field width in grid (e.g., `1/1`, `1/2`, `1/3`) */
   width: string;
 }
@@ -209,7 +209,7 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
   /** Step configuration for rounding (size and unit like `"minute"`, `"hour"`, `"day"`) */
   step?: { size: number; unit: string };
   /** Whether to include time picker (date only) */
-  time?: boolean | Record<string, unknown>;
+  time?: boolean | Record<string, any>;
   value?: string;
 }
 
@@ -224,10 +224,10 @@ export interface KirbyPickerItem {
   /** Additional info text */
   info?: string;
   /** Image configuration */
-  image?: Record<string, unknown>;
+  image?: Record<string, any>;
   /** Item link URL */
   link?: string;
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 /**
@@ -240,7 +240,7 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   /** Placeholder text when no items are selected */
   empty?: string;
   /** Image settings for each item */
-  image?: Record<string, unknown>;
+  image?: Record<string, any>;
   /** Info text template for each item */
   info?: string;
   /** Whether each item should be clickable */
@@ -388,7 +388,7 @@ export interface KirbyStructureFieldProps extends KirbyFieldProps {
   sortable?: boolean | null;
   /** Sort entries by field (disables drag & drop) */
   sortBy?: string;
-  value?: Record<string, unknown>[];
+  value?: Record<string, any>[];
 }
 
 /**
@@ -424,7 +424,7 @@ export interface KirbyObjectFieldProps extends KirbyFieldProps {
   empty?: string;
   /** Nested field definitions */
   fields: Record<string, KirbyFieldProps>;
-  value?: Record<string, unknown> | "";
+  value?: Record<string, any> | "";
 }
 
 /**
@@ -502,7 +502,7 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
   /** Available block nodes (`paragraph`, `heading`, `bulletList`, `orderedList`, `quote`) or `true`/`false` */
   nodes?: string[] | boolean;
   /** Toolbar configuration */
-  toolbar?: Record<string, unknown>;
+  toolbar?: Record<string, any>;
   value?: string;
 }
 
@@ -515,7 +515,7 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
  */
 export interface KirbyBlockValue {
   /** Block content fields */
-  content: Record<string, unknown>;
+  content: Record<string, any>;
   /** Unique block identifier */
   id: string;
   /** Whether the block is hidden */
@@ -529,7 +529,7 @@ export interface KirbyBlockValue {
  */
 export interface KirbyLayoutValue {
   /** Layout attributes */
-  attrs: Record<string, unknown> | unknown[];
+  attrs: Record<string, any> | any[];
   /** Layout columns */
   columns: KirbyLayoutColumnValue[];
   /** Unique layout identifier */
