@@ -110,12 +110,12 @@ export interface KirbyFieldProps {
 // =============================================================================
 
 /**
- * Props for text and textarea fields.
+ * Props for text fields.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/text
  */
 export interface KirbyTextFieldProps extends KirbyFieldProps {
-  type: "text" | "textarea" | "slug" | "url" | "email" | "tel";
+  type: "text" | "slug" | "url" | "email" | "tel";
   /** Value converter: `lower`, `upper`, `ucfirst`, `slug` */
   converter?: "lower" | "upper" | "ucfirst" | "slug";
   /** Whether to show character counter */
@@ -130,6 +130,34 @@ export interface KirbyTextFieldProps extends KirbyFieldProps {
   pattern?: string;
   /** Whether spellcheck is enabled */
   spellcheck: boolean;
+  value?: string;
+}
+
+/**
+ * Props for textarea fields.
+ *
+ * @see https://getkirby.com/docs/reference/panel/fields/textarea
+ */
+export interface KirbyTextareaFieldProps extends KirbyFieldProps {
+  type: "textarea";
+  /** Format buttons: true/false or array of allowed buttons (headlines, italic, bold, link, email, file, code, ul, ol) */
+  buttons?: boolean | string[];
+  /** Whether to show character counter */
+  counter: boolean;
+  /** File picker options (query string or config object) */
+  files?: string | Record<string, any>;
+  /** Font family: `sans-serif` or `monospace` */
+  font: "sans-serif" | "monospace";
+  /** Maximum character length */
+  maxlength?: number;
+  /** Minimum character length */
+  minlength?: number;
+  /** Textarea size */
+  size?: "small" | "medium" | "large" | "huge";
+  /** Whether spellcheck is enabled */
+  spellcheck: boolean;
+  /** Upload configuration */
+  uploads?: false | string | Record<string, any>;
   value?: string;
 }
 
@@ -200,6 +228,8 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
   calendar?: boolean;
   /** Date/time display format (dayjs tokens) */
   display?: string;
+  /** Storage format for the value (from datetime mixin) */
+  format?: string;
   /** Maximum date/time */
   max?: string;
   /** Minimum date/time */
@@ -243,6 +273,8 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   image?: Record<string, any>;
   /** Info text template for each item */
   info?: string;
+  /** Display layout for selected items */
+  layout?: "list" | "cardlets" | "cards";
   /** Whether each item should be clickable */
   link?: boolean;
   /** Maximum number of items */
@@ -255,10 +287,16 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   query?: string;
   /** Whether to show search field in picker */
   search?: boolean;
+  /** Layout size for cards */
+  size?: "tiny" | "small" | "medium" | "large" | "huge" | "full" | "auto";
   /** Whether to store `"uuid"` or `"id"` in content file */
   store?: "uuid" | "id";
+  /** Include subpages in picker (pages field only) */
+  subpages?: boolean;
   /** Text template for each item */
   text?: string;
+  /** Upload configuration (files field only) */
+  uploads?: false | string | Record<string, any>;
   /** Selected items (transformed picker data, not raw IDs) */
   value?: KirbyPickerItem[];
 }
@@ -446,6 +484,8 @@ export interface KirbyBlocksFieldProps extends KirbyFieldProps {
   max?: number;
   /** Minimum number of blocks */
   min?: number;
+  /** Format JSON output with indentation */
+  pretty?: boolean;
   value?: KirbyBlockValue[];
 }
 
@@ -488,7 +528,7 @@ export interface KirbyLayoutFieldProps extends KirbyFieldProps {
 export interface KirbyWriterFieldProps extends KirbyFieldProps {
   type: "writer";
   /** Whether to show character counter */
-  counter?: boolean;
+  counter: boolean;
   /** Available heading levels (1-6) */
   headings?: number[];
   /** Whether only inline formatting is allowed */
@@ -504,6 +544,61 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
   /** Toolbar configuration */
   toolbar?: Record<string, any>;
   value?: string;
+}
+
+/**
+ * Props for entries fields.
+ * A simplified structure field for single-field entries.
+ *
+ * @since Kirby 5.0.0
+ * @see https://getkirby.com/docs/reference/panel/fields/entries
+ */
+export interface KirbyEntriesFieldProps extends KirbyFieldProps {
+  type: "entries";
+  /** Placeholder text when no entries exist */
+  empty?: string;
+  /** Single field definition for entry items */
+  field: KirbyFieldProps;
+  /** Maximum number of entries */
+  max?: number;
+  /** Minimum number of entries */
+  min?: number;
+  /** Whether entries are sortable via drag & drop */
+  sortable?: boolean;
+  value?: any[];
+}
+
+/**
+ * Stats report item for the stats field.
+ */
+export interface KirbyStatsReport {
+  /** Report label */
+  label: string;
+  /** Report value */
+  value: string | number;
+  /** Additional info text */
+  info?: string;
+  /** Link URL */
+  link?: string;
+  /** Icon identifier */
+  icon?: string;
+  /** Color theme */
+  theme?: string;
+}
+
+/**
+ * Props for stats fields.
+ * Display stats/metrics as cards.
+ *
+ * @since Kirby 5.1.0
+ * @see https://getkirby.com/docs/reference/panel/fields/stats
+ */
+export interface KirbyStatsFieldProps extends KirbyFieldProps {
+  type: "stats";
+  /** Array of report objects or query string */
+  reports: KirbyStatsReport[] | string;
+  /** Card size */
+  size?: "tiny" | "small" | "medium" | "large";
 }
 
 // =============================================================================
@@ -644,6 +739,7 @@ export interface KirbyFieldsetGroup {
 export type KirbyAnyFieldProps =
   | KirbyFieldProps
   | KirbyTextFieldProps
+  | KirbyTextareaFieldProps
   | KirbyNumberFieldProps
   | KirbyOptionsFieldProps
   | KirbyToggleFieldProps
@@ -655,6 +751,8 @@ export type KirbyAnyFieldProps =
   | KirbyLinkFieldProps
   | KirbyStructureFieldProps
   | KirbyObjectFieldProps
+  | KirbyEntriesFieldProps
   | KirbyBlocksFieldProps
   | KirbyLayoutFieldProps
-  | KirbyWriterFieldProps;
+  | KirbyWriterFieldProps
+  | KirbyStatsFieldProps;

@@ -10,26 +10,7 @@ export type {
 } from "./src/blocks";
 
 // Blueprint types
-export type {
-  KirbyAnyFieldProps,
-  KirbyBlocksFieldProps,
-  KirbyDateFieldProps,
-  KirbyFieldProps,
-  KirbyFieldsetGroup,
-  KirbyFieldsetProps,
-  KirbyFieldsetTab,
-  KirbyFilesFieldProps,
-  KirbyLayoutFieldProps,
-  KirbyNumberFieldProps,
-  KirbyObjectFieldProps,
-  KirbyOption,
-  KirbyOptionsFieldProps,
-  KirbyStructureColumn,
-  KirbyStructureFieldProps,
-  KirbyTextFieldProps,
-  KirbyToggleFieldProps,
-  KirbyWriterFieldProps,
-} from "./src/blueprint";
+export type * from "./src/blueprint";
 
 // KQL types
 export type {
