@@ -1,11 +1,6 @@
+import type { Panel, PanelConfig, PanelPermissions } from "../src/panel";
+import type { PanelApi } from "../src/panel/api";
 import type {
-  Panel,
-  PanelApi,
-  PanelConfig,
-  PanelContent,
-  PanelDialog,
-  PanelDialogDefaults,
-  PanelDrawer,
   PanelEventListenerMap,
   PanelFeature,
   PanelFeatureDefaults,
@@ -13,15 +8,20 @@ import type {
   PanelHistoryMilestone,
   PanelModal,
   PanelModalListeners,
+  PanelSuccessResponse,
+} from "../src/panel/base";
+import type {
+  PanelContent,
+  PanelDialog,
+  PanelDialogDefaults,
+  PanelDrawer,
   PanelNotification,
   PanelNotificationDefaults,
-  PanelPermissions,
   PanelSearchResult,
-  PanelSuccessResponse,
   PanelUploadFile,
   PanelUser,
   PanelUserDefaults,
-} from "../src/panel";
+} from "../src/panel/features";
 import { expectAssignable, expectType } from "tsd";
 
 // =============================================================================

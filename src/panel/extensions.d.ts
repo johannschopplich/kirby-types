@@ -11,14 +11,27 @@
 import type { InputRule } from "prosemirror-inputrules";
 import type {
   DOMOutputSpec,
+  Fragment,
+  Mark,
   MarkSpec,
   MarkType,
   NodeSpec,
   NodeType,
+  Node as ProseMirrorNode,
   Schema,
 } from "prosemirror-model";
-import type { Plugin, PluginSpec, Selection } from "prosemirror-state";
-import type { EditorView, NodeView } from "prosemirror-view";
+import type {
+  EditorState,
+  Plugin,
+  PluginSpec,
+  Selection as ProseMirrorSelection,
+} from "prosemirror-state";
+import type {
+  Decoration,
+  DecorationSource,
+  EditorView,
+  NodeView,
+} from "prosemirror-view";
 import type { WriterMarkContext, WriterNodeContext } from "./writer";
 
 // =============================================================================
@@ -55,17 +68,17 @@ export interface WriterEditor {
   /** ProseMirror schema */
   schema: Schema;
   /** Current editor selection (ProseMirror Selection object) */
-  selection: Selection;
+  selection: ProseMirrorSelection;
   /** Selection at the end of the document */
-  selectionAtEnd: Selection;
+  selectionAtEnd: ProseMirrorSelection;
   /** Selection at the start of the document */
-  selectionAtStart: Selection;
+  selectionAtStart: ProseMirrorSelection;
   /** Whether the cursor is at the end of the document */
   selectionIsAtEnd: boolean;
   /** Whether the cursor is at the start of the document */
   selectionIsAtStart: boolean;
   /** ProseMirror editor state */
-  state: import("prosemirror-state").EditorState;
+  state: EditorState;
   /** ProseMirror editor view */
   view: EditorView;
 
@@ -194,7 +207,7 @@ export interface WriterMarkSchema extends Omit<MarkSpec, "parseDOM" | "toDOM"> {
     ) => Record<string, any> | false | null;
   }[];
   /** DOM serialization */
-  toDOM?: (mark: import("prosemirror-model").Mark) => DOMOutputSpec;
+  toDOM?: (mark: Mark) => DOMOutputSpec;
 }
 
 /**
@@ -218,14 +231,11 @@ export interface WriterNodeSchema extends Omit<NodeSpec, "parseDOM" | "toDOM"> {
     context?: string;
     attrs?: Record<string, any>;
     getAttrs?: (node: HTMLElement) => Record<string, any> | false | null;
-    getContent?: (
-      node: HTMLElement,
-      schema: Schema,
-    ) => import("prosemirror-model").Fragment;
+    getContent?: (node: HTMLElement, schema: Schema) => Fragment;
     preserveWhitespace?: boolean | "full";
   }[];
   /** DOM serialization */
-  toDOM?: (node: import("prosemirror-model").Node) => DOMOutputSpec;
+  toDOM?: (node: ProseMirrorNode) => DOMOutputSpec;
 }
 
 // =============================================================================
@@ -394,7 +404,7 @@ export interface WriterMarkExtension {
    * @see https://prosemirror.net/docs/ref/#view.MarkView
    */
   view?: (
-    mark: import("prosemirror-model").Mark,
+    mark: Mark,
     view: EditorView,
     inline: boolean,
   ) => { dom: HTMLElement; contentDOM?: HTMLElement };
@@ -507,11 +517,11 @@ export interface WriterNodeExtension {
    * @see https://prosemirror.net/docs/ref/#view.NodeView
    */
   view?: (
-    node: import("prosemirror-model").Node,
+    node: ProseMirrorNode,
     view: EditorView,
     getPos: () => number | undefined,
-    decorations: import("prosemirror-view").Decoration[],
-    innerDecorations: import("prosemirror-view").DecorationSource,
+    decorations: Decoration[],
+    innerDecorations: DecorationSource,
   ) => NodeView;
 }
 
