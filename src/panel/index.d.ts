@@ -6,11 +6,13 @@
  * This is the main entry point for all Panel type definitions.
  * Types are organized into modules for better maintainability:
  *
- * - `panel.base.ts` - State, Feature, Modal, History, Event Listeners
- * - `panel.features.ts` - View, Dialog, Drawer, Dropdown, Notification, etc.
- * - `panel.helpers.ts` - $helper.* utilities
- * - `panel.libraries.ts` - $library.* (colors, dayjs, autosize)
- * - `panel.api.ts` - API client methods
+ * - `base.d.ts` - State, Feature, Modal, History, Event Listeners
+ * - `features.d.ts` - View, Dialog, Drawer, Dropdown, Notification, etc.
+ * - `helpers.d.ts` - $helper.* utilities
+ * - `libraries.d.ts` - $library.* (colors, dayjs, autosize)
+ * - `api.d.ts` - API client methods
+ * - `writer.d.ts` - Writer (ProseMirror) editor and extensions
+ * - `textarea.d.ts` - Textarea toolbar buttons
  *
  * @see https://github.com/getkirby/kirby/tree/main/panel/src/panel
  * @since 4.0.0
@@ -23,17 +25,14 @@ import type {
   PanelFeatureDefaults,
   PanelRequestOptions,
 } from "./base";
-import type {
-  TextareaButton,
-  WriterMarkExtension,
-  WriterNodeExtension,
-} from "./extensions";
 import type * as PanelFeatures from "./features";
 import type { PanelHelpers } from "./helpers";
 import type { PanelLibrary } from "./libraries";
+import type { TextareaButton } from "./textarea";
+import type { WriterMarkExtension, WriterNodeExtension } from "./writer";
 
 // =============================================================================
-// Re-exports from panel.api.ts
+// Re-exports from api.d.ts
 // =============================================================================
 
 export type {
@@ -60,7 +59,7 @@ export type {
 } from "./api";
 
 // =============================================================================
-// Re-exports from panel.base.ts
+// Re-exports from base.d.ts
 // =============================================================================
 
 export type {
@@ -92,27 +91,7 @@ export type {
 } from "./base";
 
 // =============================================================================
-// Re-exports from panel.extensions.ts
-// =============================================================================
-
-export type {
-  // Writer Editor
-  WriterEditor,
-  // Writer Toolbar
-  WriterToolbarButton,
-  // Writer Schemas
-  WriterMarkSchema,
-  WriterNodeSchema,
-  // Writer Extensions
-  WriterMarkExtension,
-  WriterNodeExtension,
-  // Textarea
-  TextareaButton,
-  TextareaToolbarContext,
-} from "./extensions";
-
-// =============================================================================
-// Re-exports from panel.features.ts
+// Re-exports from features.d.ts
 // =============================================================================
 
 export type {
@@ -170,7 +149,7 @@ export type {
 } from "./features";
 
 // =============================================================================
-// Re-exports from panel.helpers.ts
+// Re-exports from helpers.d.ts
 // =============================================================================
 
 export type {
@@ -179,7 +158,7 @@ export type {
 } from "./helpers";
 
 // =============================================================================
-// Re-exports from panel.libraries.ts
+// Re-exports from libraries.d.ts
 // =============================================================================
 
 export type {
@@ -188,16 +167,36 @@ export type {
 } from "./libraries";
 
 // =============================================================================
-// Re-exports from panel.writer.ts
+// Re-exports from textarea.d.ts
 // =============================================================================
 
 export type {
+  // Textarea Toolbar
+  TextareaButton,
+  TextareaToolbarContext,
+} from "./textarea";
+
+// =============================================================================
+// Re-exports from writer.d.ts
+// =============================================================================
+
+export type {
+  // Writer Editor
+  WriterEditor,
+  // Writer Toolbar
+  WriterToolbarButton,
   // Writer Utilities
   WriterUtils,
   // Writer Contexts
   WriterMarkContext,
   WriterNodeContext,
   WriterExtensionContext,
+  // Writer Schemas
+  WriterMarkSchema,
+  WriterNodeSchema,
+  // Writer Extensions
+  WriterMarkExtension,
+  WriterNodeExtension,
 } from "./writer";
 
 // =============================================================================
