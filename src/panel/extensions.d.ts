@@ -19,11 +19,7 @@ import type {
 } from "prosemirror-model";
 import type { Plugin, PluginSpec, Selection } from "prosemirror-state";
 import type { EditorView, NodeView } from "prosemirror-view";
-import type {
-  WriterMarkContext,
-  WriterNodeContext,
-  WriterUtils,
-} from "./writer";
+import type { WriterMarkContext, WriterNodeContext } from "./writer";
 
 // =============================================================================
 // Writer Editor
@@ -187,7 +183,7 @@ export interface WriterMarkSchema extends Omit<MarkSpec, "parseDOM" | "toDOM"> {
     }
   >;
   /** DOM parsing rules */
-  parseDOM?: Array<{
+  parseDOM?: {
     tag?: string;
     style?: string;
     priority?: number;
@@ -196,7 +192,7 @@ export interface WriterMarkSchema extends Omit<MarkSpec, "parseDOM" | "toDOM"> {
     getAttrs?: (
       node: HTMLElement | string,
     ) => Record<string, any> | false | null;
-  }>;
+  }[];
   /** DOM serialization */
   toDOM?: (mark: import("prosemirror-model").Mark) => DOMOutputSpec;
 }
@@ -215,7 +211,7 @@ export interface WriterNodeSchema extends Omit<NodeSpec, "parseDOM" | "toDOM"> {
     }
   >;
   /** DOM parsing rules */
-  parseDOM?: Array<{
+  parseDOM?: {
     tag?: string;
     priority?: number;
     consuming?: boolean;
@@ -227,7 +223,7 @@ export interface WriterNodeSchema extends Omit<NodeSpec, "parseDOM" | "toDOM"> {
       schema: Schema,
     ) => import("prosemirror-model").Fragment;
     preserveWhitespace?: boolean | "full";
-  }>;
+  }[];
   /** DOM serialization */
   toDOM?: (node: import("prosemirror-model").Node) => DOMOutputSpec;
 }
@@ -390,7 +386,7 @@ export interface WriterMarkExtension {
    * }
    * ```
    */
-  plugins?: (context: WriterMarkContext) => Array<Plugin | PluginSpec<any>>;
+  plugins?: (context: WriterMarkContext) => (Plugin | PluginSpec<any>)[];
 
   /**
    * Custom mark view for rendering.
@@ -503,7 +499,7 @@ export interface WriterNodeExtension {
    * @param context - Context with schema, type, and utils
    * @returns Array of ProseMirror plugins or plugin specs
    */
-  plugins?: (context: WriterNodeContext) => Array<Plugin | PluginSpec<any>>;
+  plugins?: (context: WriterNodeContext) => (Plugin | PluginSpec<any>)[];
 
   /**
    * Custom node view for rendering.
@@ -668,7 +664,14 @@ export interface TextareaToolbarContext {
    * ```
    */
   command: (
-    name: "dialog" | "insert" | "prepend" | "toggle" | "upload" | "wrap" | "file",
+    name:
+      | "dialog"
+      | "insert"
+      | "prepend"
+      | "toggle"
+      | "upload"
+      | "wrap"
+      | "file",
     ...args: any[]
   ) => void;
 

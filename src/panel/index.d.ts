@@ -37,34 +37,23 @@ import type { PanelLibrary } from "./libraries";
 // =============================================================================
 
 export type {
-  // Request Types
-  PanelApiRequestOptions,
-  PanelApiPagination,
-  PanelApiSearchQuery,
   // Auth
-  PanelApiLoginData,
   PanelApiAuth,
   // Files
   PanelApiFiles,
   // Languages
-  PanelApiLanguageData,
   PanelApiLanguages,
   // Pages
-  PanelApiPageCreateData,
-  PanelApiPageDuplicateOptions,
   PanelApiPages,
   // Roles
   PanelApiRoles,
   // Site
   PanelApiSite,
   // System
-  PanelApiSystemInstallData,
-  PanelApiSystemRegisterData,
   PanelApiSystem,
   // Translations
   PanelApiTranslations,
   // Users
-  PanelApiUserCreateData,
   PanelApiUsers,
   // Main API Interface
   PanelApi,
@@ -77,10 +66,6 @@ export type {
 export type {
   // State Management
   PanelState,
-  PanelStateBase,
-  PanelFeatureBase,
-  PanelModalBase,
-  PanelHistoryBase,
   // Event Listeners
   PanelEventCallback,
   PanelEventListenerMap,
@@ -113,7 +98,6 @@ export type {
 export type {
   // Writer Editor
   WriterEditor,
-  WriterEditorOptions,
   // Writer Toolbar
   WriterToolbarButton,
   // Writer Schemas
@@ -124,7 +108,6 @@ export type {
   WriterNodeExtension,
   // Textarea
   TextareaButton,
-  TextareaDropdownItem,
   TextareaToolbarContext,
 } from "./extensions";
 
@@ -136,48 +119,36 @@ export type {
   // Timer
   PanelTimer,
   // Activation
-  PanelActivationDefaults,
   PanelActivation,
   // Drag
-  PanelDragDefaults,
   PanelDrag,
   // Theme
-  PanelThemeDefaults,
   PanelThemeValue,
   PanelTheme,
   // Language
-  PanelLanguageDefaults,
   PanelLanguage,
   // Menu
   PanelMenuEntry,
-  PanelMenuDefaults,
   PanelMenu,
   // Notification
-  PanelNotificationDefaults,
   PanelNotificationOptions,
   PanelErrorObject,
   PanelNotification,
   // System
-  PanelSystemDefaults,
   PanelSystem,
   // Translation
-  PanelTranslationDefaults,
   PanelTranslation,
   // User
-  PanelUserDefaults,
   PanelUser,
   // View
   PanelBreadcrumbItem,
-  PanelViewDefaults,
   PanelView,
   // Dropdown
   PanelDropdownOption,
   PanelDropdown,
   // Dialog
-  PanelDialogDefaults,
   PanelDialog,
   // Drawer
-  PanelDrawerDefaults,
   PanelDrawer,
   // Content
   PanelContentVersion,
@@ -192,7 +163,6 @@ export type {
   PanelSearcher,
   // Upload
   PanelUploadFile,
-  PanelUploadDefaults,
   PanelUpload,
   // Events
   PanelEventEmitter,
@@ -204,46 +174,6 @@ export type {
 // =============================================================================
 
 export type {
-  // Array
-  PanelArraySearchOptions,
-  PanelHelpersArray,
-  // String
-  PanelSlugRules,
-  PanelHelpersString,
-  // Object
-  PanelHelpersObject,
-  // URL
-  PanelHelpersUrl,
-  // Clipboard
-  PanelHelpersClipboard,
-  // Embed
-  PanelHelpersEmbed,
-  // Field
-  PanelFieldDefinition,
-  PanelHelpersField,
-  // File
-  PanelHelpersFile,
-  // Keyboard
-  PanelHelpersKeyboard,
-  // Link
-  PanelLinkType,
-  PanelLinkDetection,
-  PanelLinkPreview,
-  PanelHelpersLink,
-  // Page
-  PanelPageStatusProps,
-  PanelHelpersPage,
-  // Upload
-  PanelUploadProgressCallback,
-  PanelUploadCompleteCallback,
-  PanelUploadParams,
-  // Utility Types
-  PanelDebounceOptions,
-  PanelThrottleOptions,
-  PanelDebouncedFunction,
-  PanelThrottledFunction,
-  PanelSortOptions,
-  PanelComparator,
   // Main Helpers Interface
   PanelHelpers,
 } from "./helpers";
@@ -253,23 +183,6 @@ export type {
 // =============================================================================
 
 export type {
-  // Color Types
-  PanelColorFormat,
-  PanelColorRGB,
-  PanelColorHSL,
-  PanelColorHSV,
-  PanelColorObject,
-  PanelColorInput,
-  PanelLibraryColors,
-  // Dayjs Types
-  PanelDayjsPatternPart,
-  PanelDayjsPattern,
-  PanelDayjsExtensions,
-  PanelDayjsInstance,
-  PanelDayjsStaticExtensions,
-  PanelLibraryDayjs,
-  // Autosize
-  PanelLibraryAutosize,
   // Main Library Interface
   PanelLibrary,
 } from "./libraries";
@@ -346,7 +259,7 @@ export interface PanelConfig {
 /**
  * Access permissions for Panel areas.
  */
-export interface PanelPermissionsAccess {
+interface PanelPermissionsAccess {
   account: boolean;
   languages: boolean;
   panel: boolean;
@@ -358,7 +271,7 @@ export interface PanelPermissionsAccess {
 /**
  * File operation permissions.
  */
-export interface PanelPermissionsFiles {
+interface PanelPermissionsFiles {
   access: boolean;
   changeName: boolean;
   changeTemplate: boolean;
@@ -374,7 +287,7 @@ export interface PanelPermissionsFiles {
 /**
  * Language operation permissions.
  */
-export interface PanelPermissionsLanguages {
+interface PanelPermissionsLanguages {
   create: boolean;
   delete: boolean;
   update: boolean;
@@ -383,7 +296,7 @@ export interface PanelPermissionsLanguages {
 /**
  * Page operation permissions.
  */
-export interface PanelPermissionsPages {
+interface PanelPermissionsPages {
   access: boolean;
   changeSlug: boolean;
   changeStatus: boolean;
@@ -403,7 +316,7 @@ export interface PanelPermissionsPages {
 /**
  * Site operation permissions.
  */
-export interface PanelPermissionsSite {
+interface PanelPermissionsSite {
   changeTitle: boolean;
   update: boolean;
 }
@@ -411,7 +324,7 @@ export interface PanelPermissionsSite {
 /**
  * User management permissions (for other users).
  */
-export interface PanelPermissionsUsers {
+interface PanelPermissionsUsers {
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
@@ -425,7 +338,7 @@ export interface PanelPermissionsUsers {
 /**
  * Current user permissions (for own account).
  */
-export interface PanelPermissionsUser {
+interface PanelPermissionsUser {
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
@@ -562,7 +475,7 @@ export interface PanelPlugins {
   components: Record<string, ComponentPublicInstance>;
 
   /** Callbacks to run after Panel creation */
-  created: Array<() => void>;
+  created: (() => void)[];
 
   /** Registered SVG icons */
   icons: Record<string, string>;
@@ -965,7 +878,7 @@ export interface Panel {
 /**
  * Lock information for content.
  */
-export interface PanelViewPropsLockUser {
+interface PanelViewPropsLockUser {
   id: string;
   email: string;
 }
@@ -973,7 +886,7 @@ export interface PanelViewPropsLockUser {
 /**
  * Content lock state.
  */
-export interface PanelViewPropsLock {
+interface PanelViewPropsLock {
   isLegacy: boolean;
   isLocked: boolean;
   modified: string | null;
@@ -983,7 +896,7 @@ export interface PanelViewPropsLock {
 /**
  * Content permissions for a view.
  */
-export interface PanelViewPropsPermissions {
+interface PanelViewPropsPermissions {
   access: boolean;
   changeSlug: boolean;
   changeStatus: boolean;
@@ -1003,7 +916,7 @@ export interface PanelViewPropsPermissions {
 /**
  * Version information.
  */
-export interface PanelViewPropsVersions {
+interface PanelViewPropsVersions {
   latest: Record<string, any>;
   changes: Record<string, any>;
 }
@@ -1011,7 +924,7 @@ export interface PanelViewPropsVersions {
 /**
  * Tab definition.
  */
-export interface PanelViewPropsTab {
+interface PanelViewPropsTab {
   label: string;
   icon: string;
   columns: Record<string, any>[];
@@ -1022,7 +935,7 @@ export interface PanelViewPropsTab {
 /**
  * Navigation link (next/prev).
  */
-export interface PanelViewPropsNavigation {
+interface PanelViewPropsNavigation {
   link: string;
   title: string;
 }
@@ -1030,7 +943,7 @@ export interface PanelViewPropsNavigation {
 /**
  * Model information.
  */
-export interface PanelViewPropsModel {
+interface PanelViewPropsModel {
   id: string;
   link: string;
   parent: string;
@@ -1043,7 +956,7 @@ export interface PanelViewPropsModel {
 /**
  * Button definition.
  */
-export interface PanelViewPropsButton {
+interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
