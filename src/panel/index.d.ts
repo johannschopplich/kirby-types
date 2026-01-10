@@ -18,7 +18,15 @@
  * @since 4.0.0
  */
 
-import type { ComponentPublicInstance, VueConstructor } from "vue";
+import type {
+  ComponentOptions,
+  ComponentPublicInstance,
+  PluginFunction,
+  PluginObject,
+  VNode,
+  VueConstructor,
+  h as VueH,
+} from "vue";
 import type { PanelApi } from "./api";
 import type {
   PanelContext,
@@ -223,6 +231,32 @@ export type PanelApp = InstanceType<VueConstructor> & {
 };
 
 // =============================================================================
+// Plugin Component Types
+// =============================================================================
+
+/**
+ * Vue component options for Panel plugin extensions.
+ *
+ * Components can be defined as:
+ * - Vue component options object with template or render function
+ * - Component that extends another component by name
+ */
+export type PanelComponentExtension =
+  | ComponentPublicInstance
+  | ComponentOptions<any>
+  | {
+      /** Extend another component by name (e.g., `"k-text-field"`) */
+      extends?: string | ComponentPublicInstance;
+      /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects */
+      mixins?: (string | ComponentOptions<any>)[];
+      /** Template string */
+      template?: string;
+      /** Render function */
+      render?: (h: typeof VueH) => VNode;
+      [key: string]: any;
+    };
+
+// =============================================================================
 // Panel Configuration
 // =============================================================================
 
@@ -419,6 +453,175 @@ export interface PanelRequestResponse {
     /** Raw response text */
     text: string;
   };
+}
+
+// =============================================================================
+// Panel Plugin Extensions (window.panel.plugin)
+// =============================================================================
+
+/**
+ * Extensions object passed to `window.panel.plugin()`.
+ *
+ * @example
+ * ```ts
+ * window.panel.plugin("my-plugin", {
+ *   // Custom block types
+ *   blocks: {
+ *     video: `<k-block-video :source="content.source" />`
+ *   },
+ *
+ *   // Custom field types
+ *   fields: {
+ *     "color-picker": {
+ *       extends: "k-text-field",
+ *       template: `<k-field v-bind="$props">...</k-field>`
+ *     }
+ *   },
+ *
+ *   // Custom sections
+ *   sections: {
+ *     stats: {
+ *       template: `<div>{{ data }}</div>`
+ *     }
+ *   },
+ *
+ *   // Textarea toolbar buttons
+ *   textareaButtons: {
+ *     timestamp: {
+ *       label: "Insert Timestamp",
+ *       icon: "clock",
+ *       click() {
+ *         this.command("insert", () => new Date().toISOString());
+ *       }
+ *     }
+ *   },
+ *
+ *   // Writer marks and nodes
+ *   writerMarks: {
+ *     highlight: {
+ *       button: { icon: "highlight", label: "Highlight" },
+ *       schema: {
+ *         parseDOM: [{ tag: "mark" }],
+ *         toDOM: () => ["mark", 0]
+ *       }
+ *     }
+ *   }
+ * });
+ * ```
+ *
+ * @see https://getkirby.com/docs/reference/plugins/extensions
+ */
+export interface PanelPluginExtensions {
+  /**
+   * Custom block types for the blocks field.
+   *
+   * Can be either a template string (shorthand) or a component options object.
+   * Registered as `k-block-type-${name}` components that automatically
+   * extend `k-block-type-default`.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/blocks
+   */
+  blocks?: Record<string, string | PanelComponentExtension>;
+
+  /**
+   * Vue components to register globally in the Panel.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/components
+   */
+  components?: Record<string, PanelComponentExtension>;
+
+  /**
+   * Custom field types.
+   *
+   * Registered as `k-${name}-field` components.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/fields
+   */
+  fields?: Record<string, PanelComponentExtension>;
+
+  /**
+   * SVG icon definitions.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/icons
+   */
+  icons?: Record<string, string>;
+
+  /**
+   * Custom section types.
+   *
+   * Registered as `k-${name}-section` components.
+   * The `section` mixin is automatically prepended to the mixins array.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/sections
+   */
+  sections?: Record<string, PanelComponentExtension>;
+
+  /**
+   * View button components.
+   *
+   * Registered as `k-${name}-view-button` components.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/view-buttons
+   */
+  viewButtons?: Record<string, PanelComponentExtension>;
+
+  /**
+   * Vue plugins to install via `Vue.use()`.
+   *
+   * Can be used to add global methods, directives, or mixins.
+   */
+  use?: Record<string, PluginObject<any> | PluginFunction<any>>;
+
+  /**
+   * Callback executed after the Panel Vue app is created.
+   *
+   * Receives the Vue app instance as parameter.
+   *
+   * @example
+   * ```ts
+   * window.panel.plugin("my-plugin", {
+   *   created(app) {
+   *     console.log("Panel app created", app);
+   *   }
+   * });
+   * ```
+   */
+  created?: (app: PanelApp) => void;
+
+  /**
+   * Custom login form component.
+   *
+   * Replaces the default login form with a custom implementation.
+   */
+  login?: PanelComponentExtension;
+
+  /**
+   * Custom textarea toolbar buttons.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
+   */
+  textareaButtons?: Record<string, TextareaButton>;
+
+  /**
+   * Arbitrary third-party plugin data.
+   *
+   * Can be used to pass configuration to other plugins.
+   */
+  thirdParty?: Record<string, any>;
+
+  /**
+   * Custom Writer inline formatting marks.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks
+   */
+  writerMarks?: Record<string, WriterMarkExtension>;
+
+  /**
+   * Custom Writer block-level nodes.
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-nodes
+   */
+  writerNodes?: Record<string, WriterNodeExtension>;
 }
 
 // =============================================================================
@@ -768,6 +971,37 @@ export interface Panel {
    * @returns Array of open overlay types
    */
   overlays: () => ("drawer" | "dialog")[];
+
+  /**
+   * Registers a Panel plugin with its extensions.
+   *
+   * @param name - Unique plugin identifier (typically vendor/plugin-name)
+   * @param extensions - Plugin extensions to register
+   *
+   * @example
+   * ```ts
+   * window.panel.plugin("my-plugin", {
+   *   fields: {
+   *     "color-picker": {
+   *       extends: "k-text-field",
+   *       template: `<k-field v-bind="$props">...</k-field>`
+   *     }
+   *   },
+   *   textareaButtons: {
+   *     timestamp: {
+   *       label: "Insert Timestamp",
+   *       icon: "clock",
+   *       click() {
+   *         this.command("insert", () => new Date().toISOString());
+   *       }
+   *     }
+   *   }
+   * });
+   * ```
+   *
+   * @see https://getkirby.com/docs/reference/plugins/extensions
+   */
+  plugin: (name: string, extensions: PanelPluginExtensions) => void;
 
   /**
    * Sends a POST request through the Panel router.

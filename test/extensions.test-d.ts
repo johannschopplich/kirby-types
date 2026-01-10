@@ -1,4 +1,8 @@
+import type { ComponentPublicInstance } from "vue";
 import type {
+  Panel,
+  PanelApp,
+  PanelPluginExtensions,
   TextareaButton,
   TextareaToolbarContext,
   WriterExtension,
@@ -258,6 +262,127 @@ expectType<void>(
 );
 expectType<void>(context.close());
 expectType<string>(context.$t("toolbar.button.bold"));
+
+// =============================================================================
+// 7. PANEL PLUGIN EXTENSIONS
+// =============================================================================
+
+// Full plugin registration example
+expectAssignable<PanelPluginExtensions>({
+  blocks: {
+    video: `<k-block-video :source="content.source" />`,
+    gallery: {
+      extends: "k-block-type-default",
+      template: `<div class="gallery">...</div>`,
+    },
+  },
+  components: {
+    "k-custom-component": {
+      template: `<div>Custom</div>`,
+    },
+  },
+  fields: {
+    "color-picker": {
+      extends: "k-text-field",
+      template: `<k-field v-bind="$props">...</k-field>`,
+    },
+  },
+  icons: {
+    custom: `<svg>...</svg>`,
+  },
+  sections: {
+    stats: {
+      template: `<div>{{ data }}</div>`,
+    },
+  },
+  viewButtons: {
+    "my-button": {
+      template: `<k-button>Click me</k-button>`,
+    },
+  },
+  created(app) {
+    expectType<PanelApp>(app);
+  },
+  textareaButtons: {
+    timestamp: {
+      label: "Timestamp",
+      icon: "clock",
+      click() {
+        this.command("insert", () => new Date().toISOString());
+      },
+    },
+  },
+  writerMarks: {
+    highlight: {
+      schema: {
+        parseDOM: [{ tag: "mark" }],
+        toDOM: () => ["mark", 0],
+      },
+    },
+  },
+  writerNodes: {
+    callout: {
+      schema: {
+        content: "block+",
+        group: "block",
+        parseDOM: [{ tag: "div.callout" }],
+        toDOM: () => ["div", { class: "callout" }, 0],
+      },
+    },
+  },
+});
+
+// Minimal plugin (empty extensions)
+expectAssignable<PanelPluginExtensions>({});
+
+// Block as string shorthand
+expectAssignable<PanelPluginExtensions>({
+  blocks: {
+    simple: `<div>{{ content.text }}</div>`,
+  },
+});
+
+// Plugin with only icons
+expectAssignable<PanelPluginExtensions>({
+  icons: {
+    "custom-icon": `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="8"/></svg>`,
+  },
+});
+
+// Plugin with third-party data
+expectAssignable<PanelPluginExtensions>({
+  thirdParty: {
+    myPlugin: {
+      apiKey: "test",
+      options: { debug: true },
+    },
+  },
+});
+
+// =============================================================================
+// 8. PANEL.PLUGIN() METHOD
+// =============================================================================
+
+declare const panel: Panel;
+
+// Plugin registration function
+expectType<void>(panel.plugin("my-plugin", {}));
+expectType<void>(
+  panel.plugin("my-plugin", {
+    fields: {
+      "color-picker": {
+        template: `<k-field v-bind="$props">...</k-field>`,
+      },
+    },
+  }),
+);
+
+// Access to plugins storage
+expectType<Record<string, ComponentPublicInstance>>(panel.plugins.components);
+expectType<Record<string, string>>(panel.plugins.icons);
+expectType<Record<string, TextareaButton>>(panel.plugins.textareaButtons);
+expectType<Record<string, WriterMarkExtension>>(panel.plugins.writerMarks);
+expectType<Record<string, WriterNodeExtension>>(panel.plugins.writerNodes);
 
 // =============================================================================
 // NEGATIVE TESTS

@@ -268,7 +268,7 @@ export interface WriterToolbarButton {
   command?: string;
   /** Icon name from Kirby's icon set */
   icon: string;
-  /** Display label (usually translated via `window.panel.$t()`) */
+  /** Display label (usually translated via `window.panel.t()`) */
   label: string;
   /** Extension name this button belongs to */
   name?: string;

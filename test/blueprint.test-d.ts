@@ -17,6 +17,7 @@ import type {
   KirbyOptionsFieldProps,
   KirbyStructureColumn,
   KirbyStructureFieldProps,
+  KirbyTextareaFieldProps,
   KirbyTextFieldProps,
   KirbyToggleFieldProps,
   KirbyWriterFieldProps,
@@ -99,9 +100,8 @@ expectAssignable<KirbyTextFieldProps>({
   width: "1/1",
 });
 
-expectAssignable<KirbyTextFieldProps>({
+expectAssignable<KirbyTextareaFieldProps>({
   autofocus: false,
-  converter: "slug",
   counter: false,
   disabled: false,
   font: "monospace",
@@ -109,7 +109,6 @@ expectAssignable<KirbyTextFieldProps>({
   maxlength: 100,
   minlength: 5,
   name: "code",
-  pattern: "^[a-z]+$",
   required: true,
   saveable: true,
   spellcheck: false,
@@ -120,7 +119,7 @@ expectAssignable<KirbyTextFieldProps>({
 });
 
 // All text-like types
-expectType<"text" | "textarea" | "slug" | "url" | "email" | "tel">(
+expectType<"text" | "slug" | "url" | "email" | "tel">(
   {} as KirbyTextFieldProps["type"],
 );
 
@@ -469,6 +468,7 @@ expectAssignable<KirbyLayoutColumnValue>({
 
 expectAssignable<KirbyWriterFieldProps>({
   autofocus: false,
+  counter: false,
   disabled: false,
   hidden: false,
   inline: false,
