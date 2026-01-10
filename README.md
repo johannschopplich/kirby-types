@@ -297,18 +297,25 @@ type Parsed = ParseKirbyQuery<'page.children.filterBy("status", "published")'>;
 For ProseMirror-based Writer extensions (requires optional ProseMirror peer dependencies):
 
 ```ts
-import type { WriterMarkContext } from "kirby-types";
+import type { WriterMarkExtension } from "kirby-types";
 
-// In a Writer mark extension
-class Bold {
-  commands({ type, utils }: WriterMarkContext) {
+// Define a custom mark extension
+const highlight: WriterMarkExtension = {
+  button: {
+    icon: "highlight",
+    label: "Highlight",
+  },
+  commands({ type, utils }) {
     return () => utils.toggleMark(type);
-  }
-
-  inputRules({ type, utils }: WriterMarkContext) {
+  },
+  inputRules({ type, utils }) {
     return [utils.markInputRule(/\*\*([^*]+)\*\*$/, type)];
-  }
-}
+  },
+  schema: {
+    parseDOM: [{ tag: "mark" }],
+    toDOM: () => ["mark", 0],
+  },
+};
 ```
 
 ## API Reference
