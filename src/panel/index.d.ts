@@ -242,11 +242,25 @@ export type PanelApp = InstanceType<VueConstructor> & {
  * - Component that extends another component by name
  */
 export type PanelComponentExtension =
-  | DefineComponent
+  | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
   | ComponentOptions<any>
   | {
       /** Extend another component by name (e.g., `"k-text-field"`) */
-      extends?: string | DefineComponent;
+      extends?:
+        | string
+        | DefineComponent<
+            any,
+            any,
+            any,
+            any,
+            any,
+            any,
+            any,
+            any,
+            any,
+            any,
+            any
+          >;
       /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects */
       mixins?: (string | ComponentOptions<any>)[];
       /** Template string */
@@ -672,7 +686,10 @@ export interface PanelPlugins {
   // ---------------------------------------------------------------------------
 
   /** Registered Vue components */
-  components: Record<string, DefineComponent>;
+  components: Record<
+    string,
+    DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
+  >;
 
   /** Callbacks to run after Panel creation */
   created: (() => void)[];
@@ -681,7 +698,19 @@ export interface PanelPlugins {
   icons: Record<string, string>;
 
   /** Custom login component (set dynamically by plugins) */
-  login: DefineComponent | null;
+  login: DefineComponent<
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any
+  > | null;
 
   /** Registered Panel routes */
   routes: Record<string, any>[];
@@ -699,7 +728,11 @@ export interface PanelPlugins {
   use: any[];
 
   /** Registered view buttons */
-  viewButtons: Record<string, DefineComponent | Record<string, any>>;
+  viewButtons: Record<
+    string,
+    | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
+    | Record<string, any>
+  >;
 
   /** Registered Panel views */
   views: Record<string, Record<string, any>>;
