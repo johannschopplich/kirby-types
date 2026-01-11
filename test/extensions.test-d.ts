@@ -378,7 +378,12 @@ expectType<void>(
 );
 
 // Access to plugins storage
-expectType<Record<string, DefineComponent>>(panel.plugins.components);
+expectType<
+  Record<
+    string,
+    DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
+  >
+>(panel.plugins.components);
 expectType<Record<string, string>>(panel.plugins.icons);
 expectType<Record<string, TextareaButton>>(panel.plugins.textareaButtons);
 expectType<Record<string, WriterMarkExtension>>(panel.plugins.writerMarks);
