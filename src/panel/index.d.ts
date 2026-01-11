@@ -692,7 +692,7 @@ export interface PanelPlugins {
   >;
 
   /** Callbacks to run after Panel creation */
-  created: (() => void)[];
+  created: ((app: PanelApp) => void)[];
 
   /** Registered SVG icons */
   icons: Record<string, string>;
@@ -725,7 +725,7 @@ export interface PanelPlugins {
   thirdParty: Record<string, any>;
 
   /** Installed Vue plugins via `Vue.use()` */
-  use: any[];
+  use: (PluginObject<any> | PluginFunction<any>)[];
 
   /** Registered view buttons */
   viewButtons: Record<
