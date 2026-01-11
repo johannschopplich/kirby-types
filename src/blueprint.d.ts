@@ -570,18 +570,24 @@ export interface KirbyEntriesFieldProps extends KirbyFieldProps {
 
 /**
  * Stats report item for the stats field.
+ *
+ * @see https://github.com/getkirby/kirby/blob/main/src/Panel/Ui/Stat.php
  */
 export interface KirbyStatsReport {
   /** Report label */
   label: string;
-  /** Report value */
-  value: string | number;
+  /** Report value (always string after toString() processing) */
+  value: string;
+  /** Dialog path to open on click */
+  dialog?: string;
+  /** Drawer path to open on click */
+  drawer?: string;
+  /** Icon identifier */
+  icon?: string;
   /** Additional info text */
   info?: string;
   /** Link URL */
   link?: string;
-  /** Icon identifier */
-  icon?: string;
   /** Color theme */
   theme?: string;
 }
@@ -595,8 +601,8 @@ export interface KirbyStatsReport {
  */
 export interface KirbyStatsFieldProps extends KirbyFieldProps {
   type: "stats";
-  /** Array of report objects or query string */
-  reports: KirbyStatsReport[] | string;
+  /** Array of report objects (resolved from query if originally a string) */
+  reports: KirbyStatsReport[];
   /** Card size */
   size?: "tiny" | "small" | "medium" | "large";
 }
