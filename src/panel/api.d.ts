@@ -862,11 +862,11 @@ export interface PanelApi {
    * @param silent - Skip loading indicator
    * @returns Response data
    */
-  request: (
+  request: <T = any>(
     path: string,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<any>;
+  ) => Promise<T>;
 
   /**
    * Makes a GET request.
@@ -877,12 +877,12 @@ export interface PanelApi {
    * @param silent - Skip loading indicator
    * @returns Response data
    */
-  get: (
+  get: <T = any>(
     path: string,
     query?: Record<string, any>,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<any>;
+  ) => Promise<T>;
 
   /**
    * Makes a POST request.
@@ -893,12 +893,12 @@ export interface PanelApi {
    * @param silent - Skip loading indicator
    * @returns Response data
    */
-  post: (
+  post: <T = any>(
     path: string,
     data?: any,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<any>;
+  ) => Promise<T>;
 
   /**
    * Makes a PATCH request.
@@ -909,12 +909,12 @@ export interface PanelApi {
    * @param silent - Skip loading indicator
    * @returns Response data
    */
-  patch: (
+  patch: <T = any>(
     path: string,
     data?: any,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<any>;
+  ) => Promise<T>;
 
   /**
    * Makes a DELETE request.
@@ -925,12 +925,12 @@ export interface PanelApi {
    * @param silent - Skip loading indicator
    * @returns Response data
    */
-  delete: (
+  delete: <T = any>(
     path: string,
     data?: any,
     options?: PanelApiRequestOptions,
     silent?: boolean,
-  ) => Promise<any>;
+  ) => Promise<T>;
 
   /** Authentication methods */
   auth: PanelApiAuth;
