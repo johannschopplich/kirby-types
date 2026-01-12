@@ -127,6 +127,52 @@ export type KirbyQuery<CustomModel extends string = never> =
       : KirbyQueryChain<CustomModel>);
 
 /**
+ * Recursively parses a chain of query segments separated by dots.
+ *
+ * @example
+ * ```ts
+ * type Chain = ParseQueryChain<"children.listed.first">;
+ * // Result: [
+ * //   { type: "property"; name: "children" },
+ * //   { type: "property"; name: "listed" },
+ * //   { type: "property"; name: "first" }
+ * // ]
+ * ```
+ *
+ * @internal
+ */
+type ParseQueryChain<T extends string> =
+  T extends `${infer First}.${infer Rest}`
+    ? [ParseQuerySegment<First>, ...ParseQueryChain<Rest>]
+    : [ParseQuerySegment<T>];
+
+/**
+ * Parses a single query segment to determine if it's a property access or method call.
+ *
+ * @example
+ * ```ts
+ * type Property = ParseQuerySegment<"children">;
+ * // Result: { type: "property"; name: "children" }
+ *
+ * type Method = ParseQuerySegment<'filterBy("status", "published")'>;
+ * // Result: { type: "method"; name: "filterBy"; params: '"status", "published"' }
+ * ```
+ *
+ * @internal
+ */
+type ParseQuerySegment<T extends string> =
+  T extends `${infer Name}(${infer Params})`
+    ? {
+        type: "method";
+        name: Name;
+        params: Params;
+      }
+    : {
+        type: "property";
+        name: T;
+      };
+
+/**
  * Parses a Kirby Query Language (KQL) string into a structured object.
  *
  * This type breaks down a query string into its constituent parts:
@@ -199,49 +245,3 @@ export type ParseKirbyQuery<T extends string, M extends string = never> =
               : never
             : never
           : never;
-
-/**
- * Recursively parses a chain of query segments separated by dots.
- *
- * @example
- * ```ts
- * type Chain = ParseQueryChain<"children.listed.first">;
- * // Result: [
- * //   { type: "property"; name: "children" },
- * //   { type: "property"; name: "listed" },
- * //   { type: "property"; name: "first" }
- * // ]
- * ```
- *
- * @internal
- */
-type ParseQueryChain<T extends string> =
-  T extends `${infer First}.${infer Rest}`
-    ? [ParseQuerySegment<First>, ...ParseQueryChain<Rest>]
-    : [ParseQuerySegment<T>];
-
-/**
- * Parses a single query segment to determine if it's a property access or method call.
- *
- * @example
- * ```ts
- * type Property = ParseQuerySegment<"children">;
- * // Result: { type: "property"; name: "children" }
- *
- * type Method = ParseQuerySegment<'filterBy("status", "published")'>;
- * // Result: { type: "method"; name: "filterBy"; params: '"status", "published"' }
- * ```
- *
- * @internal
- */
-type ParseQuerySegment<T extends string> =
-  T extends `${infer Name}(${infer Params})`
-    ? {
-        type: "method";
-        name: Name;
-        params: Params;
-      }
-    : {
-        type: "property";
-        name: T;
-      };

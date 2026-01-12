@@ -302,6 +302,16 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
 }
 
 /**
+ * Color option for the color field.
+ */
+export interface KirbyColorOption {
+  /** Color value (hex, rgb, or hsl) */
+  value: string;
+  /** Optional display text/label */
+  text?: string;
+}
+
+/**
  * Props for color fields.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/color
@@ -317,16 +327,6 @@ export interface KirbyColorFieldProps extends KirbyFieldProps {
   /** Predefined color options */
   options?: KirbyColorOption[];
   value?: string;
-}
-
-/**
- * Color option for the color field.
- */
-export interface KirbyColorOption {
-  /** Color value (hex, rgb, or hsl) */
-  value: string;
-  /** Optional display text/label */
-  text?: string;
 }
 
 /**
@@ -398,6 +398,28 @@ export interface KirbyLinkFieldProps extends KirbyFieldProps {
 }
 
 /**
+ * Column definition for structure field table display.
+ */
+export interface KirbyStructureColumn {
+  /** Column label */
+  label?: string;
+  /** Column width */
+  width?: string;
+  /** Field type for display */
+  type?: string;
+  /** Whether to show mobile */
+  mobile?: boolean;
+  /** Text alignment */
+  align?: "left" | "center" | "right";
+  /** Value template */
+  value?: string;
+  /** Before text */
+  before?: string;
+  /** After text */
+  after?: string;
+}
+
+/**
  * Props for structure fields.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/structure
@@ -427,28 +449,6 @@ export interface KirbyStructureFieldProps extends KirbyFieldProps {
   /** Sort entries by field (disables drag & drop) */
   sortBy?: string;
   value?: Record<string, any>[];
-}
-
-/**
- * Column definition for structure field table display.
- */
-export interface KirbyStructureColumn {
-  /** Column label */
-  label?: string;
-  /** Column width */
-  width?: string;
-  /** Field type for display */
-  type?: string;
-  /** Whether to show mobile */
-  mobile?: boolean;
-  /** Text alignment */
-  align?: "left" | "center" | "right";
-  /** Value template */
-  value?: string;
-  /** Before text */
-  before?: string;
-  /** After text */
-  after?: string;
 }
 
 /**
@@ -626,18 +626,6 @@ export interface KirbyBlockValue {
 }
 
 /**
- * Layout value as stored in content.
- */
-export interface KirbyLayoutValue {
-  /** Layout attributes */
-  attrs: Record<string, any> | any[];
-  /** Layout columns */
-  columns: KirbyLayoutColumnValue[];
-  /** Unique layout identifier */
-  id: string;
-}
-
-/**
  * Layout column value as stored in content.
  */
 export interface KirbyLayoutColumnValue {
@@ -647,6 +635,18 @@ export interface KirbyLayoutColumnValue {
   id: string;
   /** Column width fraction */
   width: string;
+}
+
+/**
+ * Layout value as stored in content.
+ */
+export interface KirbyLayoutValue {
+  /** Layout attributes */
+  attrs: Record<string, any> | any[];
+  /** Layout columns */
+  columns: KirbyLayoutColumnValue[];
+  /** Unique layout identifier */
+  id: string;
 }
 
 // -----------------------------------------------------------------------------
