@@ -1,9 +1,9 @@
 import type { KirbyQuery, ParseKirbyQuery } from "../src/query";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // KIRBY QUERY TESTS
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 // --- 1. Basic Model Names ---
 
@@ -113,9 +113,9 @@ expectAssignable<KirbyQuery<"product" | "category" | "brand">>("product.price");
 expectAssignable<KirbyQuery<"product" | "category" | "brand">>("category.name");
 expectAssignable<KirbyQuery<"product" | "category" | "brand">>("brand.logo");
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // KIRBY QUERY PARSED TESTS
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 // --- 1. Basic Model Parsing ---
 
@@ -181,9 +181,9 @@ expectType<never>({} as ParseKirbyQuery<"unknown">);
 // Note: Some edge cases still parse but create empty/invalid segments
 // The validation happens at the KirbyQuery level, not ParseKirbyQuery level
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // NEGATIVE TESTS (INVALID QUERIES)
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 // Note: Complex syntax validation (unmatched quotes, unbalanced parentheses,
 // double dots, trailing dots, empty segments) is not feasible with TypeScript's

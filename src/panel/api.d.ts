@@ -44,6 +44,37 @@ export interface PanelApiSearchQuery extends PanelApiPagination {
 }
 
 // -----------------------------------------------------------------------------
+// Model Data Types
+// -----------------------------------------------------------------------------
+
+/**
+ * Base model data returned by Panel API.
+ *
+ * Common properties shared by page, file, user, and site responses.
+ * Extend this type for model-specific properties.
+ *
+ * @example
+ * ```ts
+ * // Use directly for generic model handling
+ * const model: PanelModelData = await panel.api.get(panel.view.path);
+ * console.log(model.title, model.content);
+ *
+ * // Extend for specific content types
+ * interface ArticleData extends PanelModelData<{ text: string; author: string }> {
+ *   status: "draft" | "unlisted" | "listed";
+ * }
+ * ```
+ */
+export interface PanelModelData<TContent = Record<string, any>> {
+  /** Model identifier (page id, file id, user id; undefined for site) */
+  id?: string;
+  /** Model title or name */
+  title: string;
+  /** Content field values */
+  content: TContent;
+}
+
+// -----------------------------------------------------------------------------
 // Auth API
 // -----------------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 import type { Panel, PanelConfig, PanelPermissions } from "../src/panel";
-import type { PanelApi } from "../src/panel/api";
+import type { PanelApi, PanelModelData } from "../src/panel/api";
 import type {
   PanelEventListenerMap,
   PanelFeature,
@@ -24,9 +24,9 @@ import type {
 } from "../src/panel/features";
 import { expectAssignable, expectType } from "tsd";
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 1. CONFIGURATION
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 expectAssignable<PanelConfig>({
   api: { methodOverride: false },
@@ -45,9 +45,9 @@ expectType<boolean>({} as PanelPermissions["site"]["update"]);
 expectType<boolean>({} as PanelPermissions["users"]["changeRole"]);
 expectType<boolean>({} as PanelPermissions["user"]["delete"]);
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 2. STATE DEFAULTS
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 expectAssignable<PanelUserDefaults>({
   email: "test@example.com",
@@ -103,9 +103,9 @@ expectAssignable<PanelUploadFile>({
   model: null,
 });
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 3. PANEL STATE (base)
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 declare const userState: PanelUser;
 
@@ -124,9 +124,9 @@ expectType<string | null>({} as PanelUser["language"]);
 expectType<string | null>({} as PanelUser["role"]);
 expectType<string | null>({} as PanelUser["username"]);
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 4. PANEL FEATURE (extends State)
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 declare const feature: PanelFeature<PanelFeatureDefaults>;
 
@@ -144,9 +144,9 @@ expectType<void>(feature.addEventListener("load", () => {}));
 expectType<boolean>(feature.hasEventListener("load"));
 expectType<PanelEventListenerMap<string>>(feature.listeners());
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 5. PANEL HISTORY
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 declare const history: PanelHistory;
 
@@ -157,9 +157,9 @@ expectType<boolean>(history.isEmpty());
 expectType<number>(history.index("id"));
 expectType<PanelHistoryMilestone | undefined>(history.goto("id"));
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 6. PANEL MODAL (extends Feature)
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 declare const modal: PanelModal<PanelDialogDefaults>;
 
@@ -180,9 +180,9 @@ expectType<false | void | Promise<void>>(
   modal.successRedirect({ redirect: "/" }),
 );
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 7. DIALOG & DRAWER
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 declare const dialog: PanelDialog;
 expectType<Promise<PanelDialogDefaults>>(
@@ -191,9 +191,9 @@ expectType<Promise<PanelDialogDefaults>>(
 
 expectType<void | false>({} as ReturnType<PanelDrawer["tab"]>);
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 8. PANEL NOTIFICATION & PANEL CONTENT
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 // Notifications
 expectType<() => PanelNotificationDefaults>({} as PanelNotification["close"]);
@@ -210,9 +210,9 @@ expectType<Promise<void>>(content.save());
 expectType<Promise<void>>(content.publish());
 expectType<Promise<void>>(content.discard());
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // 9. PANEL (top-level)
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 declare const panel: Panel;
 
@@ -233,3 +233,36 @@ expectAssignable<PanelApi["auth"]>({
   user: async () => ({}),
   verifyCode: async () => ({}),
 });
+
+// -----------------------------------------------------------------------------
+// 10. PANEL MODEL DATA
+// -----------------------------------------------------------------------------
+
+// Basic usage
+declare const model: PanelModelData;
+expectType<string | undefined>(model.id);
+expectType<string>(model.title);
+expectType<Record<string, any>>(model.content);
+
+// Generic content typing
+interface ArticleContent {
+  text: string;
+  author: string;
+}
+declare const article: PanelModelData<ArticleContent>;
+expectType<string>(article.content.text);
+expectType<string>(article.content.author);
+
+// Extendability - page-specific
+interface PageModelData extends PanelModelData {
+  status: "draft" | "unlisted" | "listed";
+  slug: string;
+}
+declare const page: PageModelData;
+expectType<string>(page.title);
+expectType<"draft" | "unlisted" | "listed">(page.status);
+
+// Assignability - model data can be used where broader types are expected
+declare const modelData: PanelModelData;
+expectAssignable<Record<string, any>>(modelData);
+expectAssignable<{ content: Record<string, any> }>(modelData);
