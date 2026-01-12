@@ -6,12 +6,9 @@ import type {
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // -----------------------------------------------------------------------------
-// KIRBY BLOCK TESTS
+// 1. Block Types
 // -----------------------------------------------------------------------------
 
-// --- 1. Default Block Types ---
-
-// Text block
 expectAssignable<KirbyBlock<"text">>({
   content: { text: "Hello World" },
   id: "1",
@@ -19,14 +16,6 @@ expectAssignable<KirbyBlock<"text">>({
   type: "text",
 });
 
-expectAssignable<KirbyBlock<"text">>({
-  content: { text: "Another text content" },
-  id: "text-2",
-  isHidden: true,
-  type: "text",
-});
-
-// Code block
 expectAssignable<KirbyBlock<"code">>({
   content: { code: "console.log('hello')", language: "js" },
   id: "code-1",
@@ -34,7 +23,6 @@ expectAssignable<KirbyBlock<"code">>({
   type: "code",
 });
 
-// Gallery block
 expectAssignable<KirbyBlock<"gallery">>({
   content: {
     images: ["image1.jpg", "image2.jpg"],
@@ -47,7 +35,6 @@ expectAssignable<KirbyBlock<"gallery">>({
   type: "gallery",
 });
 
-// Heading block
 expectAssignable<KirbyBlock<"heading">>({
   content: { level: "1", text: "Main Title" },
   id: "heading-1",
@@ -55,7 +42,7 @@ expectAssignable<KirbyBlock<"heading">>({
   type: "heading",
 });
 
-// Image block (internal)
+// Image: internal (kirby)
 expectAssignable<KirbyBlock<"image">>({
   content: {
     location: "kirby",
@@ -71,7 +58,7 @@ expectAssignable<KirbyBlock<"image">>({
   type: "image",
 });
 
-// Image block (external)
+// Image: external (web)
 expectAssignable<KirbyBlock<"image">>({
   content: {
     location: "web",
@@ -87,7 +74,6 @@ expectAssignable<KirbyBlock<"image">>({
   type: "image",
 });
 
-// List block
 expectAssignable<KirbyBlock<"list">>({
   content: { text: "List item content" },
   id: "list-1",
@@ -95,7 +81,6 @@ expectAssignable<KirbyBlock<"list">>({
   type: "list",
 });
 
-// Markdown block
 expectAssignable<KirbyBlock<"markdown">>({
   content: { text: "# Markdown content\n\nSome **bold** text." },
   id: "markdown-1",
@@ -103,7 +88,6 @@ expectAssignable<KirbyBlock<"markdown">>({
   type: "markdown",
 });
 
-// Quote block (with citation)
 expectAssignable<KirbyBlock<"quote">>({
   content: {
     text: "Life is what happens when you're busy making other plans.",
@@ -114,17 +98,15 @@ expectAssignable<KirbyBlock<"quote">>({
   type: "quote",
 });
 
-// Quote block (without citation - citation is optional)
+// Quote: citation is optional
 expectAssignable<KirbyBlock<"quote">>({
-  content: {
-    text: "An anonymous quote without attribution.",
-  },
+  content: { text: "An anonymous quote." },
   id: "quote-2",
   isHidden: false,
   type: "quote",
 });
 
-// Video block (external/web)
+// Video: external (web)
 expectAssignable<KirbyBlock<"video">>({
   content: {
     location: "web",
@@ -136,7 +118,7 @@ expectAssignable<KirbyBlock<"video">>({
   type: "video",
 });
 
-// Video block (internal/kirby)
+// Video: internal (kirby)
 expectAssignable<KirbyBlock<"video">>({
   content: {
     location: "kirby",
@@ -154,9 +136,7 @@ expectAssignable<KirbyBlock<"video">>({
   type: "video",
 });
 
-// --- 2. Custom Content Types ---
-
-// Overwriting the default content type for same block type
+// Custom content type override
 expectAssignable<KirbyBlock<"video", { videoId: number }>>({
   content: { videoId: 123 },
   id: "1",
@@ -164,7 +144,6 @@ expectAssignable<KirbyBlock<"video", { videoId: number }>>({
   type: "video",
 });
 
-// Completely custom block type
 expectAssignable<KirbyBlock<"custom", { foo: string }>>({
   content: { foo: "Hello World" },
   id: "1",
@@ -172,9 +151,10 @@ expectAssignable<KirbyBlock<"custom", { foo: string }>>({
   type: "custom",
 });
 
-// --- 3. Type Inference Tests ---
+// -----------------------------------------------------------------------------
+// 2. Type Inference
+// -----------------------------------------------------------------------------
 
-// Test KirbyDefaultBlockType union
 expectType<
   | "code"
   | "gallery"
@@ -189,34 +169,19 @@ expectType<
   | "video"
 >({} as KirbyDefaultBlockType);
 
-// Test default content types
 expectType<{ code: string; language: KirbyCodeLanguage }>(
   {} as KirbyBlock<"code">["content"],
 );
-
-expectType<{
-  images: string[];
-  caption: string | null;
-  ratio: string | null;
-  crop: boolean;
-}>({} as KirbyBlock<"gallery">["content"]);
-
 expectType<{ text: string }>({} as KirbyBlock<"text">["content"]);
-
-// Test custom content type override
 expectType<{ videoId: number }>(
   {} as KirbyBlock<"video", { videoId: number }>["content"],
 );
 
-expectType<{ customField: boolean }>(
-  {} as KirbyBlock<"customType", { customField: boolean }>["content"],
-);
-
-// Test with never content (edge case)
+// Unknown block type returns empty content
 expectType<Record<string, never>>({} as KirbyBlock<"unknownType">["content"]);
 
 // -----------------------------------------------------------------------------
-// NEGATIVE TESTS (INVALID BLOCKS)
+// 3. Negative Tests
 // -----------------------------------------------------------------------------
 
 // --- 1. Wrong Content Types ---

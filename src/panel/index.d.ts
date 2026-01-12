@@ -472,7 +472,7 @@ export interface PanelRequestResponse {
 }
 
 // -----------------------------------------------------------------------------
-// Panel Plugin Extensions (window.panel.plugin)
+// Panel Plugin Extensions
 // -----------------------------------------------------------------------------
 
 /**

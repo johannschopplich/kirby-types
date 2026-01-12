@@ -25,7 +25,7 @@ import type {
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // -----------------------------------------------------------------------------
-// 1. KIRBY OPTION
+// 1. Kirby Option
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyOption>({
@@ -45,7 +45,7 @@ expectAssignable<KirbyOption>({
 });
 
 // -----------------------------------------------------------------------------
-// 2. BASE FIELD PROPS
+// 2. Base Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyFieldProps>({
@@ -82,7 +82,7 @@ expectAssignable<KirbyFieldProps>({
 });
 
 // -----------------------------------------------------------------------------
-// 3. TEXT FIELD PROPS
+// 3. Text Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyTextFieldProps>({
@@ -124,7 +124,7 @@ expectType<"text" | "slug" | "url" | "email" | "tel">(
 );
 
 // -----------------------------------------------------------------------------
-// 4. NUMBER FIELD PROPS
+// 4. Number Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyNumberFieldProps>({
@@ -156,7 +156,7 @@ expectAssignable<KirbyNumberFieldProps>({
 });
 
 // -----------------------------------------------------------------------------
-// 5. OPTIONS FIELD PROPS
+// 5. Options Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyOptionsFieldProps>({
@@ -198,7 +198,7 @@ expectType<"select" | "radio" | "checkboxes" | "multiselect" | "toggles">(
 );
 
 // -----------------------------------------------------------------------------
-// 6. TOGGLE FIELD PROPS
+// 6. Toggle Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyToggleFieldProps>({
@@ -229,7 +229,7 @@ expectAssignable<KirbyToggleFieldProps>({
 });
 
 // -----------------------------------------------------------------------------
-// 7. DATE FIELD PROPS
+// 7. Date Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyDateFieldProps>({
@@ -264,7 +264,7 @@ expectAssignable<KirbyDateFieldProps>({
 });
 
 // -----------------------------------------------------------------------------
-// 8. FILES FIELD PROPS
+// 8. Files Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyFilesFieldProps>({
@@ -305,7 +305,7 @@ expectAssignable<KirbyFilesFieldProps>({
 });
 
 // -----------------------------------------------------------------------------
-// 9. COLOR FIELD PROPS
+// 9. Color Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyColorFieldProps>({
@@ -338,7 +338,7 @@ expectAssignable<KirbyColorFieldProps>({
 });
 
 // -----------------------------------------------------------------------------
-// 10. STRUCTURE FIELD PROPS
+// 10. Structure Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyStructureFieldProps>({
@@ -375,7 +375,7 @@ expectAssignable<KirbyStructureColumn>({
 });
 
 // -----------------------------------------------------------------------------
-// 11. OBJECT FIELD PROPS
+// 11. Object Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyObjectFieldProps>({
@@ -409,7 +409,7 @@ expectType<Record<string, any> | "" | undefined>(
 );
 
 // -----------------------------------------------------------------------------
-// 12. BLOCKS FIELD PROPS
+// 12. Blocks Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyBlocksFieldProps>({
@@ -433,7 +433,7 @@ expectAssignable<KirbyBlockValue>({
 });
 
 // -----------------------------------------------------------------------------
-// 13. LAYOUT FIELD PROPS
+// 13. Layout Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyLayoutFieldProps>({
@@ -463,7 +463,7 @@ expectAssignable<KirbyLayoutColumnValue>({
 });
 
 // -----------------------------------------------------------------------------
-// 14. WRITER FIELD PROPS
+// 14. Writer Field Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyWriterFieldProps>({
@@ -501,7 +501,7 @@ expectAssignable<KirbyWriterFieldProps>({
 });
 
 // -----------------------------------------------------------------------------
-// 15. FIELDSET PROPS
+// 15. Fieldset Props
 // -----------------------------------------------------------------------------
 
 expectAssignable<KirbyFieldsetProps>({
@@ -550,7 +550,7 @@ expectAssignable<KirbyFieldsetGroup>({
 });
 
 // -----------------------------------------------------------------------------
-// NEGATIVE TESTS
+// Negative Tests
 // -----------------------------------------------------------------------------
 
 // Missing required base props

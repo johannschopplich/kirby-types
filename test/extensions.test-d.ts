@@ -13,7 +13,7 @@ import type {
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // -----------------------------------------------------------------------------
-// 1. WRITER TOOLBAR BUTTON
+// 1. Writer Toolbar Button
 // -----------------------------------------------------------------------------
 
 expectAssignable<WriterToolbarButton>({
@@ -33,16 +33,16 @@ expectAssignable<WriterToolbarButton>({
 });
 
 // -----------------------------------------------------------------------------
-// 2. WRITER GENERIC EXTENSION
+// 2. Writer Generic Extension
 // -----------------------------------------------------------------------------
 
-// Minimal generic extension
+// Minimal
 expectAssignable<WriterExtension>({
   name: "history",
   type: "extension",
 });
 
-// Generic extension with commands (like History)
+// With commands
 expectAssignable<WriterExtension>({
   name: "history",
   defaults: {
@@ -80,10 +80,10 @@ expectAssignable<WriterExtension>({
 });
 
 // -----------------------------------------------------------------------------
-// 3. WRITER MARK EXTENSION
+// 3. Writer Mark Extension
 // -----------------------------------------------------------------------------
 
-// Minimal mark extension
+// Minimal
 expectAssignable<WriterMarkExtension>({
   schema: {
     parseDOM: [{ tag: "mark" }],
@@ -91,7 +91,7 @@ expectAssignable<WriterMarkExtension>({
   },
 });
 
-// Full mark extension (like Bold)
+// Full (like Bold)
 expectAssignable<WriterMarkExtension>({
   button: {
     icon: "bold",
@@ -129,7 +129,7 @@ expectAssignable<WriterMarkExtension>({
   },
 });
 
-// Mark extension with multiple commands (like Link)
+// With multiple commands
 expectAssignable<WriterMarkExtension>({
   button: { icon: "url", label: "Link" },
   schema: {
@@ -145,7 +145,7 @@ expectAssignable<WriterMarkExtension>({
   },
 });
 
-// Mark extension with multiple buttons (like heading levels)
+// With multiple buttons
 expectAssignable<WriterMarkExtension>({
   button: [
     { id: "h1", icon: "h1", label: "Heading 1" },
@@ -154,10 +154,10 @@ expectAssignable<WriterMarkExtension>({
 });
 
 // -----------------------------------------------------------------------------
-// 4. WRITER NODE EXTENSION
+// 4. Writer Node Extension
 // -----------------------------------------------------------------------------
 
-// Minimal node extension
+// Minimal
 expectAssignable<WriterNodeExtension>({
   schema: {
     content: "block+",
@@ -167,7 +167,7 @@ expectAssignable<WriterNodeExtension>({
   },
 });
 
-// Full node extension (like Heading)
+// Full (like Heading)
 expectAssignable<WriterNodeExtension>({
   button: [
     { id: "h1", icon: "h1", label: "H1", attrs: { level: 1 } },
@@ -203,7 +203,7 @@ expectAssignable<WriterNodeExtension>({
 });
 
 // -----------------------------------------------------------------------------
-// 5. TEXTAREA BUTTON
+// 5. Textarea Button
 // -----------------------------------------------------------------------------
 
 expectAssignable<TextareaButton>({
@@ -249,7 +249,7 @@ expectAssignable<TextareaButton>({
 });
 
 // -----------------------------------------------------------------------------
-// 6. TEXTAREA TOOLBAR CONTEXT
+// 6. Textarea Toolbar Context
 // -----------------------------------------------------------------------------
 
 declare const context: TextareaToolbarContext;
@@ -264,10 +264,9 @@ expectType<void>(context.close());
 expectType<string>(context.$t("toolbar.button.bold"));
 
 // -----------------------------------------------------------------------------
-// 7. PANEL PLUGIN EXTENSIONS
+// 7. Panel Plugin Extensions
 // -----------------------------------------------------------------------------
 
-// Full plugin registration example
 expectAssignable<PanelPluginExtensions>({
   blocks: {
     video: `<k-block-video :source="content.source" />`,
@@ -332,24 +331,20 @@ expectAssignable<PanelPluginExtensions>({
   },
 });
 
-// Minimal plugin (empty extensions)
 expectAssignable<PanelPluginExtensions>({});
 
-// Block as string shorthand
 expectAssignable<PanelPluginExtensions>({
   blocks: {
     simple: `<div>{{ content.text }}</div>`,
   },
 });
 
-// Plugin with only icons
 expectAssignable<PanelPluginExtensions>({
   icons: {
     "custom-icon": `<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="8"/></svg>`,
   },
 });
 
-// Plugin with third-party data
 expectAssignable<PanelPluginExtensions>({
   thirdParty: {
     myPlugin: {
@@ -360,12 +355,11 @@ expectAssignable<PanelPluginExtensions>({
 });
 
 // -----------------------------------------------------------------------------
-// 8. PANEL.PLUGIN() METHOD
+// 8. Panel.plugin() Method
 // -----------------------------------------------------------------------------
 
 declare const panel: Panel;
 
-// Plugin registration function
 expectType<void>(panel.plugin("my-plugin", {}));
 expectType<void>(
   panel.plugin("my-plugin", {
@@ -377,7 +371,6 @@ expectType<void>(
   }),
 );
 
-// Access to plugins storage
 expectType<
   Record<
     string,
@@ -390,7 +383,7 @@ expectType<Record<string, WriterMarkExtension>>(panel.plugins.writerMarks);
 expectType<Record<string, WriterNodeExtension>>(panel.plugins.writerNodes);
 
 // -----------------------------------------------------------------------------
-// NEGATIVE TESTS
+// Negative Tests
 // -----------------------------------------------------------------------------
 
 // Missing required fields

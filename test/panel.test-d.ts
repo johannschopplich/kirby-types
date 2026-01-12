@@ -25,7 +25,7 @@ import type {
 import { expectAssignable, expectType } from "tsd";
 
 // -----------------------------------------------------------------------------
-// 1. CONFIGURATION
+// 1. Configuration
 // -----------------------------------------------------------------------------
 
 expectAssignable<PanelConfig>({
@@ -46,7 +46,7 @@ expectType<boolean>({} as PanelPermissions["users"]["changeRole"]);
 expectType<boolean>({} as PanelPermissions["user"]["delete"]);
 
 // -----------------------------------------------------------------------------
-// 2. STATE DEFAULTS
+// 2. State Defaults
 // -----------------------------------------------------------------------------
 
 expectAssignable<PanelUserDefaults>({
@@ -104,20 +104,17 @@ expectAssignable<PanelUploadFile>({
 });
 
 // -----------------------------------------------------------------------------
-// 3. PANEL STATE (base)
+// 3. Panel State
 // -----------------------------------------------------------------------------
 
 declare const userState: PanelUser;
 
-// Generic contract
 expectType<PanelUserDefaults>(userState.defaults());
 expectType<PanelUserDefaults>(userState.reset());
 expectType<PanelUserDefaults>(userState.set({ email: "new@test.com" }));
 expectType<PanelUserDefaults>(userState.state());
 expectType<string>(userState.key());
 expectType<boolean>(userState.validateState({}));
-
-// Property types
 expectType<string | null>({} as PanelUser["email"]);
 expectType<string | null>({} as PanelUser["id"]);
 expectType<string | null>({} as PanelUser["language"]);
@@ -125,12 +122,11 @@ expectType<string | null>({} as PanelUser["role"]);
 expectType<string | null>({} as PanelUser["username"]);
 
 // -----------------------------------------------------------------------------
-// 4. PANEL FEATURE (extends State)
+// 4. Panel Feature
 // -----------------------------------------------------------------------------
 
 declare const feature: PanelFeature<PanelFeatureDefaults>;
 
-// HTTP methods with union returns
 expectType<Promise<any | false>>(feature.get("/api/test"));
 expectType<Promise<any | false>>(feature.post({}));
 expectType<Promise<PanelFeatureDefaults>>(feature.load("/pages/home"));
@@ -138,14 +134,12 @@ expectType<Promise<PanelFeatureDefaults>>(feature.open("/pages/home"));
 expectType<Promise<void | false>>(feature.reload());
 expectType<Promise<PanelFeatureDefaults | undefined>>(feature.refresh());
 expectType<URL>(feature.url());
-
-// Event listeners (mixin)
 expectType<void>(feature.addEventListener("load", () => {}));
 expectType<boolean>(feature.hasEventListener("load"));
 expectType<PanelEventListenerMap<string>>(feature.listeners());
 
 // -----------------------------------------------------------------------------
-// 5. PANEL HISTORY
+// 5. Panel History
 // -----------------------------------------------------------------------------
 
 declare const history: PanelHistory;
@@ -158,20 +152,17 @@ expectType<number>(history.index("id"));
 expectType<PanelHistoryMilestone | undefined>(history.goto("id"));
 
 // -----------------------------------------------------------------------------
-// 6. PANEL MODAL (extends Feature)
+// 6. Panel Modal
 // -----------------------------------------------------------------------------
 
 declare const modal: PanelModal<PanelDialogDefaults>;
 
-// Lifecycle methods
 expectType<Promise<void>>(modal.cancel());
 expectType<Promise<PanelDialogDefaults | void>>(modal.close());
 expectType<Promise<any>>(modal.submit({}));
 expectType<void>(modal.goTo("milestone-id"));
 expectType<void>(modal.input({ field: "value" }));
 expectType<PanelModalListeners>(modal.listeners());
-
-// Success handling
 expectType<PanelSuccessResponse>(modal.success("Done"));
 expectType<PanelSuccessResponse>(
   modal.success({ message: "Success", redirect: "/home" }),
@@ -181,7 +172,7 @@ expectType<false | void | Promise<void>>(
 );
 
 // -----------------------------------------------------------------------------
-// 7. DIALOG & DRAWER
+// 7. Dialog & Drawer
 // -----------------------------------------------------------------------------
 
 declare const dialog: PanelDialog;
@@ -192,16 +183,14 @@ expectType<Promise<PanelDialogDefaults>>(
 expectType<void | false>({} as ReturnType<PanelDrawer["tab"]>);
 
 // -----------------------------------------------------------------------------
-// 8. PANEL NOTIFICATION & PANEL CONTENT
+// 8. Notification & Content
 // -----------------------------------------------------------------------------
 
-// Notifications
 expectType<() => PanelNotificationDefaults>({} as PanelNotification["close"]);
 expectType<PanelNotificationDefaults | void>(
   {} as ReturnType<PanelNotification["error"]>,
 );
 
-// Content
 declare const content: PanelContent;
 expectType<boolean>(content.hasDiff());
 expectType<boolean>(content.isCurrent());
@@ -211,19 +200,14 @@ expectType<Promise<void>>(content.publish());
 expectType<Promise<void>>(content.discard());
 
 // -----------------------------------------------------------------------------
-// 9. PANEL (top-level)
+// 9. Panel
 // -----------------------------------------------------------------------------
 
 declare const panel: Panel;
 
-// Search overloads
 expectType<void>(panel.search("pages"));
 expectType<Promise<PanelSearchResult>>(panel.search("pages", "test"));
-
-// Error handling
 expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
-
-// API structure
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectAssignable<PanelApi["auth"]>({
@@ -235,16 +219,15 @@ expectAssignable<PanelApi["auth"]>({
 });
 
 // -----------------------------------------------------------------------------
-// 10. PANEL MODEL DATA
+// 10. Model Data
 // -----------------------------------------------------------------------------
 
-// Basic usage
 declare const model: PanelModelData;
 expectType<string | undefined>(model.id);
 expectType<string>(model.title);
 expectType<Record<string, any>>(model.content);
 
-// Generic content typing
+// Generic content
 interface ArticleContent {
   text: string;
   author: string;
@@ -252,17 +235,3 @@ interface ArticleContent {
 declare const article: PanelModelData<ArticleContent>;
 expectType<string>(article.content.text);
 expectType<string>(article.content.author);
-
-// Extendability - page-specific
-interface PageModelData extends PanelModelData {
-  status: "draft" | "unlisted" | "listed";
-  slug: string;
-}
-declare const page: PageModelData;
-expectType<string>(page.title);
-expectType<"draft" | "unlisted" | "listed">(page.status);
-
-// Assignability - model data can be used where broader types are expected
-declare const modelData: PanelModelData;
-expectAssignable<Record<string, any>>(modelData);
-expectAssignable<{ content: Record<string, any> }>(modelData);

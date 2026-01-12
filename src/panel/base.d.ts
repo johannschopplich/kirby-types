@@ -72,7 +72,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 }
 
 // -----------------------------------------------------------------------------
-// State Base Types (for extends clauses)
+// State Base Types
 // -----------------------------------------------------------------------------
 
 /**
