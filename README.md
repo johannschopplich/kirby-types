@@ -5,11 +5,21 @@
 
 A collection of TypeScript types for [Kirby CMS](https://getkirby.com).
 
-[Panel types](#panel-types) •
-[Backend API types](#backend-types) •
-[Block and layout types](#layouts)
+[Quick Start](#quick-start) •
+[Common Patterns](#common-patterns) •
+[Panel Types](#panel-types) •
+[API Reference](#api-reference)
 
 </div>
+
+## When to Use
+
+| Use Case                                                     | Types to Import                                 |
+| ------------------------------------------------------------ | ----------------------------------------------- |
+| **Fetching page data** from Kirby's API                      | `KirbyApiResponse`, `KirbyBlock`, `KirbyLayout` |
+| **Building KQL queries** with type safety                    | `KirbyQueryRequest`, `KirbyQueryResponse`       |
+| **Developing Panel plugins** (Vue components, custom fields) | `Panel`, `PanelApi`                             |
+| **Creating Writer extensions** (rich text editor)            | `WriterMarkExtension`, `WriterNodeExtension`    |
 
 ## Setup
 
@@ -24,189 +34,48 @@ npm i -D kirby-types
 yarn add -D kirby-types
 ```
 
-## Features
+## Quick Start
 
-<table>
-<tr>
-<th>🪟 Panel Types</th>
-<th>🔌 Backend Types</th>
-</tr>
-<tr>
-<td>
-
-- **Panel API**: Complete API client method types.
-- **State Management**: State, Feature, and Modal hierarchies.
-- **Features**: Views, dialogs, drawers, notifications, uploads, and more.
-- **Helpers**: Array, string, object, URL, and other utility types.
-- **Libraries**: Color manipulation, dayjs, and autosize types.
-- **Writer**: ProseMirror-based rich text editor utilities.
-
-</td>
-<td>
-
-- **API Response**: Type-safe API responses.
-- **Blueprints**: Field definitions, fieldsets, and field options.
-- **Blocks**: All 11 default block types with content structures.
-- **Layouts**: Layout and column types with width unions.
-- **KQL**: Query Language request/response types.
-- **Query Parsing**: Parse query strings into structured objects at the type level.
-
-</td>
-</tr>
-</table>
-
-## Basic Usage
-
-### Panel Types
-
-Type the global `window.panel` object for Panel plugin development:
+### Typing KQL Responses
 
 ```ts
-import type { Panel } from "kirby-types";
+import type { KirbyQueryRequest, KirbyQueryResponse } from "kirby-types";
 
-// Augment the global Window interface
-declare global {
-  interface Window {
-    panel: Panel;
-  }
-}
-
-// Now window.panel is fully typed
-window.panel.notification.success("Page saved!");
-window.panel.dialog.open("pages/create");
-```
-
-Common Panel operations with full type safety:
-
-```ts
-// Notifications
-window.panel.notification.success("Changes saved");
-window.panel.notification.error("Something went wrong");
-
-// Theme
-window.panel.theme.set("dark");
-const currentTheme = window.panel.theme.current; // "light" | "dark"
-
-// Navigation
-await window.panel.view.open("/pages/blog");
-await window.panel.dialog.open("/dialogs/pages/create");
-
-// API calls
-const page = await window.panel.api.pages.read("blog");
-await window.panel.api.pages.update("blog", { title: "New Title" });
-
-// Content state
-const hasChanges = window.panel.content.hasChanges;
-await window.panel.content.save();
-
-// User info
-const user = window.panel.user;
-console.log(user.email, user.role);
-```
-
-### API Responses
-
-```ts
-import type { KirbyApiResponse } from "kirby-types";
-
-interface PageData {
-  id: string;
-  title: string;
-  url: string;
-}
-
-const response: KirbyApiResponse<PageData> = {
-  code: 200,
-  status: "ok",
-  result: {
-    id: "home",
-    title: "Home",
-    url: "/",
-  },
-};
-```
-
-### Blueprints
-
-Types for field props and fieldsets as returned by Kirby's `Field->toArray()` and `Fieldset->toArray()`:
-
-```ts
-import type {
-  KirbyFieldProps,
-  KirbyFieldsetProps,
-  KirbyOption,
-  KirbyTextFieldProps,
-} from "kirby-types";
-
-// Base field props (returned by Field->toArray())
-const field: KirbyFieldProps = {
-  name: "title",
-  type: "text",
-  label: "Title",
-  required: true,
-  disabled: false,
-  hidden: false,
-  saveable: true,
-  translate: true,
-  autofocus: false,
-  width: "1/2",
-};
-
-// Type-specific field props
-const textField: KirbyTextFieldProps = {
-  ...field,
-  type: "text",
-  counter: true,
-  font: "sans-serif",
-  spellcheck: false,
-  maxlength: 100,
-};
-
-// Fieldset (block type definition from Fieldset->toArray())
-const fieldset: KirbyFieldsetProps = {
-  disabled: false,
-  editable: true,
-  icon: "text",
-  label: null,
-  name: "Heading",
-  preview: "fields",
-  tabs: {
-    content: {
-      name: "content",
-      label: "Content",
-      fields: { text: field },
+// Define your query with full type safety
+const request: KirbyQueryRequest = {
+  query: "site",
+  select: {
+    title: true,
+    children: {
+      query: "site.children",
+      select: ["id", "title", "isListed"],
     },
   },
-  translate: true,
-  type: "heading",
-  unset: false,
-  wysiwyg: false,
 };
 
-// Option (from Option->render())
-const option: KirbyOption = {
-  disabled: false,
-  icon: "page",
-  info: null,
-  text: "Draft",
-  value: "draft",
-};
+// Type the response
+interface SiteData {
+  title: string;
+  children: { id: string; title: string; isListed: boolean }[];
+}
+
+type Response = KirbyQueryResponse<SiteData>;
 ```
 
-### Blocks
+### Typing Blocks with Content
 
 ```ts
-import type { KirbyBlock, KirbyDefaultBlockType } from "kirby-types";
+import type { KirbyBlock } from "kirby-types";
 
-// Using a default block type
+// Default block types are fully typed
 const textBlock: KirbyBlock<"text"> = {
   id: "abc123",
   type: "text",
   isHidden: false,
-  content: { text: "Hello world" },
+  content: { text: "<p>Hello world</p>" },
 };
 
-// Using a custom block type
+// Custom blocks with your own content structure
 interface HeroContent {
   title: string;
   image: string;
@@ -225,13 +94,13 @@ const heroBlock: KirbyBlock<"hero", HeroContent> = {
 };
 ```
 
-### Layouts
+### Typing Layouts
 
 ```ts
-import type { KirbyLayout, KirbyLayoutColumn } from "kirby-types";
+import type { KirbyBlock, KirbyLayout } from "kirby-types";
 
 const layout: KirbyLayout = {
-  id: "layout-xyz789",
+  id: "layout-1",
   attrs: { class: "highlight" },
   columns: [
     { id: "col-1", width: "1/3", blocks: [] },
@@ -240,66 +109,116 @@ const layout: KirbyLayout = {
 };
 ```
 
-### KQL Queries
+## Common Patterns
+
+### Pattern 1: Full Page Response with Blocks and Layouts
 
 ```ts
-import type {
-  KirbyQuery,
-  KirbyQueryRequest,
-  KirbyQueryResponse,
-} from "kirby-types";
+import type { KirbyBlock, KirbyLayout, PanelModelData } from "kirby-types";
 
-// KQL request with pagination
+// Define custom block types alongside defaults
+interface CallToActionContent {
+  text: string;
+  url: string;
+  style: "primary" | "secondary";
+}
+
+type CustomBlock =
+  | KirbyBlock<"text">
+  | KirbyBlock<"heading">
+  | KirbyBlock<"image">
+  | KirbyBlock<"cta", CallToActionContent>;
+
+interface BlogPostContent {
+  date: string;
+  author: string;
+  blocks: CustomBlock[];
+  layout: KirbyLayout[];
+}
+
+type BlogPostPage = PanelModelData<BlogPostContent>;
+```
+
+### Pattern 2: KQL Queries with Pagination
+
+```ts
+import type { KirbyQueryRequest, KirbyQueryResponse } from "kirby-types";
+
+// Define request
 const request: KirbyQueryRequest = {
   query: 'page("blog").children.listed',
   select: {
     title: "page.title",
     date: "page.date.toDate",
+    excerpt: "page.text.toBlocks.excerpt(200)",
   },
-  pagination: { limit: 10 },
+  pagination: { limit: 10, page: 1 },
 };
 
-// Typed response
-interface BlogPost {
+// Type the response data
+interface BlogPostSummary {
   title: string;
   date: string;
+  excerpt: string;
 }
 
-const response: KirbyQueryResponse<BlogPost[], true> = {
-  code: 200,
-  status: "ok",
-  result: {
-    data: [{ title: "Post 1", date: "2024-01-01" }],
-    pagination: { page: 1, pages: 5, offset: 0, limit: 10, total: 50 },
-  },
-};
-```
+// With pagination (second generic = true)
+type PaginatedResponse = KirbyQueryResponse<BlogPostSummary[], true>;
 
-### Query Parsing
-
-Parse query strings into structured objects at the type level:
-
-```ts
-import type { ParseKirbyQuery } from "kirby-types";
-
-type Parsed = ParseKirbyQuery<'page.children.filterBy("status", "published")'>;
-// Result: {
-//   model: "page";
-//   chain: [
-//     { type: "property"; name: "children" },
-//     { type: "method"; name: "filterBy"; params: '"status", "published"' }
-//   ]
+// Response shape:
+// {
+//   code: 200,
+//   status: "ok",
+//   result: {
+//     data: BlogPostSummary[],
+//     pagination: { page, pages, offset, limit, total }
+//   }
 // }
 ```
 
-### Writer Extensions
+## Panel Types
 
-For ProseMirror-based Writer extensions (requires optional ProseMirror peer dependencies):
+For Panel plugin development, type the global `window.panel` object:
+
+```ts
+import type { Panel } from "kirby-types";
+
+declare global {
+  interface Window {
+    panel: Panel;
+  }
+}
+```
+
+Common Panel operations:
+
+```ts
+// Notifications
+window.panel.notification.success("Changes saved");
+window.panel.notification.error("Something went wrong");
+
+// Theme
+window.panel.theme.set("dark");
+
+// Navigation
+await window.panel.view.open("/pages/blog");
+await window.panel.dialog.open("/dialogs/pages/create");
+
+// API calls
+const page = await window.panel.api.pages.read("blog");
+await window.panel.api.pages.update("blog", { title: "New Title" });
+
+// Content state
+const currentContent = panel.content.version("changes");
+```
+
+## Advanced: Writer Extensions
+
+For ProseMirror-based Writer extensions (requires optional peer dependencies):
 
 ```ts
 import type { WriterMarkExtension } from "kirby-types";
 
-// Define a custom mark extension
 const highlight: WriterMarkExtension = {
   button: {
     icon: "highlight",
@@ -318,108 +237,93 @@ const highlight: WriterMarkExtension = {
 };
 ```
 
+<details>
+<summary>Required peer dependencies for Writer types</summary>
+
+```bash
+pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosemirror-schema-list prosemirror-state prosemirror-view
+```
+
+</details>
+
 ## API Reference
 
-### Panel
+### Content Types (Most Used)
 
-| Type                                         | Description                         |
-| -------------------------------------------- | ----------------------------------- |
-| [`Panel`](./src/panel/index.d.ts)            | Main Panel interface                |
-| [`PanelApi`](./src/panel/api.d.ts)           | API client methods                  |
-| [`PanelState`](./src/panel/base.d.ts)        | Base state interface                |
-| [`PanelFeature`](./src/panel/base.d.ts)      | Feature with loading states         |
-| [`PanelModal`](./src/panel/base.d.ts)        | Modal (dialog/drawer) interface     |
-| [`PanelHelpers`](./src/panel/helpers.d.ts)   | Utility functions                   |
-| [`PanelLibrary`](./src/panel/libraries.d.ts) | Libraries (colors, dayjs, autosize) |
+| Type                                         | Description                        |
+| -------------------------------------------- | ---------------------------------- |
+| [`KirbyApiResponse<T>`](./src/api.d.ts)      | Standard API response wrapper      |
+| [`KirbyBlock<T, U>`](./src/blocks.d.ts)      | Block with type and content        |
+| [`KirbyLayout`](./src/layout.d.ts)           | Layout row with columns            |
+| [`KirbyLayoutColumn`](./src/layout.d.ts)     | Column with width and blocks       |
+| [`KirbyDefaultBlocks`](./src/blocks.d.ts)    | Map of default block content types |
+| [`KirbyDefaultBlockType`](./src/blocks.d.ts) | Union of default block type names  |
 
-### Writer
-
-| Type                                                | Description                        |
-| --------------------------------------------------- | ---------------------------------- |
-| [`WriterEditor`](./src/panel/writer.d.ts)           | Main editor instance               |
-| [`WriterExtensions`](./src/panel/writer.d.ts)       | Extensions manager                 |
-| [`WriterExtension`](./src/panel/writer.d.ts)        | Generic extension interface        |
-| [`WriterMarkExtension`](./src/panel/writer.d.ts)    | Mark extension interface           |
-| [`WriterNodeExtension`](./src/panel/writer.d.ts)    | Node extension interface           |
-| [`WriterMarkContext`](./src/panel/writer.d.ts)      | Context for mark extensions        |
-| [`WriterNodeContext`](./src/panel/writer.d.ts)      | Context for node extensions        |
-| [`WriterExtensionContext`](./src/panel/writer.d.ts) | Context for generic extensions     |
-| [`WriterUtils`](./src/panel/writer.d.ts)            | ProseMirror commands and utilities |
-
-### API
-
-| Type                                    | Description                           |
-| --------------------------------------- | ------------------------------------- |
-| [`KirbyApiResponse<T>`](./src/api.d.ts) | Standard Kirby API response structure |
-
-### Blueprints
-
-| Type                                               | Description                                    |
-| -------------------------------------------------- | ---------------------------------------------- |
-| [`KirbyAnyFieldProps`](./src/blueprint.d.ts)       | Union of all field prop types                  |
-| [`KirbyBlocksFieldProps`](./src/blueprint.d.ts)    | Blocks field props with fieldsets              |
-| [`KirbyColorFieldProps`](./src/blueprint.d.ts)     | Color picker field props                       |
-| [`KirbyDateFieldProps`](./src/blueprint.d.ts)      | Date and time field props                      |
-| [`KirbyFieldProps`](./src/blueprint.d.ts)          | Base field props from `Field->toArray()`       |
-| [`KirbyFieldsetProps`](./src/blueprint.d.ts)       | Fieldset from `Fieldset->toArray()`            |
-| [`KirbyFilesFieldProps`](./src/blueprint.d.ts)     | Files/pages/users picker field props           |
-| [`KirbyLayoutFieldProps`](./src/blueprint.d.ts)    | Layout field props with fieldsets and settings |
-| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)      | Link field props                               |
-| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)    | Number field props                             |
-| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)    | Object field props with nested fields          |
-| [`KirbyOption`](./src/blueprint.d.ts)              | Option from `Option->render()`                 |
-| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)   | Select/radio/checkboxes/multiselect/toggles    |
-| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)     | Range slider field props                       |
-| [`KirbyStructureFieldProps`](./src/blueprint.d.ts) | Structure field props with nested fields       |
-| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)      | Tags field props                               |
-| [`KirbyTextFieldProps`](./src/blueprint.d.ts)      | Text/textarea field props                      |
-| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)    | Toggle (boolean) field props                   |
-| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)    | Writer (rich text) field props                 |
-
-### Blocks
-
-| Type                                         | Description                       |
-| -------------------------------------------- | --------------------------------- |
-| [`KirbyBlock<T, U>`](./src/blocks.d.ts)      | Block with type and content       |
-| [`KirbyCodeLanguage`](./src/blocks.d.ts)     | Valid code block languages        |
-| [`KirbyDefaultBlocks`](./src/blocks.d.ts)    | Default block content types       |
-| [`KirbyDefaultBlockType`](./src/blocks.d.ts) | Union of default block type names |
-
-### Layouts
-
-| Type                                          | Description                  |
-| --------------------------------------------- | ---------------------------- |
-| [`KirbyLayout`](./src/layout.d.ts)            | Layout row with columns      |
-| [`KirbyLayoutColumn`](./src/layout.d.ts)      | Column with width and blocks |
-| [`KirbyLayoutColumnWidth`](./src/layout.d.ts) | Valid column width fractions |
-
-### KQL
+### KQL Types
 
 | Type                                         | Description                           |
 | -------------------------------------------- | ------------------------------------- |
-| [`KirbyQuerySchema`](./src/kql.d.ts)         | KQL query schema structure            |
 | [`KirbyQueryRequest`](./src/kql.d.ts)        | KQL request with pagination           |
 | [`KirbyQueryResponse<T, P>`](./src/kql.d.ts) | KQL response with optional pagination |
+| [`KirbyQuerySchema`](./src/kql.d.ts)         | KQL query schema structure            |
+| [`KirbyQuery<M>`](./src/query.d.ts)          | Valid KQL query string                |
+| [`ParseKirbyQuery<T>`](./src/query.d.ts)     | Parse query string to structured type |
 
-### Query
+### Panel Types
 
-| Type                                     | Description                           |
-| ---------------------------------------- | ------------------------------------- |
-| [`KirbyQuery<M>`](./src/query.d.ts)      | Valid KQL query string                |
-| [`KirbyQueryModel<M>`](./src/query.d.ts) | Supported query models                |
-| [`KirbyQueryChain<M>`](./src/query.d.ts) | Query chain patterns                  |
-| [`ParseKirbyQuery<T>`](./src/query.d.ts) | Parse query string to structured type |
+| Type                                       | Description                     |
+| ------------------------------------------ | ------------------------------- |
+| [`Panel`](./src/panel/index.d.ts)          | Main Panel interface            |
+| [`PanelApi`](./src/panel/api.d.ts)         | API client methods              |
+| [`PanelState`](./src/panel/base.d.ts)      | Base state interface            |
+| [`PanelFeature`](./src/panel/base.d.ts)    | Feature with loading states     |
+| [`PanelModal`](./src/panel/base.d.ts)      | Modal (dialog/drawer) interface |
+| [`PanelHelpers`](./src/panel/helpers.d.ts) | Utility functions               |
+
+### Blueprint Types
+
+| Type                                               | Description                              |
+| -------------------------------------------------- | ---------------------------------------- |
+| [`KirbyFieldProps`](./src/blueprint.d.ts)          | Base field props from `Field->toArray()` |
+| [`KirbyFieldsetProps`](./src/blueprint.d.ts)       | Fieldset from `Fieldset->toArray()`      |
+| [`KirbyBlocksFieldProps`](./src/blueprint.d.ts)    | Blocks field props with fieldsets        |
+| [`KirbyStructureFieldProps`](./src/blueprint.d.ts) | Structure field props with nested fields |
+| [`KirbyLayoutFieldProps`](./src/blueprint.d.ts)    | Layout field props with settings         |
+| [`KirbyAnyFieldProps`](./src/blueprint.d.ts)       | Union of all field prop types            |
+
+### Writer Types
+
+| Type                                             | Description                        |
+| ------------------------------------------------ | ---------------------------------- |
+| [`WriterEditor`](./src/panel/writer.d.ts)        | Main editor instance               |
+| [`WriterMarkExtension`](./src/panel/writer.d.ts) | Mark extension interface           |
+| [`WriterNodeExtension`](./src/panel/writer.d.ts) | Node extension interface           |
+| [`WriterUtils`](./src/panel/writer.d.ts)         | ProseMirror commands and utilities |
+
+<details>
+<summary>View all Blueprint field types</summary>
+
+| Type                                              | Description                     |
+| ------------------------------------------------- | ------------------------------- |
+| [`KirbyTextFieldProps`](./src/blueprint.d.ts)     | Text field props                |
+| [`KirbyTextareaFieldProps`](./src/blueprint.d.ts) | Textarea field props            |
+| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)   | Number field props              |
+| [`KirbyDateFieldProps`](./src/blueprint.d.ts)     | Date and time field props       |
+| [`KirbyFilesFieldProps`](./src/blueprint.d.ts)    | Files/pages/users picker props  |
+| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)  | Select/radio/checkboxes/toggles |
+| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)   | Toggle (boolean) field props    |
+| [`KirbyColorFieldProps`](./src/blueprint.d.ts)    | Color picker field props        |
+| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)    | Range slider field props        |
+| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)     | Tags field props                |
+| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)     | Link field props                |
+| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)   | Object field props              |
+| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)   | Writer (rich text) field props  |
+
+</details>
 
 ## Optional Dependencies
 
-The Panel types include Writer types that require ProseMirror packages. These are optional peer dependencies:
-
-```bash
-# Only needed if using Writer extension types
-pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosemirror-schema-list prosemirror-state
-```
-
-Vue is also an optional peer dependency for Panel types:
+Vue is an optional peer dependency for Panel types:
 
 ```bash
 pnpm add -D vue@^2.7.0
