@@ -68,7 +68,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    * Validates that the state is a plain object.
    * @throws Error if state is not an object
    */
-  validateState: (state: any) => boolean;
+  validateState: (state: unknown) => boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ export interface PanelStateBase {
   reset: () => Record<string, any>;
   set: (state: Record<string, any>) => Record<string, any>;
   state: () => Record<string, any>;
-  validateState: (state: any) => boolean;
+  validateState: (state: unknown) => boolean;
 }
 
 /**

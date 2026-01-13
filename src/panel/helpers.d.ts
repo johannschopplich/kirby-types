@@ -270,7 +270,7 @@ export interface PanelHelpersObject {
    * @param value - Value to check
    * @returns True if empty
    */
-  isEmpty: (value: any) => boolean;
+  isEmpty: (value: unknown) => boolean;
 
   /**
    * Checks if input is a plain object (not array, null, etc.).
@@ -278,7 +278,7 @@ export interface PanelHelpersObject {
    * @param input - Value to check
    * @returns True if plain object
    */
-  isObject: (input: any) => input is Record<string, any>;
+  isObject: (input: unknown) => input is Record<string, unknown>;
 
   /**
    * Counts keys in an object.
@@ -304,7 +304,7 @@ export interface PanelHelpersObject {
    * @param b - Second object
    * @returns True if identical
    */
-  same: (a: any, b: any) => boolean;
+  same: (a: unknown, b: unknown) => boolean;
 
   /**
    * Converts all object keys to lowercase.
