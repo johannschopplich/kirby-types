@@ -39,12 +39,12 @@ export interface PanelTimer {
 
   /**
    * Starts the timer with a callback.
-   * Stops any previous timer first.
+   * Stops any previous timer first. Does nothing if timeout is falsy.
    *
-   * @param timeout - Delay in milliseconds
+   * @param timeout - Delay in milliseconds, or falsy to skip
    * @param callback - Function to call after timeout
    */
-  start: (timeout: number | null, callback: () => void) => void;
+  start: (timeout: number | false | null, callback: () => void) => void;
 
   /**
    * Stops the timer and clears the interval.
@@ -345,8 +345,8 @@ export interface PanelNotificationDefaults {
   message: string | null;
   /** Visual theme */
   theme: NotificationTheme | null;
-  /** Auto-close timeout in ms */
-  timeout: number | null;
+  /** Auto-close timeout in ms, or `false` to disable auto-close */
+  timeout: number | false | null;
   /** Notification type */
   type: NotificationType | null;
 }
@@ -365,8 +365,8 @@ export interface PanelNotificationOptions {
   message?: string;
   /** Visual theme */
   theme?: NotificationTheme;
-  /** Auto-close timeout in ms (default: 4000 for non-errors) */
-  timeout?: number;
+  /** Auto-close timeout in ms (default: 4000 for non-errors), or `false` to disable auto-close */
+  timeout?: number | false;
   /** Notification type */
   type?: NotificationType;
 }
@@ -405,8 +405,8 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   message: string | null;
   /** Visual theme */
   theme: NotificationTheme | null;
-  /** Auto-close timeout in ms */
-  timeout: number | null;
+  /** Auto-close timeout in ms, or `false` to disable auto-close */
+  timeout: number | false | null;
   /** Notification type */
   type: NotificationType | null;
 
