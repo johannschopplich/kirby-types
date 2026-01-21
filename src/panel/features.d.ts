@@ -219,15 +219,15 @@ export interface PanelLanguageDefaults {
  */
 export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   /** Language code (e.g., `"en"`, `"de"`) */
-  code: string | null;
+  code: string;
   /** Whether this is the default language */
   default: boolean;
   /** Text direction */
   direction: "ltr" | "rtl";
   /** Language name */
-  name: string | null;
+  name: string;
   /** Slug conversion rules */
-  rules: Record<string, string> | null;
+  rules: Record<string, string>;
 
   /** Alias for `default` property */
   readonly isDefault: boolean;
