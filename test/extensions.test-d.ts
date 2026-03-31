@@ -187,9 +187,9 @@ expectAssignable<WriterNodeExtension>({
   commands({ type, schema, utils }) {
     return {
       toggleHeading: (attrs) =>
-        utils.toggleBlockType(type, schema.nodes.paragraph, attrs),
+        utils.toggleBlockType(type, schema.nodes.paragraph!, attrs),
       h1: () =>
-        utils.toggleBlockType(type, schema.nodes.paragraph, { level: 1 }),
+        utils.toggleBlockType(type, schema.nodes.paragraph!, { level: 1 }),
     };
   },
   inputRules({ type, utils }) {
