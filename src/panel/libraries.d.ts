@@ -87,6 +87,8 @@ export type PanelColorInput = string | PanelColorObject;
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/colors.js
  * @since 4.0.0
+ * @source panel/src/libraries/colors.js
+ * @source panel/src/libraries/colors-checks.js
  */
 export interface PanelLibraryColors {
   /**
@@ -189,6 +191,7 @@ export interface PanelDayjsPatternPart {
 
 /**
  * Pattern analyzer object returned by `dayjs.pattern()`.
+ * @source panel/src/libraries/dayjs-pattern.js
  */
 export interface PanelDayjsPattern {
   /** Original pattern string */
@@ -216,6 +219,10 @@ export interface PanelDayjsPattern {
  * Kirby plugin extensions for dayjs instances.
  *
  * These methods are added by Kirby's custom dayjs plugins.
+ * @source panel/src/libraries/dayjs-iso.js
+ * @source panel/src/libraries/dayjs-validate.js
+ * @source panel/src/libraries/dayjs-merge.js
+ * @source panel/src/libraries/dayjs-round.js
  */
 export interface PanelDayjsExtensions {
   /**
@@ -281,6 +288,9 @@ export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
  * Kirby plugin extensions for the dayjs function (static methods).
+ * @source panel/src/libraries/dayjs-interpret.js
+ * @source panel/src/libraries/dayjs-iso.js
+ * @source panel/src/libraries/dayjs-pattern.js
  */
 export interface PanelDayjsStaticExtensions {
   /**
@@ -334,6 +344,10 @@ export interface PanelDayjsStaticExtensions {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/dayjs.js
  * @since 4.0.0
+ * @source panel/src/libraries/dayjs.js
+ * @source panel/src/libraries/dayjs-interpret.js
+ * @source panel/src/libraries/dayjs-iso.js
+ * @source panel/src/libraries/dayjs-pattern.js
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   /**
@@ -374,6 +388,8 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
  * Automatically adjusts textarea height based on content.
  *
  * @see https://www.npmjs.com/package/autosize
+ * @source panel/src/libraries/index.js
+ * @source @types/autosize/index.d.ts
  */
 export interface PanelLibraryAutosize {
   /**
@@ -424,6 +440,9 @@ export interface PanelLibraryAutosize {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/index.js
+ * @source panel/src/libraries/index.js
+ * @source panel/src/libraries/colors.js
+ * @source panel/src/libraries/dayjs.js
  */
 export interface PanelLibrary {
   /**

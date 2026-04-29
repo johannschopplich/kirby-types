@@ -27,6 +27,7 @@ export interface PanelArraySearchOptions {
  * Array helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/array.js
+ * @source panel/src/helpers/array.js
  */
 export interface PanelHelpersArray {
   /**
@@ -242,6 +243,7 @@ export interface PanelHelpersString {
  * Object helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/object.js
+ * @source panel/src/helpers/object.js
  */
 export interface PanelHelpersObject {
   /**
@@ -439,6 +441,7 @@ export interface PanelHelpersClipboard {
  * Embed helper utilities for video providers.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/embed.js
+ * @source panel/src/helpers/embed.js
  */
 export interface PanelHelpersEmbed {
   /**
@@ -497,6 +500,7 @@ export interface PanelFieldDefinition {
  * Field helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/field.js
+ * @source panel/src/helpers/field.js
  */
 export interface PanelHelpersField {
   /**
@@ -548,6 +552,7 @@ export interface PanelHelpersField {
  * File helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/file.js
+ * @source panel/src/helpers/file.js
  */
 export interface PanelHelpersFile {
   /**
@@ -738,6 +743,7 @@ export interface PanelPageStatusProps {
  * Page helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/page.js
+ * @source panel/src/helpers/page.js
  */
 export interface PanelHelpersPage {
   /**
@@ -881,15 +887,23 @@ export type PanelComparator = (a: string, b: string) => number;
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/index.js
  */
 export interface PanelHelpers {
-  /** Array utilities */
+  /**
+   * Array utilities
+   * @source panel/src/helpers/array.js
+   */
   array: PanelHelpersArray;
 
-  /** Clipboard utilities */
+  /**
+   * Clipboard utilities
+   * @source panel/src/helpers/clipboard.js
+   */
   clipboard: PanelHelpersClipboard;
 
   /**
    * Deep clones a value.
    * Shortcut for `object.clone()`.
+   * @source panel/src/helpers/object.js
+   * @source panel/src/helpers/index.js
    */
   clone: <T>(value: T) => T;
 
@@ -898,6 +912,7 @@ export interface PanelHelpers {
    *
    * @param value - Color name or value
    * @returns CSS variable or original value, undefined if not a string
+   * @source panel/src/helpers/color.js
    */
   color: (value: string) => string | undefined;
 
@@ -908,6 +923,8 @@ export interface PanelHelpers {
    * @param delay - Delay in milliseconds
    * @param options - Debounce options
    * @returns Debounced function with cancel method
+   * @source panel/src/helpers/debounce.js
+   * @source panel/src/helpers/index.js
    */
   debounce: <T extends (...args: any[]) => any>(
     fn: T,
@@ -915,13 +932,22 @@ export interface PanelHelpers {
     options?: PanelDebounceOptions,
   ) => PanelDebouncedFunction<T>;
 
-  /** Video embed utilities */
+  /**
+   * Video embed utilities
+   * @source panel/src/helpers/embed.js
+   */
   embed: PanelHelpersEmbed;
 
-  /** Field utilities */
+  /**
+   * Field utilities
+   * @source panel/src/helpers/field.js
+   */
   field: PanelHelpersField;
 
-  /** File utilities */
+  /**
+   * File utilities
+   * @source panel/src/helpers/file.js
+   */
   file: PanelHelpersFile;
 
   /**
@@ -930,6 +956,7 @@ export interface PanelHelpers {
    * @param element - Selector or element
    * @param field - Specific input name to focus
    * @returns The focused element, or false if nothing could be focused
+   * @source panel/src/helpers/focus.js
    */
   focus: (element: string | HTMLElement, field?: string) => HTMLElement | false;
 
@@ -938,6 +965,8 @@ export interface PanelHelpers {
    *
    * @param name - Component name
    * @returns True if registered
+   * @source panel/src/helpers/isComponent.js
+   * @source panel/src/helpers/index.js
    */
   isComponent: (name: string) => boolean;
 
@@ -946,25 +975,41 @@ export interface PanelHelpers {
    *
    * @param event - Event to check
    * @returns True if file upload event
+   * @source panel/src/helpers/isUploadEvent.js
+   * @source panel/src/helpers/index.js
    */
   isUploadEvent: (event: Event) => boolean;
 
-  /** Keyboard utilities */
+  /**
+   * Keyboard utilities
+   * @source panel/src/helpers/keyboard.js
+   */
   keyboard: PanelHelpersKeyboard;
 
-  /** Link utilities */
+  /**
+   * Link utilities
+   * @source panel/src/helpers/link.js
+   */
   link: PanelHelpersLink;
 
-  /** Object utilities */
+  /**
+   * Object utilities
+   * @source panel/src/helpers/object.js
+   */
   object: PanelHelpersObject;
 
   /**
    * Left-pads value with zeros.
    * Shortcut for `string.pad()`.
+   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/string.js
    */
   pad: (value: string | number, length?: number) => string;
 
-  /** Page utilities */
+  /**
+   * Page utilities
+   * @source panel/src/helpers/page.js
+   */
   page: PanelHelpersPage;
 
   /**
@@ -974,12 +1019,15 @@ export interface PanelHelpers {
    * @param fallback - Fallback value (default: `"100%"`)
    * @param vertical - Calculate for vertical orientation
    * @returns Percentage string
+   * @source panel/src/helpers/ratio.js
    */
   ratio: (fraction?: string, fallback?: string, vertical?: boolean) => string;
 
   /**
    * Converts string to slug.
    * Shortcut for `string.slug()`.
+   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/string.js
    */
   slug: (
     string: string,
@@ -993,10 +1041,14 @@ export interface PanelHelpers {
    *
    * @param options - Sort options
    * @returns Comparator function
+   * @source panel/src/helpers/sort.js
    */
   sort: (options?: PanelSortOptions) => PanelComparator;
 
-  /** String utilities */
+  /**
+   * String utilities
+   * @source panel/src/helpers/string.js
+   */
   string: PanelHelpersString;
 
   /**
@@ -1006,6 +1058,8 @@ export interface PanelHelpers {
    * @param delay - Delay in milliseconds
    * @param options - Throttle options
    * @returns Throttled function with cancel method
+   * @source panel/src/helpers/throttle.js
+   * @source panel/src/helpers/index.js
    */
   throttle: <T extends (...args: any[]) => any>(
     fn: T,
@@ -1019,15 +1073,22 @@ export interface PanelHelpers {
    * @param file - File to upload
    * @param params - Upload parameters
    * @returns Promise resolving to response
+   * @source panel/src/helpers/upload.js
+   * @source panel/src/helpers/index.js
    */
   upload: (file: File, params: PanelUploadParams) => Promise<any>;
 
-  /** URL utilities */
+  /**
+   * URL utilities
+   * @source panel/src/helpers/url.js
+   */
   url: PanelHelpersUrl;
 
   /**
    * Generates UUID v4 string.
    * Shortcut for `string.uuid()`.
+   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/string.js
    */
   uuid: () => string;
 }

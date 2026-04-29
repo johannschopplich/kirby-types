@@ -29,6 +29,7 @@
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/state.js
+ * @source panel/src/panel/state.js
  */
 export interface PanelState<TDefaults extends object = Record<string, any>> {
   /**
@@ -79,6 +80,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
  * Base interface providing common state methods.
  * Used as an intermediate type for features that extend State.
  * @internal
+ * @source panel/src/panel/state.js
  */
 export interface PanelStateBase {
   key: () => string;
@@ -92,6 +94,7 @@ export interface PanelStateBase {
 /**
  * Base interface for Features extending State with event listeners.
  * @internal
+ * @source panel/src/panel/feature.js
  */
 export interface PanelFeatureBase extends PanelStateBase, PanelEventListeners {
   abortController: AbortController | null;
@@ -107,6 +110,7 @@ export interface PanelFeatureBase extends PanelStateBase, PanelEventListeners {
 /**
  * Base interface for Modals extending Feature.
  * @internal
+ * @source panel/src/panel/modal.js
  */
 export interface PanelModalBase extends PanelFeatureBase {
   id: string | null;
@@ -117,6 +121,7 @@ export interface PanelModalBase extends PanelFeatureBase {
 /**
  * Base interface for History implementations.
  * @internal
+ * @source panel/src/panel/history.js
  */
 export interface PanelHistoryBase {
   milestones: PanelHistoryMilestone[];
@@ -128,11 +133,13 @@ export interface PanelHistoryBase {
 
 /**
  * Event callback function type.
+ * @source panel/src/panel/listeners.js
  */
 export type PanelEventCallback<TReturn = any> = (...args: any[]) => TReturn;
 
 /**
  * Map of event names to their callback functions.
+ * @source panel/src/panel/listeners.js
  */
 export type PanelEventListenerMap<TEvents extends string = string> = Partial<
   Record<TEvents, PanelEventCallback>
@@ -157,6 +164,7 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/listeners.js
+ * @source panel/src/panel/listeners.js
  */
 export interface PanelEventListeners<TEvents extends string = string> {
   /**
@@ -214,6 +222,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
 /**
  * Default properties for Feature state.
+ * @source panel/src/panel/feature.js
  */
 export interface PanelFeatureDefaults {
   abortController: AbortController | null;
@@ -248,6 +257,7 @@ export interface PanelFeatureDefaults {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/feature.js
+ * @source panel/src/panel/feature.js
  */
 export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   extends PanelState<TDefaults>, PanelEventListeners {
@@ -375,6 +385,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 
 /**
  * Modal event types for dialogs and drawers.
+ * @source panel/src/panel/modal.js
  */
 export type PanelModalEvent =
   | "cancel"
@@ -387,6 +398,7 @@ export type PanelModalEvent =
 
 /**
  * Bound listener functions returned by `modal.listeners()`.
+ * @source panel/src/panel/modal.js
  */
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
@@ -400,6 +412,7 @@ export interface PanelModalListeners {
 
 /**
  * Success response from modal submission.
+ * @source panel/src/panel/modal.js
  */
 export interface PanelSuccessResponse {
   /** Success message to display */
@@ -443,6 +456,7 @@ export interface PanelSuccessResponse {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/modal.js
+ * @source panel/src/panel/modal.js
  */
 export interface PanelModal<
   TDefaults extends object = PanelFeatureDefaults & { id: string | null },
@@ -591,6 +605,7 @@ export interface PanelModal<
 
 /**
  * A history milestone representing a saved modal state.
+ * @source panel/src/panel/history.js
  */
 export interface PanelHistoryMilestone {
   /** Unique identifier for this milestone */
@@ -616,6 +631,7 @@ export interface PanelHistoryMilestone {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/history.js
+ * @source panel/src/panel/history.js
  */
 export interface PanelHistory {
   /**
@@ -721,6 +737,8 @@ export interface PanelHistory {
 
 /**
  * Options for Panel API requests.
+ * @source panel/src/panel/request.js
+ * @source panel/src/panel/feature.js
  */
 export interface PanelRequestOptions {
   /** Request headers */
@@ -744,6 +762,7 @@ export interface PanelRequestOptions {
 
 /**
  * Extended options for refresh requests.
+ * @source panel/src/panel/feature.js
  */
 export interface PanelRefreshOptions extends PanelRequestOptions {
   /** URL to refresh from (defaults to current URL) */
@@ -757,12 +776,14 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
 /**
  * Panel context indicating which layer is currently active.
  * Used to determine where notifications appear and which feature has focus.
+ * @source panel/src/panel/panel.js
  */
 export type PanelContext = "view" | "dialog" | "drawer";
 
 /**
  * Context for notifications indicating where they should appear.
  * Matches the active editing layer.
+ * @source panel/src/panel/notification.js
  */
 export type NotificationContext = "view" | "dialog" | "drawer";
 
@@ -772,6 +793,7 @@ export type NotificationContext = "view" | "dialog" | "drawer";
  * - `success`: Operation completed, auto-closes
  * - `error`: Operation failed, persists until dismissed
  * - `fatal`: Critical error, displayed in isolated iframe
+ * @source panel/src/panel/notification.js
  */
 export type NotificationType = "error" | "success" | "fatal" | "info";
 
@@ -780,5 +802,6 @@ export type NotificationType = "error" | "success" | "fatal" | "info";
  * - `positive`: Green, for success
  * - `negative`: Red, for errors
  * - `info`: Blue, for information
+ * @source panel/src/panel/notification.js
  */
 export type NotificationTheme = "positive" | "negative" | "info";

@@ -32,6 +32,7 @@ import type {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/timer.js
  * @since 4.0.0
+ * @source panel/src/panel/timer.js
  */
 export interface PanelTimer {
   /** Current interval ID, or null if not running */
@@ -58,6 +59,7 @@ export interface PanelTimer {
 
 /**
  * Default state for the activation feature.
+ * @source panel/src/panel/activiation.js
  */
 export interface PanelActivationDefaults {
   /** Whether the activation card is visible */
@@ -72,6 +74,7 @@ export interface PanelActivationDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/activiation.js
  * @since 4.0.0
+ * @source panel/src/panel/activiation.js
  */
 export interface PanelActivation extends PanelState<PanelActivationDefaults> {
   /** Whether the activation card is visible */
@@ -94,6 +97,7 @@ export interface PanelActivation extends PanelState<PanelActivationDefaults> {
 
 /**
  * Default state for drag operations.
+ * @source panel/src/panel/drag.js
  */
 export interface PanelDragDefaults {
   /** Type of item being dragged */
@@ -107,6 +111,7 @@ export interface PanelDragDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/drag.js
  * @since 4.0.0
+ * @source panel/src/panel/drag.js
  */
 export interface PanelDrag extends PanelState<PanelDragDefaults> {
   /** Type of item being dragged */
@@ -137,6 +142,7 @@ export interface PanelDrag extends PanelState<PanelDragDefaults> {
 
 /**
  * Default state for theme management.
+ * @source panel/src/panel/theme.js
  */
 export interface PanelThemeDefaults {
   /** User's theme preference from localStorage */
@@ -147,6 +153,7 @@ export interface PanelThemeDefaults {
 
 /**
  * Theme type values.
+ * @source panel/src/panel/theme.js
  */
 export type PanelThemeValue = "light" | "dark" | "system";
 
@@ -158,6 +165,7 @@ export type PanelThemeValue = "light" | "dark" | "system";
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/theme.js
  * @since 5.0.0
+ * @source panel/src/panel/theme.js
  */
 export interface PanelTheme extends Omit<
   PanelState<PanelThemeDefaults>,
@@ -195,6 +203,7 @@ export interface PanelTheme extends Omit<
 
 /**
  * Default state for content language.
+ * @source panel/src/panel/language.js
  */
 export interface PanelLanguageDefaults {
   /** Language code (e.g., `"en"`, `"de"`) */
@@ -216,6 +225,7 @@ export interface PanelLanguageDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/language.js
  * @since 4.0.0
+ * @source panel/src/panel/language.js
  */
 export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   /** Language code (e.g., `"en"`, `"de"`) */
@@ -239,6 +249,7 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
 
 /**
  * Menu entry types.
+ * @source panel/src/panel/menu.js
  */
 export interface PanelMenuEntry {
   /** Whether this entry is currently active */
@@ -255,6 +266,7 @@ export interface PanelMenuEntry {
 
 /**
  * Default state for the sidebar menu.
+ * @source panel/src/panel/menu.js
  */
 export interface PanelMenuDefaults {
   /** Menu entries (items or separator strings) */
@@ -273,6 +285,7 @@ export interface PanelMenuDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/menu.js
  * @since 4.0.0
+ * @source panel/src/panel/menu.js
  */
 export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
   /** Menu entries (items or separator strings) */
@@ -331,6 +344,7 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
 
 /**
  * Default state for notifications.
+ * @source panel/src/panel/notification.js
  */
 export interface PanelNotificationDefaults {
   /** Context where notification appears */
@@ -353,6 +367,7 @@ export interface PanelNotificationDefaults {
 
 /**
  * Options for opening a notification.
+ * @source panel/src/panel/notification.js
  */
 export interface PanelNotificationOptions {
   /** Context where notification appears */
@@ -373,6 +388,7 @@ export interface PanelNotificationOptions {
 
 /**
  * Error object for notifications.
+ * @source panel/src/panel/notification.js
  */
 export interface PanelErrorObject {
   /** Error message */
@@ -391,6 +407,7 @@ export interface PanelErrorObject {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/notification.js
  * @since 4.0.0
+ * @source panel/src/panel/notification.js
  */
 export interface PanelNotification extends PanelState<PanelNotificationDefaults> {
   /** Context where notification appears */
@@ -480,6 +497,7 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
 
 /**
  * Default state for system information.
+ * @source panel/src/panel/system.js
  */
 export interface PanelSystemDefaults {
   /** ASCII character replacements for slugs */
@@ -503,6 +521,7 @@ export interface PanelSystemDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/system.js
  * @since 4.0.0
+ * @source panel/src/panel/system.js
  */
 export interface PanelSystem extends PanelState<PanelSystemDefaults> {
   /** ASCII character replacements for slugs */
@@ -525,6 +544,7 @@ export interface PanelSystem extends PanelState<PanelSystemDefaults> {
 
 /**
  * Default state for interface translation.
+ * @source panel/src/panel/translation.js
  */
 export interface PanelTranslationDefaults {
   /** Translation code (e.g., `"en"`, `"de"`) */
@@ -547,6 +567,7 @@ export interface PanelTranslationDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/translation.js
  * @since 4.0.0
+ * @source panel/src/panel/translation.js
  */
 export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
   /** Translation code (e.g., `"en"`, `"de"`) */
@@ -586,6 +607,7 @@ export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
 
 /**
  * Default state for the current user.
+ * @source panel/src/panel/user.js
  */
 export interface PanelUserDefaults {
   /** User email */
@@ -607,6 +629,7 @@ export interface PanelUserDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/user.js
  * @since 4.0.0
+ * @source panel/src/panel/user.js
  */
 export interface PanelUser extends PanelState<PanelUserDefaults> {
   /** User email */
@@ -627,6 +650,7 @@ export interface PanelUser extends PanelState<PanelUserDefaults> {
 
 /**
  * Breadcrumb item for view navigation.
+ * @source panel/src/panel/view.js
  */
 export interface PanelBreadcrumbItem {
   /** Display label */
@@ -637,6 +661,8 @@ export interface PanelBreadcrumbItem {
 
 /**
  * Default state for the view feature.
+ * @source panel/src/panel/view.js
+ * @source panel/src/panel/feature.js
  */
 export interface PanelViewDefaults extends PanelFeatureDefaults {
   /** Breadcrumb navigation items */
@@ -665,6 +691,8 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/view.js
  * @since 4.0.0
+ * @source panel/src/panel/view.js
+ * @source panel/src/panel/feature.js
  */
 export interface PanelView extends Omit<
   PanelFeature<PanelViewDefaults>,
@@ -713,6 +741,7 @@ export interface PanelView extends Omit<
 
 /**
  * Dropdown option item.
+ * @source panel/src/panel/dropdown.js
  */
 export interface PanelDropdownOption {
   /** Option text */
@@ -735,6 +764,8 @@ export interface PanelDropdownOption {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/dropdown.js
  * @since 4.0.0
+ * @source panel/src/panel/dropdown.js
+ * @source panel/src/panel/feature.js
  */
 export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   /**
@@ -778,6 +809,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 
 /**
  * Default state for the dialog modal.
+ * @source panel/src/panel/dialog.js
+ * @source panel/src/panel/modal.js
  */
 export interface PanelDialogDefaults extends PanelFeatureDefaults {
   /** Unique dialog ID */
@@ -795,6 +828,8 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/dialog.js
  * @since 4.0.0
+ * @source panel/src/panel/dialog.js
+ * @source panel/src/panel/modal.js
  */
 export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   /** Whether using legacy Vue component */
@@ -834,6 +869,8 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
 
 /**
  * Default state for the drawer modal.
+ * @source panel/src/panel/drawer.js
+ * @source panel/src/panel/modal.js
  */
 export interface PanelDrawerDefaults extends PanelFeatureDefaults {
   /** Unique drawer ID */
@@ -847,6 +884,8 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/drawer.js
  * @since 4.0.0
+ * @source panel/src/panel/drawer.js
+ * @source panel/src/panel/modal.js
  */
 export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Breadcrumb from history milestones */
@@ -883,6 +922,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 
 /**
  * Content version representing saved or changed state.
+ * @source panel/src/panel/content.js
  */
 export interface PanelContentVersion {
   [field: string]: any;
@@ -890,6 +930,7 @@ export interface PanelContentVersion {
 
 /**
  * Content versions container.
+ * @source panel/src/panel/content.js
  */
 export interface PanelContentVersions {
   /** Original saved content */
@@ -900,6 +941,7 @@ export interface PanelContentVersions {
 
 /**
  * Lock state for content editing.
+ * @source panel/src/panel/content.js
  */
 export interface PanelContentLock {
   /** Whether content is locked by another user */
@@ -914,6 +956,7 @@ export interface PanelContentLock {
 
 /**
  * Environment context for content operations.
+ * @source panel/src/panel/content.js
  */
 export interface PanelContentEnv {
   /** API endpoint path */
@@ -930,6 +973,7 @@ export interface PanelContentEnv {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/content.js
  * @since 5.0.0
+ * @source panel/src/panel/content.js
  */
 export interface PanelContent {
   /** Reference to lock dialog if open */
@@ -1107,6 +1151,7 @@ export interface PanelContent {
 
 /**
  * Search pagination info.
+ * @source panel/src/panel/search.js
  */
 export interface PanelSearchPagination {
   page?: number;
@@ -1116,6 +1161,7 @@ export interface PanelSearchPagination {
 
 /**
  * Search query options.
+ * @source panel/src/panel/search.js
  */
 export interface PanelSearchOptions {
   /** Page number */
@@ -1126,6 +1172,7 @@ export interface PanelSearchOptions {
 
 /**
  * Search result from API.
+ * @source panel/src/panel/search.js
  */
 export interface PanelSearchResult {
   /** Result list (null if query too short) */
@@ -1141,6 +1188,7 @@ export interface PanelSearchResult {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/search.js
  * @since 4.4.0
+ * @source panel/src/panel/search.js
  */
 export interface PanelSearcher {
   /** AbortController for current request */
@@ -1182,6 +1230,7 @@ export interface PanelSearcher {
  * Upload file state representing a file in the upload queue.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/upload.js
+ * @source panel/src/panel/upload.js
  */
 export interface PanelUploadFile {
   /** Unique file ID */
@@ -1214,6 +1263,7 @@ export interface PanelUploadFile {
 
 /**
  * Default state for upload feature.
+ * @source panel/src/panel/upload.js
  */
 export interface PanelUploadDefaults {
   /** AbortController for current upload */
@@ -1244,6 +1294,7 @@ export interface PanelUploadDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/upload.js
  * @since 4.0.0
+ * @source panel/src/panel/upload.js
  */
 export interface PanelUpload
   extends PanelState<PanelUploadDefaults>, PanelEventListeners {
@@ -1385,6 +1436,7 @@ export interface PanelUpload
 
 /**
  * Event emitter interface (mitt-compatible).
+ * @source panel/src/panel/events.js
  */
 export interface PanelEventEmitter {
   emit: (event: string, ...args: any[]) => void;
@@ -1400,6 +1452,7 @@ export interface PanelEventEmitter {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/events.js
  * @since 4.0.0
+ * @source panel/src/panel/events.js
  */
 export interface PanelEvents extends PanelEventEmitter {
   /** Element that was entered during drag */

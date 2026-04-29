@@ -224,6 +224,8 @@ export type {
  * const slug = this.$helper.slug("My Page Title");
  * const date = this.$library.dayjs("2024-01-15").format("DD.MM.YYYY");
  * ```
+ * @source panel/src/panel/app.js
+ * @source panel/src/index.js
  */
 export type PanelApp = InstanceType<VueConstructor> & {
   $library: PanelLibrary;
@@ -242,6 +244,7 @@ export type PanelApp = InstanceType<VueConstructor> & {
  * Components can be defined as:
  * - Vue component options object with template or render function
  * - Component that extends another component by name
+ * @source panel/src/panel/plugins.js
  */
 export type PanelComponentExtension =
   | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
@@ -280,6 +283,8 @@ export type PanelComponentExtension =
  * Global Panel configuration.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/config/config.js
+ * @source panel/src/panel/panel.js:33
+ * @source src/Panel/View.php:266-275
  */
 export interface PanelConfig {
   /** API configuration */
@@ -305,6 +310,8 @@ export interface PanelConfig {
 
 /**
  * Access permissions for Panel areas.
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsAccess {
   account: boolean;
@@ -317,6 +324,8 @@ interface PanelPermissionsAccess {
 
 /**
  * File operation permissions.
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/FilePermissions.php
  */
 interface PanelPermissionsFiles {
   access: boolean;
@@ -333,6 +342,8 @@ interface PanelPermissionsFiles {
 
 /**
  * Language operation permissions.
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/LanguagePermissions.php
  */
 interface PanelPermissionsLanguages {
   create: boolean;
@@ -342,6 +353,8 @@ interface PanelPermissionsLanguages {
 
 /**
  * Page operation permissions.
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/PagePermissions.php
  */
 interface PanelPermissionsPages {
   access: boolean;
@@ -362,6 +375,8 @@ interface PanelPermissionsPages {
 
 /**
  * Site operation permissions.
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/SitePermissions.php
  */
 interface PanelPermissionsSite {
   changeTitle: boolean;
@@ -370,6 +385,8 @@ interface PanelPermissionsSite {
 
 /**
  * User management permissions (for other users).
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUsers {
   changeEmail: boolean;
@@ -384,6 +401,8 @@ interface PanelPermissionsUsers {
 
 /**
  * Current user permissions (for own account).
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUser {
   changeEmail: boolean;
@@ -399,6 +418,8 @@ interface PanelPermissionsUser {
  * Complete permission set for the current user.
  *
  * @see https://getkirby.com/docs/reference/plugins/extensions/permissions
+ * @source src/Cms/Permissions.php
+ * @source src/Cms/Role.php
  */
 export interface PanelPermissions {
   access: PanelPermissionsAccess;
@@ -416,6 +437,7 @@ export interface PanelPermissions {
 
 /**
  * Search type definition.
+ * @source src/Panel/View.php
  */
 export interface PanelSearchType {
   /** Icon for the search type */
@@ -428,6 +450,8 @@ export interface PanelSearchType {
 
 /**
  * Available search types in the Panel.
+ * @source panel/src/panel/panel.js
+ * @source src/Panel/View.php
  */
 export interface PanelSearches {
   pages: PanelSearchType;
@@ -442,6 +466,7 @@ export interface PanelSearches {
 
 /**
  * Base URLs for Panel operations.
+ * @source panel/src/panel/panel.js
  */
 export interface PanelUrls {
   /** API endpoint URL */
@@ -458,6 +483,7 @@ export interface PanelUrls {
  * Response object from Panel requests.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/request.js
+ * @source panel/src/panel/request.js
  */
 export interface PanelRequestResponse {
   /** The original Request object */
@@ -526,6 +552,7 @@ export interface PanelRequestResponse {
  * ```
  *
  * @see https://getkirby.com/docs/reference/plugins/extensions
+ * @source panel/public/js/plugins.js
  */
 export interface PanelPluginExtensions {
   /**
@@ -651,6 +678,8 @@ export interface PanelPluginExtensions {
  * Properties are ordered to match `panel/public/js/plugins.js`.
  *
  * @see https://getkirby.com/docs/reference/plugins/extensions
+ * @source panel/src/panel/plugins.js
+ * @source panel/public/js/plugins.js
  */
 export interface PanelPlugins {
   // ---------------------------------------------------------------------------
@@ -758,6 +787,8 @@ export interface PanelPlugins {
 
 /**
  * Language information for multi-language sites.
+ * @source src/Cms/Language.php:555-567
+ * @source src/Panel/View.php:169-174
  */
 export interface PanelLanguageInfo {
   /** Language code (e.g., `"en"`, `"de"`) */
@@ -778,6 +809,7 @@ export interface PanelLanguageInfo {
 
 /**
  * Global Panel state for `panel.state()`.
+ * @source panel/src/panel/panel.js
  */
 export interface PanelGlobalState {
   activation: PanelFeatures.PanelActivationDefaults;
@@ -821,6 +853,9 @@ export interface PanelGlobalState {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/panel.js
+ * @source panel/src/panel/panel.js
+ * @source panel/src/index.js
+ * @source panel/public/js/plugins.js
  */
 export interface Panel {
   // ---------------------------------------------------------------------------
@@ -1143,6 +1178,7 @@ export interface Panel {
 
 /**
  * Lock information for content.
+ * @source src/Content/Lock.php
  */
 interface PanelViewPropsLockUser {
   id: string;
@@ -1151,6 +1187,8 @@ interface PanelViewPropsLockUser {
 
 /**
  * Content lock state.
+ * @source src/Content/Lock.php
+ * @source src/Panel/Model.php
  */
 interface PanelViewPropsLock {
   isLegacy: boolean;
@@ -1161,6 +1199,12 @@ interface PanelViewPropsLock {
 
 /**
  * Content permissions for a view.
+ * @source src/Cms/ModelPermissions.php
+ * @source src/Cms/PageBlueprint.php
+ * @source src/Cms/FileBlueprint.php
+ * @source src/Cms/UserBlueprint.php
+ * @source src/Cms/SiteBlueprint.php
+ * @source src/Panel/Site.php
  */
 interface PanelViewPropsPermissions {
   access: boolean;
@@ -1181,6 +1225,7 @@ interface PanelViewPropsPermissions {
 
 /**
  * Version information.
+ * @source src/Panel/Model.php
  */
 interface PanelViewPropsVersions {
   latest: Record<string, any>;
@@ -1189,6 +1234,7 @@ interface PanelViewPropsVersions {
 
 /**
  * Tab definition.
+ * @source src/Cms/Blueprint.php
  */
 interface PanelViewPropsTab {
   label: string;
@@ -1200,6 +1246,10 @@ interface PanelViewPropsTab {
 
 /**
  * Navigation link (next/prev).
+ * @source src/Panel/Model.php
+ * @source src/Panel/Page.php
+ * @source src/Panel/File.php
+ * @source src/Panel/User.php
  */
 interface PanelViewPropsNavigation {
   link: string;
@@ -1208,6 +1258,10 @@ interface PanelViewPropsNavigation {
 
 /**
  * Model information.
+ * @source src/Panel/Page.php
+ * @source src/Panel/File.php
+ * @source src/Panel/User.php
+ * @source src/Panel/Site.php
  */
 interface PanelViewPropsModel {
   id: string;
@@ -1221,6 +1275,9 @@ interface PanelViewPropsModel {
 
 /**
  * Button definition.
+ * @source src/Panel/Ui/Buttons/ViewButton.php
+ * @source src/Panel/Ui/Buttons/ViewButtons.php
+ * @source src/Panel/Ui/Component.php
  */
 interface PanelViewPropsButton {
   component: string;
@@ -1241,6 +1298,11 @@ interface PanelViewPropsButton {
 
 /**
  * Common view props passed from backend.
+ * @source src/Panel/Model.php
+ * @source src/Panel/Page.php
+ * @source src/Panel/File.php
+ * @source src/Panel/User.php
+ * @source src/Panel/Site.php
  */
 export interface PanelViewProps {
   api: string;

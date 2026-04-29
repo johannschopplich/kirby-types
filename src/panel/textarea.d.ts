@@ -16,6 +16,8 @@
  * The toolbar component context available as `this` in button click handlers.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Toolbar.vue
+ * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
+ * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
 export interface TextareaToolbarContext {
   /**
@@ -92,6 +94,8 @@ export interface TextareaToolbarContext {
  * ```
  *
  * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
+ * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
+ * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  */
 export interface TextareaButton {
   /**

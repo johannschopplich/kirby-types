@@ -47,6 +47,8 @@ import type {
  * when using class-based extensions, or that is passed to event handlers.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Emitter.js
  */
 export interface WriterEditor {
   // ---------------------------------------------------------------------------
@@ -260,6 +262,10 @@ export interface WriterExtensions {
  * Buttons appear in the Writer toolbar and trigger commands when clicked.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Toolbar.vue
+ * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Toolbar.vue
+ * @source panel/src/components/Forms/Writer/Nodes/Heading.js
+ * @source panel/src/components/Forms/Writer/Marks/Link.js
  */
 export interface WriterToolbarButton {
   /** Unique identifier (defaults to extension name) */
@@ -294,6 +300,7 @@ export interface WriterToolbarButton {
  * extension methods via the context object.
  *
  * @see https://github.com/getkirby/kirby/tree/main/panel/src/components/Forms/Writer/Utils
+ * @source panel/src/components/Forms/Writer/Utils/index.js
  */
 export interface WriterUtils {
   // ---------------------------------------------------------------------------
@@ -533,6 +540,7 @@ export interface WriterUtils {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterMarkContext {
   /** The ProseMirror schema with all registered nodes and marks */
@@ -558,6 +566,7 @@ export interface WriterMarkContext {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterNodeContext {
   /** The ProseMirror schema with all registered nodes and marks */
@@ -575,6 +584,7 @@ export interface WriterNodeContext {
  * are provided.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterExtensionContext {
   /** The ProseMirror schema with all registered nodes and marks */
@@ -613,6 +623,11 @@ export interface WriterExtensionContext {
  * ```
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extension.js
+ * @source panel/src/components/Forms/Writer/Extension.js
+ * @source panel/src/components/Forms/Writer/Extensions/History.js
+ * @source panel/src/components/Forms/Writer/Extensions/Insert.js
+ * @source panel/src/components/Forms/Writer/Extensions/Keys.js
+ * @source panel/src/components/Forms/Writer/Extensions/Toolbar.js
  */
 export interface WriterExtension {
   /**
@@ -722,6 +737,19 @@ export interface WriterExtension {
  * ```
  *
  * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks-nodes
+ * @source panel/src/components/Forms/Writer/Mark.js
+ * @source panel/src/components/Forms/Writer/Extension.js
+ * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Marks/Bold.js
+ * @source panel/src/components/Forms/Writer/Marks/Clear.js
+ * @source panel/src/components/Forms/Writer/Marks/Code.js
+ * @source panel/src/components/Forms/Writer/Marks/Email.js
+ * @source panel/src/components/Forms/Writer/Marks/Italic.js
+ * @source panel/src/components/Forms/Writer/Marks/Link.js
+ * @source panel/src/components/Forms/Writer/Marks/Strike.js
+ * @source panel/src/components/Forms/Writer/Marks/Sub.js
+ * @source panel/src/components/Forms/Writer/Marks/Sup.js
+ * @source panel/src/components/Forms/Writer/Marks/Underline.js
  */
 export interface WriterMarkExtension {
   // ---------------------------------------------------------------------------
@@ -965,6 +993,20 @@ export interface WriterMarkExtension {
  * ```
  *
  * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks-nodes
+ * @source panel/src/components/Forms/Writer/Node.js
+ * @source panel/src/components/Forms/Writer/Extension.js
+ * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Nodes/BulletList.js
+ * @source panel/src/components/Forms/Writer/Nodes/Doc.js
+ * @source panel/src/components/Forms/Writer/Nodes/HardBreak.js
+ * @source panel/src/components/Forms/Writer/Nodes/Heading.js
+ * @source panel/src/components/Forms/Writer/Nodes/HorizontalRule.js
+ * @source panel/src/components/Forms/Writer/Nodes/ListDoc.js
+ * @source panel/src/components/Forms/Writer/Nodes/ListItem.js
+ * @source panel/src/components/Forms/Writer/Nodes/OrderedList.js
+ * @source panel/src/components/Forms/Writer/Nodes/Paragraph.js
+ * @source panel/src/components/Forms/Writer/Nodes/Quote.js
+ * @source panel/src/components/Forms/Writer/Nodes/Text.js
  */
 export interface WriterNodeExtension {
   // ---------------------------------------------------------------------------
