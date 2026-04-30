@@ -111,14 +111,10 @@ export interface PanelApiAuth {
    */
   login: (data: PanelApiLoginData) => Promise<any>;
 
-  /**
-   * Logs out the current user.
-   */
+  /** Logs out the current user. */
   logout: () => Promise<any>;
 
-  /**
-   * Pings the server to keep session alive.
-   */
+  /** Pings the server to keep session alive. */
   ping: () => Promise<any>;
 
   /**
@@ -232,9 +228,7 @@ export interface PanelApiFiles {
 // Languages API
 // -----------------------------------------------------------------------------
 
-/**
- * Language data for create/update.
- */
+/** Language data for create/update. */
 export interface PanelApiLanguageData {
   /** Language code */
   code: string;
@@ -301,9 +295,7 @@ export interface PanelApiLanguages {
 // Pages API
 // -----------------------------------------------------------------------------
 
-/**
- * Page creation data.
- */
+/** Page creation data. */
 export interface PanelApiPageCreateData {
   /** Page slug */
   slug: string;
@@ -317,9 +309,7 @@ export interface PanelApiPageCreateData {
   status?: "draft" | "unlisted" | "listed";
 }
 
-/**
- * Page duplicate options.
- */
+/** Page duplicate options. */
 export interface PanelApiPageDuplicateOptions {
   /** Copy children pages */
   children?: boolean;
@@ -592,9 +582,7 @@ export interface PanelApiSite {
 // System API
 // -----------------------------------------------------------------------------
 
-/**
- * System installation data.
- */
+/** System installation data. */
 export interface PanelApiSystemInstallData {
   /** Admin email */
   email: string;
@@ -604,9 +592,7 @@ export interface PanelApiSystemInstallData {
   language?: string;
 }
 
-/**
- * License registration data.
- */
+/** License registration data. */
 export interface PanelApiSystemRegisterData {
   /** License key */
   license: string;
@@ -677,9 +663,7 @@ export interface PanelApiTranslations {
 // Users API
 // -----------------------------------------------------------------------------
 
-/**
- * User creation data.
- */
+/** User creation data. */
 export interface PanelApiUserCreateData {
   /** User email */
   email: string;

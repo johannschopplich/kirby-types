@@ -637,32 +637,22 @@ export interface WriterExtensionContext {
  * @source panel/src/components/Forms/Writer/Extensions/Toolbar.js
  */
 export interface WriterExtension {
-  /**
-   * Unique name of the extension.
-   */
+  /** Unique name of the extension. */
   name?: string;
 
   /** Extension type identifier */
   type?: string;
 
-  /**
-   * The editor instance, available after `bindEditor()` is called.
-   */
+  /** The editor instance, available after `bindEditor()` is called. */
   editor?: WriterEditor;
 
-  /**
-   * Merged extension options from `defaults` and constructor options.
-   */
+  /** Merged extension options from `defaults` and constructor options. */
   options?: Record<string, any>;
 
-  /**
-   * Default options for the extension.
-   */
+  /** Default options for the extension. */
   defaults?: Record<string, any>;
 
-  /**
-   * Called after the editor is bound to the extension.
-   */
+  /** Called after the editor is bound to the extension. */
   init?: () => null | void;
 
   /**
@@ -1056,14 +1046,10 @@ export interface WriterNodeExtension {
    */
   button?: WriterToolbarButton | WriterToolbarButton[];
 
-  /**
-   * Default options for the extension.
-   */
+  /** Default options for the extension. */
   defaults?: Record<string, any>;
 
-  /**
-   * ProseMirror node schema definition.
-   */
+  /** ProseMirror node schema definition. */
   schema?: NodeSpec;
 
   /**

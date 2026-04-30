@@ -55,14 +55,10 @@ export interface TextareaToolbarContext {
     ...args: any[]
   ) => void;
 
-  /**
-   * Closes all dropdowns.
-   */
+  /** Closes all dropdowns. */
   close: () => void;
 
-  /**
-   * Vue translation function.
-   */
+  /** Vue translation function. */
   $t: (key: string, ...args: any[]) => string;
 }
 
@@ -98,14 +94,10 @@ export interface TextareaToolbarContext {
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  */
 export interface TextareaButton {
-  /**
-   * Display label for the button (appears in tooltip).
-   */
+  /** Display label for the button (appears in tooltip). */
   label: string;
 
-  /**
-   * Icon name from Kirby's icon set.
-   */
+  /** Icon name from Kirby's icon set. */
   icon: string;
 
   /**
@@ -171,29 +163,19 @@ export interface TextareaButton {
    */
   dropdown?: TextareaDropdownItem[];
 
-  /**
-   * Conditional rendering. If false, the button won't be shown.
-   */
+  /** Conditional rendering. If false, the button won't be shown. */
   when?: boolean;
 
-  /**
-   * Disables the button.
-   */
+  /** Disables the button. */
   disabled?: boolean;
 
-  /**
-   * Sets the aria-current attribute for active state styling.
-   */
+  /** Sets the aria-current attribute for active state styling. */
   current?: boolean | string;
 
-  /**
-   * Alternative tooltip text (defaults to label).
-   */
+  /** Alternative tooltip text (defaults to label). */
   title?: string;
 
-  /**
-   * Custom CSS class for the button.
-   */
+  /** Custom CSS class for the button. */
   class?: string;
 }
 
@@ -241,18 +223,12 @@ export interface TextareaDropdownItem {
    */
   click: () => void;
 
-  /**
-   * Conditional rendering. If false, the item won't be shown.
-   */
+  /** Conditional rendering. If false, the item won't be shown. */
   when?: boolean;
 
-  /**
-   * Disables the dropdown item.
-   */
+  /** Disables the dropdown item. */
   disabled?: boolean;
 
-  /**
-   * Sets the aria-current attribute for active state styling.
-   */
+  /** Sets the aria-current attribute for active state styling. */
   current?: boolean | string;
 }

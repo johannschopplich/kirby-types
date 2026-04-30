@@ -379,9 +379,7 @@ interface PanelPermissionsPages {
  * @source src/Cms/SitePermissions.php
  */
 interface PanelPermissionsSite {
-  /**
-   * Whether the current role can access the site area.
-   */
+  /** Whether the current role can access the site area. */
   access: boolean;
   changeTitle: boolean;
   update: boolean;
@@ -393,9 +391,7 @@ interface PanelPermissionsSite {
  * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUsers {
-  /**
-   * Whether the current role can access the users area.
-   */
+  /** Whether the current role can access the users area. */
   access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
@@ -404,9 +400,7 @@ interface PanelPermissionsUsers {
   changeRole: boolean;
   create: boolean;
   delete: boolean;
-  /**
-   * Whether the current role can list users.
-   */
+  /** Whether the current role can list users. */
   list: boolean;
   update: boolean;
 }
@@ -417,9 +411,7 @@ interface PanelPermissionsUsers {
  * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUser {
-  /**
-   * Whether the current role can access their own account area.
-   */
+  /** Whether the current role can access their own account area. */
   access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
@@ -427,9 +419,7 @@ interface PanelPermissionsUser {
   changePassword: boolean;
   changeRole: boolean;
   delete: boolean;
-  /**
-   * Whether the current role can list their own account.
-   */
+  /** Whether the current role can list their own account. */
   list: boolean;
   update: boolean;
 }
@@ -1242,25 +1232,15 @@ interface PanelViewPropsLock {
  */
 interface PanelViewPropsPermissions {
   access: boolean;
-  /**
-   * User permission. Present on User views.
-   */
+  /** User permission. Present on User views. */
   changeEmail?: boolean;
-  /**
-   * User permission. Present on User views.
-   */
+  /** User permission. Present on User views. */
   changeLanguage?: boolean;
-  /**
-   * File / User permission. Present on File and User views.
-   */
+  /** File / User permission. Present on File and User views. */
   changeName?: boolean;
-  /**
-   * User permission. Present on User views.
-   */
+  /** User permission. Present on User views. */
   changePassword?: boolean;
-  /**
-   * User permission. Present on User views.
-   */
+  /** User permission. Present on User views. */
   changeRole?: boolean;
   changeSlug: boolean;
   changeStatus: boolean;
@@ -1273,9 +1253,7 @@ interface PanelViewPropsPermissions {
   move: boolean;
   preview: boolean;
   read: boolean;
-  /**
-   * File permission. Present on File views.
-   */
+  /** File permission. Present on File views. */
   replace?: boolean;
   sort: boolean;
   update: boolean;
@@ -1341,48 +1319,30 @@ interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
-    /**
-     * Optional badge label rendered next to the button.
-     */
+    /** Optional badge label rendered next to the button. */
     badge?: string;
     class?: string;
-    /**
-     * Whether the button represents the current view/route.
-     */
+    /** Whether the button represents the current view/route. */
     current?: boolean;
-    /**
-     * Dialog endpoint or config to open on click.
-     */
+    /** Dialog endpoint or config to open on click. */
     dialog?: string | Record<string, any>;
     disabled?: boolean;
-    /**
-     * Drawer endpoint or config to open on click.
-     */
+    /** Drawer endpoint or config to open on click. */
     drawer?: string | Record<string, any>;
-    /**
-     * Dropdown endpoint or config to open on click.
-     */
+    /** Dropdown endpoint or config to open on click. */
     dropdown?: string | Record<string, any>;
     icon?: string;
     link?: string;
-    /**
-     * Inline dropdown options.
-     */
+    /** Inline dropdown options. */
     options?: Record<string, any>[];
     responsive?: boolean;
     size?: string;
-    /**
-     * Inline CSS style string.
-     */
+    /** Inline CSS style string. */
     style?: string;
     target?: string;
-    /**
-     * Visible button label.
-     */
+    /** Visible button label. */
     text?: string;
-    /**
-     * Visual theme variant (e.g., `"positive"`, `"negative"`).
-     */
+    /** Visual theme variant (e.g., `"positive"`, `"negative"`). */
     theme?: string;
     title?: string;
     type?: string;
@@ -1412,9 +1372,7 @@ export interface PanelViewProps {
   tabs: Record<string, any>[];
   uuid: string;
   versions: PanelViewPropsVersions;
-  /**
-   * Active blueprint tab. Only present when the blueprint defines tabs.
-   */
+  /** Active blueprint tab. Only present when the blueprint defines tabs. */
   tab?: PanelViewPropsTab;
   /**
    * Sibling navigation link to the next model. Present on Page, File and

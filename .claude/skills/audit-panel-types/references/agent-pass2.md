@@ -23,7 +23,7 @@ For every finding (missing/redundant/signatureMismatch/soft) in the pass-1 JSONs
 4. For each ACT, produce a patch (`old_string` → `new_string`) suitable for the Edit tool:
    - `old_string` MUST be a unique exact substring within the TS file
    - Preserve indentation, existing JSDoc, and existing @source lines
-   - When adding a new property/method, include a 1-2 line JSDoc. Add an `@source` ONLY if the source file is different from every `@source` already on the wrapping interface – never duplicate a parent cite. Path is file-only, no `:line` suffix.
+   - When adding a new property/method, include a 1-2 line JSDoc. If the description fits on one line and the block has no `@source` or other tags, write it inline as `/** Description. */` – not a 3-line block. Add an `@source` ONLY if the source file is different from every `@source` already on the wrapping interface – never duplicate a parent cite. Path is file-only, no `:line` suffix.
    - Minimal – no surrounding refactor
 
 For Soft items: tighten if statically known and won't cascade. Otherwise DEFER.

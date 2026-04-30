@@ -14,14 +14,10 @@ import type { ConfigType, Dayjs, OpUnitType, PluginFunc } from "dayjs";
 // Color Types
 // -----------------------------------------------------------------------------
 
-/**
- * Color format identifiers.
- */
+/** Color format identifiers. */
 export type PanelColorFormat = "hex" | "rgb" | "hsl" | "hsv";
 
-/**
- * RGB color object.
- */
+/** RGB color object. */
 export interface PanelColorRGB {
   /** Red channel (0-255) */
   r: number;
@@ -33,9 +29,7 @@ export interface PanelColorRGB {
   a?: number;
 }
 
-/**
- * HSL color object.
- */
+/** HSL color object. */
 export interface PanelColorHSL {
   /** Hue (0-360) */
   h: number;
@@ -47,9 +41,7 @@ export interface PanelColorHSL {
   a?: number;
 }
 
-/**
- * HSV color object.
- */
+/** HSV color object. */
 export interface PanelColorHSV {
   /** Hue (0-360) */
   h: number;
@@ -61,14 +53,10 @@ export interface PanelColorHSV {
   a?: number;
 }
 
-/**
- * Any color object type.
- */
+/** Any color object type. */
 export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
 
-/**
- * Color input (string or object).
- */
+/** Color input (string or object). */
 export type PanelColorInput = string | PanelColorObject;
 
 /**
@@ -175,9 +163,7 @@ export interface PanelLibraryColors {
 // Dayjs Types
 // -----------------------------------------------------------------------------
 
-/**
- * Pattern part information.
- */
+/** Pattern part information. */
 export interface PanelDayjsPatternPart {
   /** Part index in pattern */
   index: number;
@@ -350,9 +336,7 @@ export interface PanelDayjsStaticExtensions {
  * @source panel/src/libraries/dayjs-pattern.js
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
-  /**
-   * Creates a dayjs instance.
-   */
+  /** Creates a dayjs instance. */
   (date?: ConfigType): PanelDayjsInstance;
   (date?: ConfigType, format?: string, strict?: boolean): PanelDayjsInstance;
   (
@@ -447,18 +431,12 @@ export interface PanelLibraryAutosize {
  * @source panel/src/libraries/dayjs.js
  */
 export interface PanelLibrary {
-  /**
-   * Textarea auto-resize library.
-   */
+  /** Textarea auto-resize library. */
   autosize: PanelLibraryAutosize;
 
-  /**
-   * Color manipulation library.
-   */
+  /** Color manipulation library. */
   colors: PanelLibraryColors;
 
-  /**
-   * Date manipulation library (extended dayjs).
-   */
+  /** Date manipulation library (extended dayjs). */
   dayjs: PanelLibraryDayjs;
 }

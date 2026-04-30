@@ -47,9 +47,7 @@ export interface PanelTimer {
    */
   start: (timeout: number | false | null, callback: () => void) => void;
 
-  /**
-   * Stops the timer and clears the interval.
-   */
+  /** Stops the timer and clears the interval. */
   stop: () => void;
 }
 
@@ -80,14 +78,10 @@ export interface PanelActivation extends PanelState<PanelActivationDefaults> {
   /** Whether the activation card is visible */
   isOpen: boolean;
 
-  /**
-   * Closes the activation card and persists state to session storage.
-   */
+  /** Closes the activation card and persists state to session storage. */
   close: () => void;
 
-  /**
-   * Opens the activation card and clears session storage state.
-   */
+  /** Opens the activation card and clears session storage state. */
   open: () => void;
 }
 
@@ -130,9 +124,7 @@ export interface PanelDrag extends PanelState<PanelDragDefaults> {
    */
   start: (type: string, data: string | Record<string, any>) => void;
 
-  /**
-   * Stops the current drag operation and resets state.
-   */
+  /** Stops the current drag operation and resets state. */
   stop: () => void;
 }
 
@@ -212,9 +204,7 @@ export interface PanelLanguageDefaults {
   default: boolean;
   /** Text direction */
   direction: "ltr" | "rtl";
-  /**
-   * Whether the language uses a custom domain.
-   */
+  /** Whether the language uses a custom domain. */
   hasCustomDomain: boolean;
   /** Language name */
   name: string | null;
@@ -331,14 +321,10 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
    */
   resize: () => void;
 
-  /**
-   * Sets menu entries and handles initial resize.
-   */
+  /** Sets menu entries and handles initial resize. */
   set: (entries: (PanelMenuEntry | "-")[]) => PanelMenuDefaults;
 
-  /**
-   * Toggles the sidebar menu state.
-   */
+  /** Toggles the sidebar menu state. */
   toggle: () => void;
 }
 
@@ -437,9 +423,7 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   /** Whether this is a fatal error notification */
   readonly isFatal: boolean;
 
-  /**
-   * Closes the notification and resets state.
-   */
+  /** Closes the notification and resets state. */
   close: () => PanelNotificationDefaults;
 
   /**
@@ -588,9 +572,7 @@ export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
   /** First day of week (`0`=Sunday, `1`=Monday) */
   weekday: number;
 
-  /**
-   * Sets translation state and updates document language/direction.
-   */
+  /** Sets translation state and updates document language/direction. */
   set: (state: Partial<PanelTranslationDefaults>) => PanelTranslationDefaults;
 
   /**
@@ -726,17 +708,13 @@ export interface PanelView extends Omit<
   /** View title */
   title: string | null;
 
-  /**
-   * Loads a view, canceling any previous request.
-   */
+  /** Loads a view, canceling any previous request. */
   load: (
     url: string | URL,
     options?: PanelRequestOptions | PanelEventCallback,
   ) => Promise<PanelViewDefaults>;
 
-  /**
-   * Sets view state and updates document title and browser URL.
-   */
+  /** Sets view state and updates document title and browser URL. */
   set: (state: Partial<PanelViewDefaults>) => void;
 
   /**
@@ -779,9 +757,7 @@ export interface PanelDropdownOption {
  * @source panel/src/panel/feature.js
  */
 export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
-  /**
-   * Closes the dropdown and resets state.
-   */
+  /** Closes the dropdown and resets state. */
   close: () => void;
 
   /**
@@ -804,14 +780,10 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
     options?: PanelRequestOptions | PanelEventCallback,
   ) => (ready: (items: PanelDropdownOption[]) => void) => Promise<void>;
 
-  /**
-   * Returns dropdown options array from props.
-   */
+  /** Returns dropdown options array from props. */
   options: () => PanelDropdownOption[];
 
-  /**
-   * Sets dropdown state, handling deprecated responses.
-   */
+  /** Sets dropdown state, handling deprecated responses. */
   set: (state: Partial<PanelFeatureDefaults>) => PanelFeatureDefaults;
 }
 
@@ -849,14 +821,10 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   /** Reference to legacy component */
   ref: any;
 
-  /**
-   * Closes the dialog, handling legacy components.
-   */
+  /** Closes the dialog, handling legacy components. */
   close: () => Promise<void>;
 
-  /**
-   * Opens a dialog by URL, state object, or legacy component.
-   */
+  /** Opens a dialog by URL, state object, or legacy component. */
   open: (
     dialog:
       | string
@@ -906,9 +874,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Drawer icon, defaults to `"box"` */
   readonly icon: string;
 
-  /**
-   * Opens a drawer by URL or state object.
-   */
+  /** Opens a drawer by URL or state object. */
   open: (
     drawer: string | URL | Partial<PanelDrawerDefaults>,
     options?: PanelRequestOptions | PanelEventCallback,
@@ -923,9 +889,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
    */
   tab: (tab?: string) => void | false;
 
-  /**
-   * Returns drawer event listeners for Vue component binding.
-   */
+  /** Returns drawer event listeners for Vue component binding. */
   listeners: () => PanelModalListeners;
 }
 
@@ -1001,9 +965,7 @@ export interface PanelContent {
     env?: PanelContentEnv,
   ) => Promise<void>) & { cancel: () => void };
 
-  /**
-   * Cancels any ongoing or scheduled save requests.
-   */
+  /** Cancels any ongoing or scheduled save requests. */
   cancelSaving: () => void;
 
   /**
@@ -1149,9 +1111,7 @@ export interface PanelContent {
    */
   version: (versionId: "latest" | "changes") => PanelContentVersion;
 
-  /**
-   * Returns all content versions.
-   */
+  /** Returns all content versions. */
   versions: () => PanelContentVersions;
 }
 
@@ -1292,9 +1252,7 @@ export interface PanelUploadDefaults {
   multiple: boolean;
   /** File preview data */
   preview: Record<string, any>;
-  /**
-   * Server file model being replaced (carries `link`, `extension`, `mime`).
-   */
+  /** Server file model being replaced (carries `link`, `extension`, `mime`). */
   replacing: any | null;
   /** Upload endpoint URL */
   url: string | null;
@@ -1334,24 +1292,16 @@ export interface PanelUpload
   /** Hidden file input element */
   input: HTMLInputElement | null;
 
-  /**
-   * Server file models for files that completed uploading.
-   */
+  /** Server file models for files that completed uploading. */
   readonly completed: any[];
 
-  /**
-   * Shows success notification and emits model.update.
-   */
+  /** Shows success notification and emits model.update. */
   announce: () => void;
 
-  /**
-   * Cancels current upload and resets state.
-   */
+  /** Cancels current upload and resets state. */
   cancel: () => Promise<void>;
 
-  /**
-   * Called when upload dialog submit clicked.
-   */
+  /** Called when upload dialog submit clicked. */
   done: () => Promise<void>;
 
   /**
@@ -1426,14 +1376,10 @@ export interface PanelUpload
     options?: Partial<PanelUploadDefaults>,
   ) => void;
 
-  /**
-   * Sets state and registers event listeners.
-   */
+  /** Sets state and registers event listeners. */
   set: (state: Partial<PanelUploadDefaults>) => PanelUploadDefaults;
 
-  /**
-   * Submits and uploads all remaining files.
-   */
+  /** Submits and uploads all remaining files. */
   submit: () => Promise<void>;
 
   /**
@@ -1606,13 +1552,9 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   prevent: (event: Event) => void;
 
-  /**
-   * Subscribes all global event listeners.
-   */
+  /** Subscribes all global event listeners. */
   subscribe: () => void;
 
-  /**
-   * Unsubscribes all global event listeners.
-   */
+  /** Unsubscribes all global event listeners. */
   unsubscribe: () => void;
 }

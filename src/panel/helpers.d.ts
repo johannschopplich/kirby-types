@@ -11,9 +11,7 @@
 // Array Helpers
 // -----------------------------------------------------------------------------
 
-/**
- * Search options for array filtering.
- */
+/** Search options for array filtering. */
 export interface PanelArraySearchOptions {
   /** Minimum query length (default: 0) */
   min?: number;
@@ -83,9 +81,7 @@ export interface PanelHelpersArray {
 // String Helpers
 // -----------------------------------------------------------------------------
 
-/**
- * Slug conversion rules.
- */
+/** Slug conversion rules. */
 export type PanelSlugRules = Record<string, string>[];
 
 /**
@@ -421,7 +417,10 @@ export interface PanelHelpersClipboard {
    * @param plain - Read as plain text only
    * @returns Clipboard content or null if empty
    */
-  read: (event?: ClipboardEvent | string | null, plain?: boolean) => string | null;
+  read: (
+    event?: ClipboardEvent | string | null,
+    plain?: boolean,
+  ) => string | null;
 
   /**
    * Writes to clipboard. Objects are auto-JSONified.
@@ -476,9 +475,7 @@ export interface PanelHelpersEmbed {
 // Field Helpers
 // -----------------------------------------------------------------------------
 
-/**
- * Field definition object.
- */
+/** Field definition object. */
 export interface PanelFieldDefinition {
   /** Field type */
   type?: string;
@@ -602,9 +599,7 @@ export interface PanelHelpersKeyboard {
 // Link Helpers
 // -----------------------------------------------------------------------------
 
-/**
- * Link type definition.
- */
+/** Link type definition. */
 export interface PanelLinkType {
   /** Detection function */
   detect: (value: string) => boolean;
@@ -626,9 +621,7 @@ export interface PanelLinkType {
   value: (value: string) => string;
 }
 
-/**
- * Detected link result.
- */
+/** Detected link result. */
 export interface PanelLinkDetection {
   /** Detected type */
   type: string;
@@ -636,9 +629,7 @@ export interface PanelLinkDetection {
   link: string;
 }
 
-/**
- * Link preview data.
- */
+/** Link preview data. */
 export interface PanelLinkPreview {
   /** Display label */
   label: string;
@@ -721,9 +712,7 @@ export interface PanelHelpersLink {
 // Page Helpers
 // -----------------------------------------------------------------------------
 
-/**
- * Page status button props.
- */
+/** Page status button props. */
 export interface PanelPageStatusProps {
   /** Status title */
   title: string;
@@ -760,18 +749,14 @@ export interface PanelHelpersPage {
 // Upload Helpers
 // -----------------------------------------------------------------------------
 
-/**
- * Upload progress callback.
- */
+/** Upload progress callback. */
 export type PanelUploadProgressCallback = (
   xhr: XMLHttpRequest,
   file: File,
   percent: number,
 ) => void;
 
-/**
- * Upload complete callback.
- */
+/** Upload complete callback. */
 export type PanelUploadCompleteCallback = (
   xhr: XMLHttpRequest,
   file: File,
@@ -812,9 +797,7 @@ export interface PanelUploadParams {
 // Debounce/Throttle Helpers
 // -----------------------------------------------------------------------------
 
-/**
- * Debounce options.
- */
+/** Debounce options. */
 export interface PanelDebounceOptions {
   /** Call on leading edge (default: false) */
   leading?: boolean;
@@ -822,9 +805,7 @@ export interface PanelDebounceOptions {
   trailing?: boolean;
 }
 
-/**
- * Throttle options.
- */
+/** Throttle options. */
 export interface PanelThrottleOptions {
   /** Call on leading edge (default: true) */
   leading?: boolean;
@@ -832,16 +813,12 @@ export interface PanelThrottleOptions {
   trailing?: boolean;
 }
 
-/**
- * Debounced function (without cancel method).
- */
+/** Debounced function (without cancel method). */
 export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): ReturnType<T> | undefined;
 }
 
-/**
- * Throttled function with cancel method.
- */
+/** Throttled function with cancel method. */
 export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): ReturnType<T> | undefined;
   /** Cancels pending invocation */
@@ -852,9 +829,7 @@ export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
 // Sort Helper
 // -----------------------------------------------------------------------------
 
-/**
- * Sort options.
- */
+/** Sort options. */
 export interface PanelSortOptions {
   /** Sort descending (default: false) */
   desc?: boolean;
@@ -862,9 +837,7 @@ export interface PanelSortOptions {
   insensitive?: boolean;
 }
 
-/**
- * Comparator function for sorting.
- */
+/** Comparator function for sorting. */
 export type PanelComparator = (a: string, b: string) => number;
 
 // -----------------------------------------------------------------------------

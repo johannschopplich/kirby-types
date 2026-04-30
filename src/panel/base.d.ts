@@ -210,9 +210,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
    */
   hasEventListener: (event: TEvents) => boolean;
 
-  /**
-   * Returns all registered listeners.
-   */
+  /** Returns all registered listeners. */
   listeners: () => PanelEventListenerMap<TEvents>;
 }
 
@@ -291,19 +289,13 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    */
   props: Record<string, any>;
 
-  /**
-   * URL query parameters from the latest request.
-   */
+  /** URL query parameters from the latest request. */
   query: Record<string, any>;
 
-  /**
-   * Previous path for navigation and redirects.
-   */
+  /** Previous path for navigation and redirects. */
   referrer: string | null;
 
-  /**
-   * Timestamp from the backend for cache invalidation.
-   */
+  /** Timestamp from the backend for cache invalidation. */
   timestamp: number | null;
 
   /**
@@ -373,9 +365,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    */
   reload: (options?: PanelRequestOptions) => Promise<void | false>;
 
-  /**
-   * Creates a full URL object for the current path and query.
-   */
+  /** Creates a full URL object for the current path and query. */
   url: () => URL;
 }
 
@@ -467,9 +457,7 @@ export interface PanelModal<
    */
   id: string | null;
 
-  /**
-   * Whether the modal is currently visible.
-   */
+  /** Whether the modal is currently visible. */
   isOpen: boolean;
 
   /**
@@ -484,9 +472,7 @@ export interface PanelModal<
    */
   readonly value: any;
 
-  /**
-   * Cancels the modal by emitting 'cancel' and closing.
-   */
+  /** Cancels the modal by emitting 'cancel' and closing. */
   cancel: () => Promise<void>;
 
   /**
@@ -634,9 +620,7 @@ export interface PanelHistoryMilestone {
  * @source panel/src/panel/history.js
  */
 export interface PanelHistory {
-  /**
-   * Array of stored state milestones.
-   */
+  /** Array of stored state milestones. */
   milestones: PanelHistoryMilestone[];
 
   /**
@@ -658,9 +642,7 @@ export interface PanelHistory {
    */
   at: (index: number) => PanelHistoryMilestone | undefined;
 
-  /**
-   * Clears all milestones from history.
-   */
+  /** Clears all milestones from history. */
   clear: () => void;
 
   /**
@@ -696,14 +678,10 @@ export interface PanelHistory {
    */
   index: (id: string) => number;
 
-  /**
-   * Checks if history has no milestones.
-   */
+  /** Checks if history has no milestones. */
   isEmpty: () => boolean;
 
-  /**
-   * Gets the last milestone in history.
-   */
+  /** Gets the last milestone in history. */
   last: () => PanelHistoryMilestone | undefined;
 
   /**
@@ -754,22 +732,16 @@ export interface PanelRequestOptions {
    * Useful for background requests.
    */
   silent?: boolean;
-  /**
-   * Event listeners to attach to the feature.
-   */
+  /** Event listeners to attach to the feature. */
   on?: PanelEventListenerMap;
-  /**
-   * CSRF token sent as the `x-csrf` header.
-   */
+  /** CSRF token sent as the `x-csrf` header. */
   csrf?: string | false;
   /**
    * Fiber globals sent as the `x-fiber-globals` header.
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
-  /**
-   * Referrer path sent as the `x-fiber-referrer` header.
-   */
+  /** Referrer path sent as the `x-fiber-referrer` header. */
   referrer?: string | false;
 }
 
