@@ -1303,9 +1303,9 @@ export interface PanelUpload
    * Finds the index of an existing file in the queue with the same `src.name`, `src.type`, `src.size`, and `src.lastModified`. Returns the matching index, or `-1` if no duplicate is found.
    *
    * @param file - Enriched upload file to check
-   * @returns Index of duplicate file or false
+   * @returns Index of the duplicate file, or `-1` if none
    */
-  findDuplicate: (file: PanelUploadFile) => number | false;
+  findDuplicate: (file: PanelUploadFile) => number;
 
   /**
    * Checks if file has a unique name.
