@@ -212,6 +212,10 @@ export interface PanelLanguageDefaults {
   default: boolean;
   /** Text direction */
   direction: "ltr" | "rtl";
+  /**
+   * Whether the language uses a custom domain.
+   */
+  hasCustomDomain: boolean;
   /** Language name */
   name: string | null;
   /** Slug conversion rules */
@@ -459,11 +463,14 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
 
   /**
    * Creates a fatal error notification.
-   * Displayed in an isolated iframe.
+   * Displayed in an isolated iframe. Also accepts a plain object with
+   * a `message` field via `error.message ?? "Something went wrong"`.
    *
-   * @param error - Error object, string, or Error instance
+   * @param error - Error object, string, or plain `{ message }` object
    */
-  fatal: (error: Error | string) => PanelNotificationDefaults;
+  fatal: (
+    error: Error | string | PanelErrorObject,
+  ) => PanelNotificationDefaults;
 
   /**
    * Creates an info notification.
@@ -675,8 +682,12 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
   id: string | null;
   /** View link */
   link: string | null;
-  /** Relative path to this view */
-  path: string;
+  /**
+   * Relative path to this view.
+   * Inherits the `string | null` shape from `PanelFeatureDefaults.path`;
+   * View does not override the runtime default of `null`.
+   */
+  path: string | null;
   /** Default search type */
   search: string;
   /** View title */
@@ -708,8 +719,8 @@ export interface PanelView extends Omit<
   id: string | null;
   /** View link */
   link: string | null;
-  /** Relative path to this view */
-  path: string;
+  /** Relative path to this view (inherits `string | null` from feature defaults) */
+  path: string | null;
   /** Default search type */
   search: string;
   /** View title */
@@ -748,8 +759,8 @@ export interface PanelDropdownOption {
   text: string;
   /** Icon name */
   icon?: string;
-  /** Click handler or link */
-  click?: () => void | string;
+  /** Click handler, or a link string */
+  click?: (() => void) | string;
   /** Whether option is disabled */
   disabled?: boolean;
   /** Additional properties */
@@ -783,14 +794,15 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   ) => Promise<PanelFeatureDefaults>;
 
   /**
-   * Opens a dropdown asynchronously.
+   * Opens a dropdown asynchronously and returns a closure that invokes
+   * `ready(items)` with the resolved option list.
    *
    * @deprecated Since 4.0.0 - Use `open()` instead
    */
   openAsync: (
     dropdown: string | URL | Partial<PanelFeatureDefaults>,
     options?: PanelRequestOptions | PanelEventCallback,
-  ) => (ready?: () => void) => Promise<PanelFeatureDefaults>;
+  ) => (ready: (items: PanelDropdownOption[]) => void) => Promise<void>;
 
   /**
    * Returns dropdown options array from props.
@@ -904,11 +916,12 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 
   /**
    * Switches drawer tabs.
+   * If `tab` is omitted, falls back to the first key of `props.tabs`.
    *
    * @param tab - Tab name to switch to
    * @returns False if no tabs exist, void otherwise
    */
-  tab: (tab: string) => void | false;
+  tab: (tab?: string) => void | false;
 
   /**
    * Returns drawer event listeners for Vue component binding.
@@ -981,9 +994,6 @@ export interface PanelContent {
 
   /** Whether content is being saved/published/discarded */
   isProcessing: boolean;
-
-  /** AbortController for save requests */
-  saveAbortController: AbortController | null;
 
   /** Throttled save function (1000ms) */
   saveLazy: ((
@@ -1210,6 +1220,8 @@ export interface PanelSearcher {
   /**
    * Queries the search API.
    * Returns empty results for queries under 2 characters.
+   * Resolves to `undefined` when the request was aborted by a subsequent
+   * search (the catch falls through with no return).
    *
    * @param type - Search type
    * @param query - Search query
@@ -1219,7 +1231,7 @@ export interface PanelSearcher {
     type: string,
     query: string,
     options?: PanelSearchOptions,
-  ) => Promise<PanelSearchResult>;
+  ) => Promise<PanelSearchResult | undefined>;
 }
 
 // -----------------------------------------------------------------------------
@@ -1280,8 +1292,10 @@ export interface PanelUploadDefaults {
   multiple: boolean;
   /** File preview data */
   preview: Record<string, any>;
-  /** File being replaced */
-  replacing: PanelUploadFile | null;
+  /**
+   * Server file model being replaced (carries `link`, `extension`, `mime`).
+   */
+  replacing: any | null;
   /** Upload endpoint URL */
   url: string | null;
 }
@@ -1312,16 +1326,18 @@ export interface PanelUpload
   multiple: boolean;
   /** File preview data */
   preview: Record<string, any>;
-  /** File being replaced */
-  replacing: PanelUploadFile | null;
+  /** Server file model being replaced (see `PanelUploadDefaults.replacing`) */
+  replacing: any | null;
   /** Upload endpoint URL */
   url: string | null;
 
   /** Hidden file input element */
   input: HTMLInputElement | null;
 
-  /** Files that completed uploading */
-  readonly completed: PanelUploadFile[];
+  /**
+   * Server file models for files that completed uploading.
+   */
+  readonly completed: any[];
 
   /**
    * Shows success notification and emits model.update.
@@ -1341,18 +1357,20 @@ export interface PanelUpload
   /**
    * Finds duplicate file by comparing properties.
    * Returns the index of the duplicate file, or false if not found.
+   * Compares `file.src.name`, `.type`, `.size`, `.lastModified`.
    *
-   * @param file - File to check
+   * @param file - Enriched upload file to check
    * @returns Index of duplicate file or false
    */
-  findDuplicate: (file: File) => number | false;
+  findDuplicate: (file: PanelUploadFile) => number | false;
 
   /**
    * Checks if file has a unique name.
+   * Compares `file.name` and `file.extension` against the upload queue.
    *
-   * @param file - File to check
+   * @param file - Enriched upload file to check
    */
-  hasUniqueName: (file: File) => boolean;
+  hasUniqueName: (file: PanelUploadFile) => boolean;
 
   /**
    * Converts File to enriched upload file object.
@@ -1388,23 +1406,23 @@ export interface PanelUpload
 
   /**
    * Opens picker to replace an existing file.
+   * The `file` argument is a server file model (reads `file.link`,
+   * `file.extension`, `file.mime`), not a queued `PanelUploadFile`.
    *
-   * @param file - File to replace
+   * @param file - Server file model being replaced
    * @param options - Upload options
    */
-  replace: (
-    file: PanelUploadFile,
-    options?: Partial<PanelUploadDefaults>,
-  ) => void;
+  replace: (file: any, options?: Partial<PanelUploadDefaults>) => void;
 
   /**
    * Adds files to upload list with deduplication.
+   * Also accepts an `Event` whose `target.files` is unwrapped to a `FileList`.
    *
-   * @param files - Files to add
+   * @param files - Files to add (or input change Event)
    * @param options - Upload options
    */
   select: (
-    files: File[] | FileList,
+    files: File[] | FileList | Event,
     options?: Partial<PanelUploadDefaults>,
   ) => void;
 

@@ -758,6 +758,19 @@ export interface PanelRequestOptions {
    * Event listeners to attach to the feature.
    */
   on?: PanelEventListenerMap;
+  /**
+   * CSRF token sent as the `x-csrf` header.
+   */
+  csrf?: string | false;
+  /**
+   * Fiber globals sent as the `x-fiber-globals` header.
+   * Arrays are joined with commas; strings are forwarded as-is.
+   */
+  globals?: string | string[];
+  /**
+   * Referrer path sent as the `x-fiber-referrer` header.
+   */
+  referrer?: string | false;
 }
 
 /**

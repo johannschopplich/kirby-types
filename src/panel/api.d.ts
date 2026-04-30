@@ -429,7 +429,7 @@ export interface PanelApiPages {
   duplicate: (
     id: string,
     slug: string,
-    options?: PanelApiPageDuplicateOptions,
+    options: PanelApiPageDuplicateOptions,
   ) => Promise<any>;
 
   /**
@@ -470,9 +470,9 @@ export interface PanelApiPages {
    * Gets a page's preview URL.
    *
    * @param id - Page ID
-   * @returns Preview URL
+   * @returns Preview URL, or `null` when preview is disabled for the page
    */
-  preview: (id: string) => Promise<string>;
+  preview: (id: string) => Promise<string | null>;
 
   /**
    * Searches pages.
@@ -827,13 +827,9 @@ export interface PanelApiUsers {
    * Searches users.
    *
    * @param query - Search query
-   * @param options - Query options
    * @returns Search results
    */
-  search: (
-    query?: PanelApiSearchQuery,
-    options?: Record<string, any>,
-  ) => Promise<any>;
+  search: (query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Updates a user's content.
@@ -903,8 +899,8 @@ export interface PanelApi {
   /** Number of running requests */
   running: number;
 
-  /** Current language code */
-  language: string;
+  /** Current language code (lazily set on first request, or `undefined` before any request has run) */
+  language: string | undefined;
 
   /**
    * Makes a raw API request.
@@ -942,6 +938,7 @@ export interface PanelApi {
    * @param path - API path
    * @param data - Request body
    * @param options - Request options
+   * @param method - HTTP method (defaults to `POST`; used internally by `patch`/`delete` to dispatch with method override)
    * @param silent - Skip loading indicator
    * @returns Response data
    */
@@ -949,6 +946,7 @@ export interface PanelApi {
     path: string,
     data?: any,
     options?: PanelApiRequestOptions,
+    method?: string,
     silent?: boolean,
   ) => Promise<T>;
 

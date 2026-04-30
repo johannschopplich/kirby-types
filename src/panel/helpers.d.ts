@@ -421,7 +421,7 @@ export interface PanelHelpersClipboard {
    * @param plain - Read as plain text only
    * @returns Clipboard content or null if empty
    */
-  read: (event: ClipboardEvent | string, plain?: boolean) => string | null;
+  read: (event?: ClipboardEvent | string | null, plain?: boolean) => string | null;
 
   /**
    * Writes to clipboard. Objects are auto-JSONified.
@@ -730,7 +730,7 @@ export interface PanelPageStatusProps {
   /** Status icon */
   icon: string;
   /** Status color */
-  theme?: string;
+  theme: "negative-icon" | "info-icon" | "positive-icon";
   /** Whether disabled */
   disabled?: boolean;
   /** Button size */
@@ -922,7 +922,7 @@ export interface PanelHelpers {
    * @param fn - Function to debounce
    * @param delay - Delay in milliseconds
    * @param options - Debounce options
-   * @returns Debounced function with cancel method
+   * @returns Debounced function
    * @source panel/src/helpers/debounce.js
    * @source panel/src/helpers/index.js
    */
@@ -978,7 +978,7 @@ export interface PanelHelpers {
    * @source panel/src/helpers/isUploadEvent.js
    * @source panel/src/helpers/index.js
    */
-  isUploadEvent: (event: Event) => boolean;
+  isUploadEvent: (event: DragEvent) => boolean;
 
   /**
    * Keyboard utilities

@@ -283,8 +283,8 @@ export type PanelComponentExtension =
  * Global Panel configuration.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/config/config.js
- * @source panel/src/panel/panel.js:33
- * @source src/Panel/View.php:266-275
+ * @source panel/src/panel/panel.js
+ * @source src/Panel/View.php
  */
 export interface PanelConfig {
   /** API configuration */
@@ -379,6 +379,10 @@ interface PanelPermissionsPages {
  * @source src/Cms/SitePermissions.php
  */
 interface PanelPermissionsSite {
+  /**
+   * Whether the current role can access the site area.
+   */
+  access: boolean;
   changeTitle: boolean;
   update: boolean;
 }
@@ -389,6 +393,10 @@ interface PanelPermissionsSite {
  * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUsers {
+  /**
+   * Whether the current role can access the users area.
+   */
+  access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
@@ -396,6 +404,10 @@ interface PanelPermissionsUsers {
   changeRole: boolean;
   create: boolean;
   delete: boolean;
+  /**
+   * Whether the current role can list users.
+   */
+  list: boolean;
   update: boolean;
 }
 
@@ -405,12 +417,20 @@ interface PanelPermissionsUsers {
  * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUser {
+  /**
+   * Whether the current role can access their own account area.
+   */
+  access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
   changePassword: boolean;
   changeRole: boolean;
   delete: boolean;
+  /**
+   * Whether the current role can list their own account.
+   */
+  list: boolean;
   update: boolean;
 }
 
@@ -488,8 +508,12 @@ export interface PanelUrls {
 export interface PanelRequestResponse {
   /** The original Request object */
   request: Request;
-  /** The parsed response */
-  response: {
+  /**
+   * The native `Response` object with `text` and `json` attached as
+   * already-resolved properties (not callable methods). `request.js`
+   * mutates the fetched `Response` and returns it whole.
+   */
+  response: Response & {
     /** Parsed JSON data */
     json: any;
     /** Raw response text */
@@ -787,8 +811,8 @@ export interface PanelPlugins {
 
 /**
  * Language information for multi-language sites.
- * @source src/Cms/Language.php:555-567
- * @source src/Panel/View.php:169-174
+ * @source src/Cms/Language.php
+ * @source src/Panel/View.php
  */
 export interface PanelLanguageInfo {
   /** Language code (e.g., `"en"`, `"de"`) */
@@ -797,10 +821,20 @@ export interface PanelLanguageInfo {
   default: boolean;
   /** Text direction */
   direction: "ltr" | "rtl";
+  /**
+   * Whether the language uses a custom URL different from the
+   * site's base URL (i.e., a domain or full URL prefix).
+   */
+  hasCustomDomain: boolean;
   /** Display name */
   name: string;
   /** Slug conversion rules */
   rules: Record<string, string>;
+  /**
+   * Resolved URL for this language (absolute URL when `hasCustomDomain`
+   * is true, otherwise a path relative to the site).
+   */
+  url: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -1208,6 +1242,26 @@ interface PanelViewPropsLock {
  */
 interface PanelViewPropsPermissions {
   access: boolean;
+  /**
+   * User permission. Present on User views.
+   */
+  changeEmail?: boolean;
+  /**
+   * User permission. Present on User views.
+   */
+  changeLanguage?: boolean;
+  /**
+   * File / User permission. Present on File and User views.
+   */
+  changeName?: boolean;
+  /**
+   * User permission. Present on User views.
+   */
+  changePassword?: boolean;
+  /**
+   * User permission. Present on User views.
+   */
+  changeRole?: boolean;
   changeSlug: boolean;
   changeStatus: boolean;
   changeTemplate: boolean;
@@ -1219,6 +1273,10 @@ interface PanelViewPropsPermissions {
   move: boolean;
   preview: boolean;
   read: boolean;
+  /**
+   * File permission. Present on File views.
+   */
+  replace?: boolean;
   sort: boolean;
   update: boolean;
 }
@@ -1283,13 +1341,49 @@ interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
+    /**
+     * Optional badge label rendered next to the button.
+     */
+    badge?: string;
     class?: string;
+    /**
+     * Whether the button represents the current view/route.
+     */
+    current?: boolean;
+    /**
+     * Dialog endpoint or config to open on click.
+     */
+    dialog?: string | Record<string, any>;
     disabled?: boolean;
+    /**
+     * Drawer endpoint or config to open on click.
+     */
+    drawer?: string | Record<string, any>;
+    /**
+     * Dropdown endpoint or config to open on click.
+     */
+    dropdown?: string | Record<string, any>;
     icon?: string;
     link?: string;
+    /**
+     * Inline dropdown options.
+     */
+    options?: Record<string, any>[];
     responsive?: boolean;
     size?: string;
+    /**
+     * Inline CSS style string.
+     */
+    style?: string;
     target?: string;
+    /**
+     * Visible button label.
+     */
+    text?: string;
+    /**
+     * Visual theme variant (e.g., `"positive"`, `"negative"`).
+     */
+    theme?: string;
     title?: string;
     type?: string;
     variant?: string;
@@ -1306,7 +1400,11 @@ interface PanelViewPropsButton {
  */
 export interface PanelViewProps {
   api: string;
-  buttons: PanelViewPropsButton[];
+  /**
+   * View buttons. May contain `'-'` string separators between groups.
+   * @source src/Panel/Ui/Buttons/ViewButtons.php
+   */
+  buttons: (PanelViewPropsButton | "-")[];
   id: string;
   link: string;
   lock: PanelViewPropsLock;
@@ -1314,9 +1412,20 @@ export interface PanelViewProps {
   tabs: Record<string, any>[];
   uuid: string;
   versions: PanelViewPropsVersions;
-  tab: PanelViewPropsTab;
-  next: PanelViewPropsNavigation;
-  prev: PanelViewPropsNavigation;
+  /**
+   * Active blueprint tab. Only present when the blueprint defines tabs.
+   */
+  tab?: PanelViewPropsTab;
+  /**
+   * Sibling navigation link to the next model. Present on Page, File and
+   * User views; not emitted for Site.
+   */
+  next?: PanelViewPropsNavigation;
+  /**
+   * Sibling navigation link to the previous model. Present on Page, File
+   * and User views; not emitted for Site.
+   */
+  prev?: PanelViewPropsNavigation;
   blueprint: string;
   model: PanelViewPropsModel;
   title: string;

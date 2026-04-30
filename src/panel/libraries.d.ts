@@ -145,14 +145,14 @@ export interface PanelLibraryColors {
    * @returns Converted color or `false` if invalid
    */
   parseAs: {
-    (string: string, format: "hex"): string | false;
-    (string: string, format: "rgb"): PanelColorRGB | false;
-    (string: string, format: "hsl"): PanelColorHSL | false;
-    (string: string, format: "hsv"): PanelColorHSV | false;
+    (string: string, format: "hex"): string | null | false;
+    (string: string, format: "rgb"): PanelColorRGB | null | false;
+    (string: string, format: "hsl"): PanelColorHSL | null | false;
+    (string: string, format: "hsv"): PanelColorHSV | null | false;
     (
       string: string,
       format?: PanelColorFormat,
-    ): string | PanelColorObject | false;
+    ): string | PanelColorObject | null | false;
   };
 
   /**
@@ -236,13 +236,13 @@ export interface PanelDayjsExtensions {
   /**
    * Validates datetime against an upper or lower (min/max) boundary.
    *
-   * @param boundary - Boundary as ISO string
+   * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
    * @param type - `"min"` or `"max"`
    * @param unit - Comparison unit (default: `"day"`)
    * @returns Whether the date is valid against the boundary
    */
   validate: (
-    boundary: string,
+    boundary: string | null | undefined,
     type: "min" | "max",
     unit?: OpUnitType,
   ) => boolean;
@@ -406,19 +406,21 @@ export interface PanelLibraryAutosize {
    * Triggers a resize update.
    *
    * @param element - Element(s) to update
+   * @returns The input element(s)
    */
-  update: (
-    element: HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList,
-  ) => void;
+  update: <T extends HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList>(
+    element: T,
+  ) => T;
 
   /**
    * Destroys autosize on element(s).
    *
    * @param element - Element(s) to destroy
+   * @returns The input element(s)
    */
-  destroy: (
-    element: HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList,
-  ) => void;
+  destroy: <T extends HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList>(
+    element: T,
+  ) => T;
 }
 
 // -----------------------------------------------------------------------------

@@ -371,9 +371,16 @@ export interface WriterUtils {
    *
    * @param type - The node type to insert
    * @param attrs - Optional attributes for the node
+   * @param content - Optional initial content for the node
+   * @param marks - Optional marks to apply to the node
    * @returns A ProseMirror command
    */
-  insertNode: (type: NodeType, attrs?: Record<string, any>) => Command;
+  insertNode: (
+    type: NodeType,
+    attrs?: Record<string, any>,
+    content?: Fragment | ProseMirrorNode | ProseMirrorNode[] | null,
+    marks?: Mark[] | null,
+  ) => Command;
 
   /**
    * Creates an input rule that applies a mark when the pattern matches.
@@ -409,7 +416,7 @@ export interface WriterUtils {
   markPasteRule: (
     regexp: RegExp,
     type: MarkType,
-    getAttrs?: (match: string) => Record<string, any>,
+    getAttrs?: (match: RegExpMatchArray) => Record<string, any>,
   ) => Plugin;
 
   /**
