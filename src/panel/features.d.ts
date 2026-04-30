@@ -1371,7 +1371,10 @@ export interface PanelUpload
    * @param file - Server file model being replaced
    * @param options - Upload options
    */
-  replace: (file: PanelUploadReplaceFile, options?: Partial<PanelUploadDefaults>) => void;
+  replace: (
+    file: PanelUploadReplaceFile,
+    options?: Partial<PanelUploadDefaults>,
+  ) => void;
 
   /**
    * Adds files to upload list with deduplication.
