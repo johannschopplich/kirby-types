@@ -662,12 +662,8 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
   id: string | null;
   /** View link */
   link: string | null;
-  /**
-   * Relative path to this view.
-   * Inherits the `string | null` shape from `PanelFeatureDefaults.path`;
-   * View does not override the runtime default of `null`.
-   */
-  path: string | null;
+  /** Relative path to this view */
+  path: string;
   /** Default search type */
   search: string;
   /** View title */
@@ -699,8 +695,8 @@ export interface PanelView extends Omit<
   id: string | null;
   /** View link */
   link: string | null;
-  /** Relative path to this view (inherits `string | null` from feature defaults) */
-  path: string | null;
+  /** Relative path to this view */
+  path: string;
   /** Default search type */
   search: string;
   /** View title */
@@ -1194,6 +1190,26 @@ export interface PanelSearcher {
 // -----------------------------------------------------------------------------
 
 /**
+ * Server-side file model passed to `PanelUpload.replace()` and stored in
+ * `PanelUploadDefaults.replacing`. Distinct from `PanelUploadFile` (the
+ * client-side queued upload). Carries the fields read by `replace()` to
+ * configure the upload picker (`url`, `accept`).
+ *
+ * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/upload.js
+ * @source panel/src/panel/upload.js
+ */
+export interface PanelUploadReplaceFile {
+  /** API path segment used to build the upload URL */
+  link: string;
+  /** File extension without dot, used for the picker `accept` filter */
+  extension: string;
+  /** MIME type, used for the picker `accept` filter */
+  mime: string;
+  /** Additional server-side fields */
+  [key: string]: any;
+}
+
+/**
  * Upload file state representing a file in the upload queue.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/upload.js
@@ -1248,7 +1264,7 @@ export interface PanelUploadDefaults {
   /** File preview data */
   preview: Record<string, any>;
   /** Server file model being replaced (carries `link`, `extension`, `mime`). */
-  replacing: any | null;
+  replacing: PanelUploadReplaceFile | null;
   /** Upload endpoint URL */
   url: string | null;
 }
@@ -1280,7 +1296,7 @@ export interface PanelUpload
   /** File preview data */
   preview: Record<string, any>;
   /** Server file model being replaced (see `PanelUploadDefaults.replacing`) */
-  replacing: any | null;
+  replacing: PanelUploadReplaceFile | null;
   /** Upload endpoint URL */
   url: string | null;
 
@@ -1355,7 +1371,7 @@ export interface PanelUpload
    * @param file - Server file model being replaced
    * @param options - Upload options
    */
-  replace: (file: any, options?: Partial<PanelUploadDefaults>) => void;
+  replace: (file: PanelUploadReplaceFile, options?: Partial<PanelUploadDefaults>) => void;
 
   /**
    * Adds files to upload list with deduplication.

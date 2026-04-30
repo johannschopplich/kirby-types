@@ -1353,14 +1353,16 @@ export interface PanelViewProps {
   tab?: PanelViewPropsTab;
   /**
    * Sibling navigation link to the next model. Present on Page, File and
-   * User views; not emitted for Site.
+   * User views (may be `null` when there is no next sibling); not emitted
+   * for Site.
    */
-  next?: PanelViewPropsNavigation;
+  next?: PanelViewPropsNavigation | null;
   /**
    * Sibling navigation link to the previous model. Present on Page, File
-   * and User views; not emitted for Site.
+   * and User views (may be `null` when there is no previous sibling); not
+   * emitted for Site.
    */
-  prev?: PanelViewPropsNavigation;
+  prev?: PanelViewPropsNavigation | null;
   blueprint: string;
   model: PanelViewPropsModel;
   title: string;
