@@ -77,8 +77,6 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 // -----------------------------------------------------------------------------
 
 /**
- * Base interface providing common state methods.
- * Used as an intermediate type for features that extend State.
  * @internal
  * @source panel/src/panel/state.js
  */
@@ -92,7 +90,6 @@ export interface PanelStateBase {
 }
 
 /**
- * Base interface for Features extending State with event listeners.
  * @internal
  * @source panel/src/panel/feature.js
  */
@@ -108,7 +105,6 @@ export interface PanelFeatureBase extends PanelStateBase, PanelEventListeners {
 }
 
 /**
- * Base interface for Modals extending Feature.
  * @internal
  * @source panel/src/panel/modal.js
  */
@@ -119,7 +115,6 @@ export interface PanelModalBase extends PanelFeatureBase {
 }
 
 /**
- * Base interface for History implementations.
  * @internal
  * @source panel/src/panel/history.js
  */
@@ -132,7 +127,6 @@ export interface PanelHistoryBase {
 // -----------------------------------------------------------------------------
 
 /**
- * Event callback function type.
  * @source panel/src/panel/listeners.js
  */
 export type PanelEventCallback<TReturn = any> = (...args: any[]) => TReturn;
@@ -167,10 +161,6 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
  * @source panel/src/panel/listeners.js
  */
 export interface PanelEventListeners<TEvents extends string = string> {
-  /**
-   * Map of registered event listeners.
-   * Keys are event names, values are callback functions.
-   */
   on: PanelEventListenerMap<TEvents>;
 
   /**
@@ -219,7 +209,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
 // -----------------------------------------------------------------------------
 
 /**
- * Default properties for Feature state.
  * @source panel/src/panel/feature.js
  */
 export interface PanelFeatureDefaults {
@@ -241,7 +230,7 @@ export interface PanelFeatureDefaults {
  * loading states, API requests, and event handling. They extend
  * State with HTTP request methods and the event listener mixin.
  *
- * Features include: view, dropdown, content
+ * Features include: view, dropdown.
  *
  * @typeParam TDefaults - Shape of the feature's default state
  *
@@ -396,7 +385,6 @@ export interface PanelModalListeners {
   input: (value: any) => void;
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
   success: (response: PanelSuccessResponse) => void;
-  /** Additional custom event listeners */
   [key: string]: ((...args: any[]) => any) | undefined;
 }
 
@@ -405,7 +393,6 @@ export interface PanelModalListeners {
  * @source panel/src/panel/modal.js
  */
 export interface PanelSuccessResponse {
-  /** Success message to display */
   message?: string;
   /** Events to emit (string or array of strings) */
   event?: string | string[];
@@ -457,7 +444,6 @@ export interface PanelModal<
    */
   id: string | null;
 
-  /** Whether the modal is currently visible. */
   isOpen: boolean;
 
   /**
@@ -513,7 +499,7 @@ export interface PanelModal<
 
   /**
    * Opens the modal by URL or state object.
-   * Closes any non-matching notifications and blocks document overflow.
+   * Closes the current notification on first open and blocks document overflow.
    *
    * @param modal - URL or state object
    * @param options - Request options
@@ -594,7 +580,6 @@ export interface PanelModal<
  * @source panel/src/panel/history.js
  */
 export interface PanelHistoryMilestone {
-  /** Unique identifier for this milestone */
   id: string;
   /** Additional state properties */
   [key: string]: any;
@@ -620,7 +605,6 @@ export interface PanelHistoryMilestone {
  * @source panel/src/panel/history.js
  */
 export interface PanelHistory {
-  /** Array of stored state milestones. */
   milestones: PanelHistoryMilestone[];
 
   /**
@@ -719,20 +703,16 @@ export interface PanelHistory {
  * @source panel/src/panel/feature.js
  */
 export interface PanelRequestOptions {
-  /** Request headers */
   headers?: Record<string, string>;
   /** Request body for POST/PATCH */
   body?: any;
-  /** Query parameters */
   query?: Record<string, string | number | boolean>;
-  /** AbortSignal for request cancellation */
   signal?: AbortSignal;
   /**
    * If true, skips setting `isLoading` state.
    * Useful for background requests.
    */
   silent?: boolean;
-  /** Event listeners to attach to the feature. */
   on?: PanelEventListenerMap;
   /** CSRF token sent as the `x-csrf` header. */
   csrf?: string | false;

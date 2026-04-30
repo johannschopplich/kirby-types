@@ -60,11 +60,7 @@ export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
 export type PanelColorInput = string | PanelColorObject;
 
 /**
- * Color library for color space conversions.
- *
- * Provides comprehensive color manipulation including
- * parsing CSS color strings and converting between
- * HEX, RGB, HSL, and HSV color spaces.
+ * Parses CSS color strings and converts between HEX, RGB, HSL, and HSV color spaces.
  *
  * @example
  * ```ts
@@ -114,7 +110,7 @@ export interface PanelLibraryColors {
    * Parses a CSS color string to HEX string or color object.
    *
    * Supports:
-   * - HEX: `#fff`, `#ffffff`, `#ffffffff`
+   * - HEX: `#fff`, `#ffff`, `#ffffff`, `#ffffffff`
    * - RGB: `rgb(255 255 255)`, `rgb(255, 255, 255)`, `rgba(255 255 255 / 0.5)`
    * - HSL: `hsl(180 50% 50%)`, `hsl(180deg 50% 50% / 0.5)`
    *
@@ -203,8 +199,6 @@ export interface PanelDayjsPattern {
 
 /**
  * Kirby plugin extensions for dayjs instances.
- *
- * These methods are added by Kirby's custom dayjs plugins.
  * @source panel/src/libraries/dayjs-iso.js
  * @source panel/src/libraries/dayjs-validate.js
  * @source panel/src/libraries/dayjs-merge.js
@@ -265,11 +259,7 @@ export interface PanelDayjsExtensions {
   ) => Dayjs & PanelDayjsExtensions;
 }
 
-/**
- * Kirby-extended dayjs instance type.
- *
- * Combines the standard dayjs `Dayjs` class with Kirby's plugin extensions.
- */
+/** Kirby-extended dayjs instance type. */
 export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
@@ -336,7 +326,6 @@ export interface PanelDayjsStaticExtensions {
  * @source panel/src/libraries/dayjs-pattern.js
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
-  /** Creates a dayjs instance. */
   (date?: ConfigType): PanelDayjsInstance;
   (date?: ConfigType, format?: string, strict?: boolean): PanelDayjsInstance;
   (
@@ -346,16 +335,13 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
     strict?: boolean,
   ): PanelDayjsInstance;
 
-  /** Extends dayjs with a plugin */
   extend: <T = unknown>(
     plugin: PluginFunc<T>,
     option?: T,
   ) => typeof import("dayjs");
 
-  /** Gets or sets the global locale */
   locale: (preset?: string, object?: object, isLocal?: boolean) => string;
 
-  /** Type guard for dayjs instances */
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
 
   /** Creates a dayjs instance from Unix timestamp (seconds) */
@@ -397,7 +383,7 @@ export interface PanelLibraryAutosize {
   ) => T;
 
   /**
-   * Destroys autosize on element(s).
+   * Removes autosize behavior and restores the original textarea styling.
    *
    * @param element - Element(s) to destroy
    * @returns The input element(s)
@@ -414,9 +400,6 @@ export interface PanelLibraryAutosize {
 /**
  * Panel libraries available on the Vue prototype as `$library`.
  *
- * Provides utilities for color manipulation, date handling,
- * and textarea auto-resizing.
- *
  * @example
  * ```ts
  * // In a Vue component
@@ -431,12 +414,9 @@ export interface PanelLibraryAutosize {
  * @source panel/src/libraries/dayjs.js
  */
 export interface PanelLibrary {
-  /** Textarea auto-resize library. */
   autosize: PanelLibraryAutosize;
 
-  /** Color manipulation library. */
   colors: PanelLibraryColors;
 
-  /** Date manipulation library (extended dayjs). */
   dayjs: PanelLibraryDayjs;
 }

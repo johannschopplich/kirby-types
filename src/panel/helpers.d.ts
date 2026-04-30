@@ -190,8 +190,7 @@ export interface PanelHelpersString {
   stripHTML: (string: string) => string;
 
   /**
-   * Replaces template placeholders with values.
-   * Supports `{{name}}` and `{{nested.prop}}` syntax.
+   * Replaces `{name}`, `{{name}}`, and dotted-path placeholders (e.g. `{nested.prop}`) with values from the lookup object.
    *
    * @param string - Template string
    * @param values - Replacement values
@@ -243,7 +242,7 @@ export interface PanelHelpersString {
  */
 export interface PanelHelpersObject {
   /**
-   * Deep clones an object or array using structuredClone.
+   * Deep clones a value via `structuredClone`. Returns `undefined` unchanged.
    *
    * @param value - Value to clone
    * @returns Cloned value
@@ -415,7 +414,7 @@ export interface PanelHelpersClipboard {
    *
    * @param event - ClipboardEvent or string
    * @param plain - Read as plain text only
-   * @returns Clipboard content or null if empty
+   * @returns Clipboard content, or null if no event/string was provided
    */
   read: (
     event?: ClipboardEvent | string | null,
@@ -427,7 +426,7 @@ export interface PanelHelpersClipboard {
    *
    * @param value - Value to write
    * @param event - ClipboardEvent for event-based writing
-   * @returns True if successful
+   * @returns Always `true` (no failure detection)
    */
   write: (value: any, event?: ClipboardEvent) => boolean;
 }
@@ -517,7 +516,7 @@ export interface PanelHelpersField {
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
-   * Checks if field is visible based on 'when' conditions.
+   * Checks if a field or section is visible. Returns false for hidden fields, otherwise evaluates `when` conditions against current form values.
    *
    * @param field - Field definition
    * @param values - Current form values
@@ -529,7 +528,7 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
-   * Propagates parent field's API endpoints to nested subfield definitions.
+   * Annotates subfields with the parent's section name and, when present, its API endpoints (suffixing the field endpoint with the subfield name).
    *
    * @param field - Parent field
    * @param fields - Subfield definitions
@@ -680,7 +679,7 @@ export interface PanelHelpersLink {
   isFileUUID: (value: string) => boolean;
 
   /**
-   * Checks if value is a page UUID or permalink.
+   * Checks if value is `site://`, a `page://` UUID, or a page permalink.
    *
    * @param value - Value to check
    * @returns True if page reference
@@ -861,13 +860,11 @@ export type PanelComparator = (a: string, b: string) => number;
  */
 export interface PanelHelpers {
   /**
-   * Array utilities
    * @source panel/src/helpers/array.js
    */
   array: PanelHelpersArray;
 
   /**
-   * Clipboard utilities
    * @source panel/src/helpers/clipboard.js
    */
   clipboard: PanelHelpersClipboard;
@@ -906,19 +903,16 @@ export interface PanelHelpers {
   ) => PanelDebouncedFunction<T>;
 
   /**
-   * Video embed utilities
    * @source panel/src/helpers/embed.js
    */
   embed: PanelHelpersEmbed;
 
   /**
-   * Field utilities
    * @source panel/src/helpers/field.js
    */
   field: PanelHelpersField;
 
   /**
-   * File utilities
    * @source panel/src/helpers/file.js
    */
   file: PanelHelpersFile;
@@ -954,19 +948,16 @@ export interface PanelHelpers {
   isUploadEvent: (event: DragEvent) => boolean;
 
   /**
-   * Keyboard utilities
    * @source panel/src/helpers/keyboard.js
    */
   keyboard: PanelHelpersKeyboard;
 
   /**
-   * Link utilities
    * @source panel/src/helpers/link.js
    */
   link: PanelHelpersLink;
 
   /**
-   * Object utilities
    * @source panel/src/helpers/object.js
    */
   object: PanelHelpersObject;
@@ -980,7 +971,6 @@ export interface PanelHelpers {
   pad: (value: string | number, length?: number) => string;
 
   /**
-   * Page utilities
    * @source panel/src/helpers/page.js
    */
   page: PanelHelpersPage;
@@ -1019,7 +1009,6 @@ export interface PanelHelpers {
   sort: (options?: PanelSortOptions) => PanelComparator;
 
   /**
-   * String utilities
    * @source panel/src/helpers/string.js
    */
   string: PanelHelpersString;
@@ -1052,7 +1041,6 @@ export interface PanelHelpers {
   upload: (file: File, params: PanelUploadParams) => Promise<any>;
 
   /**
-   * URL utilities
    * @source panel/src/helpers/url.js
    */
   url: PanelHelpersUrl;

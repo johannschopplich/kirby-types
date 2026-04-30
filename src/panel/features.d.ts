@@ -434,9 +434,7 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   deprecated: (message: string) => void;
 
   /**
-   * Creates an error notification.
-   * Opens error dialog in view context.
-   * May redirect to logout for auth errors.
+   * Always shows the error notification bar; in view context also opens the `k-error-dialog`. Forwards `JsonRequestError` to `fatal()`, unwraps nested `error`/`details` fields from `RequestError` responses, and redirects authenticated users to logout on `AuthError`.
    *
    * @param error - Error object, string, or Error instance
    * @returns Notification state, or void if redirected
@@ -464,7 +462,7 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   info: (info?: string | PanelNotificationOptions) => PanelNotificationDefaults;
 
   /**
-   * Opens a notification with the given options.
+   * Opens a notification. When passed a string, delegates to `success()`. Otherwise sets the panel context, defaults `timeout` to 4000ms for non-error/non-fatal types, opens the notification, and starts the auto-close timer.
    *
    * @param notification - Message string or options object
    */
@@ -889,7 +887,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
    */
   tab: (tab?: string) => void | false;
 
-  /** Returns drawer event listeners for Vue component binding. */
+  /** Returns the modal listeners extended with drawer-specific `crumb` (history navigation) and `tab` handlers. */
   listeners: () => PanelModalListeners;
 }
 
@@ -1012,7 +1010,7 @@ export interface PanelContent {
   hasDiff: (env?: PanelContentEnv) => boolean;
 
   /**
-   * Whether the API endpoint belongs to the current view.
+   * Whether the given env's `api` and `language` both match the current view.
    *
    * @param env - Environment context
    */
@@ -1178,10 +1176,7 @@ export interface PanelSearcher {
   open: (type?: string) => void;
 
   /**
-   * Queries the search API.
-   * Returns empty results for queries under 2 characters.
-   * Resolves to `undefined` when the request was aborted by a subsequent
-   * search (the catch falls through with no return).
+   * Queries the search API. For queries shorter than 2 characters returns `{ results: null, pagination: {} }` without hitting the server. Resolves to `undefined` when the request was aborted by a subsequent search (the catch falls through with no return).
    *
    * @param type - Search type
    * @param query - Search query
@@ -1298,16 +1293,14 @@ export interface PanelUpload
   /** Shows success notification and emits model.update. */
   announce: () => void;
 
-  /** Cancels current upload and resets state. */
+  /** Emits `cancel`, aborts any ongoing upload, and if some files already finished emits `complete` and announces success before resetting state. */
   cancel: () => Promise<void>;
 
-  /** Called when upload dialog submit clicked. */
+  /** Closes the upload dialog after all remaining files have uploaded; if any files completed, emits `complete` and `done`, announces success, and resets state. */
   done: () => Promise<void>;
 
   /**
-   * Finds duplicate file by comparing properties.
-   * Returns the index of the duplicate file, or false if not found.
-   * Compares `file.src.name`, `.type`, `.size`, `.lastModified`.
+   * Finds the index of an existing file in the queue with the same `src.name`, `src.type`, `src.size`, and `src.lastModified`. Returns the matching index, or `-1` if no duplicate is found.
    *
    * @param file - Enriched upload file to check
    * @returns Index of duplicate file or false

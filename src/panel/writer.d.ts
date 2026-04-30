@@ -67,7 +67,7 @@ export interface WriterEditor {
   commands: Record<string, (attrs?: any) => any>;
   /** The DOM element the editor is mounted to */
   element: HTMLElement | null;
-  /** Registered event handlers */
+  /** Event handlers passed via `options.events` */
   events: Record<string, (...args: any[]) => any>;
   /** The extensions manager instance */
   extensions: WriterExtensions;
@@ -235,7 +235,7 @@ export interface WriterEditorOptions {
 export interface WriterExtensions {
   /** All registered extension instances */
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /** ProseMirror EditorView (set after editor initialization) */
+  /** ProseMirror EditorView assigned by the editor after initialization */
   view: EditorView;
 
   /** Returns toolbar buttons for the given type */
@@ -284,7 +284,7 @@ export interface WriterToolbarButton {
   separator?: boolean;
   /** Whether this is an inline node button (shown inline, not in dropdown) */
   inline?: boolean;
-  /** Node types when this button should be visible */
+  /** Names of active node types under which this dropdown button stays enabled */
   when?: string[];
 }
 
@@ -458,11 +458,11 @@ export interface WriterUtils {
   ) => boolean;
 
   /**
-   * Creates a paste rule that applies a mark to pasted URLs matching the pattern.
+   * Creates a paste rule that applies a mark to pasted text matching the pattern.
    *
-   * @param regexp - The pattern to match URLs
+   * @param regexp - The pattern to match
    * @param type - The mark type to apply
-   * @param getAttrs - Optional function to compute mark attributes from the URL
+   * @param getAttrs - Optional function to compute mark attributes from the matched string
    * @returns A ProseMirror plugin
    */
   pasteRule: (
@@ -559,9 +559,7 @@ export interface WriterMarkContext {
 }
 
 /**
- * Context passed to node extension methods.
- *
- * Similar to WriterMarkContext but provides a NodeType instead of MarkType.
+ * Context passed to node extension methods (`commands`, `keys`, `inputRules`, `pasteRules`, `plugins`).
  *
  * @example
  * ```js
@@ -640,7 +638,7 @@ export interface WriterExtension {
   /** Unique name of the extension. */
   name?: string;
 
-  /** Extension type identifier */
+  /** Discriminator value, always "extension" for generic extensions */
   type?: string;
 
   /** The editor instance, available after `bindEditor()` is called. */
@@ -761,7 +759,6 @@ export interface WriterMarkExtension {
    */
   name?: string;
 
-  /** Extension type identifier */
   type?: "mark";
 
   /**
@@ -1018,7 +1015,6 @@ export interface WriterNodeExtension {
    */
   name?: string;
 
-  /** Extension type identifier */
   type?: "node";
 
   /**

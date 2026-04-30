@@ -26,7 +26,7 @@ export interface TextareaToolbarContext {
    * Available commands:
    * - `"dialog"` - Opens a dialog component
    * - `"insert"` - Inserts the given text at the current selection
-   * - `"prepend"` - Prepends the given text to the current selection/line
+   * - `"prepend"` - Prepends the given text to the current selection
    * - `"toggle"` - Toggles wrapping of current selection (accepts before, after texts)
    * - `"upload"` - Opens the file upload dialog
    * - `"wrap"` - Wraps the current selection with the given text
@@ -58,7 +58,7 @@ export interface TextareaToolbarContext {
   /** Closes all dropdowns. */
   close: () => void;
 
-  /** Vue translation function. */
+  /** Translates a Kirby translation key, with optional placeholder values. */
   $t: (key: string, ...args: any[]) => string;
 }
 
@@ -101,19 +101,7 @@ export interface TextareaButton {
   icon: string;
 
   /**
-   * Click handler.
-   *
-   * Called with `this` bound to the toolbar component, which provides:
-   * - `this.command(name, ...args)` - Execute a textarea command
-   *
-   * Available commands:
-   * - `dialog` - Opens a dialog component
-   * - `insert` - Inserts text at the cursor (can be a function receiving input and selection)
-   * - `prepend` - Prepends text to the current line
-   * - `toggle` - Toggles wrapping of selection with before/after text
-   * - `upload` - Opens the file upload dialog
-   * - `wrap` - Wraps the selection with given text
-   * - `file` - Opens the file picker
+   * Click handler. `this` is bound to the toolbar component (see {@link TextareaToolbarContext}), so `this.command(...)` is available.
    *
    * @example
    * ```js
@@ -172,7 +160,7 @@ export interface TextareaButton {
   /** Sets the aria-current attribute for active state styling. */
   current?: boolean | string;
 
-  /** Alternative tooltip text (defaults to label). */
+  /** Tooltip text used as a fallback when `label` is not set. */
   title?: string;
 
   /** Custom CSS class for the button. */

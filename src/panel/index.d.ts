@@ -379,7 +379,6 @@ interface PanelPermissionsPages {
  * @source src/Cms/SitePermissions.php
  */
 interface PanelPermissionsSite {
-  /** Whether the current role can access the site area. */
   access: boolean;
   changeTitle: boolean;
   update: boolean;
@@ -391,7 +390,6 @@ interface PanelPermissionsSite {
  * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUsers {
-  /** Whether the current role can access the users area. */
   access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
@@ -400,7 +398,6 @@ interface PanelPermissionsUsers {
   changeRole: boolean;
   create: boolean;
   delete: boolean;
-  /** Whether the current role can list users. */
   list: boolean;
   update: boolean;
 }
@@ -411,7 +408,6 @@ interface PanelPermissionsUsers {
  * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUser {
-  /** Whether the current role can access their own account area. */
   access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
@@ -419,7 +415,6 @@ interface PanelPermissionsUser {
   changePassword: boolean;
   changeRole: boolean;
   delete: boolean;
-  /** Whether the current role can list their own account. */
   list: boolean;
   update: boolean;
 }
@@ -450,11 +445,8 @@ export interface PanelPermissions {
  * @source src/Panel/View.php
  */
 export interface PanelSearchType {
-  /** Icon for the search type */
   icon: string;
-  /** Display label */
   label: string;
-  /** Unique identifier */
   id: string;
 }
 
@@ -479,9 +471,7 @@ export interface PanelSearches {
  * @source panel/src/panel/panel.js
  */
 export interface PanelUrls {
-  /** API endpoint URL */
   api: string;
-  /** Site URL */
   site: string;
 }
 
@@ -498,11 +488,7 @@ export interface PanelUrls {
 export interface PanelRequestResponse {
   /** The original Request object */
   request: Request;
-  /**
-   * The native `Response` object with `text` and `json` attached as
-   * already-resolved properties (not callable methods). `request.js`
-   * mutates the fetched `Response` and returns it whole.
-   */
+  /** Native `Response` mutated so that `text` and `json` are pre-resolved properties (not callable methods). */
   response: Response & {
     /** Parsed JSON data */
     json: any;
@@ -757,7 +743,7 @@ export interface PanelPlugins {
     any
   > | null;
 
-  /** Registered Panel routes */
+  /** Reserved bucket for plugin-registered routes (initialized empty; not currently written to by `panel.plugin()`). */
   routes: Record<string, any>[];
 
   /**
@@ -772,14 +758,14 @@ export interface PanelPlugins {
   /** Installed Vue plugins via `Vue.use()` */
   use: (PluginObject<any> | PluginFunction<any>)[];
 
-  /** Registered view buttons */
+  /** Reserved bucket for view-button plugins (initialized empty; entries are actually stored under `components` as `k-${name}-view-button`). */
   viewButtons: Record<
     string,
     | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
     | Record<string, any>
   >;
 
-  /** Registered Panel views */
+  /** Reserved bucket for plugin-registered views (initialized empty; not currently written to by `panel.plugin()`). */
   views: Record<string, Record<string, any>>;
 
   /**
@@ -809,21 +795,12 @@ export interface PanelLanguageInfo {
   code: string;
   /** Whether this is the default language */
   default: boolean;
-  /** Text direction */
   direction: "ltr" | "rtl";
-  /**
-   * Whether the language uses a custom URL different from the
-   * site's base URL (i.e., a domain or full URL prefix).
-   */
+  /** Whether the configured language `url` is an absolute URL (i.e., starts with `http://` or `https://`). */
   hasCustomDomain: boolean;
-  /** Display name */
   name: string;
-  /** Slug conversion rules */
   rules: Record<string, string>;
-  /**
-   * Resolved URL for this language (absolute URL when `hasCustomDomain`
-   * is true, otherwise a path relative to the site).
-   */
+  /** Absolute URL for this language (always resolved against the site URL via `Url::makeAbsolute`). */
   url: string;
 }
 
@@ -898,10 +875,10 @@ export interface Panel {
   /** Text direction */
   readonly direction: "ltr" | "rtl";
 
-  /** Document title */
+  /** Document title getter/setter; on set, the system title is appended as a suffix when present. */
   title: string;
 
-  /** Whether any feature is loading */
+  /** Whether the Panel is currently loading a new view via `open()`. */
   isLoading: boolean;
 
   /** Whether the browser is offline */
@@ -1021,7 +998,7 @@ export interface Panel {
   deprecated: (message: string) => void;
 
   /**
-   * Handles an error, optionally opening a notification.
+   * Centralized error handler: ignores `AbortError`, marks the Panel offline on `OfflineError`, logs in debug mode, and optionally opens an error notification.
    *
    * @param error - Error or message
    * @param openNotification - Whether to show notification (default: true)
@@ -1163,7 +1140,7 @@ export interface Panel {
   };
 
   /**
-   * Sets global Panel state.
+   * Applies a new Panel state: updates globals, dispatches per-feature `set()` calls, opens/closes modals and the dropdown, and opens the view when present.
    *
    * @param state - State to merge
    */
@@ -1188,7 +1165,7 @@ export interface Panel {
   /**
    * Creates a URL object for a Panel path.
    *
-   * @param path - Path (default: current path)
+   * @param path - Path or URL to build (default: empty string)
    * @param query - Query parameters
    * @param origin - Base origin
    * @returns URL object
@@ -1293,7 +1270,7 @@ interface PanelViewPropsNavigation {
 }
 
 /**
- * Model information.
+ * Legacy model information (deprecated; use the top-level view props instead).
  * @source src/Panel/Page.php
  * @source src/Panel/File.php
  * @source src/Panel/User.php
