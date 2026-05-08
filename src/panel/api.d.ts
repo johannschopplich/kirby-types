@@ -277,9 +277,9 @@ export interface PanelApiLanguages {
   /**
    * Lists all languages.
    *
-   * @returns Array of languages
+   * @returns Wrapped Kirby collection response (`{ data, pagination }`)
    */
-  list: () => Promise<any[]>;
+  list: () => Promise<any>;
 
   /**
    * Updates a language.
@@ -516,9 +516,9 @@ export interface PanelApiRoles {
    * Lists available roles.
    *
    * @param params - Query parameters
-   * @returns Array of roles
+   * @returns Wrapped Kirby collection response (`{ data, pagination }`)
    */
-  list: (params?: Record<string, any>) => Promise<any[]>;
+  list: (params?: Record<string, any>) => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -804,9 +804,11 @@ export interface PanelApiUsers {
    * Gets roles available to a user.
    *
    * @param id - User ID
-   * @returns Array of roles
+   * @returns Array of role options shaped for select inputs
    */
-  roles: (id: string) => Promise<any[]>;
+  roles: (
+    id: string,
+  ) => Promise<{ info: string; text: string; value: string }[]>;
 
   /**
    * Searches users.
@@ -875,14 +877,14 @@ export interface PanelApi {
   /** Whether to use method override */
   methodOverride: boolean;
 
-  /**
-   * Heartbeat interval ID; populated once the auth ping has been scheduled.
-   *
-   * @remarks K6 also exposes a `ping(): void` method on the API class that
-   * schedules this interval. That method is not yet modeled on `PanelApi`
-   * and is tracked as a future addition.
-   */
+  /** Heartbeat interval ID; populated once the auth ping has been scheduled. */
   pingId: ReturnType<typeof setInterval> | undefined;
+
+  /**
+   * Clears any existing heartbeat and schedules a new auth ping every 5 minutes.
+   * @since 6
+   */
+  ping: () => void;
 
   /** Active request IDs */
   requests: string[];

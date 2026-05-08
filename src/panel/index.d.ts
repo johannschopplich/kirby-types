@@ -473,7 +473,10 @@ export interface PanelSearches {
 export interface PanelUrls {
   api: string;
   site: string;
-  /** K6 only: absolute URL of the Panel itself (`kirby->url('panel')`). Not emitted by Kirby 5. */
+  /**
+   * Absolute URL of the Panel itself (`kirby->url('panel')`); not emitted by Kirby 5.
+   * @since 6
+   */
   panel?: string;
 }
 
@@ -817,9 +820,7 @@ export interface PanelLanguageInfo {
  * @source panel/src/panel/panel.js
  */
 export interface PanelGlobalState {
-  activation: PanelFeatures.PanelActivationDefaults;
   dialog: PanelFeatures.PanelDialogDefaults;
-  drag: PanelFeatures.PanelDragDefaults;
   drawer: PanelFeatures.PanelDrawerDefaults;
   dropdown: PanelFeatureDefaults;
   language: PanelFeatures.PanelLanguageDefaults;
@@ -1095,9 +1096,9 @@ export interface Panel {
   /**
    * Navigates to a different Panel path.
    *
-   * @param path - Path to navigate to
+   * @param path - Path or URL to navigate to
    */
-  redirect: (path: string) => void;
+  redirect: (path: string | URL) => void;
 
   /**
    * Reloads the current view.
@@ -1255,7 +1256,8 @@ interface PanelViewPropsVersions {
  */
 interface PanelViewPropsTab {
   label: string;
-  icon: string;
+  /** Tab icon. May be `null` when the blueprint omits an icon. */
+  icon: string | null;
   columns: Record<string, any>[];
   link: string;
   name: string;
@@ -1274,7 +1276,15 @@ interface PanelViewPropsNavigation {
 }
 
 /**
- * Legacy model information (deprecated; use the top-level view props instead).
+ * Legacy nested model information.
+ *
+ * Emitted by Page/File/User/Site `props()` with per-blueprint shape
+ * variance. The fields below model the Page variant; File adds
+ * `dimensions`/`extension`/`filename`/`mime`/`niceSize`/`template`/`type`/`url`;
+ * User adds `account`/`avatar`/`email`/`language`/`name`/`role`/`username`;
+ * Site has only `link`/`previewUrl`/`title`/`uuid`.
+ *
+ * @deprecated K6 dropped this block – use the top-level view props instead.
  * @source src/Panel/Page.php
  * @source src/Panel/File.php
  * @source src/Panel/User.php
@@ -1351,23 +1361,39 @@ export interface PanelViewProps {
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
   tabs: Record<string, any>[];
-  uuid: string;
+  /**
+   * UUID of the model. May be `null` when UUIDs are disabled
+   * (e.g. `content.uuid` config flag) or for models without UUID support.
+   */
+  uuid: string | null;
   versions: PanelViewPropsVersions;
   /** Active blueprint tab. Only present when the blueprint defines tabs. */
   tab?: PanelViewPropsTab;
   /**
-   * Sibling navigation link to the next model. Present on Page, File and
-   * User views (may be `null` when there is no next sibling); not emitted
-   * for Site.
+   * Sibling navigation link to the next model. K5 emits this only on Page,
+   * File and User views (may be `null` when there is no next sibling); not
+   * emitted on Site. K6 always emits this from `ModelViewController`,
+   * including `null` on the Site view.
    */
   next?: PanelViewPropsNavigation | null;
   /**
-   * Sibling navigation link to the previous model. Present on Page, File
-   * and User views (may be `null` when there is no previous sibling); not
-   * emitted for Site.
+   * Sibling navigation link to the previous model. K5 emits this only on
+   * Page, File and User views (may be `null` when there is no previous
+   * sibling); not emitted on Site. K6 always emits this from
+   * `ModelViewController`, including `null` on the Site view.
    */
   prev?: PanelViewPropsNavigation | null;
   blueprint: string;
-  model: PanelViewPropsModel;
+  /**
+   * Legacy nested model information.
+   * @deprecated K6 dropped this block – use the top-level view props instead.
+   */
+  model?: PanelViewPropsModel;
   title: string;
+  /**
+   * Search collection identifier emitted by file and user view props
+   * (`'files'`, `'users'`); K5 emits `search` outside the inner props payload.
+   * @since 6
+   */
+  search?: string;
 }

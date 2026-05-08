@@ -30,6 +30,7 @@
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/state.js
  * @source panel/src/panel/state.js
+ * @source panel/src/panel/state.ts
  */
 export interface PanelState<TDefaults extends object = Record<string, any>> {
   /**
@@ -67,7 +68,9 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 
   /**
    * Validates that the state is a plain object.
+   *
    * @throws Error if state is not an object
+   * @deprecated K6 inlined the check into `set()` and removed the public method – calls on K6 will throw.
    */
   validateState: (state: unknown) => boolean;
 }
@@ -79,6 +82,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 /**
  * @internal
  * @source panel/src/panel/state.js
+ * @source panel/src/panel/state.ts
  */
 export interface PanelStateBase {
   key: () => string;
@@ -92,6 +96,7 @@ export interface PanelStateBase {
 /**
  * @internal
  * @source panel/src/panel/feature.js
+ * @source panel/src/panel/feature.ts
  */
 export interface PanelFeatureBase extends PanelStateBase, PanelEventListeners {
   abortController: AbortController | null;
@@ -107,6 +112,7 @@ export interface PanelFeatureBase extends PanelStateBase, PanelEventListeners {
 /**
  * @internal
  * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModalBase extends PanelFeatureBase {
   id: string | null;
@@ -117,6 +123,7 @@ export interface PanelModalBase extends PanelFeatureBase {
 /**
  * @internal
  * @source panel/src/panel/history.js
+ * @source panel/src/helpers/history.ts
  */
 export interface PanelHistoryBase {
   milestones: PanelHistoryMilestone[];
@@ -128,12 +135,14 @@ export interface PanelHistoryBase {
 
 /**
  * @source panel/src/panel/listeners.js
+ * @source panel/src/panel/listeners.ts
  */
 export type PanelEventCallback<TReturn = any> = (...args: any[]) => TReturn;
 
 /**
  * Map of event names to their callback functions.
  * @source panel/src/panel/listeners.js
+ * @source panel/src/panel/listeners.ts
  */
 export type PanelEventListenerMap<TEvents extends string = string> = Partial<
   Record<TEvents, PanelEventCallback>
@@ -159,6 +168,7 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/listeners.js
  * @source panel/src/panel/listeners.js
+ * @source panel/src/panel/listeners.ts
  */
 export interface PanelEventListeners<TEvents extends string = string> {
   on: PanelEventListenerMap<TEvents>;
@@ -202,6 +212,20 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
   /** Returns all registered listeners. */
   listeners: () => PanelEventListenerMap<TEvents>;
+
+  /**
+   * Removes the listener registered for `event`.
+   *
+   * @param event - Event name whose listener should be removed
+   * @since 6
+   */
+  removeEventListener: (event: TEvents) => void;
+
+  /**
+   * Clears every registered listener. Called from `Feature.set()`.
+   * @since 6
+   */
+  removeEventListeners: () => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -210,6 +234,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
 /**
  * @source panel/src/panel/feature.js
+ * @source panel/src/panel/feature.ts
  */
 export interface PanelFeatureDefaults {
   abortController: AbortController | null;
@@ -245,6 +270,7 @@ export interface PanelFeatureDefaults {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/feature.js
  * @source panel/src/panel/feature.js
+ * @source panel/src/panel/feature.ts
  */
 export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   extends PanelState<TDefaults>, PanelEventListeners {
@@ -350,9 +376,9 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Reloads the feature by re-opening its current URL.
    *
    * @param options - Request options
-   * @returns False if no path exists, otherwise void
+   * @returns False if no path exists; K6 forwards the `open()` result, K5 returns void.
    */
-  reload: (options?: PanelRequestOptions) => Promise<void | false>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false | void>;
 
   /** Creates a full URL object for the current path and query. */
   url: () => URL;
@@ -365,6 +391,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 /**
  * Modal event types for dialogs and drawers.
  * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export type PanelModalEvent =
   | "cancel"
@@ -378,10 +405,11 @@ export type PanelModalEvent =
 /**
  * Bound listener functions returned by `modal.listeners()`.
  * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
-  close: (id?: string | boolean) => Promise<void>;
+  close: (id?: string | true) => Promise<void>;
   input: (value: any) => void;
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
   success: (response: PanelSuccessResponse) => void;
@@ -391,6 +419,7 @@ export interface PanelModalListeners {
 /**
  * Success response from modal submission.
  * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelSuccessResponse {
   message?: string;
@@ -434,6 +463,7 @@ export interface PanelSuccessResponse {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/modal.js
  * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModal<
   TDefaults extends object = PanelFeatureDefaults & { id: string | null },
@@ -467,7 +497,7 @@ export interface PanelModal<
    * @param id - Specific modal ID, `true` to close all, or undefined for current
    * @returns Promise resolving to the previous modal's state, or void
    */
-  close: (id?: string | boolean) => Promise<TDefaults | void>;
+  close: (id?: string | true) => Promise<TDefaults | void>;
 
   /**
    * Sets focus to the first focusable input or a specific input.
@@ -578,6 +608,7 @@ export interface PanelModal<
 /**
  * A history milestone representing a saved modal state.
  * @source panel/src/panel/history.js
+ * @source panel/src/helpers/history.ts
  */
 export interface PanelHistoryMilestone {
   id: string;
@@ -603,6 +634,7 @@ export interface PanelHistoryMilestone {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/history.js
  * @source panel/src/panel/history.js
+ * @source panel/src/helpers/history.ts
  */
 export interface PanelHistory {
   milestones: PanelHistoryMilestone[];
@@ -655,6 +687,12 @@ export interface PanelHistory {
   has: (id: string) => boolean;
 
   /**
+   * Returns true when more than one milestone is stored.
+   * @since 6
+   */
+  hasPrevious: () => boolean;
+
+  /**
    * Gets the array index of a milestone.
    *
    * @param id - Milestone ID
@@ -701,6 +739,8 @@ export interface PanelHistory {
  * Options for Panel API requests.
  * @source panel/src/panel/request.js
  * @source panel/src/panel/feature.js
+ * @source panel/src/panel/request.ts
+ * @source panel/src/panel/feature.ts
  */
 export interface PanelRequestOptions {
   headers?: Record<string, string>;
@@ -717,17 +757,18 @@ export interface PanelRequestOptions {
   /** CSRF token sent as the `x-csrf` header. */
   csrf?: string | false;
   /**
-   * Fiber globals sent as the `x-fiber-globals` header.
+   * Globals sent as the `x-panel-globals` header (was `x-fiber-globals` in K5).
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
-  /** Referrer path sent as the `x-fiber-referrer` header. */
+  /** Referrer path sent as the `x-panel-referrer` header (was `x-fiber-referrer` in K5). */
   referrer?: string | false;
 }
 
 /**
  * Extended options for refresh requests.
  * @source panel/src/panel/feature.js
+ * @source panel/src/panel/feature.ts
  */
 export interface PanelRefreshOptions extends PanelRequestOptions {
   /** URL to refresh from (defaults to current URL) */
@@ -749,18 +790,20 @@ export type PanelContext = "view" | "dialog" | "drawer";
  * Context for notifications indicating where they should appear.
  * Matches the active editing layer.
  * @source panel/src/panel/notification.js
+ * @source panel/src/panel/notification.ts
  */
 export type NotificationContext = "view" | "dialog" | "drawer";
 
 /**
  * Type of notification determining behavior and persistence.
- * - `info`: General information, auto-closes
- * - `success`: Operation completed, auto-closes
+ * Only `error` and `fatal` are written to `state.type`; `success()` and
+ * `info()` shortcuts set `theme` (and `icon`) instead of `type`.
  * - `error`: Operation failed, persists until dismissed
  * - `fatal`: Critical error, displayed in isolated iframe
  * @source panel/src/panel/notification.js
+ * @source panel/src/panel/notification.ts
  */
-export type NotificationType = "error" | "success" | "fatal" | "info";
+export type NotificationType = "error" | "fatal";
 
 /**
  * Visual theme for notifications.
@@ -768,5 +811,6 @@ export type NotificationType = "error" | "success" | "fatal" | "info";
  * - `negative`: Red, for errors
  * - `info`: Blue, for information
  * @source panel/src/panel/notification.js
+ * @source panel/src/panel/notification.ts
  */
 export type NotificationTheme = "positive" | "negative" | "info";

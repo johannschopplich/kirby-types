@@ -243,19 +243,40 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
 
 /**
  * Menu entry types.
+ *
+ * All fields are optional because `Menu::entry()` runs `array_filter()` on the
+ * result, dropping any falsy values from the response.
+ *
  * @source panel/src/panel/menu.js
+ * @source src/Panel/Menu.php
  */
 export interface PanelMenuEntry {
   /** Whether this entry is currently active */
-  current: boolean;
+  current?: boolean;
+  /** Optional dialog URL – when set, the entry opens a dialog instead of navigating */
+  dialog?: string;
+  /**
+   * Whether the entry is rendered as visually disabled.
+   * @since 6
+   */
+  disabled?: boolean;
+  /** Optional drawer URL – when set, the entry opens a drawer instead of navigating */
+  drawer?: string;
   /** Icon name */
-  icon: string;
+  icon?: string;
+  /**
+   * Stable area id of the menu item (`Button.id`).
+   * @since 6
+   */
+  id?: string;
   /** Link URL */
-  link: string;
+  link?: string;
+  /** Anchor target attribute (e.g. `"_blank"`) */
+  target?: string;
   /** Display text */
-  text: string;
+  text?: string;
   /** Tooltip text */
-  title: string;
+  title?: string;
 }
 
 /**
@@ -263,12 +284,20 @@ export interface PanelMenuEntry {
  * @source panel/src/panel/menu.js
  */
 export interface PanelMenuDefaults {
-  /** Menu entries (items or separator strings) */
+  /**
+   * Menu entries (items or separator strings).
+   * @deprecated Renamed to `items` in K6.
+   */
   entries: (PanelMenuEntry | "-")[];
   /** Whether menu is being hovered */
   hover: boolean;
   /** Whether menu is expanded */
   isOpen: boolean;
+  /**
+   * Menu items; replaces `entries` in the K6 MenuState shape.
+   * @since 6
+   */
+  items?: (PanelMenuEntry | "-")[];
 }
 
 /**
@@ -282,12 +311,20 @@ export interface PanelMenuDefaults {
  * @source panel/src/panel/menu.js
  */
 export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
-  /** Menu entries (items or separator strings) */
+  /**
+   * Menu entries (items or separator strings).
+   * @deprecated Renamed to `items` in K6.
+   */
   entries: (PanelMenuEntry | "-")[];
   /** Whether menu is being hovered */
   hover: boolean;
   /** Whether menu is expanded */
   isOpen: boolean;
+  /**
+   * Menu items; replaces `entries` in the K6 MenuState shape.
+   * @since 6
+   */
+  items?: (PanelMenuEntry | "-")[];
 
   /**
    * Handles outside clicks to close mobile menu.
@@ -321,7 +358,13 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
    */
   resize: () => void;
 
-  /** Sets menu entries and handles initial resize. */
+  /**
+   * Sets menu entries and handles initial resize.
+   *
+   * The parameter name `entries` reflects K5 `Menu::entry()`; K6 renamed the
+   * state field to `items` (`set(items)` returns a state with `items`), so
+   * read through `panel.menu.items` on K6.
+   */
   set: (entries: (PanelMenuEntry | "-")[]) => PanelMenuDefaults;
 
   /** Toggles the sidebar menu state. */
@@ -644,7 +687,10 @@ export interface PanelBreadcrumbItem {
   label: string;
   /** Navigation link */
   link: string;
-  /** Optional icon (K6 TS only – PHP does not currently emit this) */
+  /**
+   * Optional icon for plugin-supplied breadcrumbs; PHP does not currently emit this.
+   * @since 6
+   */
   icon?: string;
 }
 
@@ -812,12 +858,21 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  * @source panel/src/panel/modal.js
  */
 export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
-  /** Whether using legacy Vue component */
+  /**
+   * Whether using legacy Vue component for the Vue-2 bridge.
+   * @deprecated K6 removed this field.
+   */
   legacy: boolean;
-  /** Reference to legacy component */
+  /**
+   * Reference to legacy component for the Vue-2 bridge.
+   * @deprecated K6 removed this field.
+   */
   ref: any;
 
-  /** Closes the dialog, handling legacy components. */
+  /**
+   * Closes the dialog, handling legacy components.
+   * @deprecated The override clears `this.ref.visible` for the Vue-2 legacy bridge; K6 removed the override.
+   */
   close: () => Promise<void>;
 
   /** Opens a dialog by URL, state object, or legacy component. */
@@ -1060,6 +1115,17 @@ export interface PanelContent {
   ) => Promise<void>;
 
   /**
+   * Updates the lock's `modified` timestamp with a new `Date` after a
+   * successful save.
+   *
+   * Extracted from K5's inline `this.lock(env).modified = new Date()`.
+   *
+   * @param env - Environment context
+   * @since 6
+   */
+  renewLock: (env?: PanelContentEnv) => void;
+
+  /**
    * Sends a content API request.
    *
    * @param method - API method (save, publish, discard)
@@ -1079,6 +1145,17 @@ export interface PanelContent {
    * @param env - Environment context
    */
   save: (values?: Record<string, any>, env?: PanelContentEnv) => Promise<void>;
+
+  /**
+   * Releases the content lock without discarding changes.
+   *
+   * Posts to `<api>/changes/unlock` via `navigator.sendBeacon` (with a
+   * regular POST fallback) when the editor navigates away.
+   *
+   * @param env - Environment context
+   * @since 6
+   */
+  unlock: (env?: PanelContentEnv) => void;
 
   /**
    * Updates form values and saves.
@@ -1281,7 +1358,7 @@ export interface PanelUploadDefaults {
  * @source panel/src/panel/upload.js
  */
 export interface PanelUpload
-  extends PanelState<PanelUploadDefaults>, PanelEventListeners {
+  extends Omit<PanelState<PanelUploadDefaults>, "set">, PanelEventListeners {
   /** AbortController for current upload */
   abort: AbortController | null;
   /** Accepted file types */
@@ -1396,8 +1473,13 @@ export interface PanelUpload
     options?: Partial<PanelUploadDefaults>,
   ) => void;
 
-  /** Sets state and registers event listeners. */
-  set: (state: Partial<PanelUploadDefaults>) => PanelUploadDefaults;
+  /**
+   * Sets state and registers event listeners.
+   * Returns `undefined` when called without a `state` argument (early-return path).
+   */
+  set: (
+    state?: Partial<PanelUploadDefaults>,
+  ) => PanelUploadDefaults | undefined;
 
   /** Submits and uploads all remaining files. */
   submit: () => Promise<void>;

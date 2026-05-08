@@ -34,7 +34,7 @@ export interface PanelHelpersArray {
    * @param object - Object or array to convert
    * @returns Array of values
    */
-  fromObject: <T>(object: T[] | Record<string, T>) => T[];
+  fromObject: <T>(object: T[] | Record<string, T> | null | undefined) => T[];
 
   /**
    * Searches through an array by query string.
@@ -88,6 +88,7 @@ export type PanelSlugRules = Record<string, string>[];
  * String helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/string.js
+ * @source panel/src/helpers/string.js
  */
 export interface PanelHelpersString {
   /**
@@ -299,7 +300,7 @@ export interface PanelHelpersObject {
    * @param object - Object to count
    * @returns Number of keys
    */
-  length: (object: Record<string, any>) => number;
+  length: (object?: Record<string, any> | null) => number;
 
   /**
    * Recursively merges source into target.
@@ -336,6 +337,7 @@ export interface PanelHelpersObject {
  * URL helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/url.js
+ * @source panel/src/helpers/url.js
  */
 export interface PanelHelpersUrl {
   /**
@@ -423,6 +425,7 @@ export interface PanelHelpersUrl {
  * Clipboard helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/clipboard.js
+ * @source panel/src/helpers/clipboard.js
  */
 export interface PanelHelpersClipboard {
   /**
@@ -437,11 +440,11 @@ export interface PanelHelpersClipboard {
   /**
    * Writes to clipboard. Objects are auto-JSONified.
    *
-   * @param value - Value to write
+   * @param value - Value to write (non-strings are JSON-stringified)
    * @param event - Event for event-based writing (narrowed to ClipboardEvent at runtime)
    * @returns Always `true` (no failure detection)
    */
-  write: (value: any, event?: Event) => boolean;
+  write: (value: unknown, event?: Event) => boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -597,6 +600,7 @@ export interface PanelHelpersFile {
  * Keyboard helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/keyboard.js
+ * @source panel/src/helpers/keyboard.js
  */
 export interface PanelHelpersKeyboard {
   /**
@@ -653,6 +657,7 @@ export interface PanelLinkPreview {
  * Link helper utilities.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/link.js
+ * @source panel/src/helpers/link.js
  */
 export interface PanelHelpersLink {
   /**
@@ -705,6 +710,7 @@ export interface PanelHelpersLink {
    * @param link - Link detection result
    * @param fields - Fields to fetch
    * @returns Preview data or null
+   * @deprecated K6 dropped `preview` from `helper.link`; on K6 this property is `undefined` at runtime.
    */
   preview: (
     link: PanelLinkDetection,
@@ -733,7 +739,7 @@ export interface PanelPageStatusProps {
   /** Status color */
   theme: "negative-icon" | "info-icon" | "positive-icon";
   /** Whether disabled */
-  disabled?: boolean;
+  disabled: boolean;
   /** Button size */
   size: string;
   /** Button style */
@@ -949,13 +955,17 @@ export interface PanelHelpers {
   /**
    * Checks if component is registered globally.
    *
+   * The optional `app` argument (Vue 3 `App` instance) defaults to
+   * `window.panel?.app`; ignored on K5.
+   *
    * @param name - Component name
-   * @param app - Optional Vue app instance (defaults to `window.panel?.app` in K6)
+   * @param app - Optional Vue app instance
    * @returns True if registered
+   * @since 6
    * @source panel/src/helpers/isComponent.js
    * @source panel/src/helpers/index.js
    */
-  isComponent: (name: string, app?: any) => boolean;
+  isComponent: (name: string, app?: unknown) => boolean;
 
   /**
    * Checks if event is a file drag/drop event.
