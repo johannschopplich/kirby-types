@@ -94,7 +94,6 @@ export type {
   PanelRefreshOptions,
   // Context & Notification Types
   PanelContext,
-  NotificationContext,
   NotificationType,
   NotificationTheme,
 } from "./base";

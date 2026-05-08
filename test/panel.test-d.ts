@@ -1,4 +1,10 @@
-import type { Panel, PanelConfig, PanelPermissions } from "../src/panel";
+// Tests representative core types for `src/panel/` – not exhaustive.
+import type {
+  Panel,
+  PanelConfig,
+  PanelPermissions,
+  PanelRequestResponse,
+} from "../src/panel";
 import type { PanelApi, PanelModelData } from "../src/panel/api";
 import type {
   PanelEventListenerMap,
@@ -218,6 +224,21 @@ expectAssignable<PanelApi["auth"]>({
   user: async () => ({}),
   verifyCode: async () => ({}),
 });
+
+// Plugin-author surface on the Panel
+expectType<void>(panel.events.on("view.open", () => {}));
+expectType<void>(panel.events.emit("view.open", { id: "home" }));
+expectType<void>(panel.events.off("view.open"));
+expectType<string>(panel.t("dialog.cancel"));
+expectType<string>(panel.t("error.user.notFound", { username: "alice" }));
+expectType<URL>(panel.url());
+expectType<URL>(panel.url("/pages/home"));
+expectType<URL>(panel.url("/pages/home", { tab: "content" }));
+expectType<Promise<any>>(panel.get("/api/pages/home"));
+expectType<Promise<any>>(panel.post("/api/pages/home", { title: "Home" }));
+expectType<Promise<PanelRequestResponse | false>>(
+  panel.request("/api/pages/home"),
+);
 
 // -----------------------------------------------------------------------------
 // 10. Model Data

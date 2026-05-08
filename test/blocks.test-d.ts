@@ -1,3 +1,4 @@
+// Tests representative core types for `src/blocks.d.ts` – not exhaustive.
 import type {
   KirbyBlock,
   KirbyCodeLanguage,

@@ -1,3 +1,4 @@
+// Tests representative core types for `src/query.d.ts` – not exhaustive.
 import type { KirbyQuery, ParseKirbyQuery } from "../src/query";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 

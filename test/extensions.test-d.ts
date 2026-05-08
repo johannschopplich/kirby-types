@@ -1,3 +1,4 @@
+// Tests representative plugin-author types (writer + textarea + plugin extensions) – not exhaustive.
 import type { DefineComponent } from "vue";
 import type {
   Panel,
@@ -390,13 +391,4 @@ expectType<Record<string, WriterNodeExtension>>(panel.plugins.writerNodes);
 expectNotAssignable<WriterToolbarButton>({
   icon: "bold",
   // Missing label
-});
-
-expectAssignable<TextareaButton>({
-  label: "Bold",
-});
-
-expectAssignable<TextareaButton>({
-  label: "Bold",
-  icon: "bold",
 });

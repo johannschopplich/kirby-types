@@ -74,60 +74,6 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 }
 
 // -----------------------------------------------------------------------------
-// State Base Types
-// -----------------------------------------------------------------------------
-
-/**
- * @internal
- * @source panel/src/panel/state.js
- * @source panel/src/panel/state.ts
- */
-export interface PanelStateBase {
-  key: () => string;
-  defaults: () => Record<string, any>;
-  reset: () => Record<string, any> | void;
-  set: (state: Record<string, any>) => Record<string, any>;
-  state: () => Record<string, any>;
-  validateState: (state: unknown) => boolean;
-}
-
-/**
- * @internal
- * @source panel/src/panel/feature.js
- * @source panel/src/panel/feature.ts
- */
-export interface PanelFeatureBase extends PanelStateBase, PanelEventListeners {
-  abortController: AbortController | null;
-  component: string | null;
-  isLoading: boolean;
-  path: string | null;
-  props: Record<string, any>;
-  query: Record<string, any>;
-  referrer: string | null;
-  timestamp: number | null;
-}
-
-/**
- * @internal
- * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
- */
-export interface PanelModalBase extends PanelFeatureBase {
-  id: string | null;
-  isOpen: boolean;
-  history: PanelHistory;
-}
-
-/**
- * @internal
- * @source panel/src/panel/history.js
- * @source panel/src/helpers/history.ts
- */
-export interface PanelHistoryBase {
-  milestones: PanelHistoryMilestone[];
-}
-
-// -----------------------------------------------------------------------------
 // Event Listeners
 // -----------------------------------------------------------------------------
 
@@ -776,16 +722,10 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
  * Panel context indicating which layer is currently active.
  * Used to determine where notifications appear and which feature has focus.
  * @source panel/src/panel/panel.js
- */
-export type PanelContext = "view" | "dialog" | "drawer";
-
-/**
- * Context for notifications indicating where they should appear.
- * Matches the active editing layer.
  * @source panel/src/panel/notification.js
  * @source panel/src/panel/notification.ts
  */
-export type NotificationContext = "view" | "dialog" | "drawer";
+export type PanelContext = "view" | "dialog" | "drawer";
 
 /**
  * Type of notification determining behavior and persistence.

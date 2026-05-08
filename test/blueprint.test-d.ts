@@ -1,3 +1,4 @@
+// Tests representative core types for `src/blueprint.d.ts` – not exhaustive.
 import type {
   KirbyBlocksFieldProps,
   KirbyBlockValue,

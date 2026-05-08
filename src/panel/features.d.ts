@@ -8,9 +8,9 @@
  */
 
 import type {
-  NotificationContext,
   NotificationTheme,
   NotificationType,
+  PanelContext,
   PanelEventCallback,
   PanelEventListeners,
   PanelFeature,
@@ -71,10 +71,8 @@ export interface PanelActivationDefaults {
  * @since 4.0.0
  * @source panel/src/panel/activiation.js
  */
-export interface PanelActivation extends PanelState<PanelActivationDefaults> {
-  /** Whether the activation card is visible */
-  isOpen: boolean;
-
+export interface PanelActivation
+  extends PanelState<PanelActivationDefaults>, PanelActivationDefaults {
   /** Closes the activation card and persists state to session storage. */
   close: () => void;
 
@@ -103,12 +101,8 @@ export interface PanelDragDefaults {
  * @since 4.0.0
  * @source panel/src/panel/drag.js
  */
-export interface PanelDrag extends PanelState<PanelDragDefaults> {
-  /** Type of item being dragged */
-  type: string | null;
-  /** Data associated with the dragged item */
-  data: Record<string, any>;
-
+export interface PanelDrag
+  extends PanelState<PanelDragDefaults>, PanelDragDefaults {
   /** Whether a drag operation is in progress */
   readonly isDragging: boolean;
 
@@ -154,15 +148,10 @@ export type PanelThemeValue = "light" | "dark" | "system";
  * @since 5.0.0
  * @source panel/src/panel/theme.js
  */
-export interface PanelTheme extends Omit<
-  PanelState<PanelThemeDefaults>,
-  "reset" | "set"
-> {
-  /** User's theme preference from localStorage */
-  setting: string | null;
-  /** System preference from media query */
-  system: "light" | "dark";
-
+export interface PanelTheme
+  extends
+    Omit<PanelState<PanelThemeDefaults>, "reset" | "set">,
+    PanelThemeDefaults {
   /** Theme from Panel config (`panel.theme` option). May be `null` when unset. */
   readonly config: string | null;
 
@@ -316,22 +305,8 @@ export interface PanelMenuDefaults {
  * @since 4.0.0
  * @source panel/src/panel/menu.js
  */
-export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
-  /**
-   * Menu entries (items or separator strings).
-   * @deprecated Renamed to `items` in K6.
-   */
-  entries: (PanelMenuEntry | "-")[];
-  /** Whether menu is being hovered */
-  hover: boolean;
-  /** Whether menu is expanded */
-  isOpen: boolean;
-  /**
-   * Menu items; replaces `entries` in the K6 MenuState shape.
-   * @since 6
-   */
-  items?: (PanelMenuEntry | "-")[];
-
+export interface PanelMenu
+  extends Omit<PanelState<PanelMenuDefaults>, "set">, PanelMenuDefaults {
   /**
    * Handles outside clicks to close mobile menu.
    * Returns false if not mobile/open, void otherwise.
@@ -387,7 +362,7 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
  */
 export interface PanelNotificationDefaults {
   /** Context where notification appears */
-  context: NotificationContext | null;
+  context: PanelContext | null;
   /** Additional details (for error dialogs); defaults to an empty object. */
   details: Record<string, any>;
   /** Icon name */
@@ -410,7 +385,7 @@ export interface PanelNotificationDefaults {
  */
 export interface PanelNotificationOptions {
   /** Context where notification appears */
-  context?: NotificationContext;
+  context?: PanelContext;
   /** Additional details */
   details?: Record<string, any>;
   /** Icon name */
@@ -454,24 +429,8 @@ export interface PanelErrorObject {
  * @since 4.0.0
  * @source panel/src/panel/notification.js
  */
-export interface PanelNotification extends PanelState<PanelNotificationDefaults> {
-  /** Context where notification appears */
-  context: NotificationContext | null;
-  /** Additional details (for error dialogs); defaults to an empty object. */
-  details: Record<string, any>;
-  /** Icon name */
-  icon: string | null;
-  /** Whether notification is visible */
-  isOpen: boolean;
-  /** Notification message */
-  message: string | null;
-  /** Visual theme */
-  theme: NotificationTheme | null;
-  /** Auto-close timeout in ms; `0` disables auto-close. */
-  timeout: number;
-  /** Notification type stored in state (only set by `error()` / `fatal()`). */
-  type: "error" | "fatal" | null;
-
+export interface PanelNotification
+  extends PanelState<PanelNotificationDefaults>, PanelNotificationDefaults {
   /** Timer for auto-close functionality */
   timer: PanelTimer;
 
@@ -566,20 +525,8 @@ export interface PanelSystemDefaults {
  * @since 4.0.0
  * @source panel/src/panel/system.js
  */
-export interface PanelSystem extends PanelState<PanelSystemDefaults> {
-  /** ASCII character replacements for slugs */
-  ascii: Record<string, string>;
-  /** CSRF token for API requests */
-  csrf: string;
-  /** Whether running on localhost */
-  isLocal: boolean;
-  /** Locale names by code */
-  locales: Record<string, string>;
-  /** Slug rules by language */
-  slugs: Record<string, string>;
-  /** Site title */
-  title: string;
-}
+export interface PanelSystem
+  extends PanelState<PanelSystemDefaults>, PanelSystemDefaults {}
 
 // -----------------------------------------------------------------------------
 // Translation (Interface Language)
@@ -611,18 +558,10 @@ export interface PanelTranslationDefaults {
  * @since 4.0.0
  * @source panel/src/panel/translation.js
  */
-export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
-  /** Translation code (e.g., `"en"`, `"de"`) */
-  code: string;
-  /** Translation strings by key */
-  data: Record<string, string>;
-  /** Text direction */
-  direction: "ltr" | "rtl";
-  /** Translation name */
-  name: string;
-  /** First day of week (`0`=Sunday, `1`=Monday) */
-  weekday: number;
-
+export interface PanelTranslation
+  extends
+    Omit<PanelState<PanelTranslationDefaults>, "set">,
+    PanelTranslationDefaults {
   /** Sets translation state and updates document language/direction. */
   set: (state: Partial<PanelTranslationDefaults>) => PanelTranslationDefaults;
 
@@ -671,18 +610,8 @@ export interface PanelUserDefaults {
  * @since 4.0.0
  * @source panel/src/panel/user.js
  */
-export interface PanelUser extends PanelState<PanelUserDefaults> {
-  /** User email */
-  email: string | null;
-  /** User ID */
-  id: string | null;
-  /** User's interface language */
-  language: string | null;
-  /** User's role */
-  role: string | null;
-  /** Username */
-  username: string | null;
-}
+export interface PanelUser
+  extends PanelState<PanelUserDefaults>, PanelUserDefaults {}
 
 // -----------------------------------------------------------------------------
 // View
@@ -738,27 +667,10 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  * @source panel/src/panel/view.js
  * @source panel/src/panel/feature.js
  */
-export interface PanelView extends Omit<
-  PanelFeature<PanelViewDefaults>,
-  "set"
-> {
-  /** Breadcrumb navigation items */
-  breadcrumb: PanelBreadcrumbItem[];
-  /** Label for current breadcrumb */
-  breadcrumbLabel: string | null;
-  /** View icon */
-  icon: string | null;
-  /** View ID */
-  id: string | null;
-  /** View link */
-  link: string | null;
-  /** Relative path to this view */
-  path: string;
-  /** Default search type */
-  search: string;
-  /** View title */
-  title: string | null;
-
+export interface PanelView
+  extends
+    Omit<PanelFeature<PanelViewDefaults>, "set" | keyof PanelViewDefaults>,
+    PanelViewDefaults {
   /** Loads a view, canceling any previous request. */
   load: (
     url: string | URL,
@@ -1373,26 +1285,10 @@ export interface PanelUploadDefaults {
  * @source panel/src/panel/upload.js
  */
 export interface PanelUpload
-  extends Omit<PanelState<PanelUploadDefaults>, "set">, PanelEventListeners {
-  /** AbortController for current upload */
-  abort: AbortController | null;
-  /** Accepted file types */
-  accept: string;
-  /** Additional file attributes */
-  attributes: Record<string, any>;
-  /** Files to upload */
-  files: PanelUploadFile[];
-  /** Maximum number of files */
-  max: number | null;
-  /** Whether multiple files allowed */
-  multiple: boolean;
-  /** File preview data */
-  preview: Record<string, any>;
-  /** Server file model being replaced (see `PanelUploadDefaults.replacing`) */
-  replacing: PanelUploadReplaceFile | null;
-  /** Upload endpoint URL */
-  url: string | null;
-
+  extends
+    Omit<PanelState<PanelUploadDefaults>, "set">,
+    PanelEventListeners,
+    PanelUploadDefaults {
   /** Hidden file input element */
   input: HTMLInputElement | null;
 

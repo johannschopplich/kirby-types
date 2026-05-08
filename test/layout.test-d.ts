@@ -1,3 +1,4 @@
+// Tests representative core types for `src/layout.d.ts` – not exhaustive.
 import type {
   KirbyLayout,
   KirbyLayoutColumn,
