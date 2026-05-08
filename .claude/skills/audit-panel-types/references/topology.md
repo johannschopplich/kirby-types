@@ -1,6 +1,6 @@
 # Topology – pass 1 cluster → source mapping
 
-23 clusters total. Paste the relevant cluster's entry into the pass-1 prompt template in [AGENTS.md](AGENTS.md#pass-1). Each entry lists the symbols the agent owns plus all three sources (PHP, K6 TS, K5 JS).
+23 clusters total. Paste the relevant cluster's entry into the pass-1 prompt template in [agent-prompts.md](agent-prompts.md#pass-1). Each entry lists the symbols the agent owns plus all three sources (PHP, K6 TS, K5 JS).
 
 If a K6 source is unmigrated or a PHP source is silent, the agent records that as `no K6 source` / `PHP silent` and proceeds with the remaining sources.
 

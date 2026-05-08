@@ -30,7 +30,7 @@ One agent per cluster from [topology.md](references/topology.md). 23 agents, bat
 
 Pass 1 is **read-only on every file**, including the kirby-types `.d.ts`. Revert any stray `.d.ts` edits before pass 2.
 
-Prompt template: [AGENTS.md – Pass 1](references/AGENTS.md#pass-1).
+Prompt template: [agent-prompts.md – Pass 1](references/agent-prompts.md#pass-1).
 
 ## Rename gate
 
@@ -47,12 +47,10 @@ One verifier per `.d.ts` (8 agents). Each reads the cluster JSONs for its file, 
 
 The verifier is also read-only. Patches go in JSON; the apply step is yours.
 
-Prompt template: [AGENTS.md – Pass 2](references/AGENTS.md#pass-2).
+Prompt template: [agent-prompts.md – Pass 2](references/agent-prompts.md#pass-2).
 
 ### Apply
 
 Walk every pass-2 JSON, collect every `{old_string, new_string}` from ACT entries, and replace in file-position order. Schema varies between agents (`patch`, `edit`, `edits`, top-level `patches[]`); be tolerant. See [edit-gotchas.md](references/edit-gotchas.md).
 
 Re-runs must be no-ops. `tsc --noEmit` must exit clean. `pnpm test` must pass – type-test files (`test/*.test-d.ts`) consume the augmentations and break on signature changes; update them in the same commit.
-
-References: [topology](references/topology.md) · [rubric](references/rubric.md) · [agents](references/AGENTS.md) · [edit gotchas](references/edit-gotchas.md).
