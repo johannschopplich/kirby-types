@@ -195,6 +195,8 @@ export interface PanelHelpersString {
    *
    * @param html - HTML string to sanitize
    * @param options - Allowed marks/nodes (defaults to common writer marks)
+   * @param options.marks - Allowed marks; strings are treated as mark names, objects as mark configs
+   * @param options.nodes - Allowed nodes; strings are treated as node names, objects as node configs
    * @returns Sanitized HTML string
    * @since 6.0.0
    */
