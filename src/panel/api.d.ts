@@ -796,9 +796,9 @@ export interface PanelApiUsers {
    * Queries users via the users/search endpoint.
    *
    * @param query - Query parameters
-   * @returns Array of users
+   * @returns Paginated users response
    */
-  list: (query?: Record<string, any>) => Promise<any[]>;
+  list: (query?: Record<string, any>) => Promise<any>;
 
   /**
    * Gets roles available to a user.
@@ -828,11 +828,11 @@ export interface PanelApiUsers {
   /**
    * Gets API URL for a user.
    *
-   * @param id - User ID
+   * @param id - User ID (null for the users collection root)
    * @param path - Additional path
    * @returns API URL
    */
-  url: (id: string, path?: string) => string;
+  url: (id: string | null, path?: string) => string;
 }
 
 // -----------------------------------------------------------------------------
@@ -875,17 +875,20 @@ export interface PanelApi {
   /** Whether to use method override */
   methodOverride: boolean;
 
-  /** Ping interval ID */
-  ping: ReturnType<typeof setInterval> | null;
+  /**
+   * Heartbeat interval ID; populated once the auth ping has been scheduled.
+   *
+   * @remarks K6 also exposes a `ping(): void` method on the API class that
+   * schedules this interval. That method is not yet modeled on `PanelApi`
+   * and is tracked as a future addition.
+   */
+  pingId: ReturnType<typeof setInterval> | undefined;
 
   /** Active request IDs */
   requests: string[];
 
-  /** Number of running requests */
-  running: number;
-
-  /** Current language code (lazily set on first request, or `undefined` before any request has run) */
-  language: string | undefined;
+  /** Current language code (set from the Panel's active language on construction and refreshed on each request) */
+  language: string;
 
   /**
    * Makes a raw API request.

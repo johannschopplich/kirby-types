@@ -8,7 +8,7 @@
  * @since 4.0.0
  */
 
-import type { ConfigType, Dayjs, OpUnitType, PluginFunc } from "dayjs";
+import type { ConfigType, Dayjs, PluginFunc, UnitType } from "dayjs";
 
 // -----------------------------------------------------------------------------
 // Color Types
@@ -117,9 +117,7 @@ export interface PanelLibraryColors {
    * @param string - CSS color string
    * @returns Parsed color or null if invalid
    */
-  parse: (
-    string: string,
-  ) => string | PanelColorRGB | PanelColorHSL | null | false;
+  parse: (string: string) => string | PanelColorObject | null | false;
 
   /**
    * Parses a color string and converts to target format.
@@ -191,10 +189,10 @@ export interface PanelDayjsPattern {
   /**
    * Formats a dayjs instance using this pattern.
    *
-   * @param dt - Dayjs instance
+   * @param dt - Dayjs instance (optional)
    * @returns Formatted string or null if invalid
    */
-  format: (dt: Dayjs) => string | null;
+  format: (dt?: Dayjs | null) => string | null;
 }
 
 /**
@@ -217,14 +215,14 @@ export interface PanelDayjsExtensions {
    * Validates datetime against an upper or lower (min/max) boundary.
    *
    * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
-   * @param type - `"min"` or `"max"`
+   * @param type - `"min"` or `"max"` (default: `"min"`)
    * @param unit - Comparison unit (default: `"day"`)
    * @returns Whether the date is valid against the boundary
    */
   validate: (
-    boundary: string | null | undefined,
-    type: "min" | "max",
-    unit?: OpUnitType,
+    boundary?: string,
+    type?: "min" | "max",
+    unit?: UnitType,
   ) => boolean;
 
   /**
@@ -236,10 +234,7 @@ export interface PanelDayjsExtensions {
    */
   merge: (
     dt: Dayjs | null | undefined,
-    units?:
-      | "date"
-      | "time"
-      | ("year" | "month" | "date" | "hour" | "minute" | "second")[],
+    units?: "date" | "time" | UnitType[],
   ) => Dayjs & PanelDayjsExtensions;
 
   /**
@@ -253,10 +248,7 @@ export interface PanelDayjsExtensions {
    * @returns Rounded dayjs instance
    * @throws Error if unit is invalid or size doesn't divide evenly
    */
-  round: (
-    unit?: "second" | "minute" | "hour" | "day" | "date" | "month" | "year",
-    size?: number,
-  ) => Dayjs & PanelDayjsExtensions;
+  round: (unit?: UnitType, size?: number) => Dayjs & PanelDayjsExtensions;
 }
 
 /** Kirby-extended dayjs instance type. */

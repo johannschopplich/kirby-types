@@ -30,22 +30,22 @@ import type {
 /**
  * Simple timer utility for auto-closing notifications.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/timer.js
+ * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/timer.ts
  * @since 4.0.0
- * @source panel/src/panel/timer.js
+ * @source panel/src/helpers/timer.ts
  */
 export interface PanelTimer {
-  /** Current interval ID, or null if not running */
-  interval: ReturnType<typeof setInterval> | null;
+  /** Whether the timer is currently running. */
+  readonly isRunning: boolean;
 
   /**
    * Starts the timer with a callback.
-   * Stops any previous timer first. Does nothing if timeout is falsy.
+   * Stops any previous timer first. Does nothing if `timeout <= 0`.
    *
-   * @param timeout - Delay in milliseconds, or falsy to skip
+   * @param timeout - Delay in milliseconds; values `<= 0` skip
    * @param callback - Function to call after timeout
    */
-  start: (timeout: number | false | null, callback: () => void) => void;
+  start: (timeout: number, callback: () => void) => void;
 
   /** Stops the timer and clears the interval. */
   stop: () => void;
@@ -334,13 +334,13 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
 
 /**
  * Default state for notifications.
- * @source panel/src/panel/notification.js
+ * @source panel/src/panel/notification.ts
  */
 export interface PanelNotificationDefaults {
   /** Context where notification appears */
   context: NotificationContext | null;
-  /** Additional details (for error dialogs) */
-  details: Record<string, any> | null;
+  /** Additional details (for error dialogs); defaults to an empty object. */
+  details: Record<string, any>;
   /** Icon name */
   icon: string | null;
   /** Whether notification is visible */
@@ -349,10 +349,10 @@ export interface PanelNotificationDefaults {
   message: string | null;
   /** Visual theme */
   theme: NotificationTheme | null;
-  /** Auto-close timeout in ms, or `false` to disable auto-close */
-  timeout: number | false | null;
-  /** Notification type */
-  type: NotificationType | null;
+  /** Auto-close timeout in ms; `0` disables auto-close. Default `0`. */
+  timeout: number;
+  /** Notification type stored in state (only set by `error()` / `fatal()`). */
+  type: "error" | "fatal" | null;
 }
 
 /**
@@ -402,8 +402,8 @@ export interface PanelErrorObject {
 export interface PanelNotification extends PanelState<PanelNotificationDefaults> {
   /** Context where notification appears */
   context: NotificationContext | null;
-  /** Additional details (for error dialogs) */
-  details: Record<string, any> | null;
+  /** Additional details (for error dialogs); defaults to an empty object. */
+  details: Record<string, any>;
   /** Icon name */
   icon: string | null;
   /** Whether notification is visible */
@@ -412,10 +412,10 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   message: string | null;
   /** Visual theme */
   theme: NotificationTheme | null;
-  /** Auto-close timeout in ms, or `false` to disable auto-close */
-  timeout: number | false | null;
-  /** Notification type */
-  type: NotificationType | null;
+  /** Auto-close timeout in ms; `0` disables auto-close. */
+  timeout: number;
+  /** Notification type stored in state (only set by `error()` / `fatal()`). */
+  type: "error" | "fatal" | null;
 
   /** Timer for auto-close functionality */
   timer: PanelTimer;
@@ -462,7 +462,7 @@ export interface PanelNotification extends PanelState<PanelNotificationDefaults>
   info: (info?: string | PanelNotificationOptions) => PanelNotificationDefaults;
 
   /**
-   * Opens a notification. When passed a string, delegates to `success()`. Otherwise sets the panel context, defaults `timeout` to 4000ms for non-error/non-fatal types, opens the notification, and starts the auto-close timer.
+   * Opens a notification. When passed a string, delegates to `success()`. Otherwise sets the Panel context, defaults `timeout` to 4000ms for non-error/non-fatal types, opens the notification, and starts the auto-close timer.
    *
    * @param notification - Message string or options object
    */
@@ -644,6 +644,8 @@ export interface PanelBreadcrumbItem {
   label: string;
   /** Navigation link */
   link: string;
+  /** Optional icon (K6 TS only – PHP does not currently emit this) */
+  icon?: string;
 }
 
 /**
@@ -879,9 +881,8 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
    * If `tab` is omitted, falls back to the first key of `props.tabs`.
    *
    * @param tab - Tab name to switch to
-   * @returns False if no tabs exist, void otherwise
    */
-  tab: (tab?: string) => void | false;
+  tab: (tab?: string) => void;
 
   /** Returns the modal listeners extended with drawer-specific `crumb` (history navigation) and `tab` handlers. */
   listeners: () => PanelModalListeners;
@@ -1181,7 +1182,7 @@ export interface PanelSearcher {
   query: (
     type: string,
     query: string,
-    options?: PanelSearchOptions,
+    options: PanelSearchOptions,
   ) => Promise<PanelSearchResult | undefined>;
 }
 
@@ -1340,21 +1341,27 @@ export interface PanelUpload
 
   /**
    * Opens file upload dialog.
+   * If `files` is a `FileList`, applies `options` and selects the files.
+   * Otherwise treats the first argument as options shorthand.
    *
-   * @param files - Initial files
+   * @param files - Initial files (or options shorthand)
    * @param options - Upload options
    */
   open: (
-    files?: File[] | FileList,
+    files?: FileList | Partial<PanelUploadDefaults>,
     options?: Partial<PanelUploadDefaults>,
   ) => void;
 
   /**
    * Opens system file picker.
+   * When `options.immediate` is `true`, bypasses the upload dialog and
+   * submits selected files straight away.
    *
-   * @param options - Upload options
+   * @param options - Upload options (with optional `immediate` flag)
    */
-  pick: (options?: Partial<PanelUploadDefaults>) => void;
+  pick: (
+    options?: Partial<PanelUploadDefaults> & { immediate?: boolean },
+  ) => void;
 
   /**
    * Removes a file from the list.
@@ -1379,12 +1386,13 @@ export interface PanelUpload
   /**
    * Adds files to upload list with deduplication.
    * Also accepts an `Event` whose `target.files` is unwrapped to a `FileList`.
+   * Throws if the resolved value is not a `FileList`.
    *
-   * @param files - Files to add (or input change Event)
+   * @param files - Files to add (or input change Event, or null)
    * @param options - Upload options
    */
   select: (
-    files: File[] | FileList | Event,
+    files: FileList | Event | null,
     options?: Partial<PanelUploadDefaults>,
   ) => void;
 
@@ -1432,7 +1440,7 @@ export interface PanelEventEmitter {
  */
 export interface PanelEvents extends PanelEventEmitter {
   /** Element that was entered during drag */
-  entered: Element | null;
+  entered: EventTarget | null;
 
   // Global event handlers
 

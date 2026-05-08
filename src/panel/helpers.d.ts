@@ -40,13 +40,13 @@ export interface PanelHelpersArray {
    * Searches through an array by query string.
    *
    * @param array - Array to search
-   * @param query - Search query
+   * @param query - Search query (nullish queries are treated as empty)
    * @param options - Search options
    * @returns Filtered array
    */
   search: <T extends Record<string, any>>(
     array: T[],
-    query: string,
+    query: string | null | undefined,
     options?: PanelArraySearchOptions,
   ) => T[];
 
@@ -188,6 +188,22 @@ export interface PanelHelpersString {
    * @returns Plain text string
    */
   stripHTML: (string: string) => string;
+
+  /**
+   * Sanitizes HTML by only keeping allowed marks and nodes.
+   *
+   * @param html - HTML string to sanitize
+   * @param options - Allowed marks/nodes (defaults to common writer marks)
+   * @returns Sanitized HTML string
+   * @since 6.0.0
+   */
+  sanitizeHTML: (
+    html: unknown,
+    options?: {
+      marks?: (string | Record<string, any>)[];
+      nodes?: (string | Record<string, any>)[];
+    },
+  ) => string;
 
   /**
    * Replaces `{name}`, `{{name}}`, and dotted-path placeholders (e.g. `{nested.prop}`) with values from the lookup object.
@@ -337,8 +353,8 @@ export interface PanelHelpersUrl {
    * @returns URLSearchParams object
    */
   buildQuery: (
-    query?: Record<string, string | number | boolean | null>,
-    origin?: string | URL,
+    query?: Record<string, unknown>,
+    origin?: string | Record<string, string> | URL,
   ) => URLSearchParams;
 
   /**
@@ -361,7 +377,7 @@ export interface PanelHelpersUrl {
    * @param url - URL to check
    * @returns True if absolute
    */
-  isAbsolute: (url: string) => boolean;
+  isAbsolute: (url: unknown) => boolean;
 
   /**
    * Checks if URL is on the same origin as current page.
@@ -378,7 +394,7 @@ export interface PanelHelpersUrl {
    * @param strict - Use Kirby's URL regex for validation
    * @returns True if valid URL
    */
-  isUrl: (url: string | URL, strict?: boolean) => boolean;
+  isUrl: (url: unknown, strict?: boolean) => url is URL | Location | string;
 
   /**
    * Converts relative path to absolute URL.
@@ -387,7 +403,7 @@ export interface PanelHelpersUrl {
    * @param origin - Base origin
    * @returns Absolute URL string
    */
-  makeAbsolute: (path: string, origin?: string | URL) => string;
+  makeAbsolute: (path: string | URL, origin?: string | URL) => string;
 
   /**
    * Converts string to URL object.
@@ -412,23 +428,20 @@ export interface PanelHelpersClipboard {
   /**
    * Reads from clipboard event or string.
    *
-   * @param event - ClipboardEvent or string
+   * @param event - Event (narrowed to ClipboardEvent at runtime) or string
    * @param plain - Read as plain text only
    * @returns Clipboard content, or null if no event/string was provided
    */
-  read: (
-    event?: ClipboardEvent | string | null,
-    plain?: boolean,
-  ) => string | null;
+  read: (event?: Event | string | null, plain?: boolean) => string | null;
 
   /**
    * Writes to clipboard. Objects are auto-JSONified.
    *
    * @param value - Value to write
-   * @param event - ClipboardEvent for event-based writing
+   * @param event - Event for event-based writing (narrowed to ClipboardEvent at runtime)
    * @returns Always `true` (no failure detection)
    */
-  write: (value: any, event?: ClipboardEvent) => boolean;
+  write: (value: any, event?: Event) => boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -755,11 +768,11 @@ export type PanelUploadProgressCallback = (
   percent: number,
 ) => void;
 
-/** Upload complete callback. */
-export type PanelUploadCompleteCallback = (
+/** Upload result callback (used by `success` and `error`). */
+export type PanelUploadResultCallback = (
   xhr: XMLHttpRequest,
   file: File,
-  response: any,
+  response: unknown,
 ) => void;
 
 /**
@@ -768,8 +781,8 @@ export type PanelUploadCompleteCallback = (
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/upload.js
  */
 export interface PanelUploadParams {
-  /** Upload endpoint URL */
-  url: string;
+  /** Upload endpoint URL (default: `"/"`) */
+  url?: string;
   /** HTTP method (default: `"POST"`) */
   method?: string;
   /** Form field name (default: `"file"`) */
@@ -778,18 +791,18 @@ export interface PanelUploadParams {
   filename?: string;
   /** Request headers */
   headers?: Record<string, string>;
-  /** Additional form attributes */
-  attributes?: Record<string, any>;
+  /** Additional form attributes (values are coerced to strings) */
+  attributes?: Record<string, string | number>;
   /** AbortSignal for cancellation */
   abort?: AbortSignal;
   /** Progress callback */
   progress?: PanelUploadProgressCallback;
-  /** Complete callback */
-  complete?: PanelUploadCompleteCallback;
+  /** Complete callback (declared but currently unused at runtime) */
+  complete?: () => void;
   /** Success callback */
-  success?: PanelUploadCompleteCallback;
+  success?: PanelUploadResultCallback;
   /** Error callback */
-  error?: PanelUploadCompleteCallback;
+  error?: PanelUploadResultCallback;
 }
 
 // -----------------------------------------------------------------------------
@@ -814,12 +827,12 @@ export interface PanelThrottleOptions {
 
 /** Debounced function (without cancel method). */
 export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
-  (...args: Parameters<T>): ReturnType<T> | undefined;
+  (...args: Parameters<T>): void;
 }
 
 /** Throttled function with cancel method. */
 export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
-  (...args: Parameters<T>): ReturnType<T> | undefined;
+  (...args: Parameters<T>): void;
   /** Cancels pending invocation */
   cancel: () => void;
 }
@@ -837,7 +850,10 @@ export interface PanelSortOptions {
 }
 
 /** Comparator function for sorting. */
-export type PanelComparator = (a: string, b: string) => number;
+export type PanelComparator = (
+  a: string | number,
+  b: string | number,
+) => number;
 
 // -----------------------------------------------------------------------------
 // Main Helpers Interface
@@ -884,7 +900,7 @@ export interface PanelHelpers {
    * @returns CSS variable or original value, undefined if not a string
    * @source panel/src/helpers/color.js
    */
-  color: (value: string) => string | undefined;
+  color: (value: unknown) => string | undefined;
 
   /**
    * Creates a debounced function.
@@ -920,22 +936,26 @@ export interface PanelHelpers {
   /**
    * Sets focus to element or first focusable child.
    *
-   * @param element - Selector or element
+   * @param element - Selector, element, or null (returns false)
    * @param field - Specific input name to focus
    * @returns The focused element, or false if nothing could be focused
    * @source panel/src/helpers/focus.js
    */
-  focus: (element: string | HTMLElement, field?: string) => HTMLElement | false;
+  focus: (
+    element: string | HTMLElement | null,
+    field?: string,
+  ) => HTMLElement | false;
 
   /**
    * Checks if component is registered globally.
    *
    * @param name - Component name
+   * @param app - Optional Vue app instance (defaults to `window.panel?.app` in K6)
    * @returns True if registered
    * @source panel/src/helpers/isComponent.js
    * @source panel/src/helpers/index.js
    */
-  isComponent: (name: string) => boolean;
+  isComponent: (name: string, app?: any) => boolean;
 
   /**
    * Checks if event is a file drag/drop event.
@@ -1038,7 +1058,7 @@ export interface PanelHelpers {
    * @source panel/src/helpers/upload.js
    * @source panel/src/helpers/index.js
    */
-  upload: (file: File, params: PanelUploadParams) => Promise<any>;
+  upload: (file: File, params: PanelUploadParams) => Promise<unknown>;
 
   /**
    * @source panel/src/helpers/url.js

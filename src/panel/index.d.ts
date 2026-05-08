@@ -473,6 +473,8 @@ export interface PanelSearches {
 export interface PanelUrls {
   api: string;
   site: string;
+  /** K6 only: absolute URL of the Panel itself (`kirby->url('panel')`). Not emitted by Kirby 5. */
+  panel?: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -798,6 +800,8 @@ export interface PanelLanguageInfo {
   direction: "ltr" | "rtl";
   /** Whether the configured language `url` is an absolute URL (i.e., starts with `http://` or `https://`). */
   hasCustomDomain: boolean;
+  /** PHP locale settings keyed by `LC_*` integer constants (e.g., `LC_ALL`, `LC_CTYPE`). */
+  locale: Record<number, string>;
   name: string;
   rules: Record<string, string>;
   /** Absolute URL for this language (always resolved against the site URL via `Url::makeAbsolute`). */
@@ -1182,8 +1186,8 @@ export interface Panel {
  * @source src/Content/Lock.php
  */
 interface PanelViewPropsLockUser {
-  id: string;
-  email: string;
+  id: string | null;
+  email: string | null;
 }
 
 /**
@@ -1296,32 +1300,32 @@ interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
-    /** Optional badge label rendered next to the button. */
-    badge?: string;
+    /** Optional badge config rendered next to the button. */
+    badge?: Record<string, any>;
     class?: string;
     /** Whether the button represents the current view/route. */
-    current?: boolean;
-    /** Dialog endpoint or config to open on click. */
-    dialog?: string | Record<string, any>;
+    current?: string | boolean;
+    /** Dialog endpoint to open on click. */
+    dialog?: string;
     disabled?: boolean;
-    /** Drawer endpoint or config to open on click. */
-    drawer?: string | Record<string, any>;
-    /** Dropdown endpoint or config to open on click. */
-    dropdown?: string | Record<string, any>;
+    /** Drawer endpoint to open on click. */
+    drawer?: string;
+    /** Whether the button opens a dropdown. */
+    dropdown?: boolean;
     icon?: string;
     link?: string;
-    /** Inline dropdown options. */
-    options?: Record<string, any>[];
-    responsive?: boolean;
+    /** Inline dropdown options or query string. */
+    options?: string | Record<string, any>[];
+    responsive?: boolean | string;
     size?: string;
     /** Inline CSS style string. */
     style?: string;
     target?: string;
     /** Visible button label. */
-    text?: string;
+    text?: string | Record<string, any>;
     /** Visual theme variant (e.g., `"positive"`, `"negative"`). */
     theme?: string;
-    title?: string;
+    title?: string | Record<string, any>;
     type?: string;
     variant?: string;
   };

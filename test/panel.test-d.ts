@@ -67,12 +67,12 @@ expectAssignable<PanelUserDefaults>({
 
 expectAssignable<PanelNotificationDefaults>({
   context: null,
-  details: null,
+  details: {},
   icon: null,
   isOpen: false,
   message: null,
   theme: null,
-  timeout: null,
+  timeout: 0,
   type: null,
 });
 
@@ -180,7 +180,7 @@ expectType<Promise<PanelDialogDefaults>>(
   dialog.open({ component: "k-remove-dialog", props: { text: "Delete?" } }),
 );
 
-expectType<void | false>({} as ReturnType<PanelDrawer["tab"]>);
+expectType<void>(undefined as ReturnType<PanelDrawer["tab"]>);
 
 // -----------------------------------------------------------------------------
 // 8. Notification & Content
