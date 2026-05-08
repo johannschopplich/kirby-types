@@ -47,9 +47,9 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 
   /**
    * Restores the default state by calling `set(defaults())`.
-   * @returns The restored state object
+   * @returns K5 returns the restored state object; K6 narrowed the return to void.
    */
-  reset: () => TDefaults;
+  reset: () => TDefaults | void;
 
   /**
    * Sets a new state, merging with defaults.
@@ -87,7 +87,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 export interface PanelStateBase {
   key: () => string;
   defaults: () => Record<string, any>;
-  reset: () => Record<string, any>;
+  reset: () => Record<string, any> | void;
   set: (state: Record<string, any>) => Record<string, any>;
   state: () => Record<string, any>;
   validateState: (state: unknown) => boolean;
@@ -195,12 +195,10 @@ export interface PanelEventListeners<TEvents extends string = string> {
    *
    * @param event - Event name to emit
    * @param args - Arguments to pass to the listener
-   * @returns Listener result, or a noop function if no listener exists
+   * @returns Listener result, or `undefined` when no listener is registered.
+   *   K5 returned a noop function in that case; K6 dropped the fallback.
    */
-  emit: <TReturn = any>(
-    event: TEvents,
-    ...args: any[]
-  ) => TReturn | (() => void);
+  emit: <TReturn = any>(event: TEvents, ...args: any[]) => TReturn | undefined;
 
   /**
    * Checks if a listener is registered for an event.
@@ -544,9 +542,9 @@ export interface PanelModal<
    * Reloads the modal by closing and reopening at the same URL.
    *
    * @param options - Request options
-   * @returns False if no path exists, otherwise void
+   * @returns False if no path exists; K6 forwards the `open()` result, K5 returns void.
    */
-  reload: (options?: PanelRequestOptions) => Promise<void | false>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false | void>;
 
   /**
    * Sets modal state, auto-generating an ID if not provided.

@@ -655,9 +655,9 @@ export interface PanelApiTranslations {
   /**
    * Lists all translations.
    *
-   * @returns Array of translations
+   * @returns Wrapped Kirby collection response (`{ data, pagination }`)
    */
-  list: () => Promise<any[]>;
+  list: () => Promise<any>;
 }
 
 // -----------------------------------------------------------------------------
@@ -861,6 +861,7 @@ export interface PanelApiUsers {
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/index.js
  * @source panel/src/api/index.js
+ * @source panel/src/api/index.ts
  * @source panel/src/api/request.js
  * @source panel/src/api/get.js
  * @source panel/src/api/post.js

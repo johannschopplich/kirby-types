@@ -60,13 +60,14 @@ export interface PanelHelpersArray {
   sortBy: <T extends Record<string, any>>(array: T[], sortBy: string) => T[];
 
   /**
-   * Splits array into subarrays using delimiter element.
+   * Splits array into subarrays at every occurrence of the string delimiter.
+   * The delimiter itself is not included in the output.
    *
    * @param array - Array to split
-   * @param delimiter - Element to split on
+   * @param delimiter - String element to split on
    * @returns Array of subarrays
    */
-  split: <T>(array: T[], delimiter: T) => T[][];
+  split: <T>(array: T[], delimiter: string) => T[][];
 
   /**
    * Wraps non-array values in an array.
@@ -714,7 +715,7 @@ export interface PanelHelpersLink {
    * @returns Preview data or null
    * @deprecated K6 dropped `preview` from `helper.link`; on K6 this property is `undefined` at runtime.
    */
-  preview: (
+  preview?: (
     link: PanelLinkDetection,
     fields?: string[],
   ) => Promise<PanelLinkPreview | null>;
@@ -1084,4 +1085,141 @@ export interface PanelHelpers {
    * @source panel/src/helpers/string.js
    */
   uuid: () => string;
+
+  /**
+   * Writer (ProseMirror) extension helpers for resolving allowed marks/nodes
+   * and building extension instances. Available on K6+ only; on K5 this property
+   * is `undefined` at runtime.
+   *
+   * @since 6.0.0
+   * @source panel/src/helpers/writer.js
+   * @source panel/src/helpers/index.ts
+   */
+  writer?: PanelHelpersWriter;
+}
+
+// -----------------------------------------------------------------------------
+// Writer Helpers (K6+)
+// -----------------------------------------------------------------------------
+
+/**
+ * Writer extension helper utilities.
+ *
+ * Resolves which marks and nodes are allowed in a Writer field, builds
+ * extension instances (including those contributed by plugins), and exposes
+ * the lower-level building blocks used by `createMarks` / `createNodes`.
+ *
+ * Available on K6+ only.
+ *
+ * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/writer.js
+ * @source panel/src/helpers/writer.js
+ * @since 6.0.0
+ */
+export interface PanelHelpersWriter {
+  /**
+   * Resolves the list of allowed extension names from a permissive `allowed`
+   * argument (boolean, array, object map, or undefined).
+   *
+   * @param available - Map of all available extensions keyed by name
+   * @param allowed - `true` to allow all, `false` to allow none, an array of
+   *   names, or an object map (keys with falsy values are filtered out)
+   * @returns Array of allowed extension names
+   */
+  allowedExtensions: (
+    available: Record<string, unknown>,
+    allowed?: boolean | string[] | Record<string, unknown> | null,
+  ) => string[];
+
+  /**
+   * Returns all available built-in mark extension instances merged with
+   * mark extensions registered by plugins.
+   *
+   * @param options - Per-mark option overrides keyed by mark name
+   * @returns Map of mark instances keyed by mark name
+   */
+  availableMarks: (options?: Record<string, any>) => Record<string, any>;
+
+  /**
+   * Returns mark extension instances contributed by `panel.plugins.writerMarks`.
+   *
+   * @returns Map of plugin-provided mark instances
+   */
+  availableMarksFromPlugins: () => Record<string, any>;
+
+  /**
+   * Returns all available built-in node extension instances merged with
+   * node extensions registered by plugins.
+   *
+   * @param options - Per-node option overrides keyed by node name
+   * @returns Map of node instances keyed by node name
+   */
+  availableNodes: (options?: Record<string, any>) => Record<string, any>;
+
+  /**
+   * Returns node extension instances contributed by `panel.plugins.writerNodes`.
+   *
+   * @returns Map of plugin-provided node instances
+   */
+  availableNodesFromPlugins: () => Record<string, any>;
+
+  /**
+   * Builds the final map of mark extensions to install for a Writer field,
+   * resolving the `marks` configuration and re-installing any required marks.
+   *
+   * @param marks - Allowed marks configuration (see `allowedExtensions`)
+   * @param required - Mark names that must always be installed
+   * @returns Map of mark instances to install
+   */
+  createMarks: (
+    marks?: boolean | string[] | Record<string, unknown> | null,
+    required?: string[],
+  ) => Record<string, any>;
+
+  /**
+   * Builds the final map of node extensions to install for a Writer field,
+   * resolving the `nodes` configuration and re-installing any required nodes.
+   * Automatically installs `listItem` when a list node is present.
+   *
+   * @param nodes - Allowed nodes configuration (see `allowedExtensions`)
+   * @param required - Node names that must always be installed
+   * @returns Map of node instances to install
+   */
+  createNodes: (
+    nodes?: boolean | string[] | Record<string, unknown> | null,
+    required?: string[],
+  ) => Record<string, any>;
+
+  /**
+   * Extracts per-extension options from an object-map `allowed` configuration,
+   * keeping only entries whose value is a non-null object.
+   *
+   * @param allowed - Extension configuration
+   * @returns Map of extension options keyed by extension name
+   */
+  extensionOptions: (
+    allowed?: boolean | string[] | Record<string, unknown> | null,
+  ) => Record<string, Record<string, any>>;
+
+  /**
+   * Filters a map of available extensions down to those listed in `allowed`.
+   *
+   * @param available - Map of available extensions keyed by name
+   * @param allowed - Allowed extension configuration
+   * @returns Map of installed extensions
+   */
+  filterExtensions: (
+    available: Record<string, any>,
+    allowed?: boolean | string[] | Record<string, unknown> | null,
+  ) => Record<string, any>;
+
+  /**
+   * Filters a list of node extension instances down to those whose schema is
+   * marked `inline: true`.
+   *
+   * @param nodes - Node extension instances
+   * @returns Inline-only subset
+   */
+  keepInlineNodes: <T extends { schema: { inline?: boolean } }>(
+    nodes: T[],
+  ) => T[];
 }

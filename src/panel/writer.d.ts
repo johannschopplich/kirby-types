@@ -638,7 +638,12 @@ export interface WriterExtension {
   /** Unique name of the extension. */
   name?: string;
 
-  /** Discriminator value, always "extension" for generic extensions */
+  /**
+   * Discriminator value.
+   *
+   * Defaults to `"extension"` for generic extensions, but built-ins such as
+   * the Toolbar extension override it (e.g. `"toolbar"`).
+   */
   type?: string;
 
   /** The editor instance, available after `bindEditor()` is called. */

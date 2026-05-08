@@ -94,11 +94,21 @@ export interface TextareaToolbarContext {
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  */
 export interface TextareaButton {
-  /** Display label for the button (appears in tooltip). */
-  label: string;
+  /**
+   * Display label for the button (appears in tooltip).
+   *
+   * Optional: K5 `Toolbar.vue` falls back to `title` via `button.label ?? button.title`,
+   * so a button with only `title` is valid at runtime.
+   */
+  label?: string;
 
-  /** Icon name from Kirby's icon set. */
-  icon: string;
+  /**
+   * Icon name from Kirby's icon set.
+   *
+   * Optional: K5 `Toolbar.vue` passes `:icon="button.icon"` without a default,
+   * so label-only buttons (no icon) are valid at runtime.
+   */
+  icon?: string;
 
   /**
    * Click handler. `this` is bound to the toolbar component (see {@link TextareaToolbarContext}), so `this.command(...)` is available.
@@ -119,7 +129,7 @@ export interface TextareaButton {
    * }
    * ```
    */
-  click: (this: TextareaToolbarContext) => void;
+  click?: (this: TextareaToolbarContext) => void;
 
   /**
    * Keyboard shortcut key (without modifier).

@@ -392,13 +392,11 @@ expectNotAssignable<WriterToolbarButton>({
   // Missing label
 });
 
-expectNotAssignable<TextareaButton>({
+expectAssignable<TextareaButton>({
   label: "Bold",
-  // Missing icon and click
 });
 
-expectNotAssignable<TextareaButton>({
+expectAssignable<TextareaButton>({
   label: "Bold",
   icon: "bold",
-  // Missing click
 });

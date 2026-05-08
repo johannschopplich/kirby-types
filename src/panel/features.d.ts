@@ -168,11 +168,16 @@ export interface PanelTheme extends Omit<
   /** System preference from media query */
   system: "light" | "dark";
 
-  /** Theme from Panel config */
-  readonly config: string;
+  /** Theme from Panel config (`panel.theme` option). May be `null` when unset. */
+  readonly config: string | null;
 
-  /** Resolved current theme */
-  readonly current: "light" | "dark";
+  /**
+   * Resolved current theme.
+   *
+   * Usually `"light"` or `"dark"`, but may be any custom theme key when
+   * `setting` is a non-system custom value.
+   */
+  readonly current: string;
 
   /**
    * Resets theme to config/system default.
@@ -206,10 +211,14 @@ export interface PanelLanguageDefaults {
   direction: "ltr" | "rtl";
   /** Whether the language uses a custom domain. */
   hasCustomDomain: boolean;
+  /** Locale identifier as resolved by `Locale::normalize()` (string, locale-array, or null). */
+  locale: string | Record<string, string> | null;
   /** Language name */
   name: string | null;
   /** Slug conversion rules */
   rules: Record<string, string> | null;
+  /** Absolute language URL. */
+  url: string;
 }
 
 /**
@@ -228,10 +237,14 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   default: boolean;
   /** Text direction */
   direction: "ltr" | "rtl";
+  /** Locale identifier as resolved by `Locale::normalize()` (string, locale-array, or null). */
+  locale: string | Record<string, string> | null;
   /** Language name */
   name: string;
   /** Slug conversion rules */
   rules: Record<string, string>;
+  /** Absolute language URL. */
+  url: string;
 
   /** Alias for `default` property */
   readonly isDefault: boolean;
@@ -413,8 +426,15 @@ export interface PanelNotificationOptions {
   message?: string;
   /** Visual theme */
   theme?: NotificationTheme;
-  /** Auto-close timeout in ms (default: 4000 for non-errors), or `false` to disable auto-close */
-  timeout?: number | false;
+  /**
+   * Auto-close timeout in ms (default `4000` for non-errors). Pass `0` to
+   * disable auto-close.
+   *
+   * On K5, passing `false` also disabled auto-close (`??=` preserved the
+   * falsy value); on K6 the implementation switched to `||=`, so `false` is
+   * silently overwritten with `4000`. Use `0` for portable behaviour.
+   */
+  timeout?: number;
   /** Notification type */
   type?: NotificationType;
 }
@@ -618,14 +638,15 @@ export interface PanelTranslation extends PanelState<PanelTranslationDefaults> {
 
   /**
    * Fetches a translation string with optional placeholder replacement.
+   * Non-string keys return `undefined` (runtime guard).
    *
-   * @param key - Translation key
+   * @param key - Translation key (non-strings return `undefined`)
    * @param data - Placeholder values
    * @param fallback - Fallback if key not found
    * @returns Translated string or undefined
    */
   translate: (
-    key: string,
+    key: unknown,
     data?: Record<string, any>,
     fallback?: string | null,
   ) => string | undefined;
@@ -756,8 +777,13 @@ export interface PanelView extends Omit<
     options?: PanelRequestOptions | PanelEventCallback,
   ) => Promise<PanelViewDefaults>;
 
-  /** Sets view state and updates document title and browser URL. */
-  set: (state: Partial<PanelViewDefaults>) => void;
+  /**
+   * Sets view state and updates document title and browser URL.
+   *
+   * K6 returns the new state from `parent.set()`; K5 returns void. The K6 TS
+   * signature is authoritative for this cluster's method shape.
+   */
+  set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
   /**
    * Submits the view form.
@@ -850,7 +876,7 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
 /**
  * Dialog modal for overlays.
  *
- * Supports both modern fiber dialogs and legacy Vue component dialogs.
+ * Supports both server-loaded dialogs and legacy Vue component dialogs.
  *
  * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/dialog.js
  * @since 4.0.0
@@ -875,13 +901,15 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
    */
   close: () => Promise<void>;
 
-  /** Opens a dialog by URL, state object, or legacy component. */
+  /**
+   * Opens a dialog by URL, state object, or legacy Vue component instance.
+   * Object form supports a `url` shorthand that is hoisted into options, plus
+   * `component`/`props` for inline component dialogs (already covered by
+   * `Partial<PanelDialogDefaults>` via the inherited
+   * `PanelFeatureDefaults.component`/`props`).
+   */
   open: (
-    dialog:
-      | string
-      | URL
-      | Partial<PanelDialogDefaults>
-      | { component: string; props?: Record<string, any> },
+    dialog: string | URL | Partial<PanelDialogDefaults>,
     options?: PanelRequestOptions | PanelEventCallback,
   ) => Promise<PanelDialogDefaults>;
 
@@ -968,17 +996,28 @@ export interface PanelContentVersions {
 
 /**
  * Lock state for content editing.
+ *
+ * Shape comes from PHP `Lock::toArray()` (`src/Content/Lock.php`) which is
+ * always emitted as `{ isLegacy, isLocked, modified, user }`. After a
+ * successful save, the Panel mutates `modified` in place to a fresh
+ * `Date` (K5 inline, K6 via `renewLock()`).
+ *
  * @source panel/src/panel/content.js
+ * @source src/Content/Lock.php
  */
 export interface PanelContentLock {
-  /** Whether content is locked by another user */
+  /** Whether using the legacy `.lock` file system. */
+  isLegacy: boolean;
+  /** Whether content is locked by another user. */
   isLocked: boolean;
-  /** Lock modification timestamp */
-  modified?: Date;
-  /** User who holds the lock */
-  user?: { id: string; email: string };
-  /** Whether using legacy lock system */
-  isLegacy?: boolean;
+  /**
+   * Lock modification timestamp. PHP emits an ISO 8601 string via
+   * `Str::date($this->modified, 'c', 'date')`; the Panel mutates it to a
+   * `Date` after a successful save.
+   */
+  modified: string | Date | null;
+  /** User who holds the lock; both fields are nullable when no user is set. */
+  user: { id: string | null; email: string | null };
 }
 
 /**
@@ -1009,7 +1048,11 @@ export interface PanelContent {
   /** Whether content is being saved/published/discarded */
   isProcessing: boolean;
 
-  /** Throttled save function (1000ms) */
+  /**
+   * Throttled save function. K5 throttles at 1000ms
+   * (`panel/src/panel/content.js`); K6 halved the delay to 500ms
+   * (`panel/src/panel/content.ts` calls `throttle(content.save, 500, ...)`).
+   */
   saveLazy: ((
     values?: Record<string, any>,
     env?: PanelContentEnv,

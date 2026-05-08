@@ -110,7 +110,8 @@ expectAssignable<PanelUploadFile>({
 declare const userState: PanelUser;
 
 expectType<PanelUserDefaults>(userState.defaults());
-expectType<PanelUserDefaults>(userState.reset());
+// `reset()` returns `TDefaults` on K5 and `void` on K6
+expectType<PanelUserDefaults | void>(userState.reset());
 expectType<PanelUserDefaults>(userState.set({ email: "new@test.com" }));
 expectType<PanelUserDefaults>(userState.state());
 expectType<string>(userState.key());

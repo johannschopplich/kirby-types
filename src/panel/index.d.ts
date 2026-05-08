@@ -282,9 +282,9 @@ export type PanelComponentExtension =
 /**
  * Global Panel configuration.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/config/config.js
  * @source panel/src/panel/panel.js
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelConfig {
   /** API configuration */
@@ -889,6 +889,17 @@ export interface Panel {
   /** Whether the browser is offline */
   isOffline: boolean;
 
+  /**
+   * Shared singleton observers, currently exposing a `ResizeObserver` that
+   * dispatches a `resize` `CustomEvent` on each observed target. Only emitted
+   * by Kirby 6.
+   * @since 6
+   * @source panel/src/panel/observers.ts
+   */
+  observers?: {
+    resize: ResizeObserver;
+  };
+
   // ---------------------------------------------------------------------------
   // State Objects (extend State)
   // ---------------------------------------------------------------------------
@@ -979,6 +990,14 @@ export interface Panel {
 
   /** Available search types */
   searches: PanelSearches;
+
+  /**
+   * Whether at least one search type is registered (`Object.keys(searches).length > 0`).
+   * Only emitted by Kirby 6.
+   * @since 6
+   * @source panel/src/panel/panel.js
+   */
+  readonly hasSearch?: boolean;
 
   /** Base URLs */
   urls: PanelUrls;
@@ -1389,7 +1408,12 @@ export interface PanelViewProps {
    * @deprecated K6 dropped this block – use the top-level view props instead.
    */
   model?: PanelViewPropsModel;
-  title: string;
+  /**
+   * View title. K6 `ModelViewController::props()` always emits this; K5
+   * Page and Site set it inside props, but K5 File and User omit it from
+   * the inner props payload (the title appears only on the view envelope).
+   */
+  title?: string;
   /**
    * Search collection identifier emitted by file and user view props
    * (`'files'`, `'users'`); K5 emits `search` outside the inner props payload.
