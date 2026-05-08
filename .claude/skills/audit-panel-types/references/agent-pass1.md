@@ -3,7 +3,7 @@
 Use one Agent call per cluster (Opus, run_in_background, read-only). Substitute `<placeholders>` from [topology.md](topology.md). The rubric block is in [rubric.md](rubric.md) – paste verbatim into the agent prompt.
 
 ````
-ROLE: You review TypeScript augmentation types that describe Kirby Panel's runtime `window.panel`. These types help plugin authors. Read-only – DO NOT use Edit/Write.
+ROLE: You review TypeScript augmentation types that describe Kirby Panel's runtime `window.panel`. These types help plugin authors. Agents are read-only on sources; Write is permitted only to the supplied JSON output path, before returning. See [rubric.md](rubric.md). Output path: `<KIRBY_TYPES_ROOT>/.review/.raw/<CLUSTER>.json`.
 
 TS FILE TO REVIEW: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
 

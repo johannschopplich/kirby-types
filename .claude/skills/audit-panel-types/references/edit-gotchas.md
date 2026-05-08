@@ -66,3 +66,5 @@ Both apply steps must be safe to re-run. Annotations with `@source` already pres
 ## Verification
 
 After pass-2 applies finish, run `tsc --noEmit` from the kirby-types repo root. Must exit clean. If errors appear, identify the offending patch from the diff and revert just that file via `git checkout`.
+
+Type-test files (`test/*.test-d.ts`) also consume the augmentations. Signature changes will break `expectType` assertions – update them in the same commit. Run `pnpm test` after `tsc --noEmit` to surface these.

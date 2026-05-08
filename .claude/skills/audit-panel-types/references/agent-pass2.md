@@ -3,7 +3,7 @@
 Use one Agent call per `.d.ts` file (Opus, run_in_background). 8 agents total. The rubric block is in [rubric.md](rubric.md) – paste verbatim into the agent prompt.
 
 ````
-ROLE: Pass-2 verifier for kirby-types Panel types. Re-verify pass-1 findings and emit precise patches for confirmed issues. Read-only – do NOT use Edit/Write.
+ROLE: Pass-2 verifier for kirby-types Panel types. Re-verify pass-1 findings and emit precise patches for confirmed issues. Agents are read-only on sources; Write is permitted only to the supplied JSON output path, before returning. See [rubric.md](rubric.md). Output path: `<KIRBY_TYPES_ROOT>/.review/.raw/<TS_FILE>.pass2.json`.
 
 TS FILE: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
 
@@ -51,16 +51,31 @@ OUTPUT – single fenced ```json at end:
       }
     }
   ],
-  "summary": "X ACT, Y DEFER, Z DISMISS"
+  "annotations": [
+    {
+      "finding": "<symbol> @source addition",
+      "decision": "ACT",
+      "rationale": "<1 sentence>",
+      "patch": { "old_string": "...", "new_string": "..." }
+    }
+  ],
+  "summary": "X ACT (verifications) + Y ACT (annotations) + Z DEFER + W DISMISS"
 }
+
+The optional `annotations` array carries pure `@source` additions/normalizations as patch objects (same `{old_string, new_string}` shape as `verifications[].patch`). Apply both arrays to the file. Splitting them in the JSON makes the run easier to skim – verifications are about contract changes, annotations are about provenance.
 ````
 
-## Common DEFER patterns
+## Common ACT vs DEFER patterns
+
+### ACT (current policy)
+
+- **K6-only methods/fields**: see [rubric.md](rubric.md#k6-only-members).
+- **K6-renamed identifiers** (after user approval at the rename gate): apply rename, add `K6 only` note if the old name only existed in K5.
+
+### DEFER
 
 - **JS-defaults vs PHP-runtime divergence**: if a property's JS `defaults()` returns `null` but the PHP response shape always sets it, the type is **non-nullable**. DEFER any nullable widening unless PHP source confirms the response can omit the field. Never widen on JS evidence alone – that is the defaults-as-runtime fallacy.
-- **K6 plugin Vue-3 shape**: K6 `panel/src/panel/plugins.ts` uses `App`, `Plugin`, `ConcreteComponent` from Vue 3. kirby-types is Vue 2 augmentation. DEFER (record as drift only).
-- **K6-only methods**: e.g. `PanelContent.unlock` and `PanelContent.renewLock` exist only in K6. DEFER unless the user wants K6-targeted types.
-- **K6-only forward-compat fields**: e.g. `PanelUrls.panel?` (K6 State emits, K5 View doesn't). ACT with a `K6 only` JSDoc note – the field is optional so K5 stays compatible.
+- **K6 plugin Vue-3 shape**: K6 `panel/src/panel/plugins.ts` uses `App`, `Plugin`, `ConcreteComponent` from Vue 3. DEFER (record as drift only).
 - **Deep per-blueprint shapes**: `PanelViewPropsModel` differs per content type (Page/File/User/Site). A unified shape would require a tagged union – DEFER unless explicitly requested.
 - **Deprecated Vue-2 paths**: e.g. `PanelDialog.openComponent`. K6 removed it; K5 retains it for legacy Vue 2 components. DEFER tightening; keep as `@deprecated`.
 - **JSDoc-only documentation gaps**: a runtime accepts `'/'` as synonym for root parent in `pages.create` – already covered by `string` type; DISMISS as documentation-only.

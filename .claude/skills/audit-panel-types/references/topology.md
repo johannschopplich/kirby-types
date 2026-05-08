@@ -18,6 +18,10 @@ If a K6 source is unmigrated or a PHP source is silent, the agent records that a
 - **PHP**: `kirby/src/Panel/{View,Dialog,Drawer}.php`, `kirby/src/Panel/Json.php` (Fiber response keys)
 - **K6 TS**: `panel/src/panel/{state,feature,modal,listeners,request,notification}.ts`; `panel/src/helpers/history.ts`
 - **K5 JS**: `panel/src/panel/{state,feature,modal,history,listeners,request,notification}.js`
+- **K6 header rename**: K6 `request.ts` emits `x-panel`, `x-panel-globals`, `x-panel-referrer` (was `x-fiber*` in K5).
+- **K6-only listener helpers**: `PanelEventListeners.removeEventListener(event)` and `removeEventListeners()` (K6 `Feature.set()` resets via `removeEventListeners()`).
+- **K6-only history helper**: `PanelHistory.hasPrevious(): boolean`.
+- **NotificationType**: K5 and K6 only ever assign `"error"` or `"fatal"` to `state.type`; the wider union (`success`/`info`) is unreachable.
 
 ## features.d.ts (6 clusters)
 
@@ -55,8 +59,9 @@ All Feature clusters are **hybrid**: PHP owns the response shape, K6 TS owns met
 
 - **Symbols**: PanelContentVersion, PanelContentVersions, PanelContentLock, PanelContentEnv, PanelContent
 - **PHP**: `kirby/src/Content/{Lock,Version}.php`, `kirby/src/Cms/ContentTranslation.php`
-- **K6 TS**: `panel/src/panel/content.ts` (note K6-only methods `unlock` and `renewLock` – skip if cluster targets K5)
+- **K6 TS**: `panel/src/panel/content.ts` (K6-only methods `unlock` and `renewLock`)
 - **K5 JS**: `panel/src/panel/content.js`
+- **Inheritance note**: `PanelContent` is a plain `reactive({...})` returned by `Content(panel)` – it does NOT extend `PanelFeature`. Do not flag that as a missing-extends.
 
 ### `features-modals`
 
