@@ -4,6 +4,8 @@
 
 If a K6 source is unmigrated or a PHP source is silent, the agent records that as `no K6 source` / `PHP silent` and proceeds with the remaining sources.
 
+K5-JS rows and the `<KIRBY_K5_ROOT>` argument retire when Kirby 6 leaves RC.
+
 ## K6 file relocations to remember
 
 - K5 `panel/src/panel/timer.js` → K6 `panel/src/helpers/timer.ts` (also: singleton became class, `interval` → `isRunning` getter)
@@ -36,7 +38,7 @@ If a K6 source is unmigrated or a PHP source is silent, the agent records that a
 
 ## features.d.ts (6 clusters)
 
-All Feature clusters are **hybrid**: PHP owns the response shape, K6 TS owns method signatures and modern narrowings, K5 JS is the legacy runtime. For property nullability, PHP wins (see [rubric.md](rubric.md)).
+Hybrid clusters – see [rubric.md](rubric.md) for the authority order.
 
 ### `features-stateonly`
 

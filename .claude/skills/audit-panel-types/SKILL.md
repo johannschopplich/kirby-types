@@ -8,16 +8,6 @@ disable-model-invocation: true
 
 Authority: **PHP > K6 TS > K5 JS**. PHP overrules K6 when they disagree.
 
-## Sunset plan (post-K6 GA)
-
-While Kirby 6 is in RC, kirby-types ships Vue-2-shaped augmentations and treats K5 JS as a real source. When K6 leaves RC:
-
-- Drop the `<KIRBY_K5_ROOT>` argument and every `K5 JS` row in [topology.md](references/topology.md).
-- Remove the Vue-2 deferral and Vue-3 plugin-shape carve-out in [rubric.md](references/rubric.md) – K6 TS becomes a co-authority with PHP.
-- Clear `@since 6` tags introduced as forward signals; convert lingering K5-only deprecations into deletions.
-
-The authority order itself does not change.
-
 ## Roots
 
 Ask the user for three absolute paths. Don't auto-detect.
@@ -53,14 +43,6 @@ A `learnFrom` whose new identifier differs from the old is a rename in disguise.
 
 ## Pass 2 – verify + apply
 
-One verifier per `.d.ts` (8 agents). Each reads the cluster JSONs for its file, decides ACT / DEFER / DISMISS, and emits `{old_string, new_string}` patches. The orchestrator applies them.
+One verifier per `.d.ts` (8 agents, read-only). Each reads the cluster JSONs for its file, decides ACT / DEFER / DISMISS, and emits `{old_string, new_string}` patches in JSON; the orchestrator applies them.
 
-The verifier is also read-only. Patches go in JSON; the apply step is yours.
-
-Prompt template: [agent-prompts.md – Pass 2](references/agent-prompts.md#pass-2).
-
-### Apply
-
-Walk every pass-2 JSON, collect every `{old_string, new_string}` from ACT entries, and replace in file-position order. Schema varies between agents (`patch`, `edit`, `edits`, top-level `patches[]`); be tolerant. See [edit-gotchas.md](references/edit-gotchas.md).
-
-Re-runs must be no-ops. `tsc --noEmit` must exit clean. `pnpm test` must pass – type-test files (`test/*.test-d.ts`) consume the augmentations and break on signature changes; update them in the same commit.
+Prompt template: [agent-prompts.md – Pass 2](references/agent-prompts.md#pass-2). Apply walk: see [edit-gotchas.md](references/edit-gotchas.md).

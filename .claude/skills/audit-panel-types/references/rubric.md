@@ -30,16 +30,14 @@ JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for nullabili
 - `#`-prefixed JS class privates
 - Symbols marked `@internal` in JSDoc on either side
 - Test-only references (`*.test.{js,ts}`)
+- Inherited `*Defaults` members on the wrapping state interface. State interfaces extend their Defaults via intersection (e.g. `PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`); the Defaults interface is the declaration site. Never duplicate the property+JSDoc pair onto the state interface during ACT.
 
-## Intentional looseness – note, do not flag
+## Intentional looseness – note, do not flag or widen
 
 - `Record<string, any>` for query bags (e.g. `query?: Record<string, any>`)
 - `Promise<any>` for dynamic backend response data
 - Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants, blueprint-driven view tabs)
-
-## Intentional non-nullability – note, do not widen
-
-Feature/State properties whose JS `defaults()` returns `null` but whose PHP response always sets a value (e.g. `PanelView.path`, `PanelSystem.csrf`, `PanelTranslation.code`). Type is non-nullable; do not re-widen on JS evidence.
+- Feature/State properties whose JS `defaults()` returns `null` but whose PHP response always sets a value (e.g. `PanelView.path`, `PanelSystem.csrf`, `PanelTranslation.code`). Type is non-nullable; do not re-widen on JS evidence.
 
 ## K6 evidence rules
 
@@ -61,12 +59,11 @@ Pull K6-only members (present in K6 source, absent in K5) into TS now with the `
 
 If you cannot locate PHP source confirming runtime nullability, DEFER any nullable widening and emit a `soft` finding. Never widen on JS evidence alone.
 
-## Inheritance note
-
-State interfaces inherit data properties from their `*Defaults` via intersection (e.g. `PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`). Treat the `*Defaults` interface as the property declaration site – don't re-flag inherited Defaults members as missing on the state interface, and never duplicate the property+JSDoc pair onto the state interface during ACT.
-
 ## JSDoc style
 
-- **Body describes runtime behavior.** What a plugin author observes. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths – none belong in JSDoc prose. Provenance goes in `@source`.
-- **`@source` is the only provenance.** One `@source <file>` per authoritative file on the wrapping interface. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path.
-- **No `@see`.** Source URLs duplicate `@source` and rot.
+- **Body describes runtime behavior.** What a plugin author observes. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths – none belong in JSDoc prose.
+- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see` – source URLs rot.
+
+## When Kirby 6 leaves RC
+
+Drop the Vue-2 deferral in "K6 evidence rules" and treat K6 TS as a co-authority with PHP. Clear `@since 6` tags introduced as forward signals; convert lingering K5-only `@deprecated` notes into deletions.

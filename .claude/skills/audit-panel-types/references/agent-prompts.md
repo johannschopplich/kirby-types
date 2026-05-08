@@ -28,7 +28,7 @@ CANDIDATE SOURCES:
 JOB:
 1. Locate sources for each owned symbol.
 2. Trinary diff PHP → K6 TS → K5 JS, then sweep TYPES → SOURCES.
-3. Apply the rubric. Authority is PHP > K6 TS > K5 JS.
+3. Apply the rubric.
 
 OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 {
