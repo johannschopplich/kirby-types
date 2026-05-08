@@ -1,6 +1,6 @@
 # Topology – pass 1 cluster → source mapping
 
-23 clusters total. Paste the relevant cluster's entry into the agent prompt template in [agent-pass1.md](agent-pass1.md). Each entry lists the symbols the agent owns plus all three sources (PHP, K6 TS, K5 JS).
+23 clusters total. Paste the relevant cluster's entry into the pass-1 prompt template in [AGENTS.md](AGENTS.md#pass-1). Each entry lists the symbols the agent owns plus all three sources (PHP, K6 TS, K5 JS).
 
 If a K6 source is unmigrated or a PHP source is silent, the agent records that as `no K6 source` / `PHP silent` and proceeds with the remaining sources.
 
@@ -9,6 +9,17 @@ If a K6 source is unmigrated or a PHP source is silent, the agent records that a
 - K5 `panel/src/panel/timer.js` → K6 `panel/src/helpers/timer.ts` (also: singleton became class, `interval` → `isRunning` getter)
 - K5 `panel/src/panel/history.js` → K6 `panel/src/helpers/history.ts`
 - K5 `panel/src/panel/activiation.js` → K6 `panel/src/panel/activation.ts` (typo fixed)
+
+## K6 surface still on `.js` (do not assume TS)
+
+- `panel/src/panel/{panel,app,legacy}.js` – Panel bootstrap, Vue-3 `App` factory, and the legacy Vue-3 install plugin that ports K5's `app.config.globalProperties.$api/$dialog/$drawer/...` shims. Do NOT import these for type evidence.
+- `panel/src/api/{auth,files,languages,pages,roles,site,system,translations,users}.js` – byte-identical to K5; only `panel/src/api/index.ts` is migrated.
+- `panel/src/components/Forms/Writer/{Editor,Extension,Extensions,Mark,Node,Marks/*,Nodes/*}.js` – byte-identical to K5; only `Emitter.ts` and `Utils/index.ts` are migrated. Individual `Utils/*.js` helpers are still JS.
+
+## New K6-only surface
+
+- `panel/src/panel/observers.ts` – new `panel.observers` reactive object with a `resize: ResizeObserver`. Add to `index-panel` (or `base`) with `@since 6` if absent in kirby-types.
+- `panel/src/helpers/error.ts` – internal-only (`isAbortError`); NOT registered on `$helper`. Used by `notification` to decide whether an aborted request surfaces an error.
 
 ## base.d.ts
 
@@ -38,7 +49,7 @@ All Feature clusters are **hybrid**: PHP owns the response shape, K6 TS owns met
 
 - **Symbols**: PanelNotificationOptions, PanelErrorObject, PanelNotificationDefaults, PanelNotification
 - **PHP**: silent (no `$notification` resolver – client-only state). Authority falls to K6 TS.
-- **K6 TS**: `panel/src/panel/notification.ts`
+- **K6 TS**: `panel/src/panel/notification.ts`, `panel/src/helpers/error.ts` (internal `isAbortError` used by `notification.error()`)
 - **K5 JS**: `panel/src/panel/notification.js`, `panel/src/panel/timer.js`
 
 ### `features-view`
@@ -77,25 +88,25 @@ JS client (K5 + K6) is the source of truth. PHP routes (`kirby/config/api/routes
 ### `api-core`
 
 - **Symbols**: PanelApi, PanelApiRequestOptions, PanelApiPagination, PanelApiSearchQuery, PanelModelData, PanelApiAuth, PanelApiLoginData
-- **K6 TS**: `panel/src/api/index.ts`, `panel/src/api/auth.ts` (K6 migrated; note rename `ping` → `pingId`, drop `running`, narrow `language: string`)
-- **K5 JS**: `panel/src/api/{index,request,get,post,patch,delete,auth}.js`
+- **K6 TS**: `panel/src/api/index.ts` only (auth + verb wrappers still JS – see below)
+- **K5 JS**: `panel/src/api/{index,request,get,post,patch,delete,auth}.js`. K6 still uses `auth.js`; the rename `ping` → `pingId` in K6's `auth.js` is verified vs K5.
 
 ### `api-content`
 
 - **Symbols**: PanelApiPages\*, PanelApiSite, PanelApiFiles
-- **K6 TS**: `panel/src/api/{pages,site,files}` (check; may still be `.js` – byte-identical to K5)
+- **K6 TS**: no K6 source (`pages.js`/`site.js`/`files.js` byte-identical to K5)
 - **K5 JS**: `panel/src/api/{pages,site,files}.js`
 
 ### `api-users`
 
 - **Symbols**: PanelApiUsers*, PanelApiRoles, PanelApiLanguages*
-- **K6 TS**: `panel/src/api/{users,roles,languages}` (check; may still be `.js`)
+- **K6 TS**: no K6 source (`users.js`/`roles.js`/`languages.js` byte-identical to K5)
 - **K5 JS**: `panel/src/api/{users,roles,languages}.js`
 
 ### `api-system`
 
 - **Symbols**: PanelApiTranslations, PanelApiSystem\*
-- **K6 TS**: `panel/src/api/{translations,system}` (check; may still be `.js`)
+- **K6 TS**: no K6 source (`translations.js`/`system.js` byte-identical to K5)
 - **K5 JS**: `panel/src/api/{translations,system}.js`
 
 ## helpers.d.ts (3 clusters)
@@ -104,8 +115,8 @@ K6 has migrated most helpers to TS. JS source is the runtime contract; K6 TS giv
 
 ### `helpers-data`
 
-- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut)
-- **K6 TS**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed}.ts`, `panel/src/helpers/index.ts`
+- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (K6-added shortcut – verify against `helpers/index.ts`)
+- **K6 TS**: `panel/src/helpers/{array,object,sort,field,page,ratio,embed}.ts`, `panel/src/helpers/index.ts`. Note: `helpers/file.ts` does not exist – K6 still imports `./file.js`. K6 added `helper.writer` (registered in `helpers/index.ts`); record as missing if absent in `PanelHelpers`.
 - **K5 JS**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,index}.js`
 
 ### `helpers-string`
@@ -164,14 +175,14 @@ K6 has only migrated `Emitter.ts` and `Utils/index.ts` so far. `Mark.js`, `Node.
 
 - **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls
 - **PHP**: `kirby/src/Panel/{Panel,State,View}.php` for urls/globals/searches
-- **K6 TS**: `panel/src/panel/{panel,plugins,request,search}.ts`. Plugin shape is Vue 3 (`App`, `Plugin`, `ConcreteComponent`, `ComponentOptions`) – kirby-types stays Vue 2. Record plugin/PanelApp shape as drift only.
+- **K6 TS**: `panel/src/panel/{plugins,request,search}.ts` (K6 `panel.js` and `app.js` are still JS). Plugin shape is Vue 3 (`App`, `Plugin`, `ConcreteComponent`, `ComponentOptions`). K6 adds `panel.observers` (`reactive({ resize: ResizeObserver })` from `panel/src/panel/observers.ts`) – flag as missing/`@since 6` if absent.
 - **K5 JS**: `panel/src/panel/{panel,plugins,request,search,app}.js`, `panel/src/index.js`, `panel/public/js/plugins.js`
 
 ### `index-config`
 
 - **Symbols**: PanelConfig, PanelLanguageInfo
 - **PHP**: `kirby/src/Panel/{View,Document,State}.php`, `kirby/src/Cms/Language.php`
-- **K6 TS**: `panel/src/panel/panel.ts` (defaults)
+- **K6 TS**: no K6 source (K6 `panel.js` is still JS – its `defaults` and `globals` are byte-similar to K5)
 - **K5 JS**: `panel/src/panel/panel.js` (defaults)
 
 ### `index-permissions`
