@@ -14,7 +14,6 @@
  * - `writer.d.ts` - Writer (ProseMirror) editor and extensions
  * - `textarea.d.ts` - Textarea toolbar buttons
  *
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/panel
  * @since 4.0.0
  */
 
@@ -422,7 +421,6 @@ interface PanelPermissionsUser {
 /**
  * Complete permission set for the current user.
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions/permissions
  * @source src/Cms/Permissions.php
  * @source src/Cms/Role.php
  */
@@ -487,7 +485,6 @@ export interface PanelUrls {
 /**
  * Response object from Panel requests.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/request.js
  * @source panel/src/panel/request.js
  */
 export interface PanelRequestResponse {
@@ -556,7 +553,6 @@ export interface PanelRequestResponse {
  * });
  * ```
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions
  * @source panel/public/js/plugins.js
  */
 export interface PanelPluginExtensions {
@@ -566,15 +562,11 @@ export interface PanelPluginExtensions {
    * Can be either a template string (shorthand) or a component options object.
    * Registered as `k-block-type-${name}` components that automatically
    * extend `k-block-type-default`.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/blocks
    */
   blocks?: Record<string, string | PanelComponentExtension>;
 
   /**
    * Vue components to register globally in the Panel.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/components
    */
   components?: Record<string, PanelComponentExtension>;
 
@@ -582,15 +574,11 @@ export interface PanelPluginExtensions {
    * Custom field types.
    *
    * Registered as `k-${name}-field` components.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/fields
    */
   fields?: Record<string, PanelComponentExtension>;
 
   /**
    * SVG icon definitions.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/icons
    */
   icons?: Record<string, string>;
 
@@ -599,8 +587,6 @@ export interface PanelPluginExtensions {
    *
    * Registered as `k-${name}-section` components.
    * The `section` mixin is automatically prepended to the mixins array.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/sections
    */
   sections?: Record<string, PanelComponentExtension>;
 
@@ -608,8 +594,6 @@ export interface PanelPluginExtensions {
    * View button components.
    *
    * Registered as `k-${name}-view-button` components.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/view-buttons
    */
   viewButtons?: Record<string, PanelComponentExtension>;
 
@@ -645,8 +629,6 @@ export interface PanelPluginExtensions {
 
   /**
    * Custom textarea toolbar buttons.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
    */
   textareaButtons?: Record<string, TextareaButton>;
 
@@ -659,15 +641,11 @@ export interface PanelPluginExtensions {
 
   /**
    * Custom Writer inline formatting marks.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks
    */
   writerMarks?: Record<string, WriterMarkExtension>;
 
   /**
    * Custom Writer block-level nodes.
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-nodes
    */
   writerNodes?: Record<string, WriterNodeExtension>;
 }
@@ -682,7 +660,6 @@ export interface PanelPluginExtensions {
  * Manages Vue components, icons, and extensions registered by plugins.
  * Properties are ordered to match `panel/public/js/plugins.js`.
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions
  * @source panel/src/panel/plugins.js
  * @source panel/public/js/plugins.js
  */
@@ -753,7 +730,6 @@ export interface PanelPlugins {
 
   /**
    * Registered textarea toolbar buttons.
-   * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
    */
   textareaButtons: Record<string, TextareaButton>;
 
@@ -775,13 +751,11 @@ export interface PanelPlugins {
 
   /**
    * Registered writer marks.
-   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks
    */
   writerMarks: Record<string, WriterMarkExtension>;
 
   /**
    * Registered writer nodes.
-   * @see https://getkirby.com/docs/reference/plugins/extensions/writer-nodes
    */
   writerNodes: Record<string, WriterNodeExtension>;
 }
@@ -807,7 +781,7 @@ export interface PanelLanguageInfo {
   locale: Record<number, string>;
   name: string;
   rules: Record<string, string>;
-  /** Absolute URL for this language (always resolved against the site URL via `Url::makeAbsolute`). */
+  /** Absolute URL for this language (always resolved against the site URL). */
   url: string;
 }
 
@@ -858,7 +832,6 @@ export interface PanelGlobalState {
  * const data = await panel.get("/api/pages/home");
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/panel.js
  * @source panel/src/panel/panel.js
  * @source panel/src/index.js
  * @source panel/public/js/plugins.js
@@ -1093,8 +1066,6 @@ export interface Panel {
    *   }
    * });
    * ```
-   *
-   * @see https://getkirby.com/docs/reference/plugins/extensions
    */
   plugin: (name: string, extensions: PanelPluginExtensions) => void;
 
@@ -1391,15 +1362,15 @@ export interface PanelViewProps {
   /**
    * Sibling navigation link to the next model. K5 emits this only on Page,
    * File and User views (may be `null` when there is no next sibling); not
-   * emitted on Site. K6 always emits this from `ModelViewController`,
-   * including `null` on the Site view.
+   * emitted on Site. K6 always emits it on every model view, including
+   * `null` on the Site view.
    */
   next?: PanelViewPropsNavigation | null;
   /**
    * Sibling navigation link to the previous model. K5 emits this only on
    * Page, File and User views (may be `null` when there is no previous
-   * sibling); not emitted on Site. K6 always emits this from
-   * `ModelViewController`, including `null` on the Site view.
+   * sibling); not emitted on Site. K6 always emits it on every model view,
+   * including `null` on the Site view.
    */
   prev?: PanelViewPropsNavigation | null;
   blueprint: string;
@@ -1409,9 +1380,9 @@ export interface PanelViewProps {
    */
   model?: PanelViewPropsModel;
   /**
-   * View title. K6 `ModelViewController::props()` always emits this; K5
-   * Page and Site set it inside props, but K5 File and User omit it from
-   * the inner props payload (the title appears only on the view envelope).
+   * View title. K6 always emits this; K5 Page and Site set it inside
+   * props, but K5 File and User omit it from the inner props payload
+   * (the title appears only on the view envelope).
    */
   title?: string;
   /**

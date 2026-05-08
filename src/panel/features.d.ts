@@ -4,7 +4,6 @@
  * This module provides typed interfaces for all Panel features,
  * including state objects, features, and modals.
  *
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/panel
  * @since 4.0.0
  */
 
@@ -30,7 +29,6 @@ import type {
 /**
  * Simple timer utility for auto-closing notifications.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/timer.ts
  * @since 4.0.0
  * @source panel/src/helpers/timer.ts
  */
@@ -70,7 +68,6 @@ export interface PanelActivationDefaults {
  * Controls visibility of the license activation card based on
  * session storage state.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/activiation.js
  * @since 4.0.0
  * @source panel/src/panel/activiation.js
  */
@@ -103,7 +100,6 @@ export interface PanelDragDefaults {
 /**
  * Drag state for tracking drag-and-drop operations.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/drag.js
  * @since 4.0.0
  * @source panel/src/panel/drag.js
  */
@@ -155,7 +151,6 @@ export type PanelThemeValue = "light" | "dark" | "system";
  * Supports user preference, system preference, and config-based themes.
  * Watches system media query for dark mode changes.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/theme.js
  * @since 5.0.0
  * @source panel/src/panel/theme.js
  */
@@ -211,7 +206,7 @@ export interface PanelLanguageDefaults {
   direction: "ltr" | "rtl";
   /** Whether the language uses a custom domain. */
   hasCustomDomain: boolean;
-  /** Locale identifier as resolved by `Locale::normalize()` (string, locale-array, or null). */
+  /** Locale identifier (string, locale-array, or null). */
   locale: string | Record<string, string> | null;
   /** Language name */
   name: string | null;
@@ -226,7 +221,6 @@ export interface PanelLanguageDefaults {
  *
  * Represents the current content language for multilingual sites.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/language.js
  * @since 4.0.0
  * @source panel/src/panel/language.js
  */
@@ -237,7 +231,7 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   default: boolean;
   /** Text direction */
   direction: "ltr" | "rtl";
-  /** Locale identifier as resolved by `Locale::normalize()` (string, locale-array, or null). */
+  /** Locale identifier (string, locale-array, or null). */
   locale: string | Record<string, string> | null;
   /** Language name */
   name: string;
@@ -257,8 +251,8 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
 /**
  * Menu entry types.
  *
- * All fields are optional because `Menu::entry()` runs `array_filter()` on the
- * result, dropping any falsy values from the response.
+ * All fields are optional; the backend filters out any falsy values before
+ * emitting the entry, so consumers may receive a sparse object.
  *
  * @source panel/src/panel/menu.js
  * @source src/Panel/Menu.php
@@ -278,7 +272,7 @@ export interface PanelMenuEntry {
   /** Icon name */
   icon?: string;
   /**
-   * Stable area id of the menu item (`Button.id`).
+   * Stable area id of the menu item.
    * @since 6
    */
   id?: string;
@@ -319,7 +313,6 @@ export interface PanelMenuDefaults {
  * Manages the Panel sidebar with responsive behavior
  * for mobile and desktop layouts.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/menu.js
  * @since 4.0.0
  * @source panel/src/panel/menu.js
  */
@@ -374,7 +367,7 @@ export interface PanelMenu extends Omit<PanelState<PanelMenuDefaults>, "set"> {
   /**
    * Sets menu entries and handles initial resize.
    *
-   * The parameter name `entries` reflects K5 `Menu::entry()`; K6 renamed the
+   * On K5 the resulting state exposes the value as `entries`. K6 renamed the
    * state field to `items` (`set(items)` returns a state with `items`), so
    * read through `panel.menu.items` on K6.
    */
@@ -458,7 +451,6 @@ export interface PanelErrorObject {
  * Displays contextual notifications in view, dialog, or drawer.
  * Supports auto-close timers and different severity levels.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/notification.js
  * @since 4.0.0
  * @source panel/src/panel/notification.js
  */
@@ -571,7 +563,6 @@ export interface PanelSystemDefaults {
  *
  * Contains static system information from the server.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/system.js
  * @since 4.0.0
  * @source panel/src/panel/system.js
  */
@@ -617,7 +608,6 @@ export interface PanelTranslationDefaults {
  * Manages UI translations for the current user.
  * Updates document language and direction on change.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/translation.js
  * @since 4.0.0
  * @source panel/src/panel/translation.js
  */
@@ -678,7 +668,6 @@ export interface PanelUserDefaults {
  *
  * Contains information about the logged-in user.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/user.js
  * @since 4.0.0
  * @source panel/src/panel/user.js
  */
@@ -745,7 +734,6 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  * Manages the primary view state, document title,
  * and browser history.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/view.js
  * @since 4.0.0
  * @source panel/src/panel/view.js
  * @source panel/src/panel/feature.js
@@ -780,8 +768,7 @@ export interface PanelView extends Omit<
   /**
    * Sets view state and updates document title and browser URL.
    *
-   * K6 returns the new state from `parent.set()`; K5 returns void. The K6 TS
-   * signature is authoritative for this cluster's method shape.
+   * K6 returns the new merged state; K5 returns void.
    */
   set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
@@ -819,7 +806,6 @@ export interface PanelDropdownOption {
  * Manages dropdown menus loaded from the server
  * or created programmatically.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/dropdown.js
  * @since 4.0.0
  * @source panel/src/panel/dropdown.js
  * @source panel/src/panel/feature.js
@@ -878,7 +864,6 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  *
  * Supports both server-loaded dialogs and legacy Vue component dialogs.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/dialog.js
  * @since 4.0.0
  * @source panel/src/panel/dialog.js
  * @source panel/src/panel/modal.js
@@ -897,16 +882,14 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
 
   /**
    * Closes the dialog, handling legacy components.
-   * @deprecated The override clears `this.ref.visible` for the Vue-2 legacy bridge; K6 removed the override.
+   * @deprecated K5 also hid any legacy Vue-2 component referenced via `ref`; K6 removed the override.
    */
   close: () => Promise<void>;
 
   /**
    * Opens a dialog by URL, state object, or legacy Vue component instance.
    * Object form supports a `url` shorthand that is hoisted into options, plus
-   * `component`/`props` for inline component dialogs (already covered by
-   * `Partial<PanelDialogDefaults>` via the inherited
-   * `PanelFeatureDefaults.component`/`props`).
+   * `component`/`props` for inline component dialogs.
    */
   open: (
     dialog: string | URL | Partial<PanelDialogDefaults>,
@@ -941,7 +924,6 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  *
  * Supports nested drawers with breadcrumb navigation.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/drawer.js
  * @since 4.0.0
  * @source panel/src/panel/drawer.js
  * @source panel/src/panel/modal.js
@@ -997,10 +979,9 @@ export interface PanelContentVersions {
 /**
  * Lock state for content editing.
  *
- * Shape comes from PHP `Lock::toArray()` (`src/Content/Lock.php`) which is
- * always emitted as `{ isLegacy, isLocked, modified, user }`. After a
- * successful save, the Panel mutates `modified` in place to a fresh
- * `Date` (K5 inline, K6 via `renewLock()`).
+ * Always emitted as `{ isLegacy, isLocked, modified, user }`. After a
+ * successful save, `modified` is replaced in place with a fresh `Date`
+ * (K5 inline, K6 via `renewLock()`).
  *
  * @source panel/src/panel/content.js
  * @source src/Content/Lock.php
@@ -1011,9 +992,8 @@ export interface PanelContentLock {
   /** Whether content is locked by another user. */
   isLocked: boolean;
   /**
-   * Lock modification timestamp. PHP emits an ISO 8601 string via
-   * `Str::date($this->modified, 'c', 'date')`; the Panel mutates it to a
-   * `Date` after a successful save.
+   * Lock modification timestamp. Initially an ISO 8601 string from the
+   * server; after a successful save the Panel replaces it with a `Date`.
    */
   modified: string | Date | null;
   /** User who holds the lock; both fields are nullable when no user is set. */
@@ -1037,7 +1017,6 @@ export interface PanelContentEnv {
  * Manages content versions, saving, publishing, and lock handling.
  * Provides automatic save on input with throttling.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/content.js
  * @since 5.0.0
  * @source panel/src/panel/content.js
  */
@@ -1049,9 +1028,8 @@ export interface PanelContent {
   isProcessing: boolean;
 
   /**
-   * Throttled save function. K5 throttles at 1000ms
-   * (`panel/src/panel/content.js`); K6 halved the delay to 500ms
-   * (`panel/src/panel/content.ts` calls `throttle(content.save, 500, ...)`).
+   * Throttled save function. K5 throttles at 1000ms; K6 halved the
+   * delay to 500ms.
    */
   saveLazy: ((
     values?: Record<string, any>,
@@ -1159,9 +1137,7 @@ export interface PanelContent {
 
   /**
    * Updates the lock's `modified` timestamp with a new `Date` after a
-   * successful save.
-   *
-   * Extracted from K5's inline `this.lock(env).modified = new Date()`.
+   * successful save. K5 performed this mutation inline at the save site.
    *
    * @param env - Environment context
    * @since 6
@@ -1271,7 +1247,6 @@ export interface PanelSearchResult {
  *
  * Manages search dialog and query requests.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/search.js
  * @since 4.4.0
  * @source panel/src/panel/search.js
  */
@@ -1293,7 +1268,7 @@ export interface PanelSearcher {
   open: (type?: string) => void;
 
   /**
-   * Queries the search API. For queries shorter than 2 characters returns `{ results: null, pagination: {} }` without hitting the server. Resolves to `undefined` when the request was aborted by a subsequent search (the catch falls through with no return).
+   * Queries the search API. For queries shorter than 2 characters returns `{ results: null, pagination: {} }` without hitting the server. Resolves to `undefined` when the request was aborted by a subsequent search.
    *
    * @param type - Search type
    * @param query - Search query
@@ -1316,7 +1291,6 @@ export interface PanelSearcher {
  * client-side queued upload). Carries the fields read by `replace()` to
  * configure the upload picker (`url`, `accept`).
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/upload.js
  * @source panel/src/panel/upload.js
  */
 export interface PanelUploadReplaceFile {
@@ -1333,7 +1307,6 @@ export interface PanelUploadReplaceFile {
 /**
  * Upload file state representing a file in the upload queue.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/upload.js
  * @source panel/src/panel/upload.js
  */
 export interface PanelUploadFile {
@@ -1396,7 +1369,6 @@ export interface PanelUploadDefaults {
  * Manages file selection, upload progress, and completion.
  * Supports chunked uploads for large files.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/upload.js
  * @since 4.0.0
  * @source panel/src/panel/upload.js
  */
@@ -1559,7 +1531,6 @@ export interface PanelEventEmitter {
  * Provides global event subscriptions and keyboard shortcut handling.
  * Uses mitt for the internal event bus.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/events.js
  * @since 4.0.0
  * @source panel/src/panel/events.js
  */

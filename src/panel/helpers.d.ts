@@ -3,7 +3,6 @@
  *
  * Provides types for the `$helper` utilities available on the Vue prototype.
  *
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/helpers
  * @since 4.0.0
  */
 
@@ -24,7 +23,6 @@ export interface PanelArraySearchOptions {
 /**
  * Array helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/array.js
  * @source panel/src/helpers/array.js
  */
 export interface PanelHelpersArray {
@@ -88,7 +86,6 @@ export type PanelSlugRules = Record<string, string>[];
 /**
  * String helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/string.js
  * @source panel/src/helpers/string.js
  */
 export interface PanelHelpersString {
@@ -257,7 +254,6 @@ export interface PanelHelpersString {
 /**
  * Object helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/object.js
  * @source panel/src/helpers/object.js
  */
 export interface PanelHelpersObject {
@@ -339,7 +335,6 @@ export interface PanelHelpersObject {
 /**
  * URL helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/url.js
  * @source panel/src/helpers/url.js
  */
 export interface PanelHelpersUrl {
@@ -427,7 +422,6 @@ export interface PanelHelpersUrl {
 /**
  * Clipboard helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/clipboard.js
  * @source panel/src/helpers/clipboard.js
  */
 export interface PanelHelpersClipboard {
@@ -457,7 +451,6 @@ export interface PanelHelpersClipboard {
 /**
  * Embed helper utilities for video providers.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/embed.js
  * @source panel/src/helpers/embed.js
  */
 export interface PanelHelpersEmbed {
@@ -514,7 +507,6 @@ export interface PanelFieldDefinition {
 /**
  * Field helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/field.js
  * @source panel/src/helpers/field.js
  */
 export interface PanelHelpersField {
@@ -566,7 +558,6 @@ export interface PanelHelpersField {
 /**
  * File helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/file.js
  * @source panel/src/helpers/file.js
  */
 export interface PanelHelpersFile {
@@ -602,7 +593,6 @@ export interface PanelHelpersFile {
 /**
  * Keyboard helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/keyboard.js
  * @source panel/src/helpers/keyboard.js
  */
 export interface PanelHelpersKeyboard {
@@ -659,7 +649,6 @@ export interface PanelLinkPreview {
 /**
  * Link helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/link.js
  * @source panel/src/helpers/link.js
  */
 export interface PanelHelpersLink {
@@ -752,7 +741,6 @@ export interface PanelPageStatusProps {
 /**
  * Page helper utilities.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/page.js
  * @source panel/src/helpers/page.js
  */
 export interface PanelHelpersPage {
@@ -786,8 +774,6 @@ export type PanelUploadResultCallback = (
 
 /**
  * Upload parameters.
- *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/upload.js
  */
 export interface PanelUploadParams {
   /** Upload endpoint URL (default: `"/"`) */
@@ -880,8 +866,6 @@ export type PanelComparator = (
  * this.$helper.clone(someObject);
  * this.$helper.uuid();
  * ```
- *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/index.js
  */
 export interface PanelHelpers {
   /**
@@ -1111,7 +1095,6 @@ export interface PanelHelpers {
  *
  * Available on K6+ only.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/helpers/writer.js
  * @source panel/src/helpers/writer.js
  * @since 6.0.0
  */

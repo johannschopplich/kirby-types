@@ -4,7 +4,6 @@
  * This module provides types for custom textarea toolbar buttons
  * that can be registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
  * @since 4.0.0
  */
 
@@ -15,7 +14,6 @@
 /**
  * The toolbar component context available as `this` in button click handlers.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Toolbar.vue
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
@@ -89,7 +87,6 @@ export interface TextareaToolbarContext {
  * });
  * ```
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions/textarea-buttons
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  */
@@ -97,7 +94,7 @@ export interface TextareaButton {
   /**
    * Display label for the button (appears in tooltip).
    *
-   * Optional: K5 `Toolbar.vue` falls back to `title` via `button.label ?? button.title`,
+   * Optional: on K5 the toolbar falls back to `title` when `label` is unset,
    * so a button with only `title` is valid at runtime.
    */
   label?: string;
@@ -105,8 +102,8 @@ export interface TextareaButton {
   /**
    * Icon name from Kirby's icon set.
    *
-   * Optional: K5 `Toolbar.vue` passes `:icon="button.icon"` without a default,
-   * so label-only buttons (no icon) are valid at runtime.
+   * Optional: the toolbar renders without a default icon, so label-only
+   * buttons (no icon) are valid at runtime.
    */
   icon?: string;
 
@@ -186,7 +183,7 @@ export interface TextareaButton {
  *
  * **Important:** Unlike the main button's `click` handler, dropdown item clicks
  * are NOT called with the toolbar context as `this`. The `this` context is
- * bound to the DropdownContent component which doesn't have `command()`.
+ * the surrounding dropdown component, which does not expose `command()`.
  *
  * For this reason, dropdown items should use arrow functions and access
  * the toolbar's functionality through closures or other means.

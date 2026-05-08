@@ -6,8 +6,6 @@
  * - Mark and node extensions for plugins
  * - Utility functions and contexts
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks-nodes
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/components/Forms/Writer
  * @since 4.0.0
  */
 
@@ -46,7 +44,6 @@ import type {
  * This is the editor object that extensions can access via `this.editor`
  * when using class-based extensions, or that is passed to event handlers.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Editor.js
  * @source panel/src/components/Forms/Writer/Editor.js
  * @source panel/src/components/Forms/Writer/Emitter.js
  */
@@ -206,8 +203,6 @@ export interface WriterEditor {
 
 /**
  * Editor initialization options.
- *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Editor.js
  */
 export interface WriterEditorOptions {
   autofocus?: boolean | "start" | "end" | number;
@@ -229,8 +224,6 @@ export interface WriterEditorOptions {
  * The extensions manager for the Writer editor.
  *
  * Manages all registered mark, node, and generic extensions.
- *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterExtensions {
   /** All registered extension instances */
@@ -261,7 +254,6 @@ export interface WriterExtensions {
  *
  * Buttons appear in the Writer toolbar and trigger commands when clicked.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/components/Forms/Writer/Extensions.js
  * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/components/Forms/Writer/Nodes/Heading.js
@@ -299,7 +291,6 @@ export interface WriterToolbarButton {
  * with marks, nodes, and editor state. These utilities are passed to
  * extension methods via the context object.
  *
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/components/Forms/Writer/Utils
  * @source panel/src/components/Forms/Writer/Utils/index.js
  */
 export interface WriterUtils {
@@ -546,7 +537,6 @@ export interface WriterUtils {
  * }
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extensions.js
  * @source panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterMarkContext {
@@ -570,7 +560,6 @@ export interface WriterMarkContext {
  * }
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extensions.js
  * @source panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterNodeContext {
@@ -588,7 +577,6 @@ export interface WriterNodeContext {
  * Generic extensions don't have a specific type, so only schema and utils
  * are provided.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extensions.js
  * @source panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterExtensionContext {
@@ -627,7 +615,6 @@ export interface WriterExtensionContext {
  * });
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/components/Forms/Writer/Extension.js
  * @source panel/src/components/Forms/Writer/Extension.js
  * @source panel/src/components/Forms/Writer/Extensions/History.js
  * @source panel/src/components/Forms/Writer/Extensions/Insert.js
@@ -646,7 +633,7 @@ export interface WriterExtension {
    */
   type?: string;
 
-  /** The editor instance, available after `bindEditor()` is called. */
+  /** The editor instance, available after the extension is bound to an editor. */
   editor?: WriterEditor;
 
   /** Merged extension options from `defaults` and constructor options. */
@@ -736,7 +723,6 @@ export interface WriterExtension {
  * });
  * ```
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks-nodes
  * @source panel/src/components/Forms/Writer/Mark.js
  * @source panel/src/components/Forms/Writer/Extension.js
  * @source panel/src/components/Forms/Writer/Extensions.js
@@ -767,7 +753,7 @@ export interface WriterMarkExtension {
   type?: "mark";
 
   /**
-   * The editor instance, available after `bindEditor()` is called.
+   * The editor instance, available after the extension is bound to an editor.
    *
    * Use this to access editor methods like `emit()`, `toggleMark()`, etc.
    */
@@ -908,8 +894,6 @@ export interface WriterMarkExtension {
 
   /**
    * Custom mark view for rendering.
-   *
-   * @see https://prosemirror.net/docs/ref/#view.MarkView
    */
   view?: (
     mark: Mark,
@@ -991,7 +975,6 @@ export interface WriterMarkExtension {
  * });
  * ```
  *
- * @see https://getkirby.com/docs/reference/plugins/extensions/writer-marks-nodes
  * @source panel/src/components/Forms/Writer/Node.js
  * @source panel/src/components/Forms/Writer/Extension.js
  * @source panel/src/components/Forms/Writer/Extensions.js
@@ -1023,7 +1006,7 @@ export interface WriterNodeExtension {
   type?: "node";
 
   /**
-   * The editor instance, available after `bindEditor()` is called.
+   * The editor instance, available after the extension is bound to an editor.
    *
    * Use this to access editor methods like `emit()`, `command()`, etc.
    */
@@ -1099,8 +1082,6 @@ export interface WriterNodeExtension {
 
   /**
    * Custom node view for rendering.
-   *
-   * @see https://prosemirror.net/docs/ref/#view.NodeView
    */
   view?: (
     node: ProseMirrorNode,

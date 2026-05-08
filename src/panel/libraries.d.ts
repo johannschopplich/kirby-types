@@ -4,7 +4,6 @@
  * Provides types for the `$library` utilities available on the Vue prototype.
  * Includes color manipulation, date handling (dayjs), and textarea autosize.
  *
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/libraries
  * @since 4.0.0
  */
 
@@ -69,7 +68,6 @@ export type PanelColorInput = string | PanelColorObject;
  * const css = this.$library.colors.toString(hex, "rgb");
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/colors.js
  * @since 4.0.0
  * @source panel/src/libraries/colors.js
  * @source panel/src/libraries/colors-checks.js
@@ -310,7 +308,6 @@ export interface PanelDayjsStaticExtensions {
  * const parsed = this.$library.dayjs.interpret("Jan 15 2024", "date");
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/dayjs.js
  * @since 4.0.0
  * @source panel/src/libraries/dayjs.js
  * @source panel/src/libraries/dayjs-interpret.js
@@ -349,7 +346,6 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
  *
  * Automatically adjusts textarea height based on content.
  *
- * @see https://www.npmjs.com/package/autosize
  * @source panel/src/libraries/index.js
  * @source @types/autosize/index.d.ts
  */
@@ -400,7 +396,6 @@ export interface PanelLibraryAutosize {
  * this.$library.autosize(this.$refs.textarea);
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/libraries/index.js
  * @source panel/src/libraries/index.js
  * @source panel/src/libraries/colors.js
  * @source panel/src/libraries/dayjs.js

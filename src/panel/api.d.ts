@@ -3,7 +3,6 @@
  *
  * Provides types for the Panel API client and its resource modules.
  *
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/api
  * @since 4.0.0
  */
 
@@ -99,7 +98,6 @@ export interface PanelApiLoginData {
 /**
  * Authentication API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/auth.js
  * @source panel/src/api/auth.js
  */
 export interface PanelApiAuth {
@@ -141,7 +139,6 @@ export interface PanelApiAuth {
 /**
  * Files API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/files.js
  * @source panel/src/api/files.js
  */
 export interface PanelApiFiles {
@@ -247,7 +244,6 @@ export interface PanelApiLanguageData {
 /**
  * Languages API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/languages.js
  * @source panel/src/api/languages.js
  */
 export interface PanelApiLanguages {
@@ -320,7 +316,6 @@ export interface PanelApiPageDuplicateOptions {
 /**
  * Pages API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/pages.js
  * @source panel/src/api/pages.js
  */
 export interface PanelApiPages {
@@ -500,7 +495,6 @@ export interface PanelApiPages {
 /**
  * Roles API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/roles.js
  * @source panel/src/api/roles.js
  */
 export interface PanelApiRoles {
@@ -528,7 +522,6 @@ export interface PanelApiRoles {
 /**
  * Site API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/site.js
  * @source panel/src/api/site.js
  */
 export interface PanelApiSite {
@@ -604,7 +597,6 @@ export interface PanelApiSystemRegisterData {
 /**
  * System API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/system.js
  * @source panel/src/api/system.js
  */
 export interface PanelApiSystem {
@@ -640,7 +632,6 @@ export interface PanelApiSystem {
 /**
  * Translations API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/translations.js
  * @source panel/src/api/translations.js
  */
 export interface PanelApiTranslations {
@@ -681,7 +672,6 @@ export interface PanelApiUserCreateData {
 /**
  * Users API methods.
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/users.js
  * @source panel/src/api/users.js
  */
 export interface PanelApiUsers {
@@ -859,7 +849,6 @@ export interface PanelApiUsers {
  * });
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/api/index.js
  * @source panel/src/api/index.js
  * @source panel/src/api/index.ts
  * @source panel/src/api/request.js

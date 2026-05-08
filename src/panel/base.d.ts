@@ -4,7 +4,6 @@
  * This module provides the foundational types for the Panel's
  * state management hierarchy: State → Feature → Modal.
  *
- * @see https://github.com/getkirby/kirby/tree/main/panel/src/panel
  * @since 4.0.0
  */
 
@@ -28,7 +27,6 @@
  * notification.set({ message: "Saved!" });
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/state.js
  * @source panel/src/panel/state.js
  * @source panel/src/panel/state.ts
  */
@@ -166,7 +164,6 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
  * panel.dialog.emit("submit", formData);
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/listeners.js
  * @source panel/src/panel/listeners.js
  * @source panel/src/panel/listeners.ts
  */
@@ -220,7 +217,8 @@ export interface PanelEventListeners<TEvents extends string = string> {
   removeEventListener: (event: TEvents) => void;
 
   /**
-   * Clears every registered listener. Called from `Feature.set()`.
+   * Clears every registered listener. Called automatically when feature
+   * state is replaced.
    * @since 6
    */
   removeEventListeners: () => void;
@@ -266,7 +264,6 @@ export interface PanelFeatureDefaults {
  * await panel.dropdown.open("/dropdowns/pages/home/options");
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/feature.js
  * @source panel/src/panel/feature.js
  * @source panel/src/panel/feature.ts
  */
@@ -459,7 +456,6 @@ export interface PanelSuccessResponse {
  * panel.drawer.goTo("previous-drawer-id");
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/modal.js
  * @source panel/src/panel/modal.js
  * @source panel/src/panel/modal.ts
  */
@@ -630,7 +626,6 @@ export interface PanelHistoryMilestone {
  * }
  * ```
  *
- * @see https://github.com/getkirby/kirby/blob/main/panel/src/panel/history.js
  * @source panel/src/panel/history.js
  * @source panel/src/helpers/history.ts
  */
