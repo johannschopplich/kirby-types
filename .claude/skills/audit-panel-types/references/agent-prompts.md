@@ -4,7 +4,7 @@ One template per pass. Both passes are read-only on every file – never use the
 
 ## Pass 1
 
-One Agent call per cluster (Opus, run_in_background). 23 clusters. Launch 7–8 at a time so notifications stay manageable.
+One Agent call per cluster, `run_in_background: true`. 23 clusters. Launch 7–8 at a time so notifications stay manageable. Subagents inherit the orchestrator's model – don't pass an explicit `model:` override.
 
 ````
 ROLE: You review TypeScript augmentation types that describe Kirby Panel's runtime `window.panel`. READ-ONLY on every file – including the kirby-types `.d.ts` under review. DO NOT use the Edit tool. Write only to the JSON output path before returning.
@@ -61,7 +61,7 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 
 ## Pass 2
 
-One Agent call per `.d.ts` (Opus, run_in_background). 8 agents.
+One Agent call per `.d.ts`, `run_in_background: true`. 8 agents. Same model-inheritance rule as pass 1.
 
 Time-box: pass 1 already cited PHP/K6/K5 paths. Re-read a source only when the finding is unclear. If still ambiguous after one quick check, DEFER. Aim for under 5 minutes wall-clock.
 

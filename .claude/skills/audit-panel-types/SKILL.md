@@ -8,6 +8,16 @@ disable-model-invocation: true
 
 Authority: **PHP > K6 TS > K5 JS**. PHP overrules K6 when they disagree.
 
+## Sunset plan (post-K6 GA)
+
+While Kirby 6 is in RC, kirby-types ships Vue-2-shaped augmentations and treats K5 JS as a real source. When K6 leaves RC:
+
+- Drop the `<KIRBY_K5_ROOT>` argument and every `K5 JS` row in [topology.md](references/topology.md).
+- Remove the Vue-2 deferral and Vue-3 plugin-shape carve-out in [rubric.md](references/rubric.md) – K6 TS becomes a co-authority with PHP.
+- Clear `@since 6` tags introduced as forward signals; convert lingering K5-only deprecations into deletions.
+
+The authority order itself does not change.
+
 ## Roots
 
 Ask the user for three absolute paths. Don't auto-detect.

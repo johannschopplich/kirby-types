@@ -61,6 +61,10 @@ Pull K6-only members (present in K6 source, absent in K5) into TS now with the `
 
 If you cannot locate PHP source confirming runtime nullability, DEFER any nullable widening and emit a `soft` finding. Never widen on JS evidence alone.
 
+## Inheritance note
+
+State interfaces inherit data properties from their `*Defaults` via intersection (e.g. `PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`). Treat the `*Defaults` interface as the property declaration site – don't re-flag inherited Defaults members as missing on the state interface, and never duplicate the property+JSDoc pair onto the state interface during ACT.
+
 ## JSDoc style
 
 - **Body describes runtime behavior.** What a plugin author observes. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths – none belong in JSDoc prose. Provenance goes in `@source`.
