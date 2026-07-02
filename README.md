@@ -205,7 +205,7 @@ await window.panel.view.open("/pages/blog");
 await window.panel.dialog.open("/dialogs/pages/create");
 
 // API calls
-const page = await window.panel.api.pages.read("blog");
+const page = await window.panel.api.pages.get("blog");
 await window.panel.api.pages.update("blog", { title: "New Title" });
 
 // Content state
@@ -327,6 +327,12 @@ Vue is an optional peer dependency for Panel types:
 
 ```bash
 pnpm add -D vue@^2.7.0
+```
+
+`dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `interpret`, `pattern`, …):
+
+```bash
+pnpm add -D dayjs
 ```
 
 ## License
