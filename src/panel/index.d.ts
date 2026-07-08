@@ -223,7 +223,9 @@ export type {
  * const date = this.$library.dayjs("2024-01-15").format("DD.MM.YYYY");
  * ```
  * @source panel/src/panel/app.js
+ * @source panel/src/panel/app.ts
  * @source panel/src/index.js
+ * @source panel/src/index.ts
  */
 export type PanelApp = InstanceType<VueConstructor> & {
   $library: PanelLibrary;
@@ -441,6 +443,7 @@ export interface PanelPermissions {
 /**
  * Search type definition.
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelSearchType {
   icon: string;
@@ -453,6 +456,7 @@ export interface PanelSearchType {
  * @source panel/src/panel/panel.js
  * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelSearches {
   pages: PanelSearchType;
@@ -470,6 +474,7 @@ export interface PanelSearches {
  * @source panel/src/panel/panel.js
  * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelUrls {
   api: string;

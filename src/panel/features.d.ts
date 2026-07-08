@@ -247,7 +247,7 @@ export interface PanelMenuEntry {
   dialog?: string;
   /**
    * Whether the entry is rendered as visually disabled.
-   * @since 6
+   * @since 5.5.0
    */
   disabled?: boolean;
   /** Optional drawer URL – when set, the entry opens a drawer instead of navigating */
@@ -620,7 +620,7 @@ export interface PanelBreadcrumbItem {
   link: string;
   /**
    * Optional icon for plugin-supplied breadcrumbs; PHP does not currently emit this.
-   * @since 6
+   * @since 5.5.0
    */
   icon?: string;
 }
@@ -671,8 +671,7 @@ export interface PanelView
 
   /**
    * Sets view state and updates document title and browser URL.
-   *
-   * K6 returns the new merged state; K5 returns void.
+   * Returns the new merged state.
    */
   set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
@@ -1185,7 +1184,7 @@ export interface PanelSearchResult {
  */
 export interface PanelSearcher {
   /** AbortController for current request */
-  controller: AbortController | null;
+  controller: AbortController | undefined;
 
   /** Number of active requests */
   requests: number;
@@ -1198,7 +1197,7 @@ export interface PanelSearcher {
    *
    * @param type - Search type (e.g., `"pages"`, `"files"`, `"users"`)
    */
-  open: (type?: string) => void;
+  open: (type: string) => void;
 
   /**
    * Queries the search API. For queries shorter than 2 characters returns `{ results: null, pagination: {} }` without hitting the server. Resolves to `undefined` when the request was aborted by a subsequent search.

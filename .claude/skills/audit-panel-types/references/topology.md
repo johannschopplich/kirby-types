@@ -18,7 +18,7 @@ Paste the relevant cluster's entry into the pass-1 prompt template in [agent-pro
 
 ### `base`
 
-- **Symbols**: PanelState, PanelStateBase, PanelFeature, PanelFeatureDefaults, PanelFeatureBase, PanelModal, PanelModalEvent, PanelModalListeners, PanelModalBase, PanelSuccessResponse, PanelHistory, PanelHistoryMilestone, PanelHistoryBase, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationContext, NotificationType, NotificationTheme
+- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelSuccessResponse, PanelHistory, PanelHistoryMilestone, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
 - **PHP**: `kirby/src/Panel/{View,Dialog,Drawer}.php`, `kirby/src/Panel/Json.php` (Fiber response keys)
 - **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer` (was `x-fiber*` in K5) – drift, already documented. `NotificationType`: only `"error"`/`"fatal"` are ever assigned to `state.type`; the wider `success`/`info` union is unreachable – note, don't flag.

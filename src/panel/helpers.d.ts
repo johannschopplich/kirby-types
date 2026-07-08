@@ -111,7 +111,7 @@ export interface PanelHelpersString {
    * @param string - String to check
    * @returns True if contains emoji
    */
-  hasEmoji: (string: string) => boolean;
+  hasEmoji: (string: unknown) => boolean;
 
   /**
    * Checks if a string is shaped like an email address.
@@ -377,7 +377,7 @@ export interface PanelHelpersUrl {
    */
   buildUrl: (
     url?: string | URL,
-    query?: Record<string, string | number | boolean | null>,
+    query?: Record<string, unknown>,
     origin?: string | URL,
   ) => URL;
 

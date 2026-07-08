@@ -703,6 +703,7 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
  * Panel context indicating which layer is currently active.
  * Used to determine where notifications appear and which feature has focus.
  * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source panel/src/panel/notification.ts
  */
 export type PanelContext = "view" | "dialog" | "drawer";
