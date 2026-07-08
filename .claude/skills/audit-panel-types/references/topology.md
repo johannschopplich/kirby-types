@@ -2,7 +2,7 @@
 
 Paste the relevant cluster's entry into the pass-1 prompt template in [agent-prompts.md](agent-prompts.md#pass-1). Each entry lists the symbols the agent owns, the source **modules** (extension-free), and the PHP authority.
 
-**File status is NOT in this file.** Which modules ship `.js`, `.ts`, or are `absent` in K5/K6 comes from `source-map.json` (produced by `scripts/probe.sh`). Module paths below are written extension-free precisely so they never rot – the agent resolves each one against the map.
+**File status is NOT in this file.** Which modules ship `.js`, `.ts`, or are `absent` in K5/K6 comes from `source-map.json` (produced by `scripts/probe.mjs`). Module paths below are written extension-free precisely so they never rot – the agent resolves each one against the map.
 
 **the Vue-2 hold** is the recurring token below – the one posture the standing rubric gates on Kirby 6 SHIPPING: the plugin shape in `index-panel` stays Vue 2, everything else in migrated K6 TS is learnable evidence now. Record hold violations as `drift`, never backport.
 
