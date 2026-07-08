@@ -178,6 +178,9 @@ type PaginatedResponse = KirbyQueryResponse<BlogPostSummary[], true>;
 
 ## Panel Types
 
+> [!NOTE]
+> The Panel types track Kirby's own sources: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`), **Kirby 6's official TypeScript** Panel client, and the Kirby 5 JavaScript client – PHP wins where they disagree. Members added after Kirby 4 carry a git-verified `@since` tag, so your editor flags anything newer than the Kirby version you target.
+
 For Panel plugin development, type the global `window.panel` object:
 
 ```ts
