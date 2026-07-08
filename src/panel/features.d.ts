@@ -245,10 +245,7 @@ export interface PanelMenuEntry {
   current?: boolean;
   /** Optional dialog URL – when set, the entry opens a dialog instead of navigating */
   dialog?: string;
-  /**
-   * Whether the entry is rendered as visually disabled.
-   * @since 5.5.0
-   */
+  /** Whether the entry is rendered as visually disabled. */
   disabled?: boolean;
   /** Optional drawer URL – when set, the entry opens a drawer instead of navigating */
   drawer?: string;
@@ -620,7 +617,6 @@ export interface PanelBreadcrumbItem {
   link: string;
   /**
    * Optional icon for plugin-supplied breadcrumbs; PHP does not currently emit this.
-   * @since 5.5.0
    */
   icon?: string;
 }

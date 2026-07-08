@@ -611,7 +611,7 @@ export interface PanelHistory {
 
   /**
    * Returns true when more than one milestone is stored.
-   * @since 5.4.0
+   * @since 5.5.0
    */
   hasPrevious: () => boolean;
 
