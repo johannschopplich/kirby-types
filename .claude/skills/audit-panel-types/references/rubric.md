@@ -44,7 +44,8 @@ JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for nullabili
 - Drop K6's `Prettify<T>` wrappers. IDE hover aid only, no runtime constraint.
 - `type TODO = any` in K6 means "K6 has no opinion". Skip – not learnFrom, not drift.
 - Keep `Record<string, any>` unless K6 narrows to `Record<string, unknown>` with shape evidence, not stylistic.
-- K6 plugin shape (Vue 3 `App` / `Plugin` / `ConcreteComponent`): kirby-types stays Vue 2 until Kirby 6 ships. Record as drift only.
+- K6 plugin shape (Vue 3 `App` / `Plugin` / `ConcreteComponent`): kirby-types stays Vue 2 until Kirby 6 SHIPS (published, not alpha/beta/RC). Record as drift only. This is the ONLY thing the Vue-2 hold covers – everything else in the migrated K6 TS is already usable as learnFrom evidence now.
+- **`@since` needs git, not topology.** Never assign `@since 6` from a "K6-only" topology hint. `git log -S <symbol>` / blame the symbol in the K5 checkout first – many members tagged K6-only actually shipped in K5 5.4.x/5.5.x. Confirmed-K6-only additions (git-verified): `panel.html`/`HtmlString` (6.0.0). Confirmed-earlier (correct downward): `removeEventListener(s)` (5.5.0), `hasPrevious` (5.4.0), `string.sanitizeHTML` (5.5.0), `helper.writer` (5.5.0).
 
 ## K6-only members
 
@@ -62,8 +63,8 @@ If you cannot locate PHP source confirming runtime nullability, DEFER any nullab
 ## JSDoc style
 
 - **Body describes runtime behavior.** What a plugin author observes. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths – none belong in JSDoc prose.
-- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see` – source URLs rot.
+- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see` – source URLs rot. A **phantom `@source`** cites a `.js` the source map marks migrated to `.ts`: replace it, don't dual-source. Dual-source only when the map shows both a K5 `.js` and a K6 `.ts` genuinely exist.
 
-## When Kirby 6 leaves RC
+## When Kirby 6 ships (probe posture flag)
 
-Drop the Vue-2 deferral in "K6 evidence rules" and treat K6 TS as a co-authority with PHP. Clear `@since 6` tags introduced as forward signals; convert lingering K5-only `@deprecated` notes into deletions.
+`probe.sh` raises a `RE-CONFIRM` posture flag when K6's version loses its `-alpha`/`-beta`/`-rc` suffix. On the user's confirmation: release **the Vue-2 hold** (adopt the Vue-3 plugin shape in `index-panel`) and treat K6 TS as co-authority with PHP. Clear `@since 6` tags introduced as forward signals; convert lingering K5-only `@deprecated` notes into deletions. When the map reports the K5 root absent, retire the K5-JS half of each cluster and the `<KIRBY_K5_ROOT>` argument.

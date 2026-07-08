@@ -242,7 +242,7 @@ export type PanelApp = InstanceType<VueConstructor> & {
  * Components can be defined as:
  * - Vue component options object with template or render function
  * - Component that extends another component by name
- * @source panel/src/panel/plugins.js
+ * @source panel/src/panel/plugins.ts
  */
 export type PanelComponentExtension =
   | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
@@ -281,6 +281,7 @@ export type PanelComponentExtension =
  * Global Panel configuration.
  *
  * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
  * @source src/Panel/State.php
  */
@@ -450,6 +451,7 @@ export interface PanelSearchType {
 /**
  * Available search types in the Panel.
  * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
  */
 export interface PanelSearches {
@@ -466,6 +468,8 @@ export interface PanelSearches {
 /**
  * Base URLs for Panel operations.
  * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
+ * @source src/Panel/View.php
  */
 export interface PanelUrls {
   api: string;
@@ -484,17 +488,26 @@ export interface PanelUrls {
 /**
  * Response object from Panel requests.
  *
- * @source panel/src/panel/request.js
+ * @source panel/src/panel/request.ts
  */
 export interface PanelRequestResponse {
   /** The original Request object */
   request: Request;
-  /** Native `Response` mutated so that `text` and `json` are pre-resolved properties (not callable methods). */
-  response: Response & {
+  /**
+   * Parsed response wrapper. Not a native `Response`: a plain object that
+   * exposes the pre-resolved body (`json`, `text`) alongside status metadata.
+   */
+  response: {
+    headers: Headers;
     /** Parsed JSON data */
     json: any;
+    ok: boolean;
+    status: number;
+    statusText: string;
     /** Raw response text */
     text: string;
+    /** Final response URL (after redirects) */
+    url: string;
   };
 }
 
@@ -623,6 +636,9 @@ export interface PanelPluginExtensions {
    * Custom login form component.
    *
    * Replaces the default login form with a custom implementation.
+   *
+   * @deprecated Kirby 6 removed the `login` handler from `panel.plugin()`;
+   * the option is silently ignored there. Register a custom login view instead.
    */
   login?: PanelComponentExtension;
 
@@ -659,7 +675,7 @@ export interface PanelPluginExtensions {
  * Manages Vue components, icons, and extensions registered by plugins.
  * Properties are ordered to match `panel/public/js/plugins.js`.
  *
- * @source panel/src/panel/plugins.js
+ * @source panel/src/panel/plugins.ts
  * @source panel/public/js/plugins.js
  */
 export interface PanelPlugins {
@@ -767,6 +783,7 @@ export interface PanelPlugins {
  * Language information for multi-language sites.
  * @source src/Cms/Language.php
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelLanguageInfo {
   /** Language code (e.g., `"en"`, `"de"`) */
@@ -791,19 +808,50 @@ export interface PanelLanguageInfo {
 /**
  * Global Panel state for `panel.state()`.
  * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  */
 export interface PanelGlobalState {
+  config: PanelConfig;
   dialog: PanelFeatures.PanelDialogDefaults;
   drawer: PanelFeatures.PanelDrawerDefaults;
   dropdown: PanelFeatureDefaults;
   language: PanelFeatures.PanelLanguageDefaults;
+  languages: PanelLanguageInfo[];
+  license: string;
   menu: PanelFeatures.PanelMenuDefaults;
+  multilang: boolean;
   notification: PanelFeatures.PanelNotificationDefaults;
+  permissions: PanelPermissions;
+  searches: PanelSearches;
   system: PanelFeatures.PanelSystemDefaults;
-  theme: PanelFeatures.PanelThemeDefaults;
   translation: PanelFeatures.PanelTranslationDefaults;
+  urls: PanelUrls;
   user: PanelFeatures.PanelUserDefaults;
   view: PanelFeatures.PanelViewDefaults;
+}
+
+// -----------------------------------------------------------------------------
+// Panel HTML
+// -----------------------------------------------------------------------------
+
+/**
+ * Trusted, pre-escaped HTML string wrapper. Extends the native `String`, so it
+ * interpolates, concatenates and serializes like a plain string, but is
+ * recognizable via `instanceof` and can be rendered (`v-html`/`v-safe-html`)
+ * without further escaping.
+ * @since 6
+ * @source panel/src/panel/html.ts
+ */
+// eslint-disable-next-line ts/no-wrapper-object-types -- deliberately mirrors K6's `class HtmlString extends String`
+export interface HtmlString extends String {}
+
+/**
+ * Wraps a value as trusted, pre-escaped HTML by returning an `HtmlString`.
+ * @since 6
+ * @source panel/src/panel/html.ts
+ */
+export interface PanelHtml {
+  (value: unknown): HtmlString;
 }
 
 // -----------------------------------------------------------------------------
@@ -832,7 +880,9 @@ export interface PanelGlobalState {
  * ```
  *
  * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source panel/src/index.js
+ * @source panel/src/index.ts
  * @source panel/public/js/plugins.js
  */
 export interface Panel {
@@ -871,6 +921,16 @@ export interface Panel {
   observers?: {
     resize: ResizeObserver;
   };
+
+  /**
+   * Wraps a value as trusted, pre-escaped HTML.
+   *
+   * The returned `HtmlString` behaves like a string but can be rendered via
+   * `v-html`/`v-safe-html` without re-escaping. Only available in Kirby 6.
+   * @since 6
+   * @source panel/src/panel/html.ts
+   */
+  html?: PanelHtml;
 
   // ---------------------------------------------------------------------------
   // State Objects (extend State)
@@ -1099,17 +1159,18 @@ export interface Panel {
   /**
    * Sends a request through the Panel router.
    *
-   * Returns an object with both the request and parsed response,
-   * or `false` if the request was redirected externally.
+   * Returns an object with both the request and the parsed response.
+   * Cross-origin or non-JSON responses trigger a redirect and reject
+   * instead of resolving.
    *
    * @param url - URL to request
    * @param options - Request options including method
-   * @returns Request/response object or false on redirect
+   * @returns Request/response object
    */
   request: (
     url: string | URL,
     options?: PanelRequestOptions,
-  ) => Promise<PanelRequestResponse | false>;
+  ) => Promise<PanelRequestResponse>;
 
   /**
    * Opens the search dialog or performs a search query.
@@ -1292,6 +1353,7 @@ interface PanelViewPropsModel {
 /**
  * Button definition.
  * @source src/Panel/Ui/Buttons/ViewButton.php
+ * @source src/Panel/Ui/Button.php
  * @source src/Panel/Ui/Buttons/ViewButtons.php
  * @source src/Panel/Ui/Component.php
  */
@@ -1385,8 +1447,9 @@ export interface PanelViewProps {
    */
   title?: string;
   /**
-   * Search collection identifier emitted by file and user view props
-   * (`'files'`, `'users'`); K5 emits `search` outside the inner props payload.
+   * Search collection identifier. K6 emits it inside the file (`'files'`) and
+   * user (`'users'`) props payloads. K5 does not emit it here – the File view
+   * sets `search` on the view envelope and the User view omits it entirely.
    * @since 6
    */
   search?: string;

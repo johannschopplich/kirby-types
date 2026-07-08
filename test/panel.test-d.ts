@@ -116,8 +116,7 @@ expectAssignable<PanelUploadFile>({
 declare const userState: PanelUser;
 
 expectType<PanelUserDefaults>(userState.defaults());
-// `reset()` returns `TDefaults` on K5 and `void` on K6
-expectType<PanelUserDefaults | void>(userState.reset());
+expectType<void>(userState.reset());
 expectType<PanelUserDefaults>(userState.set({ email: "new@test.com" }));
 expectType<PanelUserDefaults>(userState.state());
 expectType<string>(userState.key());
@@ -138,7 +137,7 @@ expectType<Promise<any | false>>(feature.get("/api/test"));
 expectType<Promise<any | false>>(feature.post({}));
 expectType<Promise<PanelFeatureDefaults>>(feature.load("/pages/home"));
 expectType<Promise<PanelFeatureDefaults>>(feature.open("/pages/home"));
-expectType<Promise<PanelFeatureDefaults | false | void>>(feature.reload());
+expectType<Promise<PanelFeatureDefaults | false>>(feature.reload());
 expectType<Promise<PanelFeatureDefaults | undefined>>(feature.refresh());
 expectType<URL>(feature.url());
 expectType<void>(feature.addEventListener("load", () => {}));
@@ -236,9 +235,7 @@ expectType<URL>(panel.url("/pages/home"));
 expectType<URL>(panel.url("/pages/home", { tab: "content" }));
 expectType<Promise<any>>(panel.get("/api/pages/home"));
 expectType<Promise<any>>(panel.post("/api/pages/home", { title: "Home" }));
-expectType<Promise<PanelRequestResponse | false>>(
-  panel.request("/api/pages/home"),
-);
+expectType<Promise<PanelRequestResponse>>(panel.request("/api/pages/home"));
 
 // -----------------------------------------------------------------------------
 // 10. Model Data

@@ -27,7 +27,6 @@
  * notification.set({ message: "Saved!" });
  * ```
  *
- * @source panel/src/panel/state.js
  * @source panel/src/panel/state.ts
  */
 export interface PanelState<TDefaults extends object = Record<string, any>> {
@@ -45,9 +44,8 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 
   /**
    * Restores the default state by calling `set(defaults())`.
-   * @returns K5 returns the restored state object; K6 narrowed the return to void.
    */
-  reset: () => TDefaults | void;
+  reset: () => void;
 
   /**
    * Sets a new state, merging with defaults.
@@ -68,7 +66,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    * Validates that the state is a plain object.
    *
    * @throws Error if state is not an object
-   * @deprecated K6 inlined the check into `set()` and removed the public method – calls on K6 will throw.
+   * @deprecated Absent from both K5 5.5.x and K6 – the object check is inlined into `set()`. Calls throw on every supported version; consider removing.
    */
   validateState: (state: unknown) => boolean;
 }
@@ -78,14 +76,12 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 // -----------------------------------------------------------------------------
 
 /**
- * @source panel/src/panel/listeners.js
  * @source panel/src/panel/listeners.ts
  */
 export type PanelEventCallback<TReturn = any> = (...args: any[]) => TReturn;
 
 /**
  * Map of event names to their callback functions.
- * @source panel/src/panel/listeners.js
  * @source panel/src/panel/listeners.ts
  */
 export type PanelEventListenerMap<TEvents extends string = string> = Partial<
@@ -110,7 +106,6 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
  * panel.dialog.emit("submit", formData);
  * ```
  *
- * @source panel/src/panel/listeners.js
  * @source panel/src/panel/listeners.ts
  */
 export interface PanelEventListeners<TEvents extends string = string> {
@@ -158,14 +153,14 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * Removes the listener registered for `event`.
    *
    * @param event - Event name whose listener should be removed
-   * @since 6
+   * @since 5.5.0
    */
   removeEventListener: (event: TEvents) => void;
 
   /**
    * Clears every registered listener. Called automatically when feature
    * state is replaced.
-   * @since 6
+   * @since 5.5.0
    */
   removeEventListeners: () => void;
 }
@@ -175,11 +170,10 @@ export interface PanelEventListeners<TEvents extends string = string> {
 // -----------------------------------------------------------------------------
 
 /**
- * @source panel/src/panel/feature.js
  * @source panel/src/panel/feature.ts
  */
 export interface PanelFeatureDefaults {
-  abortController: AbortController | null;
+  abortController: AbortController | undefined;
   component: string | null;
   isLoading: boolean;
   on: PanelEventListenerMap;
@@ -210,7 +204,6 @@ export interface PanelFeatureDefaults {
  * await panel.dropdown.open("/dropdowns/pages/home/options");
  * ```
  *
- * @source panel/src/panel/feature.js
  * @source panel/src/panel/feature.ts
  */
 export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
@@ -219,7 +212,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * AbortController for canceling pending requests.
    * Created on each `load()` call to enable request cancellation.
    */
-  abortController: AbortController | null;
+  abortController: AbortController | undefined;
 
   /**
    * Current Vue component name to render.
@@ -317,9 +310,9 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Reloads the feature by re-opening its current URL.
    *
    * @param options - Request options
-   * @returns False if no path exists; K6 forwards the `open()` result, K5 returns void.
+   * @returns False if no path exists; otherwise the feature's state after re-opening.
    */
-  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false | void>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
   /** Creates a full URL object for the current path and query. */
   url: () => URL;
@@ -455,7 +448,6 @@ export interface PanelModal<
 
   /**
    * Updates the form value and emits 'input' event.
-   * Uses Vue's `set()` for reactivity.
    *
    * @param value - New form value
    */
@@ -486,7 +478,7 @@ export interface PanelModal<
    * @param options - Request options
    * @returns False if no path exists; K6 forwards the `open()` result, K5 returns void.
    */
-  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false | void>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
   /**
    * Sets modal state, auto-generating an ID if not provided.
@@ -547,7 +539,6 @@ export interface PanelModal<
 
 /**
  * A history milestone representing a saved modal state.
- * @source panel/src/panel/history.js
  * @source panel/src/helpers/history.ts
  */
 export interface PanelHistoryMilestone {
@@ -572,7 +563,6 @@ export interface PanelHistoryMilestone {
  * }
  * ```
  *
- * @source panel/src/panel/history.js
  * @source panel/src/helpers/history.ts
  */
 export interface PanelHistory {
@@ -627,7 +617,7 @@ export interface PanelHistory {
 
   /**
    * Returns true when more than one milestone is stored.
-   * @since 6
+   * @since 5.4.0
    */
   hasPrevious: () => boolean;
 
@@ -676,8 +666,6 @@ export interface PanelHistory {
 
 /**
  * Options for Panel API requests.
- * @source panel/src/panel/request.js
- * @source panel/src/panel/feature.js
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/feature.ts
  */
@@ -706,7 +694,6 @@ export interface PanelRequestOptions {
 
 /**
  * Extended options for refresh requests.
- * @source panel/src/panel/feature.js
  * @source panel/src/panel/feature.ts
  */
 export interface PanelRefreshOptions extends PanelRequestOptions {
@@ -722,7 +709,6 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
  * Panel context indicating which layer is currently active.
  * Used to determine where notifications appear and which feature has focus.
  * @source panel/src/panel/panel.js
- * @source panel/src/panel/notification.js
  * @source panel/src/panel/notification.ts
  */
 export type PanelContext = "view" | "dialog" | "drawer";
@@ -733,7 +719,6 @@ export type PanelContext = "view" | "dialog" | "drawer";
  * `info()` shortcuts set `theme` (and `icon`) instead of `type`.
  * - `error`: Operation failed, persists until dismissed
  * - `fatal`: Critical error, displayed in isolated iframe
- * @source panel/src/panel/notification.js
  * @source panel/src/panel/notification.ts
  */
 export type NotificationType = "error" | "fatal";
@@ -743,7 +728,6 @@ export type NotificationType = "error" | "fatal";
  * - `positive`: Green, for success
  * - `negative`: Red, for errors
  * - `info`: Blue, for information
- * @source panel/src/panel/notification.js
  * @source panel/src/panel/notification.ts
  */
 export type NotificationTheme = "positive" | "negative" | "info";

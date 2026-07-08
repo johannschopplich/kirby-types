@@ -1,6 +1,6 @@
 ---
 name: audit-panel-types
-description: Audit kirby-types panel augmentation types against Kirby PHP, K6 TypeScript, and K5 JavaScript sources via a two-pass agent swarm. Use when asked to audit, verify, refresh, or check kirby-types panel types.
+description: Audit kirby-types panel augmentation types against Kirby PHP, K6 TypeScript, and K5 JavaScript sources via a two-pass agent swarm.
 disable-model-invocation: true
 ---
 
@@ -18,15 +18,28 @@ Ask the user for three absolute paths. Don't auto-detect.
 
 If `<KIRBY_K6_ROOT>` is absent, treat K6 as silent and proceed with PHP + K5.
 
-## Pre-flight – verify topology
+## Probe – map the live sources
 
-Spot-check [topology.md](references/topology.md) against `<KIRBY_K6_ROOT>/panel/src`. K6 keeps moving files between releases. Patch topology inline before launching agents – stale entries waste tokens.
+Kirby migrates modules between `.js` and `.ts` every release. Never trust hard-coded file status – discover it:
 
-Watch for: files still on `.js` that the topology calls TS (or vice versa), new singletons in `panel/src/panel/`, new helper registrations in `helpers/index.ts`.
+```
+scripts/probe.sh <KIRBY_K5_ROOT> <KIRBY_K6_ROOT> <KIRBY_TYPES_ROOT>
+```
+
+`probe.sh` creates `<KIRBY_TYPES_ROOT>/.review/.raw/` and writes `source-map.json` beside it. The map reports, per module, whether K5/K6 ship `.js`/`.ts`/`absent`; the `$helper` and panel-singleton registrations; both Kirby versions; and `postureFlags`. **Completion criterion**: `source-map.json` exists and its `modules` map is non-empty.
+
+Then branch on `postureFlags`:
+
+- **A flag contains `RE-CONFIRM`** (K6 shipped, K5 retired, or the plugin shape flipped) → surface it to the user and get a decision before launching. The standing posture lives in [rubric.md](references/rubric.md); a boundary crossing is the only thing that reopens it.
+- **Otherwise** → launch. Routine runs ask nothing.
+
+[topology.md](references/topology.md) gives the **stable** map only: symbol → cluster → module + PHP authority. Every agent reads `source-map.json` for file status and cites it – never the extensions in topology.
 
 ## Pass 1 – annotate + report
 
-One agent per cluster from [topology.md](references/topology.md). 23 agents, batched 7–8 at a time. Each writes its JSON to `<KIRBY_TYPES_ROOT>/.review/.raw/<cluster>.json` before returning – compaction loses in-memory results.
+One agent per cluster in [topology.md](references/topology.md), batched ~8 at a time. Each writes its JSON to `<KIRBY_TYPES_ROOT>/.review/.raw/<cluster>.json` before returning – compaction loses in-memory results.
+
+**Completion criterion**: every cluster in [topology.md](references/topology.md) has a written `.raw/<cluster>.json` before the rename gate. A clean cluster still writes one (empty finding arrays + summary); a missing file means a dropped agent – relaunch it.
 
 Pass 1 is **read-only on every file**, including the kirby-types `.d.ts`. Revert any stray `.d.ts` edits before pass 2.
 
@@ -43,6 +56,8 @@ A `learnFrom` whose new identifier differs from the old is a rename in disguise.
 
 ## Pass 2 – verify + apply
 
-One verifier per `.d.ts` (8 agents, read-only). Each reads the cluster JSONs for its file, decides ACT / DEFER / DISMISS, and emits `{old_string, new_string}` patches in JSON; the orchestrator applies them.
+One verifier per `.d.ts`, read-only. Each reads the cluster JSONs for its file, decides ACT / DEFER / DISMISS, and emits `{old_string, new_string}` patches in JSON; the orchestrator applies them.
 
 Prompt template: [agent-prompts.md – Pass 2](references/agent-prompts.md#pass-2). Apply walk: see [edit-gotchas.md](references/edit-gotchas.md).
+
+**Completion criterion**: `tsc --noEmit` and `pnpm test` both exit clean; `test/*.test-d.ts` assertions broken by the new types are updated in the same pass.

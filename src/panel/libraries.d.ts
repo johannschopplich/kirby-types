@@ -69,8 +69,8 @@ export type PanelColorInput = string | PanelColorObject;
  * ```
  *
  * @since 4.0.0
- * @source panel/src/libraries/colors.js
- * @source panel/src/libraries/colors-checks.js
+ * @source panel/src/libraries/colors.ts
+ * @source panel/src/libraries/colors-checks.ts
  */
 export interface PanelLibraryColors {
   /**
@@ -169,7 +169,7 @@ export interface PanelDayjsPatternPart {
 
 /**
  * Pattern analyzer object returned by `dayjs.pattern()`.
- * @source panel/src/libraries/dayjs-pattern.js
+ * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsPattern {
   /** Original pattern string */
@@ -195,10 +195,10 @@ export interface PanelDayjsPattern {
 
 /**
  * Kirby plugin extensions for dayjs instances.
- * @source panel/src/libraries/dayjs-iso.js
- * @source panel/src/libraries/dayjs-validate.js
- * @source panel/src/libraries/dayjs-merge.js
- * @source panel/src/libraries/dayjs-round.js
+ * @source panel/src/libraries/dayjs-iso.ts
+ * @source panel/src/libraries/dayjs-validate.ts
+ * @source panel/src/libraries/dayjs-merge.ts
+ * @source panel/src/libraries/dayjs-round.ts
  */
 export interface PanelDayjsExtensions {
   /**
@@ -254,9 +254,9 @@ export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
  * Kirby plugin extensions for the dayjs function (static methods).
- * @source panel/src/libraries/dayjs-interpret.js
- * @source panel/src/libraries/dayjs-iso.js
- * @source panel/src/libraries/dayjs-pattern.js
+ * @source panel/src/libraries/dayjs-interpret.ts
+ * @source panel/src/libraries/dayjs-iso.ts
+ * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsStaticExtensions {
   /**
@@ -309,10 +309,10 @@ export interface PanelDayjsStaticExtensions {
  * ```
  *
  * @since 4.0.0
- * @source panel/src/libraries/dayjs.js
- * @source panel/src/libraries/dayjs-interpret.js
- * @source panel/src/libraries/dayjs-iso.js
- * @source panel/src/libraries/dayjs-pattern.js
+ * @source panel/src/libraries/dayjs.ts
+ * @source panel/src/libraries/dayjs-interpret.ts
+ * @source panel/src/libraries/dayjs-iso.ts
+ * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   (date?: ConfigType): PanelDayjsInstance;
@@ -346,7 +346,7 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
  *
  * Automatically adjusts textarea height based on content.
  *
- * @source panel/src/libraries/index.js
+ * @source panel/src/libraries/index.ts
  * @source @types/autosize/index.d.ts
  */
 export interface PanelLibraryAutosize {
@@ -396,9 +396,9 @@ export interface PanelLibraryAutosize {
  * this.$library.autosize(this.$refs.textarea);
  * ```
  *
- * @source panel/src/libraries/index.js
- * @source panel/src/libraries/colors.js
- * @source panel/src/libraries/dayjs.js
+ * @source panel/src/libraries/index.ts
+ * @source panel/src/libraries/colors.ts
+ * @source panel/src/libraries/dayjs.ts
  */
 export interface PanelLibrary {
   autosize: PanelLibraryAutosize;

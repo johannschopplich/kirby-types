@@ -16,6 +16,8 @@ import type { PanelRequestOptions } from "./base";
  * API request options.
  * @source panel/src/api/request.js
  * @source panel/src/api/index.js
+ * @source panel/src/panel/request.ts
+ * @source panel/src/api/index.ts
  */
 export interface PanelApiRequestOptions extends PanelRequestOptions {
   /** Whether to skip loading indicator */
@@ -68,6 +70,7 @@ export interface PanelApiSearchQuery extends PanelApiPagination {
  * }
  * ```
  * @source panel/src/api/request.js
+ * @source panel/src/api/index.ts
  */
 export interface PanelModelData<TContent = Record<string, any>> {
   /** Model identifier (page id, file id, user id; undefined for site) */
@@ -85,6 +88,7 @@ export interface PanelModelData<TContent = Record<string, any>> {
 /**
  * User authentication data.
  * @source panel/src/api/auth.js
+ * @source panel/src/api/auth.ts
  */
 export interface PanelApiLoginData {
   /** User email */
@@ -99,6 +103,7 @@ export interface PanelApiLoginData {
  * Authentication API methods.
  *
  * @source panel/src/api/auth.js
+ * @source panel/src/api/auth.ts
  */
 export interface PanelApiAuth {
   /**
@@ -140,6 +145,7 @@ export interface PanelApiAuth {
  * Files API methods.
  *
  * @source panel/src/api/files.js
+ * @source panel/src/api/files.ts
  */
 export interface PanelApiFiles {
   /**
@@ -245,6 +251,7 @@ export interface PanelApiLanguageData {
  * Languages API methods.
  *
  * @source panel/src/api/languages.js
+ * @source panel/src/api/languages.ts
  */
 export interface PanelApiLanguages {
   /**
@@ -317,6 +324,7 @@ export interface PanelApiPageDuplicateOptions {
  * Pages API methods.
  *
  * @source panel/src/api/pages.js
+ * @source panel/src/api/pages.ts
  */
 export interface PanelApiPages {
   /**
@@ -496,6 +504,7 @@ export interface PanelApiPages {
  * Roles API methods.
  *
  * @source panel/src/api/roles.js
+ * @source panel/src/api/roles.ts
  */
 export interface PanelApiRoles {
   /**
@@ -523,6 +532,7 @@ export interface PanelApiRoles {
  * Site API methods.
  *
  * @source panel/src/api/site.js
+ * @source panel/src/api/site.ts
  */
 export interface PanelApiSite {
   /**
@@ -598,6 +608,7 @@ export interface PanelApiSystemRegisterData {
  * System API methods.
  *
  * @source panel/src/api/system.js
+ * @source panel/src/api/system.ts
  */
 export interface PanelApiSystem {
   /**
@@ -633,15 +644,16 @@ export interface PanelApiSystem {
  * Translations API methods.
  *
  * @source panel/src/api/translations.js
+ * @source panel/src/api/translations.ts
  */
 export interface PanelApiTranslations {
   /**
    * Gets a translation.
    *
-   * @param code - Translation code
+   * @param locale - Locale code
    * @returns Translation data
    */
-  get: (code: string) => Promise<any>;
+  get: (locale: string) => Promise<any>;
 
   /**
    * Lists all translations.
@@ -673,6 +685,7 @@ export interface PanelApiUserCreateData {
  * Users API methods.
  *
  * @source panel/src/api/users.js
+ * @source panel/src/api/users.ts
  */
 export interface PanelApiUsers {
   /**
@@ -856,6 +869,7 @@ export interface PanelApiUsers {
  * @source panel/src/api/post.js
  * @source panel/src/api/patch.js
  * @source panel/src/api/delete.js
+ * @source panel/src/panel/request.ts
  */
 export interface PanelApi {
   /** CSRF token for requests */
@@ -879,8 +893,8 @@ export interface PanelApi {
   /** Active request IDs */
   requests: string[];
 
-  /** Current language code (set from the Panel's active language on construction and refreshed on each request) */
-  language: string;
+  /** Current language code, or `null` when no language is active (set from the Panel's active language on construction and refreshed on each request) */
+  language: string | null;
 
   /**
    * Makes a raw API request.

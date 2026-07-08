@@ -4,7 +4,7 @@ One template per pass. Both passes are read-only on every file – never use the
 
 ## Pass 1
 
-One Agent call per cluster, `run_in_background: true`. 23 clusters. Launch 7–8 at a time so notifications stay manageable. Subagents inherit the orchestrator's model – don't pass an explicit `model:` override.
+One Agent call per cluster, `run_in_background: true`. Launch in batches of ~8 so notifications stay manageable. Subagents inherit the orchestrator's model – don't pass an explicit `model:` override.
 
 ````
 ROLE: You review TypeScript augmentation types that describe Kirby Panel's runtime `window.panel`. READ-ONLY on every file – including the kirby-types `.d.ts` under review. DO NOT use the Edit tool. Write only to the JSON output path before returning.
@@ -14,21 +14,22 @@ OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<CLUSTER>.json
 TS FILE TO REVIEW: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
 
 KIRBY ROOTS:
-- <KIRBY_K5_ROOT> – PHP authority at `src/`; K5 JS at `panel/src/`.
-- <KIRBY_K6_ROOT> – K6 TS at `panel/src/`. (May be absent – treat K6 as silent if so.)
+- <KIRBY_K5_ROOT> – PHP authority at `src/`; K5 client at `panel/src/`.
+- <KIRBY_K6_ROOT> – K6 client at `panel/src/`. (May be absent – treat K6 as silent if so.)
+
+SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json – per module, whether K5/K6 ship `.js`/`.ts`/`absent`, plus `$helper`/singleton registrations. Resolve every module's extension from here. NEVER assume `.js` vs `.ts`.
 
 SYMBOLS YOU OWN:
 <COMMA-SEPARATED LIST FROM TOPOLOGY>
 
-CANDIDATE SOURCES:
-- PHP: <list from topology, or "silent">
-- K6 TS: <list from topology, or "no K6 source">
-- K5 JS: <list from topology>
+MODULES (extension-free – resolve each against the source map):
+<MODULE LIST FROM TOPOLOGY>
+PHP: <PHP paths from topology, or "silent">
 
 JOB:
-1. Locate sources for each owned symbol.
-2. Trinary diff PHP → K6 TS → K5 JS, then sweep TYPES → SOURCES.
-3. Apply the rubric.
+1. Resolve each owned symbol's module(s) to real files via the source map, then read them.
+2. Trinary diff PHP → K6 → K5, then sweep TYPES → SOURCES.
+3. Apply the rubric. For `@source`: cite the file the map says exists; a `.js` the map marks migrated is a **phantom** → replace with the `.ts`, don't dual-source.
 
 OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 {
@@ -61,9 +62,9 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 
 ## Pass 2
 
-One Agent call per `.d.ts`, `run_in_background: true`. 8 agents. Same model-inheritance rule as pass 1.
+One Agent call per `.d.ts`, `run_in_background: true`. Same model-inheritance rule as pass 1.
 
-Time-box: pass 1 already cited PHP/K6/K5 paths. Re-read a source only when the finding is unclear. If still ambiguous after one quick check, DEFER. Aim for under 5 minutes wall-clock.
+Time-box: pass 1 already cited PHP/K6/K5 paths. Re-read a source only when the finding is unclear. If still ambiguous after one quick check, DEFER.
 
 ````
 ROLE: Pass-2 verifier for kirby-types Panel types. Re-verify pass-1 findings and emit `{old_string, new_string}` patches for confirmed issues. READ-ONLY on every file – DO NOT use the Edit tool. Write only to the JSON output path before returning.

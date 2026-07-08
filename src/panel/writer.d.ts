@@ -31,6 +31,7 @@ import type {
   Decoration,
   DecorationSource,
   EditorView,
+  MarkView,
   NodeView,
 } from "prosemirror-view";
 
@@ -45,7 +46,9 @@ import type {
  * when using class-based extensions, or that is passed to event handlers.
  *
  * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/components/Forms/Writer/Emitter.js
+ * @source panel/src/components/Forms/Writer/Emitter.ts
  */
 export interface WriterEditor {
   // ---------------------------------------------------------------------------
@@ -72,7 +75,11 @@ export interface WriterEditor {
   focused: boolean;
   /** Active input rules */
   inputRules: InputRule[];
-  /** Check if a mark or node is active */
+  /**
+   * Check if a mark or node is active.
+   *
+   * @deprecated Removed in Kirby 6.
+   */
   isActive: Record<string, (attrs?: Record<string, any>) => boolean>;
   /** Keymap plugins */
   keymaps: Plugin[];
@@ -154,9 +161,13 @@ export interface WriterEditor {
   getHTMLStartToSelectionToEnd: () => [string, string];
   /** Returns the current content as JSON */
   getJSON: () => Record<string, any>;
-  /** Returns attributes for a mark type */
-  getMarkAttrs: (type: string) => Record<string, any>;
-  /** Returns the schema as JSON */
+  /** Returns attributes for a mark type, or `undefined` when the mark is not active */
+  getMarkAttrs: (type?: string) => Record<string, any> | undefined;
+  /**
+   * Returns the schema as JSON.
+   *
+   * @deprecated Removed in Kirby 6.
+   */
   getSchemaJSON: () => {
     nodes: Record<string, any>;
     marks: Record<string, any>;
@@ -228,7 +239,17 @@ export interface WriterEditorOptions {
 export interface WriterExtensions {
   /** All registered extension instances */
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /** ProseMirror EditorView assigned by the editor after initialization */
+  /**
+   * The editor instance this extensions manager belongs to.
+   *
+   * @since 6
+   */
+  editor: WriterEditor;
+  /**
+   * ProseMirror EditorView assigned by the editor after initialization.
+   *
+   * @deprecated Removed in Kirby 6; the extensions manager reads the view from its `editor` reference instead.
+   */
   view: EditorView;
 
   /** Returns toolbar buttons for the given type */
@@ -255,9 +276,12 @@ export interface WriterExtensions {
  * Buttons appear in the Writer toolbar and trigger commands when clicked.
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/components/Forms/Writer/Nodes/Heading.js
+ * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
  * @source panel/src/components/Forms/Writer/Marks/Link.js
+ * @source panel/src/components/Forms/Writer/Marks/Link.ts
  */
 export interface WriterToolbarButton {
   /** Unique identifier (defaults to extension name) */
@@ -292,6 +316,7 @@ export interface WriterToolbarButton {
  * extension methods via the context object.
  *
  * @source panel/src/components/Forms/Writer/Utils/index.js
+ * @source panel/src/components/Forms/Writer/Utils/index.ts
  */
 export interface WriterUtils {
   // ---------------------------------------------------------------------------
@@ -455,6 +480,7 @@ export interface WriterUtils {
    * @param type - The mark type to apply
    * @param getAttrs - Optional function to compute mark attributes from the matched string
    * @returns A ProseMirror plugin
+   * @deprecated Use `markPasteRule` instead (deprecated since Kirby 6).
    */
   pasteRule: (
     regexp: RegExp,
@@ -497,9 +523,10 @@ export interface WriterUtils {
    * Creates a command that toggles wrapping the selection in a node.
    *
    * @param type - The node type to wrap in
+   * @param attrs - Optional attributes for the wrapping node
    * @returns A ProseMirror command
    */
-  toggleWrap: (type: NodeType) => Command;
+  toggleWrap: (type: NodeType, attrs?: Record<string, any>) => Command;
 
   /**
    * Creates a command that updates the attributes of the active mark.
@@ -538,6 +565,7 @@ export interface WriterUtils {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterMarkContext {
   /** The ProseMirror schema with all registered nodes and marks */
@@ -561,6 +589,7 @@ export interface WriterMarkContext {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterNodeContext {
   /** The ProseMirror schema with all registered nodes and marks */
@@ -578,6 +607,7 @@ export interface WriterNodeContext {
  * are provided.
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensionContext {
   /** The ProseMirror schema with all registered nodes and marks */
@@ -616,6 +646,7 @@ export interface WriterExtensionContext {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Extension.js
+ * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions/History.js
  * @source panel/src/components/Forms/Writer/Extensions/Insert.js
  * @source panel/src/components/Forms/Writer/Extensions/Keys.js
@@ -653,7 +684,7 @@ export interface WriterExtension {
    */
   commands?: (
     context: WriterExtensionContext,
-  ) => (() => any) | Record<string, (attrs?: any) => any>;
+  ) => ((attrs?: any) => any) | Record<string, (attrs?: any) => any>;
 
   /**
    * Additional ProseMirror plugins.
@@ -685,7 +716,9 @@ export interface WriterExtension {
    * @param context - Context with schema and utils
    * @returns Object mapping key combinations to command functions
    */
-  keys?: (context: WriterExtensionContext) => Record<string, () => any>;
+  keys?: (
+    context: WriterExtensionContext,
+  ) => Record<string, Command | (() => void)>;
 }
 
 // -----------------------------------------------------------------------------
@@ -724,8 +757,11 @@ export interface WriterExtension {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Mark.js
+ * @source panel/src/components/Forms/Writer/Mark.ts
  * @source panel/src/components/Forms/Writer/Extension.js
+ * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Marks/Bold.js
  * @source panel/src/components/Forms/Writer/Marks/Clear.js
  * @source panel/src/components/Forms/Writer/Marks/Code.js
@@ -818,7 +854,7 @@ export interface WriterMarkExtension {
    */
   commands?: (
     context: WriterMarkContext,
-  ) => (() => any) | Record<string, (attrs?: any) => any>;
+  ) => ((attrs?: any) => any) | Record<string, (attrs?: any) => any>;
 
   /**
    * Input rules for automatic formatting.
@@ -852,7 +888,7 @@ export interface WriterMarkExtension {
    * }
    * ```
    */
-  keys?: (context: WriterMarkContext) => Record<string, () => any>;
+  keys?: (context: WriterMarkContext) => Record<string, Command | (() => void)>;
 
   /**
    * Paste rules for processing pasted content.
@@ -895,11 +931,7 @@ export interface WriterMarkExtension {
   /**
    * Custom mark view for rendering.
    */
-  view?: (
-    mark: Mark,
-    view: EditorView,
-    inline: boolean,
-  ) => { dom: HTMLElement; contentDOM?: HTMLElement };
+  view?: (mark: Mark, view: EditorView, inline: boolean) => MarkView;
 
   // ---------------------------------------------------------------------------
   // Lifecycle
@@ -976,8 +1008,11 @@ export interface WriterMarkExtension {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Node.js
+ * @source panel/src/components/Forms/Writer/Node.ts
  * @source panel/src/components/Forms/Writer/Extension.js
+ * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Nodes/BulletList.js
  * @source panel/src/components/Forms/Writer/Nodes/Doc.js
  * @source panel/src/components/Forms/Writer/Nodes/HardBreak.js
@@ -1046,7 +1081,7 @@ export interface WriterNodeExtension {
    */
   commands?: (
     context: WriterNodeContext,
-  ) => (() => any) | Record<string, (attrs?: any) => any>;
+  ) => ((attrs?: any) => any) | Record<string, (attrs?: any) => any>;
 
   /**
    * Input rules for automatic formatting.
@@ -1062,7 +1097,7 @@ export interface WriterNodeExtension {
    * @param context - Context with schema, type, and utils
    * @returns Object mapping key combinations to command functions
    */
-  keys?: (context: WriterNodeContext) => Record<string, () => any>;
+  keys?: (context: WriterNodeContext) => Record<string, Command | (() => void)>;
 
   /**
    * Paste rules for processing pasted content.
@@ -1087,7 +1122,7 @@ export interface WriterNodeExtension {
     node: ProseMirrorNode,
     view: EditorView,
     getPos: () => number | undefined,
-    decorations: Decoration[],
+    decorations: readonly Decoration[],
     innerDecorations: DecorationSource,
   ) => NodeView;
 

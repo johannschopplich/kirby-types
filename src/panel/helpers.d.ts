@@ -23,7 +23,7 @@ export interface PanelArraySearchOptions {
 /**
  * Array helper utilities.
  *
- * @source panel/src/helpers/array.js
+ * @source panel/src/helpers/array.ts
  */
 export interface PanelHelpersArray {
   /**
@@ -86,7 +86,7 @@ export type PanelSlugRules = Record<string, string>[];
 /**
  * String helper utilities.
  *
- * @source panel/src/helpers/string.js
+ * @source panel/src/helpers/string.ts
  */
 export interface PanelHelpersString {
   /**
@@ -114,6 +114,16 @@ export interface PanelHelpersString {
   hasEmoji: (string: string) => boolean;
 
   /**
+   * Checks if a string is shaped like an email address.
+   *
+   * @param string - String to check
+   * @param strict - Reject a trailing query/hash after the domain
+   * @returns True if the string looks like an email address
+   * @since 5.4.4
+   */
+  isEmail: (string: unknown, strict?: boolean) => boolean;
+
+  /**
    * Checks if string is empty or falsy.
    *
    * @param string - String to check
@@ -136,7 +146,7 @@ export interface PanelHelpersString {
    * @param replace - Characters to remove
    * @returns Trimmed string
    */
-  ltrim: (string: string, replace: string) => string;
+  ltrim: (string: string, replace?: string) => string;
 
   /**
    * Prefixes string with zeros until length is reached.
@@ -162,7 +172,7 @@ export interface PanelHelpersString {
    * @param replace - Characters to remove
    * @returns Trimmed string
    */
-  rtrim: (string: string, replace: string) => string;
+  rtrim: (string: string, replace?: string) => string;
 
   /**
    * Converts string to ASCII slug.
@@ -196,7 +206,7 @@ export interface PanelHelpersString {
    * @param options.marks - Allowed marks; strings are treated as mark names, objects as mark configs
    * @param options.nodes - Allowed nodes; strings are treated as node names, objects as node configs
    * @returns Sanitized HTML string
-   * @since 6.0.0
+   * @since 5.5.0
    */
   sanitizeHTML: (
     html: unknown,
@@ -254,11 +264,11 @@ export interface PanelHelpersString {
 /**
  * Object helper utilities.
  *
- * @source panel/src/helpers/object.js
+ * @source panel/src/helpers/object.ts
  */
 export interface PanelHelpersObject {
   /**
-   * Deep clones a value via `structuredClone`. Returns `undefined` unchanged.
+   * Deep clones a value. Returns `undefined` unchanged.
    *
    * @param value - Value to clone
    * @returns Cloned value
@@ -335,7 +345,7 @@ export interface PanelHelpersObject {
 /**
  * URL helper utilities.
  *
- * @source panel/src/helpers/url.js
+ * @source panel/src/helpers/url.ts
  */
 export interface PanelHelpersUrl {
   /**
@@ -370,6 +380,16 @@ export interface PanelHelpersUrl {
     query?: Record<string, string | number | boolean | null>,
     origin?: string | URL,
   ) => URL;
+
+  /**
+   * Checks if a URL begins with a dangerous URI scheme (e.g. `javascript:`,
+   * `vbscript:`, `data:`) after stripping ignorable characters.
+   *
+   * @param url - URL to check
+   * @returns True if the URL uses a dangerous scheme
+   * @since 5.4.4
+   */
+  hasDangerousScheme: (url: unknown) => boolean;
 
   /**
    * Checks if URL string starts with http:// or https://.
@@ -422,7 +442,7 @@ export interface PanelHelpersUrl {
 /**
  * Clipboard helper utilities.
  *
- * @source panel/src/helpers/clipboard.js
+ * @source panel/src/helpers/clipboard.ts
  */
 export interface PanelHelpersClipboard {
   /**
@@ -451,7 +471,7 @@ export interface PanelHelpersClipboard {
 /**
  * Embed helper utilities for video providers.
  *
- * @source panel/src/helpers/embed.js
+ * @source panel/src/helpers/embed.ts
  */
 export interface PanelHelpersEmbed {
   /**
@@ -507,7 +527,7 @@ export interface PanelFieldDefinition {
 /**
  * Field helper utilities.
  *
- * @source panel/src/helpers/field.js
+ * @source panel/src/helpers/field.ts
  */
 export interface PanelHelpersField {
   /**
@@ -558,7 +578,7 @@ export interface PanelHelpersField {
 /**
  * File helper utilities.
  *
- * @source panel/src/helpers/file.js
+ * @source panel/src/helpers/file.ts
  */
 export interface PanelHelpersFile {
   /**
@@ -593,7 +613,7 @@ export interface PanelHelpersFile {
 /**
  * Keyboard helper utilities.
  *
- * @source panel/src/helpers/keyboard.js
+ * @source panel/src/helpers/keyboard.ts
  */
 export interface PanelHelpersKeyboard {
   /**
@@ -649,7 +669,7 @@ export interface PanelLinkPreview {
 /**
  * Link helper utilities.
  *
- * @source panel/src/helpers/link.js
+ * @source panel/src/helpers/link.ts
  */
 export interface PanelHelpersLink {
   /**
@@ -741,7 +761,7 @@ export interface PanelPageStatusProps {
 /**
  * Page helper utilities.
  *
- * @source panel/src/helpers/page.js
+ * @source panel/src/helpers/page.ts
  */
 export interface PanelHelpersPage {
   /**
@@ -792,7 +812,11 @@ export interface PanelUploadParams {
   abort?: AbortSignal;
   /** Progress callback */
   progress?: PanelUploadProgressCallback;
-  /** Complete callback (declared but currently unused at runtime) */
+  /**
+   * Complete callback (declared but never invoked at runtime).
+   *
+   * @deprecated K6 removed `complete` from the upload params; on K6 this option does not exist.
+   */
   complete?: () => void;
   /** Success callback */
   success?: PanelUploadResultCallback;
@@ -869,20 +893,20 @@ export type PanelComparator = (
  */
 export interface PanelHelpers {
   /**
-   * @source panel/src/helpers/array.js
+   * @source panel/src/helpers/array.ts
    */
   array: PanelHelpersArray;
 
   /**
-   * @source panel/src/helpers/clipboard.js
+   * @source panel/src/helpers/clipboard.ts
    */
   clipboard: PanelHelpersClipboard;
 
   /**
    * Deep clones a value.
    * Shortcut for `object.clone()`.
-   * @source panel/src/helpers/object.js
-   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/object.ts
+   * @source panel/src/helpers/index.ts
    */
   clone: <T>(value: T) => T;
 
@@ -891,7 +915,7 @@ export interface PanelHelpers {
    *
    * @param value - Color name or value
    * @returns CSS variable or original value, undefined if not a string
-   * @source panel/src/helpers/color.js
+   * @source panel/src/helpers/color.ts
    */
   color: (value: unknown) => string | undefined;
 
@@ -902,8 +926,8 @@ export interface PanelHelpers {
    * @param delay - Delay in milliseconds
    * @param options - Debounce options
    * @returns Debounced function
-   * @source panel/src/helpers/debounce.js
-   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/debounce.ts
+   * @source panel/src/helpers/index.ts
    */
   debounce: <T extends (...args: any[]) => any>(
     fn: T,
@@ -912,17 +936,17 @@ export interface PanelHelpers {
   ) => PanelDebouncedFunction<T>;
 
   /**
-   * @source panel/src/helpers/embed.js
+   * @source panel/src/helpers/embed.ts
    */
   embed: PanelHelpersEmbed;
 
   /**
-   * @source panel/src/helpers/field.js
+   * @source panel/src/helpers/field.ts
    */
   field: PanelHelpersField;
 
   /**
-   * @source panel/src/helpers/file.js
+   * @source panel/src/helpers/file.ts
    */
   file: PanelHelpersFile;
 
@@ -932,7 +956,7 @@ export interface PanelHelpers {
    * @param element - Selector, element, or null (returns false)
    * @param field - Specific input name to focus
    * @returns The focused element, or false if nothing could be focused
-   * @source panel/src/helpers/focus.js
+   * @source panel/src/helpers/focus.ts
    */
   focus: (
     element: string | HTMLElement | null,
@@ -946,11 +970,10 @@ export interface PanelHelpers {
    * `window.panel?.app`; ignored on K5.
    *
    * @param name - Component name
-   * @param app - Optional Vue app instance
+   * @param app - Optional Vue app instance (since Kirby 6)
    * @returns True if registered
-   * @since 6
-   * @source panel/src/helpers/isComponent.js
-   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/isComponent.ts
+   * @source panel/src/helpers/index.ts
    */
   isComponent: (name: string, app?: unknown) => boolean;
 
@@ -959,36 +982,36 @@ export interface PanelHelpers {
    *
    * @param event - Event to check
    * @returns True if file upload event
-   * @source panel/src/helpers/isUploadEvent.js
-   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/isUploadEvent.ts
+   * @source panel/src/helpers/index.ts
    */
   isUploadEvent: (event: DragEvent) => boolean;
 
   /**
-   * @source panel/src/helpers/keyboard.js
+   * @source panel/src/helpers/keyboard.ts
    */
   keyboard: PanelHelpersKeyboard;
 
   /**
-   * @source panel/src/helpers/link.js
+   * @source panel/src/helpers/link.ts
    */
   link: PanelHelpersLink;
 
   /**
-   * @source panel/src/helpers/object.js
+   * @source panel/src/helpers/object.ts
    */
   object: PanelHelpersObject;
 
   /**
    * Left-pads value with zeros.
    * Shortcut for `string.pad()`.
-   * @source panel/src/helpers/index.js
-   * @source panel/src/helpers/string.js
+   * @source panel/src/helpers/index.ts
+   * @source panel/src/helpers/string.ts
    */
   pad: (value: string | number, length?: number) => string;
 
   /**
-   * @source panel/src/helpers/page.js
+   * @source panel/src/helpers/page.ts
    */
   page: PanelHelpersPage;
 
@@ -999,15 +1022,15 @@ export interface PanelHelpers {
    * @param fallback - Fallback value (default: `"100%"`)
    * @param vertical - Calculate for vertical orientation
    * @returns Percentage string
-   * @source panel/src/helpers/ratio.js
+   * @source panel/src/helpers/ratio.ts
    */
   ratio: (fraction?: string, fallback?: string, vertical?: boolean) => string;
 
   /**
    * Converts string to slug.
    * Shortcut for `string.slug()`.
-   * @source panel/src/helpers/index.js
-   * @source panel/src/helpers/string.js
+   * @source panel/src/helpers/index.ts
+   * @source panel/src/helpers/string.ts
    */
   slug: (
     string: string,
@@ -1021,12 +1044,12 @@ export interface PanelHelpers {
    *
    * @param options - Sort options
    * @returns Comparator function
-   * @source panel/src/helpers/sort.js
+   * @source panel/src/helpers/sort.ts
    */
   sort: (options?: PanelSortOptions) => PanelComparator;
 
   /**
-   * @source panel/src/helpers/string.js
+   * @source panel/src/helpers/string.ts
    */
   string: PanelHelpersString;
 
@@ -1037,8 +1060,8 @@ export interface PanelHelpers {
    * @param delay - Delay in milliseconds
    * @param options - Throttle options
    * @returns Throttled function with cancel method
-   * @source panel/src/helpers/throttle.js
-   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/throttle.ts
+   * @source panel/src/helpers/index.ts
    */
   throttle: <T extends (...args: any[]) => any>(
     fn: T,
@@ -1052,30 +1075,30 @@ export interface PanelHelpers {
    * @param file - File to upload
    * @param params - Upload parameters
    * @returns Promise resolving to response
-   * @source panel/src/helpers/upload.js
-   * @source panel/src/helpers/index.js
+   * @source panel/src/helpers/upload.ts
+   * @source panel/src/helpers/index.ts
    */
   upload: (file: File, params: PanelUploadParams) => Promise<unknown>;
 
   /**
-   * @source panel/src/helpers/url.js
+   * @source panel/src/helpers/url.ts
    */
   url: PanelHelpersUrl;
 
   /**
    * Generates UUID v4 string.
    * Shortcut for `string.uuid()`.
-   * @source panel/src/helpers/index.js
-   * @source panel/src/helpers/string.js
+   * @source panel/src/helpers/index.ts
+   * @source panel/src/helpers/string.ts
    */
   uuid: () => string;
 
   /**
    * Writer (ProseMirror) extension helpers for resolving allowed marks/nodes
-   * and building extension instances. Available on K6+ only; on K5 this property
-   * is `undefined` at runtime.
+   * and building extension instances. Available since Kirby 5.5.0; on earlier
+   * versions this property is `undefined` at runtime.
    *
-   * @since 6.0.0
+   * @since 5.5.0
    * @source panel/src/helpers/writer.js
    * @source panel/src/helpers/index.ts
    */
@@ -1093,10 +1116,10 @@ export interface PanelHelpers {
  * extension instances (including those contributed by plugins), and exposes
  * the lower-level building blocks used by `createMarks` / `createNodes`.
  *
- * Available on K6+ only.
+ * Available since Kirby 5.5.0.
  *
  * @source panel/src/helpers/writer.js
- * @since 6.0.0
+ * @since 5.5.0
  */
 export interface PanelHelpersWriter {
   /**

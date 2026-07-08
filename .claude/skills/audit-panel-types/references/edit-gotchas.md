@@ -27,3 +27,5 @@ Walk any nested object collecting `{old_string, new_string}` pairs from ACT entr
 **Anchor uniqueness.** Some property names legitimately appear twice (e.g. `clone:`, `pad:`, `slug:`, `uuid:` on both a sub-interface and as parent shortcuts). Verify uniqueness before applying. Disambiguate by widening the anchor to include the surrounding declaration or the trailing `{`.
 
 **Idempotence.** Patches whose `old_string` is gone are already applied – that's a no-op, not an error.
+
+**Narrowing a base type cascades to derived overrides.** Narrowing a member on a parent interface can make a wider override on a child interface an illegal override – `tsc` then fails on the child, not the patched line. Example: narrowing `PanelFeature.reload` to `Promise<T | false>` broke `PanelModal.reload` (still `Promise<T | false | void>`), because a child's return must stay assignable to the parent's. When a patch narrows a member, grep for interfaces that `extends` the patched one and narrow their overrides in the same pass.
