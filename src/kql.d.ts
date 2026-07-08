@@ -42,8 +42,7 @@ export interface KirbyQuerySchema {
    * Can be an array of field names or an object for nested queries.
    */
   select?:
-    | string[]
-    | Record<string, string | number | boolean | KirbyQuerySchema>;
+    string[] | Record<string, string | number | boolean | KirbyQuerySchema>;
 }
 
 /**

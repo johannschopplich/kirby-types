@@ -43,13 +43,7 @@ export interface TextareaToolbarContext {
    */
   command: (
     name:
-      | "dialog"
-      | "insert"
-      | "prepend"
-      | "toggle"
-      | "upload"
-      | "wrap"
-      | "file",
+      "dialog" | "insert" | "prepend" | "toggle" | "upload" | "wrap" | "file",
     ...args: any[]
   ) => void;
 

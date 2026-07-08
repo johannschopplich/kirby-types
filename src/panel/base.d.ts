@@ -328,13 +328,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
  * @source panel/src/panel/modal.ts
  */
 export type PanelModalEvent =
-  | "cancel"
-  | "close"
-  | "closed"
-  | "input"
-  | "open"
-  | "submit"
-  | "success";
+  "cancel" | "close" | "closed" | "input" | "open" | "submit" | "success";
 
 /**
  * Bound listener functions returned by `modal.listeners()`.

@@ -87,8 +87,7 @@ type FunctionNotationQuery<M extends string = never> =
  * @template M - Optional custom model names to include in validation
  */
 export type KirbyQueryChain<M extends string = never> =
-  | DotNotationQuery<M>
-  | FunctionNotationQuery<M>;
+  DotNotationQuery<M> | FunctionNotationQuery<M>;
 
 /**
  * Represents any valid Kirby Query Language (KQL) string.
