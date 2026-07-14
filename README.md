@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./.github/favicon.svg" alt="kirby-types logo" width="144">
+  <img src="./.github/favicon.svg" alt="kirby-types logo" width="120">
 
 # kirby-types
 
@@ -321,6 +321,8 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 | [`KirbyLinkFieldProps`](./src/blueprint.d.ts)     | Link field props                |
 | [`KirbyObjectFieldProps`](./src/blueprint.d.ts)   | Object field props              |
 | [`KirbyWriterFieldProps`](./src/blueprint.d.ts)   | Writer (rich text) field props  |
+| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)  | Entries field props (Kirby 5+)  |
+| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)    | Stats field props (Kirby 5.1+)  |
 
 </details>
 
