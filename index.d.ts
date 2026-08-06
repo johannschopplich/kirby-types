@@ -1,12 +1,9 @@
-// -----------------------------------------------------------------------------
-// API Types
-// -----------------------------------------------------------------------------
+// #region API Types
 
 export type { KirbyApiResponse } from "./src/api";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Block Types
-// -----------------------------------------------------------------------------
+// #region Block Types
 
 export type {
   KirbyBlock,
@@ -14,42 +11,37 @@ export type {
   KirbyDefaultBlocks,
   KirbyDefaultBlockType,
 } from "./src/blocks";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Blueprint Types
-// -----------------------------------------------------------------------------
+// #region Blueprint Types
 
 export type * from "./src/blueprint";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// KQL Types
-// -----------------------------------------------------------------------------
+// #region KQL Types
 
 export type {
   KirbyQueryRequest,
   KirbyQueryResponse,
   KirbyQuerySchema,
 } from "./src/kql";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Layout Types
-// -----------------------------------------------------------------------------
+// #region Layout Types
 
 export type {
   KirbyLayout,
   KirbyLayoutColumn,
   KirbyLayoutColumnWidth,
 } from "./src/layout";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Types
-// -----------------------------------------------------------------------------
+// #region Panel Types
 
 export * from "./src/panel/index";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Query Types
-// -----------------------------------------------------------------------------
+// #region Query Types
 
 export type {
   KirbyQuery,
@@ -57,3 +49,4 @@ export type {
   KirbyQueryModel,
   ParseKirbyQuery,
 } from "./src/query";
+// #endregion

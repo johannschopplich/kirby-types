@@ -1,7 +1,7 @@
 /* eslint-disable perfectionist/sort-named-exports */
 
 /**
- * Kirby Panel Type Definitions
+ * Kirby Panel type definitions.
  *
  * This is the main entry point for all Panel type definitions.
  * Types are organized into modules for better maintainability:
@@ -38,183 +38,123 @@ import type { PanelLibrary } from "./libraries";
 import type { TextareaButton } from "./textarea";
 import type { WriterMarkExtension, WriterNodeExtension } from "./writer";
 
-// -----------------------------------------------------------------------------
-// Re-exports from api.d.ts
-// -----------------------------------------------------------------------------
+// #region Re-exports from api.d.ts
 
 export type {
-  // Auth
   PanelApiAuth,
-  // Files
   PanelApiFiles,
-  // Languages
   PanelApiLanguages,
-  // Pages
   PanelApiPages,
-  // Roles
   PanelApiRoles,
-  // Site
   PanelApiSite,
-  // System
   PanelApiSystem,
-  // Translations
   PanelApiTranslations,
-  // Users
   PanelApiUsers,
-  // Main API Interface
   PanelApi,
-  // Model Data
   PanelModelData,
 } from "./api";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Re-exports from base.d.ts
-// -----------------------------------------------------------------------------
+// #region Re-exports from base.d.ts
 
 export type {
-  // State Management
   PanelState,
-  // Event Listeners
   PanelEventCallback,
   PanelEventListenerMap,
   PanelEventListeners,
-  // Feature
   PanelFeatureDefaults,
   PanelFeature,
-  // Modal
   PanelModalEvent,
   PanelModalListeners,
   PanelSuccessResponse,
   PanelModal,
-  // History
   PanelHistoryMilestone,
   PanelHistory,
-  // Request Options
   PanelRequestOptions,
   PanelRefreshOptions,
-  // Context & Notification Types
   PanelContext,
   NotificationType,
   NotificationTheme,
 } from "./base";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Re-exports from features.d.ts
-// -----------------------------------------------------------------------------
+// #region Re-exports from features.d.ts
 
 export type {
-  // Timer
   PanelTimer,
-  // Activation
   PanelActivation,
-  // Drag
   PanelDrag,
-  // Theme
   PanelThemeValue,
   PanelTheme,
-  // Language
   PanelLanguage,
-  // Menu
   PanelMenuEntry,
   PanelMenu,
-  // Notification
   PanelNotificationOptions,
   PanelErrorObject,
   PanelNotification,
-  // System
   PanelSystem,
-  // Translation
   PanelTranslation,
-  // User
   PanelUser,
-  // View
   PanelBreadcrumbItem,
   PanelView,
-  // Dropdown
   PanelDropdownOption,
   PanelDropdown,
-  // Dialog
   PanelDialog,
-  // Drawer
   PanelDrawer,
-  // Content
   PanelContentVersion,
   PanelContentVersions,
   PanelContentLock,
   PanelContentEnv,
   PanelContent,
-  // Searcher
   PanelSearchPagination,
   PanelSearchOptions,
   PanelSearchResult,
   PanelSearcher,
-  // Upload
   PanelUploadFile,
   PanelUpload,
-  // Events
   PanelEventEmitter,
   PanelEvents,
 } from "./features";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Re-exports from helpers.d.ts
-// -----------------------------------------------------------------------------
+// #region Re-exports from helpers.d.ts
 
-export type {
-  // Main Helpers Interface
-  PanelHelpers,
-} from "./helpers";
+export type { PanelHelpers } from "./helpers";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Re-exports from libraries.d.ts
-// -----------------------------------------------------------------------------
+// #region Re-exports from libraries.d.ts
 
-export type {
-  // Main Library Interface
-  PanelLibrary,
-} from "./libraries";
+export type { PanelLibrary } from "./libraries";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Re-exports from textarea.d.ts
-// -----------------------------------------------------------------------------
+// #region Re-exports from textarea.d.ts
+
+export type { TextareaButton, TextareaToolbarContext } from "./textarea";
+// #endregion
+
+// #region Re-exports from writer.d.ts
 
 export type {
-  // Textarea Toolbar
-  TextareaButton,
-  TextareaToolbarContext,
-} from "./textarea";
-
-// -----------------------------------------------------------------------------
-// Re-exports from writer.d.ts
-// -----------------------------------------------------------------------------
-
-export type {
-  // Writer Editor
   WriterEditor,
-  // Writer Toolbar
   WriterToolbarButton,
-  // Writer Utilities
   WriterUtils,
-  // Writer Contexts
   WriterMarkContext,
   WriterNodeContext,
   WriterExtensionContext,
-  // Writer Extensions
   WriterExtension,
   WriterMarkExtension,
   WriterNodeExtension,
 } from "./writer";
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel App
-// -----------------------------------------------------------------------------
+// #region Panel App
 
 /**
  * Vue application instance with Panel extensions.
  *
  * The Panel Vue app includes additional properties on the Vue prototype:
- * - `$helper` - Utility functions for common operations
- * - `$library` - External libraries (colors, dayjs, autosize)
+ * - `$helper` - Utility functions for common operations.
+ * - `$library` - External libraries (colors, dayjs, autosize).
  *
  * @example
  * ```ts
@@ -230,27 +170,26 @@ export type {
 export type PanelApp = InstanceType<VueConstructor> & {
   $library: PanelLibrary;
   $helper: PanelHelpers;
-  /** Shortcut for escaping HTML (alias for `$helper.string.escapeHTML`) */
+  /** Shortcut for escaping HTML (alias for `$helper.string.escapeHTML`). */
   $esc: (string: string) => string;
 };
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Plugin Component Types
-// -----------------------------------------------------------------------------
+// #region Plugin Component Types
 
 /**
  * Vue component options for Panel plugin extensions.
  *
  * Components can be defined as:
  * - Vue component options object with template or render function
- * - Component that extends another component by name
+ * - Component that extends another component by name.
  * @source panel/src/panel/plugins.ts
  */
 export type PanelComponentExtension =
   | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
   | ComponentOptions<any>
   | {
-      /** Extend another component by name (e.g., `"k-text-field"`) */
+      /** Extend another component by name (e.g., `"k-text-field"`). */
       extends?:
         | string
         | DefineComponent<
@@ -266,18 +205,16 @@ export type PanelComponentExtension =
             any,
             any
           >;
-      /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects */
+      /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects. */
       mixins?: (string | ComponentOptions<any>)[];
-      /** Template string */
       template?: string;
-      /** Render function */
+      /** Render function. */
       render?: (h: typeof VueH) => VNode;
       [key: string]: any;
     };
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Configuration
-// -----------------------------------------------------------------------------
+// #region Panel Configuration
 
 /**
  * Global Panel configuration.
@@ -288,26 +225,25 @@ export type PanelComponentExtension =
  * @source src/Panel/State.php
  */
 export interface PanelConfig {
-  /** API configuration */
+  /** API configuration. */
   api: {
-    /** Whether to use method override for PUT/PATCH/DELETE */
+    /** Whether to use method override for PUT/PATCH/DELETE. */
     methodOverride: boolean;
   };
-  /** Whether debug mode is enabled */
+  /** Whether debug mode is enabled. */
   debug: boolean;
-  /** Whether KirbyText is enabled */
+  /** Whether KirbyText is enabled. */
   kirbytext: boolean;
-  /** Current theme setting */
+  /** Current theme setting. */
   theme: string;
-  /** Current translation code */
+  /** Current translation code. */
   translation: string;
-  /** Maximum upload size in bytes */
+  /** Maximum upload size in bytes. */
   upload: number;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Permissions
-// -----------------------------------------------------------------------------
+// #region Panel Permissions
 
 /**
  * Access permissions for Panel areas.
@@ -435,10 +371,9 @@ export interface PanelPermissions {
   users: PanelPermissionsUsers;
   user: PanelPermissionsUser;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Search
-// -----------------------------------------------------------------------------
+// #region Panel Search
 
 /**
  * Search type definition.
@@ -464,10 +399,9 @@ export interface PanelSearches {
   users: PanelSearchType;
   [key: string]: PanelSearchType;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel URLs
-// -----------------------------------------------------------------------------
+// #region Panel URLs
 
 /**
  * Base URLs for Panel operations.
@@ -485,10 +419,9 @@ export interface PanelUrls {
    */
   panel?: string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Request Response
-// -----------------------------------------------------------------------------
+// #region Panel Request Response
 
 /**
  * Response object from Panel requests.
@@ -496,7 +429,7 @@ export interface PanelUrls {
  * @source panel/src/panel/request.ts
  */
 export interface PanelRequestResponse {
-  /** The original Request object */
+  /** The original Request object. */
   request: Request;
   /**
    * Parsed response wrapper. Not a native `Response`: a plain object that
@@ -504,21 +437,20 @@ export interface PanelRequestResponse {
    */
   response: {
     headers: Headers;
-    /** Parsed JSON data */
+    /** Parsed JSON data. */
     json: any;
     ok: boolean;
     status: number;
     statusText: string;
-    /** Raw response text */
+    /** Raw response text. */
     text: string;
-    /** Final response URL (after redirects) */
+    /** Final response URL (after redirects). */
     url: string;
   };
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Plugin Extensions
-// -----------------------------------------------------------------------------
+// #region Panel Plugin Extensions
 
 /**
  * Extensions object passed to `window.panel.plugin()`.
@@ -669,10 +601,9 @@ export interface PanelPluginExtensions {
    */
   writerNodes?: Record<string, WriterNodeExtension>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Plugins
-// -----------------------------------------------------------------------------
+// #region Panel Plugins
 
 /**
  * Panel plugin system.
@@ -684,9 +615,7 @@ export interface PanelPluginExtensions {
  * @source panel/public/js/plugins.js
  */
 export interface PanelPlugins {
-  // ---------------------------------------------------------------------------
-  // Helper Functions (from panel/src/panel/plugins.js)
-  // ---------------------------------------------------------------------------
+  // #region Helper Functions (from panel/src/panel/plugins.js)
 
   /**
    * Resolves a component extension if defined as component name.
@@ -713,24 +642,23 @@ export interface PanelPlugins {
    * @returns Updated component options
    */
   resolveComponentRender: (component: any) => any;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Plugin Data
-  // ---------------------------------------------------------------------------
+  // #region Plugin Data
 
-  /** Registered Vue components */
+  /** Registered Vue components. */
   components: Record<
     string,
     DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
   >;
 
-  /** Callbacks to run after Panel creation */
+  /** Callbacks to run after Panel creation. */
   created: ((app: PanelApp) => void)[];
 
-  /** Registered SVG icons */
+  /** Registered SVG icons. */
   icons: Record<string, string>;
 
-  /** Custom login component (set dynamically by plugins) */
+  /** Custom login component (set dynamically by plugins). */
   login: DefineComponent<
     any,
     any,
@@ -753,10 +681,10 @@ export interface PanelPlugins {
    */
   textareaButtons: Record<string, TextareaButton>;
 
-  /** Registered third-party plugin data */
+  /** Registered third-party plugin data. */
   thirdParty: Record<string, any>;
 
-  /** Installed Vue plugins via `Vue.use()` */
+  /** Installed Vue plugins via `Vue.use()`. */
   use: (PluginObject<any> | PluginFunction<any>)[];
 
   /** Reserved bucket for view-button plugins (initialized empty; entries are actually stored under `components` as `k-${name}-view-button`). */
@@ -778,11 +706,11 @@ export interface PanelPlugins {
    * Registered writer nodes.
    */
   writerNodes: Record<string, WriterNodeExtension>;
+  // #endregion
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Language Info
-// -----------------------------------------------------------------------------
+// #region Panel Language Info
 
 /**
  * Language information for multi-language sites.
@@ -791,9 +719,8 @@ export interface PanelPlugins {
  * @source src/Panel/State.php
  */
 export interface PanelLanguageInfo {
-  /** Language code (e.g., `"en"`, `"de"`) */
+  /** Language code (e.g., `"en"`, `"de"`). */
   code: string;
-  /** Whether this is the default language */
   default: boolean;
   direction: "ltr" | "rtl";
   /** Whether the configured language `url` is an absolute URL (i.e., starts with `http://` or `https://`). */
@@ -805,10 +732,9 @@ export interface PanelLanguageInfo {
   /** Absolute URL for this language (always resolved against the site URL). */
   url: string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel Global State
-// -----------------------------------------------------------------------------
+// #region Panel Global State
 
 /**
  * Global Panel state for `panel.state()`.
@@ -834,10 +760,9 @@ export interface PanelGlobalState {
   user: PanelFeatures.PanelUserDefaults;
   view: PanelFeatures.PanelViewDefaults;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Panel HTML
-// -----------------------------------------------------------------------------
+// #region Panel HTML
 
 /**
  * Trusted, pre-escaped HTML string wrapper. Extends the native `String`, so it
@@ -858,10 +783,9 @@ export interface HtmlString extends String {}
 export interface PanelHtml {
   (value: unknown): HtmlString;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Main Panel Interface
-// -----------------------------------------------------------------------------
+// #region Main Panel Interface
 
 /**
  * The main Panel interface.
@@ -891,20 +815,18 @@ export interface PanelHtml {
  * @source panel/public/js/plugins.js
  */
 export interface Panel {
-  // ---------------------------------------------------------------------------
-  // Core Properties
-  // ---------------------------------------------------------------------------
+  // #region Core Properties
 
-  /** Vue application instance */
+  /** Vue application instance. */
   readonly app: PanelApp;
 
-  /** Current editing context */
+  /** Current editing context. */
   readonly context: PanelContext;
 
-  /** Whether debug mode is enabled */
+  /** Whether debug mode is enabled. */
   readonly debug: boolean;
 
-  /** Text direction */
+  /** Text direction. */
   readonly direction: "ltr" | "rtl";
 
   /** Document title getter/setter; on set, the system title is appended as a suffix when present. */
@@ -913,7 +835,7 @@ export interface Panel {
   /** Whether the Panel is currently loading a new view via `open()`. */
   isLoading: boolean;
 
-  /** Whether the browser is offline */
+  /** Whether the browser is offline. */
   isOffline: boolean;
 
   /**
@@ -936,96 +858,92 @@ export interface Panel {
    * @source panel/src/panel/html.ts
    */
   html?: PanelHtml;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // State Objects (extend State)
-  // ---------------------------------------------------------------------------
+  // #region State Objects (extend State)
 
-  /** License activation state */
+  /** License activation state. */
   activation: PanelFeatures.PanelActivation;
 
-  /** Drag and drop state */
+  /** Drag and drop state. */
   drag: PanelFeatures.PanelDrag;
 
-  /** Global event handling */
+  /** Global event handling. */
   events: PanelFeatures.PanelEvents;
 
-  /** Current language state */
+  /** Current language state. */
   language: PanelFeatures.PanelLanguage;
 
-  /** Navigation menu state */
+  /** Navigation menu state. */
   menu: PanelFeatures.PanelMenu;
 
-  /** Notification display */
+  /** Notification display. */
   notification: PanelFeatures.PanelNotification;
 
-  /** Search functionality */
+  /** Search functionality. */
   searcher: PanelFeatures.PanelSearcher;
 
-  /** System information */
+  /** System information. */
   system: PanelFeatures.PanelSystem;
 
-  /** Theme settings */
+  /** Theme settings. */
   theme: PanelFeatures.PanelTheme;
 
-  /** Translation data */
+  /** Translation data. */
   translation: PanelFeatures.PanelTranslation;
 
-  /** File upload handling */
+  /** File upload handling. */
   upload: PanelFeatures.PanelUpload;
 
-  /** Current user data */
+  /** Current user data. */
   user: PanelFeatures.PanelUser;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Features (extend Feature)
-  // ---------------------------------------------------------------------------
+  // #region Features (extend Feature)
 
-  /** Content versioning and saving */
+  /** Content versioning and saving. */
   content: PanelFeatures.PanelContent;
 
-  /** Dropdown menus */
+  /** Dropdown menus. */
   dropdown: PanelFeatures.PanelDropdown;
 
-  /** Main view */
+  /** Main view. */
   view: PanelFeatures.PanelView;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Modals (extend Modal)
-  // ---------------------------------------------------------------------------
+  // #region Modals (extend Modal)
 
-  /** Modal dialogs */
+  /** Modal dialogs. */
   dialog: PanelFeatures.PanelDialog;
 
-  /** Slide-out drawers */
+  /** Slide-out drawers. */
   drawer: PanelFeatures.PanelDrawer;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Configuration
-  // ---------------------------------------------------------------------------
+  // #region Configuration
 
-  /** API client */
+  /** API client. */
   api: PanelApi;
 
-  /** Panel configuration */
+  /** Panel configuration. */
   config: PanelConfig;
 
-  /** Available languages */
+  /** Available languages. */
   languages: PanelLanguageInfo[];
 
-  /** License status */
+  /** License status. */
   license: string;
 
-  /** Whether multi-language is enabled */
+  /** Whether multi-language is enabled. */
   multilang: boolean;
 
-  /** User permissions */
+  /** User permissions. */
   permissions: PanelPermissions;
 
-  /** Plugin system */
+  /** Plugin system. */
   plugins: PanelPlugins;
 
-  /** Available search types */
+  /** Available search types. */
   searches: PanelSearches;
 
   /**
@@ -1036,12 +954,11 @@ export interface Panel {
    */
   readonly hasSearch?: boolean;
 
-  /** Base URLs */
+  /** Base URLs. */
   urls: PanelUrls;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Methods
-  // ---------------------------------------------------------------------------
+  // #region Methods
 
   /**
    * Creates the Panel Vue app.
@@ -1231,11 +1148,11 @@ export interface Panel {
    * @returns URL object
    */
   url: (path?: string, query?: Record<string, any>, origin?: string) => URL;
+  // #endregion
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// View Props (commonly used)
-// -----------------------------------------------------------------------------
+// #region View Props (commonly used)
 
 /**
  * Lock information for content.
@@ -1459,3 +1376,4 @@ export interface PanelViewProps {
    */
   search?: string;
 }
+// #endregion

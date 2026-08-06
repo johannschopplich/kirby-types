@@ -7,9 +7,7 @@
  * @since 4.0.0
  */
 
-// -----------------------------------------------------------------------------
-// Textarea Toolbar Context
-// -----------------------------------------------------------------------------
+// #region Textarea Toolbar Context
 
 /**
  * The toolbar component context available as `this` in button click handlers.
@@ -22,13 +20,13 @@ export interface TextareaToolbarContext {
    * Emits a command to the textarea input component.
    *
    * Available commands:
-   * - `"dialog"` - Opens a dialog component
-   * - `"insert"` - Inserts the given text at the current selection
-   * - `"prepend"` - Prepends the given text to the current selection
-   * - `"toggle"` - Toggles wrapping of current selection (accepts before, after texts)
-   * - `"upload"` - Opens the file upload dialog
-   * - `"wrap"` - Wraps the current selection with the given text
-   * - `"file"` - Opens the file picker
+   * - `"dialog"` - Opens a dialog component.
+   * - `"insert"` - Inserts the given text at the current selection.
+   * - `"prepend"` - Prepends the given text to the current selection.
+   * - `"toggle"` - Toggles wrapping of current selection (accepts before, after texts).
+   * - `"upload"` - Opens the file upload dialog.
+   * - `"wrap"` - Wraps the current selection with the given text.
+   * - `"file"` - Opens the file picker.
    *
    * @param name - Command name
    * @param args - Command arguments
@@ -53,10 +51,9 @@ export interface TextareaToolbarContext {
   /** Translates a Kirby translation key, with optional placeholder values. */
   $t: (key: string, ...args: any[]) => string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Textarea Button
-// -----------------------------------------------------------------------------
+// #region Textarea Button
 
 /**
  * A custom textarea toolbar button.
@@ -167,10 +164,9 @@ export interface TextareaButton {
   /** Custom CSS class for the button. */
   class?: string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Textarea Dropdown Item
-// -----------------------------------------------------------------------------
+// #region Textarea Dropdown Item
 
 /**
  * A dropdown menu item for textarea toolbar buttons.
@@ -198,10 +194,10 @@ export interface TextareaButton {
  * ```
  */
 export interface TextareaDropdownItem {
-  /** Display label */
+  /** Display label. */
   label: string;
 
-  /** Icon name */
+  /** Icon name. */
   icon?: string;
 
   /**
@@ -221,3 +217,4 @@ export interface TextareaDropdownItem {
   /** Sets the aria-current attribute for active state styling. */
   current?: boolean | string;
 }
+// #endregion

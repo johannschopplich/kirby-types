@@ -2,9 +2,7 @@
 import type { KirbyQuery, ParseKirbyQuery } from "../src/query";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
-// -----------------------------------------------------------------------------
-// 1. Query Validation
-// -----------------------------------------------------------------------------
+// #region Query Validation
 
 // Basic model names
 expectAssignable<KirbyQuery>("site");
@@ -45,10 +43,9 @@ expectAssignable<KirbyQuery>(
 expectAssignable<KirbyQuery<"customModel">>("customModel");
 expectAssignable<KirbyQuery<"customModel">>("customModel.cover");
 expectAssignable<KirbyQuery<"product" | "category">>("product.price");
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 2. Query Parsing
-// -----------------------------------------------------------------------------
+// #region Query Parsing
 
 expectType<{ model: "site"; chain: [] }>({} as ParseKirbyQuery<"site">);
 expectType<{ model: "page"; chain: [] }>({} as ParseKirbyQuery<"page">);
@@ -69,10 +66,9 @@ expectType<{ model: "customModel"; chain: [] }>(
 
 // Invalid queries return never
 expectType<never>({} as ParseKirbyQuery<"unknown">);
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 3. Negative Tests
-// -----------------------------------------------------------------------------
+// #region Negative Tests
 
 expectNotAssignable<KirbyQuery>("unknown");
 expectNotAssignable<KirbyQuery>("invalidModel");
@@ -80,3 +76,4 @@ expectNotAssignable<KirbyQuery>("Site"); // Case sensitive
 expectNotAssignable<KirbyQuery>(""); // Empty string
 expectNotAssignable<KirbyQuery<"customModel">>("otherModel");
 expectNotAssignable<KirbyQuery<"product" | "category">>("brand");
+// #endregion

@@ -6,9 +6,7 @@ import type {
 } from "../src/blocks";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
-// -----------------------------------------------------------------------------
-// 1. Block Types
-// -----------------------------------------------------------------------------
+// #region Block Types
 
 expectAssignable<KirbyBlock<"text">>({
   content: { text: "Hello World" },
@@ -151,10 +149,9 @@ expectAssignable<KirbyBlock<"custom", { foo: string }>>({
   isHidden: false,
   type: "custom",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 2. Type Inference
-// -----------------------------------------------------------------------------
+// #region Type Inference
 
 expectType<
   | "code"
@@ -180,14 +177,12 @@ expectType<{ videoId: number }>(
 
 // Unknown block type returns empty content
 expectType<Record<string, never>>({} as KirbyBlock<"unknownType">["content"]);
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 3. Negative Tests
-// -----------------------------------------------------------------------------
+// #region Negative Tests
 
-// --- 1. Wrong Content Types ---
+// #region Wrong Content Types
 
-// Wrong content type for default blocks
 expectNotAssignable<KirbyBlock<"code">>({
   content: { text: "wrong content" }, // Should be { code: string; language: string }
   id: "1",
@@ -201,15 +196,17 @@ expectNotAssignable<KirbyBlock<"gallery">>({
   isHidden: false,
   type: "gallery",
 });
+// #endregion
 
-// --- 2. Missing Required Fields ---
+// #region Missing Required Fields
 
 expectNotAssignable<KirbyBlock<"text">>({
   content: { text: "Hello" },
   // Missing id, isHidden, type
 });
+// #endregion
 
-// --- 3. Wrong Type Field ---
+// #region Wrong Type Field
 
 expectNotAssignable<KirbyBlock<"text">>({
   content: { text: "Hello" },
@@ -217,3 +214,6 @@ expectNotAssignable<KirbyBlock<"text">>({
   isHidden: false,
   type: "wrong", // Should be "text"
 });
+// #endregion
+
+// #endregion

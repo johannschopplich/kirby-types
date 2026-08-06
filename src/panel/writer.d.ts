@@ -4,7 +4,7 @@
  * This module provides types for the Writer component, including:
  * - Editor instance and options
  * - Mark and node extensions for plugins
- * - Utility functions and contexts
+ * - Utility functions and contexts.
  *
  * @since 4.0.0
  */
@@ -35,9 +35,7 @@ import type {
   NodeView,
 } from "prosemirror-view";
 
-// -----------------------------------------------------------------------------
-// Writer Editor
-// -----------------------------------------------------------------------------
+// #region Writer Editor
 
 /**
  * The Kirby Writer editor instance.
@@ -51,29 +49,26 @@ import type {
  * @source panel/src/components/Forms/Writer/Emitter.ts
  */
 export interface WriterEditor {
-  // ---------------------------------------------------------------------------
-  // Properties
-  // ---------------------------------------------------------------------------
+  // #region Properties
 
-  /** Currently active mark names */
+  /** Currently active mark names. */
   activeMarks: string[];
-  /** Currently active mark attributes by mark name */
+  /** Currently active mark attributes by mark name. */
   activeMarkAttrs: Record<string, Record<string, any>>;
-  /** Currently active node names */
+  /** Currently active node names. */
   activeNodes: string[];
-  /** Currently active node attributes by node name */
+  /** Currently active node attributes by node name. */
   activeNodeAttrs: Record<string, Record<string, any>>;
-  /** Available commands */
+  /** Available commands. */
   commands: Record<string, (attrs?: any) => any>;
-  /** The DOM element the editor is mounted to */
+  /** The DOM element the editor is mounted to. */
   element: HTMLElement | null;
-  /** Event handlers passed via `options.events` */
+  /** Event handlers passed via `options.events`. */
   events: Record<string, (...args: any[]) => any>;
-  /** The extensions manager instance */
+  /** The extensions manager instance. */
   extensions: WriterExtensions;
-  /** Whether the editor is focused */
   focused: boolean;
-  /** Active input rules */
+  /** Active input rules. */
   inputRules: InputRule[];
   /**
    * Check if a mark or node is active.
@@ -81,7 +76,6 @@ export interface WriterEditor {
    * @deprecated Removed in Kirby 6.
    */
   isActive: Record<string, (attrs?: Record<string, any>) => boolean>;
-  /** Keymap plugins */
   keymaps: Plugin[];
   /**
    * Raw mark schema definitions.
@@ -95,40 +89,37 @@ export interface WriterEditor {
    * For ProseMirror NodeType instances, use `schema.nodes` instead.
    */
   nodes: Record<string, NodeSpec>;
-  /** Editor options */
   options: WriterEditorOptions;
-  /** Paste rule plugins */
   pasteRules: Plugin[];
-  /** Custom ProseMirror plugins */
+  /** Custom ProseMirror plugins. */
   plugins: Plugin[];
-  /** ProseMirror schema */
+  /** ProseMirror schema. */
   schema: Schema;
-  /** Current editor selection */
+  /** Current editor selection. */
   selection: ProseMirrorSelection;
-  /** Selection at the end of the document */
+  /** Selection at the end of the document. */
   selectionAtEnd: ProseMirrorSelection;
-  /** Selection at the start of the document */
+  /** Selection at the start of the document. */
   selectionAtStart: ProseMirrorSelection;
-  /** Whether the cursor is at the end of the document */
+  /** Whether the cursor is at the end of the document. */
   selectionIsAtEnd: boolean;
-  /** Whether the cursor is at the start of the document */
+  /** Whether the cursor is at the start of the document. */
   selectionIsAtStart: boolean;
-  /** ProseMirror editor state */
+  /** ProseMirror editor state. */
   state: EditorState;
-  /** ProseMirror editor view */
+  /** ProseMirror editor view. */
   view: EditorView;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Methods
-  // ---------------------------------------------------------------------------
+  // #region Methods
 
-  /** Removes focus from the editor */
+  /** Removes focus from the editor. */
   blur: () => void;
-  /** Returns available toolbar buttons for the given type */
+  /** Returns available toolbar buttons for the given type. */
   buttons: (type: "mark" | "node") => Record<string, WriterToolbarButton>;
-  /** Clears the editor content */
+  /** Clears the editor content. */
   clearContent: (emitUpdate?: boolean) => void;
-  /** Executes a command by name */
+  /** Executes a command by name. */
   command: (command: string, ...args: any[]) => void;
   /**
    * Creates a ProseMirror document from content.
@@ -141,11 +132,11 @@ export interface WriterEditor {
     content: string | Record<string, any> | null,
     parseOptions?: Record<string, any>,
   ) => ProseMirrorNode | false;
-  /** Destroys the editor instance */
+  /** Destroys the editor instance. */
   destroy: () => void;
-  /** Emits an event to all registered listeners */
+  /** Emits an event to all registered listeners. */
   emit: (event: string, ...args: any[]) => this;
-  /** Focuses the editor at the given position */
+  /** Focuses the editor at the given position. */
   focus: (position?: "start" | "end" | number | boolean | null) => void;
   /**
    * Returns content as HTML.
@@ -153,15 +144,15 @@ export interface WriterEditor {
    * @param fragment - Optional fragment to serialize (defaults to full document)
    */
   getHTML: (fragment?: Fragment) => string;
-  /** Returns HTML content from start to current selection */
+  /** Returns HTML content from start to current selection. */
   getHTMLStartToSelection: () => string;
-  /** Returns HTML content from current selection to end */
+  /** Returns HTML content from current selection to end. */
   getHTMLSelectionToEnd: () => string;
-  /** Returns tuple of [HTML before selection, HTML after selection] */
+  /** Returns tuple of [HTML before selection, HTML after selection]. */
   getHTMLStartToSelectionToEnd: () => [string, string];
-  /** Returns the current content as JSON */
+  /** Returns the current content as JSON. */
   getJSON: () => Record<string, any>;
-  /** Returns attributes for a mark type, or `undefined` when the mark is not active */
+  /** Returns attributes for a mark type, or `undefined` when the mark is not active. */
   getMarkAttrs: (type?: string) => Record<string, any> | undefined;
   /**
    * Returns the schema as JSON.
@@ -172,11 +163,11 @@ export interface WriterEditor {
     nodes: Record<string, any>;
     marks: Record<string, any>;
   };
-  /** Inserts text at the current selection */
+  /** Inserts text at the current selection. */
   insertText: (text: string, selected?: boolean) => void;
-  /** Checks if the editor is editable */
+  /** Checks if the editor is editable. */
   isEditable: () => boolean;
-  /** Checks if the editor is empty */
+  /** Checks if the editor is empty. */
   isEmpty: () => boolean | undefined;
   /**
    * Unsubscribes from events.
@@ -192,7 +183,7 @@ export interface WriterEditor {
    * @param fn - Event handler function
    */
   on: (event: string, fn: (...args: any[]) => any) => this;
-  /** Removes a mark from the current selection */
+  /** Removes a mark from the current selection. */
   removeMark: (mark: string) => boolean | undefined;
   /**
    * Returns selection at the given position.
@@ -202,14 +193,15 @@ export interface WriterEditor {
   selectionAtPosition: (
     position?: "start" | "end" | number | boolean | null,
   ) => ProseMirrorSelection | { from: number; to: number };
-  /** Sets the editor content */
+  /** Sets the editor content. */
   setContent: (content?: any, emitUpdate?: boolean, parseOptions?: any) => void;
-  /** Sets the selection range */
+  /** Sets the selection range. */
   setSelection: (from?: number, to?: number) => void;
-  /** Toggles a mark on the current selection */
+  /** Toggles a mark on the current selection. */
   toggleMark: (mark: string) => boolean | undefined;
-  /** Updates a mark's attributes */
+  /** Updates a mark's attributes. */
   updateMark: (mark: string, attrs: Record<string, any>) => boolean | undefined;
+  // #endregion
 }
 
 /**
@@ -237,7 +229,7 @@ export interface WriterEditorOptions {
  * Manages all registered mark, node, and generic extensions.
  */
 export interface WriterExtensions {
-  /** All registered extension instances */
+  /** All registered extension instances. */
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
   /**
    * The editor instance this extensions manager belongs to.
@@ -252,23 +244,22 @@ export interface WriterExtensions {
    */
   view: EditorView;
 
-  /** Returns toolbar buttons for the given type */
+  /** Returns toolbar buttons for the given type. */
   buttons: (type: "mark" | "node") => Record<string, WriterToolbarButton>;
-  /** Raw mark schema definitions from all mark extensions */
+  /** Raw mark schema definitions from all mark extensions. */
   marks: Record<string, MarkSpec>;
-  /** Mark view constructors */
+  /** Mark view constructors. */
   markViews: Record<string, WriterMarkExtension["view"]>;
-  /** Raw node schema definitions from all node extensions */
+  /** Raw node schema definitions from all node extensions. */
   nodes: Record<string, NodeSpec>;
-  /** Node view constructors */
+  /** Node view constructors. */
   nodeViews: Record<string, WriterNodeExtension["view"]>;
-  /** Extension options with reactive proxy */
+  /** Extension options with reactive proxy. */
   options: Record<string, Record<string, any>>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Writer Toolbar
-// -----------------------------------------------------------------------------
+// #region Writer Toolbar
 
 /**
  * A toolbar button configuration for the Writer.
@@ -284,29 +275,28 @@ export interface WriterExtensions {
  * @source panel/src/components/Forms/Writer/Marks/Link.ts
  */
 export interface WriterToolbarButton {
-  /** Unique identifier (defaults to extension name) */
+  /** Unique identifier (defaults to extension name). */
   id?: string;
-  /** Command name to execute */
+  /** Command name to execute. */
   command?: string;
-  /** Icon name from Kirby's icon set */
+  /** Icon name from Kirby's icon set. */
   icon: string;
-  /** Display label (usually translated via `window.panel.t()`) */
+  /** Display label (usually translated via `window.panel.t()`). */
   label: string;
-  /** Extension name this button belongs to */
+  /** Extension name this button belongs to. */
   name?: string;
-  /** Attributes to pass to the command */
+  /** Attributes to pass to the command. */
   attrs?: Record<string, any>;
-  /** Show separator line after this button */
+  /** Show separator line after this button. */
   separator?: boolean;
-  /** Whether this is an inline node button (shown inline, not in dropdown) */
+  /** Whether this is an inline node button (shown inline, not in dropdown). */
   inline?: boolean;
-  /** Names of active node types under which this dropdown button stays enabled */
+  /** Names of active node types under which this dropdown button stays enabled. */
   when?: string[];
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Writer Utilities
-// -----------------------------------------------------------------------------
+// #region Writer Utilities
 
 /**
  * Kirby Writer utility functions.
@@ -319,50 +309,45 @@ export interface WriterToolbarButton {
  * @source panel/src/components/Forms/Writer/Utils/index.ts
  */
 export interface WriterUtils {
-  // ---------------------------------------------------------------------------
-  // ProseMirror Commands
-  // ---------------------------------------------------------------------------
+  // #region ProseMirror Commands
 
-  /** Chains multiple commands, executing until one returns true */
+  /** Chains multiple commands, executing until one returns true. */
   chainCommands: typeof import("prosemirror-commands").chainCommands;
-  /** Exits a code block at the cursor position */
+  /** Exits a code block at the cursor position. */
   exitCode: typeof import("prosemirror-commands").exitCode;
-  /** Lifts content out of its wrapping node */
+  /** Lifts content out of its wrapping node. */
   lift: typeof import("prosemirror-commands").lift;
-  /** Sets the block type at the cursor position */
+  /** Sets the block type at the cursor position. */
   setBlockType: typeof import("prosemirror-commands").setBlockType;
-  /** Toggles a mark on the current selection */
+  /** Toggles a mark on the current selection. */
   toggleMark: typeof import("prosemirror-commands").toggleMark;
-  /** Wraps the selection in a node type */
+  /** Wraps the selection in a node type. */
   wrapIn: typeof import("prosemirror-commands").wrapIn;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // ProseMirror Input Rules
-  // ---------------------------------------------------------------------------
+  // #region ProseMirror Input Rules
 
-  /** Creates an input rule that wraps matching text in a node */
+  /** Creates an input rule that wraps matching text in a node. */
   wrappingInputRule: typeof import("prosemirror-inputrules").wrappingInputRule;
-  /** Creates an input rule that changes the textblock type */
+  /** Creates an input rule that changes the textblock type. */
   textblockTypeInputRule: typeof import("prosemirror-inputrules").textblockTypeInputRule;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // ProseMirror Schema List
-  // ---------------------------------------------------------------------------
+  // #region ProseMirror Schema List
 
-  /** Adds list nodes to a schema */
+  /** Adds list nodes to a schema. */
   addListNodes: typeof import("prosemirror-schema-list").addListNodes;
-  /** Wraps selection in a list */
+  /** Wraps selection in a list. */
   wrapInList: typeof import("prosemirror-schema-list").wrapInList;
-  /** Splits a list item at the cursor */
+  /** Splits a list item at the cursor. */
   splitListItem: typeof import("prosemirror-schema-list").splitListItem;
-  /** Lifts a list item out of its parent list */
+  /** Lifts a list item out of its parent list. */
   liftListItem: typeof import("prosemirror-schema-list").liftListItem;
-  /** Sinks a list item into a nested list */
+  /** Sinks a list item into a nested list. */
   sinkListItem: typeof import("prosemirror-schema-list").sinkListItem;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Custom Utilities
-  // ---------------------------------------------------------------------------
+  // #region Custom Utilities
 
   /**
    * Gets the attributes of the active mark of the given type.
@@ -536,11 +521,11 @@ export interface WriterUtils {
    * @returns A ProseMirror command
    */
   updateMark: (type: MarkType, attrs: Record<string, any>) => Command;
+  // #endregion
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Writer Contexts
-// -----------------------------------------------------------------------------
+// #region Writer Contexts
 
 /**
  * Context passed to mark extension methods.
@@ -568,11 +553,11 @@ export interface WriterUtils {
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterMarkContext {
-  /** The ProseMirror schema with all registered nodes and marks */
+  /** The ProseMirror schema with all registered nodes and marks. */
   schema: Schema;
-  /** The MarkType instance for this mark extension */
+  /** The MarkType instance for this mark extension. */
   type: MarkType;
-  /** Writer utility functions */
+  /** Writer utility functions. */
   utils: WriterUtils;
 }
 
@@ -592,11 +577,11 @@ export interface WriterMarkContext {
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterNodeContext {
-  /** The ProseMirror schema with all registered nodes and marks */
+  /** The ProseMirror schema with all registered nodes and marks. */
   schema: Schema;
-  /** The NodeType instance for this node extension */
+  /** The NodeType instance for this node extension. */
   type: NodeType;
-  /** Writer utility functions */
+  /** Writer utility functions. */
   utils: WriterUtils;
 }
 
@@ -610,15 +595,14 @@ export interface WriterNodeContext {
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensionContext {
-  /** The ProseMirror schema with all registered nodes and marks */
+  /** The ProseMirror schema with all registered nodes and marks. */
   schema: Schema;
-  /** Writer utility functions */
+  /** Writer utility functions. */
   utils: WriterUtils;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Writer Generic Extension
-// -----------------------------------------------------------------------------
+// #region Writer Generic Extension
 
 /**
  * A generic Writer extension (non-mark, non-node).
@@ -720,10 +704,9 @@ export interface WriterExtension {
     context: WriterExtensionContext,
   ) => Record<string, Command | (() => void)>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Writer Mark Extension
-// -----------------------------------------------------------------------------
+// #region Writer Mark Extension
 
 /**
  * A custom Writer mark extension.
@@ -774,9 +757,7 @@ export interface WriterExtension {
  * @source panel/src/components/Forms/Writer/Marks/Underline.js
  */
 export interface WriterMarkExtension {
-  // ---------------------------------------------------------------------------
-  // Instance Properties (available via `this` in extension methods)
-  // ---------------------------------------------------------------------------
+  // #region Instance Properties (available via `this` in extension methods)
 
   /**
    * Unique name of the mark extension.
@@ -801,10 +782,9 @@ export interface WriterMarkExtension {
    * Available at runtime after the extension is instantiated.
    */
   options?: Record<string, any>;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Configuration
-  // ---------------------------------------------------------------------------
+  // #region Configuration
 
   /**
    * Toolbar button configuration.
@@ -932,10 +912,9 @@ export interface WriterMarkExtension {
    * Custom mark view for rendering.
    */
   view?: (mark: Mark, view: EditorView, inline: boolean) => MarkView;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Lifecycle
-  // ---------------------------------------------------------------------------
+  // #region Lifecycle
 
   /**
    * Called after the editor is bound to the extension.
@@ -943,10 +922,9 @@ export interface WriterMarkExtension {
    * Use this for initialization logic that requires access to `this.editor`.
    */
   init?: () => null | void;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Mark Helper Methods (inherited from Mark base class)
-  // ---------------------------------------------------------------------------
+  // #region Mark Helper Methods (inherited from Mark base class)
 
   /**
    * Toggles this mark on the current selection.
@@ -968,11 +946,11 @@ export interface WriterMarkExtension {
    * Shorthand for `this.editor.updateMark(this.name, attrs)`.
    */
   update?: (attrs: Record<string, any>) => void;
+  // #endregion
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Writer Node Extension
-// -----------------------------------------------------------------------------
+// #region Writer Node Extension
 
 /**
  * A custom Writer node extension.
@@ -1026,9 +1004,7 @@ export interface WriterMarkExtension {
  * @source panel/src/components/Forms/Writer/Nodes/Text.js
  */
 export interface WriterNodeExtension {
-  // ---------------------------------------------------------------------------
-  // Instance Properties (available via `this` in extension methods)
-  // ---------------------------------------------------------------------------
+  // #region Instance Properties (available via `this` in extension methods)
 
   /**
    * Unique name of the node extension.
@@ -1053,10 +1029,9 @@ export interface WriterNodeExtension {
    * Available at runtime after the extension is instantiated.
    */
   options?: Record<string, any>;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Configuration
-  // ---------------------------------------------------------------------------
+  // #region Configuration
 
   /**
    * Toolbar button configuration.
@@ -1125,10 +1100,9 @@ export interface WriterNodeExtension {
     decorations: readonly Decoration[],
     innerDecorations: DecorationSource,
   ) => NodeView;
+  // #endregion
 
-  // ---------------------------------------------------------------------------
-  // Lifecycle
-  // ---------------------------------------------------------------------------
+  // #region Lifecycle
 
   /**
    * Called after the editor is bound to the extension.
@@ -1136,4 +1110,6 @@ export interface WriterNodeExtension {
    * Use this for initialization logic that requires access to `this.editor`.
    */
   init?: () => null | void;
+  // #endregion
 }
+// #endregion

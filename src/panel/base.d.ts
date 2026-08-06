@@ -7,9 +7,7 @@
  * @since 4.0.0
  */
 
-// -----------------------------------------------------------------------------
-// State Management
-// -----------------------------------------------------------------------------
+// #region State Management
 
 /**
  * Base state interface for Panel state objects.
@@ -70,10 +68,9 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    */
   validateState: (state: unknown) => boolean;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Event Listeners
-// -----------------------------------------------------------------------------
+// #region Event Listeners
 
 /**
  * @source panel/src/panel/listeners.ts
@@ -164,10 +161,9 @@ export interface PanelEventListeners<TEvents extends string = string> {
    */
   removeEventListeners: () => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Feature
-// -----------------------------------------------------------------------------
+// #region Feature
 
 /**
  * @source panel/src/panel/feature.ts
@@ -317,10 +313,9 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   /** Creates a full URL object for the current path and query. */
   url: () => URL;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Modal
-// -----------------------------------------------------------------------------
+// #region Modal
 
 /**
  * Modal event types for dialogs and drawers.
@@ -351,17 +346,17 @@ export interface PanelModalListeners {
  */
 export interface PanelSuccessResponse {
   message?: string;
-  /** Events to emit (string or array of strings) */
+  /** Events to emit (string or array of strings). */
   event?: string | string[];
-  /** Whether to emit the global `"success"` event (default: true) */
+  /** Whether to emit the global `"success"` event (default: true). */
   emit?: boolean;
-  /** URL to navigate to */
+  /** URL to navigate to. */
   route?: string | { url: string; options?: PanelRequestOptions };
-  /** Alternative to route */
+  /** Alternative to route. */
   redirect?: string | { url: string; options?: PanelRequestOptions };
-  /** Whether to reload the view */
+  /** Whether to reload the view. */
   reload?: boolean | PanelRequestOptions;
-  /** Additional properties */
+  /** Additional properties. */
   [key: string]: any;
 }
 
@@ -372,7 +367,7 @@ export interface PanelSuccessResponse {
  * like history navigation, form handling, and open/close states.
  * They manage document overflow and scroll position when open.
  *
- * Modals include: dialog, drawer
+ * Modals include `dialog` and `drawer`.
  *
  * @typeParam TDefaults - Shape of the modal's default state
  *
@@ -526,10 +521,9 @@ export interface PanelModal<
     state: PanelSuccessResponse,
   ) => false | void | Promise<void>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// History
-// -----------------------------------------------------------------------------
+// #region History
 
 /**
  * A history milestone representing a saved modal state.
@@ -537,7 +531,7 @@ export interface PanelModal<
  */
 export interface PanelHistoryMilestone {
   id: string;
-  /** Additional state properties */
+  /** Additional state properties. */
   [key: string]: any;
 }
 
@@ -653,10 +647,9 @@ export interface PanelHistory {
    */
   replace: (index: number, state: PanelHistoryMilestone) => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Request Options
-// -----------------------------------------------------------------------------
+// #region Request Options
 
 /**
  * Options for Panel API requests.
@@ -665,7 +658,7 @@ export interface PanelHistory {
  */
 export interface PanelRequestOptions {
   headers?: Record<string, string>;
-  /** Request body for POST/PATCH */
+  /** Request body for POST/PATCH. */
   body?: any;
   query?: Record<string, string | number | boolean>;
   signal?: AbortSignal;
@@ -691,13 +684,12 @@ export interface PanelRequestOptions {
  * @source panel/src/panel/feature.ts
  */
 export interface PanelRefreshOptions extends PanelRequestOptions {
-  /** URL to refresh from (defaults to current URL) */
+  /** URL to refresh from (defaults to current URL). */
   url?: string | URL;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Context & Notification Types
-// -----------------------------------------------------------------------------
+// #region Context & Notification Types
 
 /**
  * Panel context indicating which layer is currently active.
@@ -712,17 +704,18 @@ export type PanelContext = "view" | "dialog" | "drawer";
  * Type of notification determining behavior and persistence.
  * Only `error` and `fatal` are written to `state.type`; `success()` and
  * `info()` shortcuts set `theme` (and `icon`) instead of `type`.
- * - `error`: Operation failed, persists until dismissed
- * - `fatal`: Critical error, displayed in isolated iframe
+ * - `error`: Operation failed, persists until dismissed.
+ * - `fatal`: Critical error, displayed in isolated iframe.
  * @source panel/src/panel/notification.ts
  */
 export type NotificationType = "error" | "fatal";
 
 /**
  * Visual theme for notifications.
- * - `positive`: Green, for success
- * - `negative`: Red, for errors
- * - `info`: Blue, for information
+ * - `positive`: Green, for success.
+ * - `negative`: Red, for errors.
+ * - `info`: Blue, for information.
  * @source panel/src/panel/notification.ts
  */
 export type NotificationTheme = "positive" | "negative" | "info";
+// #endregion

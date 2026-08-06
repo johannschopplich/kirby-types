@@ -30,9 +30,7 @@ import type {
 } from "../src/panel/features";
 import { expectAssignable, expectType } from "tsd";
 
-// -----------------------------------------------------------------------------
-// 1. Configuration
-// -----------------------------------------------------------------------------
+// #region Configuration
 
 expectAssignable<PanelConfig>({
   api: { methodOverride: false },
@@ -50,10 +48,9 @@ expectType<boolean>({} as PanelPermissions["pages"]["changeSlug"]);
 expectType<boolean>({} as PanelPermissions["site"]["update"]);
 expectType<boolean>({} as PanelPermissions["users"]["changeRole"]);
 expectType<boolean>({} as PanelPermissions["user"]["delete"]);
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 2. State Defaults
-// -----------------------------------------------------------------------------
+// #region State Defaults
 
 expectAssignable<PanelUserDefaults>({
   email: "test@example.com",
@@ -108,10 +105,9 @@ expectAssignable<PanelUploadFile>({
   error: null,
   model: null,
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 3. Panel State
-// -----------------------------------------------------------------------------
+// #region Panel State
 
 declare const userState: PanelUser;
 
@@ -126,10 +122,9 @@ expectType<string | null>({} as PanelUser["id"]);
 expectType<string | null>({} as PanelUser["language"]);
 expectType<string | null>({} as PanelUser["role"]);
 expectType<string | null>({} as PanelUser["username"]);
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 4. Panel Feature
-// -----------------------------------------------------------------------------
+// #region Panel Feature
 
 declare const feature: PanelFeature<PanelFeatureDefaults>;
 
@@ -143,10 +138,9 @@ expectType<URL>(feature.url());
 expectType<void>(feature.addEventListener("load", () => {}));
 expectType<boolean>(feature.hasEventListener("load"));
 expectType<PanelEventListenerMap<string>>(feature.listeners());
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 5. Panel History
-// -----------------------------------------------------------------------------
+// #region Panel History
 
 declare const history: PanelHistory;
 
@@ -156,10 +150,9 @@ expectType<boolean>(history.has("id"));
 expectType<boolean>(history.isEmpty());
 expectType<number>(history.index("id"));
 expectType<PanelHistoryMilestone | undefined>(history.goto("id"));
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 6. Panel Modal
-// -----------------------------------------------------------------------------
+// #region Panel Modal
 
 declare const modal: PanelModal<PanelDialogDefaults>;
 
@@ -176,10 +169,9 @@ expectType<PanelSuccessResponse>(
 expectType<false | void | Promise<void>>(
   modal.successRedirect({ redirect: "/" }),
 );
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 7. Dialog & Drawer
-// -----------------------------------------------------------------------------
+// #region Dialog & Drawer
 
 declare const dialog: PanelDialog;
 expectType<Promise<PanelDialogDefaults>>(
@@ -187,10 +179,9 @@ expectType<Promise<PanelDialogDefaults>>(
 );
 
 expectType<void>(undefined as ReturnType<PanelDrawer["tab"]>);
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 8. Notification & Content
-// -----------------------------------------------------------------------------
+// #region Notification & Content
 
 expectType<() => PanelNotificationDefaults>({} as PanelNotification["close"]);
 expectType<PanelNotificationDefaults | void>(
@@ -204,10 +195,9 @@ expectType<boolean>(content.isLocked());
 expectType<Promise<void>>(content.save());
 expectType<Promise<void>>(content.publish());
 expectType<Promise<void>>(content.discard());
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 9. Panel
-// -----------------------------------------------------------------------------
+// #region Panel
 
 declare const panel: Panel;
 
@@ -236,10 +226,9 @@ expectType<URL>(panel.url("/pages/home", { tab: "content" }));
 expectType<Promise<any>>(panel.get("/api/pages/home"));
 expectType<Promise<any>>(panel.post("/api/pages/home", { title: "Home" }));
 expectType<Promise<PanelRequestResponse>>(panel.request("/api/pages/home"));
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 10. Model Data
-// -----------------------------------------------------------------------------
+// #region Model Data
 
 declare const model: PanelModelData;
 expectType<string | undefined>(model.id);
@@ -254,3 +243,4 @@ interface ArticleContent {
 declare const article: PanelModelData<ArticleContent>;
 expectType<string>(article.content.text);
 expectType<string>(article.content.author);
+// #endregion

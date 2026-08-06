@@ -6,17 +6,15 @@
  * @since 4.0.0
  */
 
-// -----------------------------------------------------------------------------
-// Array Helpers
-// -----------------------------------------------------------------------------
+// #region Array Helpers
 
 /** Search options for array filtering. */
 export interface PanelArraySearchOptions {
-  /** Minimum query length (default: 0) */
+  /** Minimum query length (default: 0). */
   min?: number;
-  /** Field to search in (default: `"text"`) */
+  /** Field to search in (default: `"text"`). */
   field?: string;
-  /** Maximum results to return */
+  /** Maximum results to return. */
   limit?: number;
 }
 
@@ -75,10 +73,9 @@ export interface PanelHelpersArray {
    */
   wrap: <T>(array: T | T[]) => T[];
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// String Helpers
-// -----------------------------------------------------------------------------
+// #region String Helpers
 
 /** Slug conversion rules. */
 export type PanelSlugRules = Record<string, string>[];
@@ -256,10 +253,9 @@ export interface PanelHelpersString {
    */
   uuid: () => string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Object Helpers
-// -----------------------------------------------------------------------------
+// #region Object Helpers
 
 /**
  * Object helper utilities.
@@ -337,10 +333,9 @@ export interface PanelHelpersObject {
    */
   toLowerKeys: <T>(obj: Record<string, T>) => Record<string, T>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// URL Helpers
-// -----------------------------------------------------------------------------
+// #region URL Helpers
 
 /**
  * URL helper utilities.
@@ -434,10 +429,9 @@ export interface PanelHelpersUrl {
    */
   toObject: (url: string | URL, origin?: string | URL) => URL;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Clipboard Helpers
-// -----------------------------------------------------------------------------
+// #region Clipboard Helpers
 
 /**
  * Clipboard helper utilities.
@@ -463,10 +457,9 @@ export interface PanelHelpersClipboard {
    */
   write: (value: unknown, event?: Event) => boolean;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Embed Helpers
-// -----------------------------------------------------------------------------
+// #region Embed Helpers
 
 /**
  * Embed helper utilities for video providers.
@@ -501,26 +494,23 @@ export interface PanelHelpersEmbed {
    */
   video: (url: string, doNotTrack?: boolean) => string | false;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Field Helpers
-// -----------------------------------------------------------------------------
+// #region Field Helpers
 
 /** Field definition object. */
 export interface PanelFieldDefinition {
-  /** Field type */
   type?: string;
-  /** Default value */
+  /** Default value. */
   default?: any;
-  /** Whether field is disabled */
   disabled?: boolean;
-  /** Conditional visibility */
+  /** Conditional visibility. */
   when?: Record<string, any>;
-  /** API endpoint */
+  /** API endpoint. */
   endpoints?: { field?: string; section?: string; model?: string };
-  /** Nested fields */
+  /** Nested fields. */
   fields?: Record<string, PanelFieldDefinition>;
-  /** Additional properties */
+  /** Additional properties. */
   [key: string]: any;
 }
 
@@ -570,10 +560,9 @@ export interface PanelHelpersField {
     fields: Record<string, PanelFieldDefinition>,
   ) => Record<string, PanelFieldDefinition>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// File Helpers
-// -----------------------------------------------------------------------------
+// #region File Helpers
 
 /**
  * File helper utilities.
@@ -605,10 +594,9 @@ export interface PanelHelpersFile {
    */
   niceSize: (size: number) => string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Keyboard Helpers
-// -----------------------------------------------------------------------------
+// #region Keyboard Helpers
 
 /**
  * Keyboard helper utilities.
@@ -623,46 +611,43 @@ export interface PanelHelpersKeyboard {
    */
   metaKey: () => "cmd" | "ctrl";
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Link Helpers
-// -----------------------------------------------------------------------------
+// #region Link Helpers
 
 /** Link type definition. */
 export interface PanelLinkType {
-  /** Detection function */
+  /** Detection function. */
   detect: (value: string) => boolean;
-  /** Icon name */
+  /** Icon name. */
   icon: string;
-  /** Type identifier */
+  /** Type identifier. */
   id: string;
-  /** Display label */
+  /** Display label. */
   label: string;
-  /** Extracts link from value */
+  /** Extracts link from value. */
   link: (value: string) => string;
-  /** Input placeholder */
+  /** Input placeholder. */
   placeholder?: string;
-  /** Input validation pattern */
+  /** Input validation pattern. */
   pattern?: string;
-  /** Input type */
   input?: string;
-  /** Converts input to stored value */
+  /** Converts input to stored value. */
   value: (value: string) => string;
 }
 
 /** Detected link result. */
 export interface PanelLinkDetection {
-  /** Detected type */
+  /** Detected type. */
   type: string;
-  /** Extracted link */
+  /** Extracted link. */
   link: string;
 }
 
 /** Link preview data. */
 export interface PanelLinkPreview {
-  /** Display label */
+  /** Display label. */
   label: string;
-  /** Preview image */
   image?: { url: string; [key: string]: any };
 }
 
@@ -737,24 +722,20 @@ export interface PanelHelpersLink {
    */
   types: (keys?: string[]) => Record<string, PanelLinkType>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Page Helpers
-// -----------------------------------------------------------------------------
+// #region Page Helpers
 
 /** Page status button props. */
 export interface PanelPageStatusProps {
-  /** Status title */
   title: string;
-  /** Status icon */
   icon: string;
-  /** Status color */
+  /** Status color. */
   theme: "negative-icon" | "info-icon" | "positive-icon";
-  /** Whether disabled */
   disabled: boolean;
-  /** Button size */
+  /** Button size. */
   size: string;
-  /** Button style */
+  /** Button style. */
   style: string;
 }
 
@@ -773,10 +754,9 @@ export interface PanelHelpersPage {
    */
   status: (status: string, disabled?: boolean) => PanelPageStatusProps;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Upload Helpers
-// -----------------------------------------------------------------------------
+// #region Upload Helpers
 
 /** Upload progress callback. */
 export type PanelUploadProgressCallback = (
@@ -796,21 +776,20 @@ export type PanelUploadResultCallback = (
  * Upload parameters.
  */
 export interface PanelUploadParams {
-  /** Upload endpoint URL (default: `"/"`) */
+  /** Upload endpoint URL (default: `"/"`). */
   url?: string;
-  /** HTTP method (default: `"POST"`) */
+  /** HTTP method (default: `"POST"`). */
   method?: string;
-  /** Form field name (default: `"file"`) */
+  /** Form field name (default: `"file"`). */
   field?: string;
-  /** Override filename */
+  /** Override filename. */
   filename?: string;
-  /** Request headers */
+  /** Request headers. */
   headers?: Record<string, string>;
-  /** Additional form attributes (values are coerced to strings) */
+  /** Additional form attributes (values are coerced to strings). */
   attributes?: Record<string, string | number>;
-  /** AbortSignal for cancellation */
+  /** AbortSignal for cancellation. */
   abort?: AbortSignal;
-  /** Progress callback */
   progress?: PanelUploadProgressCallback;
   /**
    * Complete callback (declared but never invoked at runtime).
@@ -818,29 +797,26 @@ export interface PanelUploadParams {
    * @deprecated K6 removed `complete` from the upload params; on K6 this option does not exist.
    */
   complete?: () => void;
-  /** Success callback */
   success?: PanelUploadResultCallback;
-  /** Error callback */
   error?: PanelUploadResultCallback;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Debounce/Throttle Helpers
-// -----------------------------------------------------------------------------
+// #region Debounce/Throttle Helpers
 
 /** Debounce options. */
 export interface PanelDebounceOptions {
-  /** Call on leading edge (default: false) */
+  /** Call on leading edge (default: false). */
   leading?: boolean;
-  /** Call on trailing edge (default: true) */
+  /** Call on trailing edge (default: true). */
   trailing?: boolean;
 }
 
 /** Throttle options. */
 export interface PanelThrottleOptions {
-  /** Call on leading edge (default: true) */
+  /** Call on leading edge (default: true). */
   leading?: boolean;
-  /** Call on trailing edge (default: false) */
+  /** Call on trailing edge (default: false). */
   trailing?: boolean;
 }
 
@@ -852,19 +828,18 @@ export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
 /** Throttled function with cancel method. */
 export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): void;
-  /** Cancels pending invocation */
+  /** Cancels pending invocation. */
   cancel: () => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Sort Helper
-// -----------------------------------------------------------------------------
+// #region Sort Helper
 
 /** Sort options. */
 export interface PanelSortOptions {
-  /** Sort descending (default: false) */
+  /** Sort descending (default: false). */
   desc?: boolean;
-  /** Case insensitive comparison (default: false) */
+  /** Case insensitive comparison (default: false). */
   insensitive?: boolean;
 }
 
@@ -873,10 +848,9 @@ export type PanelComparator = (
   a: string | number,
   b: string | number,
 ) => number;
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Main Helpers Interface
-// -----------------------------------------------------------------------------
+// #region Main Helpers Interface
 
 /**
  * Panel helpers available on the Vue prototype as `$helper`.
@@ -1104,10 +1078,9 @@ export interface PanelHelpers {
    */
   writer?: PanelHelpersWriter;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Writer Helpers (K6+)
-// -----------------------------------------------------------------------------
+// #region Writer Helpers (K6+)
 
 /**
  * Writer extension helper utilities.
@@ -1229,3 +1202,4 @@ export interface PanelHelpersWriter {
     nodes: T[],
   ) => T[];
 }
+// #endregion

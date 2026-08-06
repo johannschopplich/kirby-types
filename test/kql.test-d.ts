@@ -2,9 +2,7 @@
 import type { KirbyQueryRequest, KirbyQueryResponse } from "../src/kql";
 import { expectAssignable, expectNotAssignable } from "tsd";
 
-// -----------------------------------------------------------------------------
-// 1. Query Request & Response
-// -----------------------------------------------------------------------------
+// #region Query Request & Response
 
 interface KirbySite {
   title: string;
@@ -53,10 +51,9 @@ expectAssignable<KirbyQueryResponse<never>>({
   code: 404,
   status: "Not Found",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 2. Negative Tests
-// -----------------------------------------------------------------------------
+// #region Negative Tests
 
 expectNotAssignable<KirbyQueryRequest>({
   query: "site",
@@ -77,3 +74,4 @@ expectNotAssignable<KirbyQueryRequest>({
     },
   },
 });
+// #endregion

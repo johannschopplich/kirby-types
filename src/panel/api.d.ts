@@ -8,9 +8,7 @@
 
 import type { PanelRequestOptions } from "./base";
 
-// -----------------------------------------------------------------------------
-// Request Types
-// -----------------------------------------------------------------------------
+// #region Request Types
 
 /**
  * API request options.
@@ -20,7 +18,7 @@ import type { PanelRequestOptions } from "./base";
  * @source panel/src/api/index.ts
  */
 export interface PanelApiRequestOptions extends PanelRequestOptions {
-  /** Whether to skip loading indicator */
+  /** Whether to skip loading indicator. */
   silent?: boolean;
 }
 
@@ -29,9 +27,8 @@ export interface PanelApiRequestOptions extends PanelRequestOptions {
  * @source panel/src/api/index.js
  */
 export interface PanelApiPagination {
-  /** Page number */
   page?: number;
-  /** Items per page */
+  /** Items per page. */
   limit?: number;
 }
 
@@ -40,17 +37,15 @@ export interface PanelApiPagination {
  * @source panel/src/api/index.js
  */
 export interface PanelApiSearchQuery extends PanelApiPagination {
-  /** Search query string */
   query?: string;
-  /** Field selection */
+  /** Field selection. */
   select?: string;
-  /** Sort field and direction */
+  /** Sort field and direction. */
   sort?: string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Model Data Types
-// -----------------------------------------------------------------------------
+// #region Model Data Types
 
 /**
  * Base model data returned by Panel API.
@@ -73,17 +68,16 @@ export interface PanelApiSearchQuery extends PanelApiPagination {
  * @source panel/src/api/index.ts
  */
 export interface PanelModelData<TContent = Record<string, any>> {
-  /** Model identifier (page id, file id, user id; undefined for site) */
+  /** Model identifier (page id, file id, user id; undefined for site). */
   id?: string;
-  /** Model title or name */
+  /** Model title or name. */
   title: string;
-  /** Content field values */
+  /** Content field values. */
   content: TContent;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Auth API
-// -----------------------------------------------------------------------------
+// #region Auth API
 
 /**
  * User authentication data.
@@ -91,11 +85,10 @@ export interface PanelModelData<TContent = Record<string, any>> {
  * @source panel/src/api/auth.ts
  */
 export interface PanelApiLoginData {
-  /** User email */
+  /** User email. */
   email: string;
-  /** User password */
+  /** User password. */
   password: string;
-  /** Remember login */
   remember?: boolean;
 }
 
@@ -136,10 +129,9 @@ export interface PanelApiAuth {
    */
   verifyCode: (code: string) => Promise<any>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Files API
-// -----------------------------------------------------------------------------
+// #region Files API
 
 /**
  * Files API methods.
@@ -226,24 +218,20 @@ export interface PanelApiFiles {
    */
   url: (parent: string | null, filename: string, path?: string) => string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Languages API
-// -----------------------------------------------------------------------------
+// #region Languages API
 
 /** Language data for create/update. */
 export interface PanelApiLanguageData {
-  /** Language code */
   code: string;
-  /** Language name */
   name?: string;
-  /** Text direction */
+  /** Text direction. */
   direction?: "ltr" | "rtl";
-  /** Whether default language */
   default?: boolean;
-  /** Locale code */
+  /** Locale code. */
   locale?: string;
-  /** Slug conversion rules */
+  /** Slug conversion rules. */
   rules?: Record<string, string>;
 }
 
@@ -293,30 +281,26 @@ export interface PanelApiLanguages {
    */
   update: (code: string, data: Partial<PanelApiLanguageData>) => Promise<any>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Pages API
-// -----------------------------------------------------------------------------
+// #region Pages API
 
 /** Page creation data. */
 export interface PanelApiPageCreateData {
-  /** Page slug */
   slug: string;
-  /** Page title */
   title?: string;
-  /** Page template */
   template?: string;
-  /** Initial content */
+  /** Initial content. */
   content?: Record<string, any>;
-  /** Initial status */
+  /** Initial status. */
   status?: "draft" | "unlisted" | "listed";
 }
 
 /** Page duplicate options. */
 export interface PanelApiPageDuplicateOptions {
-  /** Copy children pages */
+  /** Copy children pages. */
   children?: boolean;
-  /** Copy files */
+  /** Copy files. */
   files?: boolean;
 }
 
@@ -495,10 +479,9 @@ export interface PanelApiPages {
    */
   url: (id: string | null, path?: string) => string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Roles API
-// -----------------------------------------------------------------------------
+// #region Roles API
 
 /**
  * Roles API methods.
@@ -523,10 +506,9 @@ export interface PanelApiRoles {
    */
   list: (params?: Record<string, any>) => Promise<any>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Site API
-// -----------------------------------------------------------------------------
+// #region Site API
 
 /**
  * Site API methods.
@@ -581,26 +563,25 @@ export interface PanelApiSite {
    */
   update: (data: Record<string, any>) => Promise<any>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// System API
-// -----------------------------------------------------------------------------
+// #region System API
 
 /** System installation data. */
 export interface PanelApiSystemInstallData {
-  /** Admin email */
+  /** Admin email. */
   email: string;
-  /** Admin password */
+  /** Admin password. */
   password: string;
-  /** Admin language */
+  /** Admin language. */
   language?: string;
 }
 
 /** License registration data. */
 export interface PanelApiSystemRegisterData {
-  /** License key */
+  /** License key. */
   license: string;
-  /** Licensee email */
+  /** Licensee email. */
   email: string;
 }
 
@@ -635,10 +616,9 @@ export interface PanelApiSystem {
    */
   register: (data: PanelApiSystemRegisterData) => Promise<any>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Translations API
-// -----------------------------------------------------------------------------
+// #region Translations API
 
 /**
  * Translations API methods.
@@ -662,22 +642,16 @@ export interface PanelApiTranslations {
    */
   list: () => Promise<any>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Users API
-// -----------------------------------------------------------------------------
+// #region Users API
 
 /** User creation data. */
 export interface PanelApiUserCreateData {
-  /** User email */
   email: string;
-  /** User password */
   password?: string;
-  /** User name */
   name?: string;
-  /** User role */
   role?: string;
-  /** User language */
   language?: string;
 }
 
@@ -839,10 +813,9 @@ export interface PanelApiUsers {
    */
   url: (id: string | null, path?: string) => string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Main API Interface
-// -----------------------------------------------------------------------------
+// #region Main API Interface
 
 /**
  * Panel API client.
@@ -872,13 +845,13 @@ export interface PanelApiUsers {
  * @source panel/src/panel/request.ts
  */
 export interface PanelApi {
-  /** CSRF token for requests */
+  /** CSRF token for requests. */
   csrf: string;
 
-  /** API base endpoint */
+  /** API base endpoint. */
   endpoint: string;
 
-  /** Whether to use method override */
+  /** Whether to use method override. */
   methodOverride: boolean;
 
   /** Heartbeat interval ID; populated once the auth ping has been scheduled. */
@@ -890,10 +863,10 @@ export interface PanelApi {
    */
   ping: () => void;
 
-  /** Active request IDs */
+  /** Active request IDs. */
   requests: string[];
 
-  /** Current language code, or `null` when no language is active (set from the Panel's active language on construction and refreshed on each request) */
+  /** Current language code, or `null` when no language is active (set from the Panel's active language on construction and refreshed on each request). */
   language: string | null;
 
   /**
@@ -976,30 +949,22 @@ export interface PanelApi {
     silent?: boolean,
   ) => Promise<T>;
 
-  /** Authentication methods */
   auth: PanelApiAuth;
 
-  /** Files API */
   files: PanelApiFiles;
 
-  /** Languages API */
   languages: PanelApiLanguages;
 
-  /** Pages API */
   pages: PanelApiPages;
 
-  /** Roles API */
   roles: PanelApiRoles;
 
-  /** Site API */
   site: PanelApiSite;
 
-  /** System API */
   system: PanelApiSystem;
 
-  /** Translations API */
   translations: PanelApiTranslations;
 
-  /** Users API */
   users: PanelApiUsers;
 }
+// #endregion

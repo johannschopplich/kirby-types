@@ -9,46 +9,44 @@
 
 import type { ConfigType, Dayjs, PluginFunc, UnitType } from "dayjs";
 
-// -----------------------------------------------------------------------------
-// Color Types
-// -----------------------------------------------------------------------------
+// #region Color Types
 
 /** Color format identifiers. */
 export type PanelColorFormat = "hex" | "rgb" | "hsl" | "hsv";
 
 /** RGB color object. */
 export interface PanelColorRGB {
-  /** Red channel (0-255) */
+  /** Red channel (0-255). */
   r: number;
-  /** Green channel (0-255) */
+  /** Green channel (0-255). */
   g: number;
-  /** Blue channel (0-255) */
+  /** Blue channel (0-255). */
   b: number;
-  /** Alpha channel (0-1) */
+  /** Alpha channel (0-1). */
   a?: number;
 }
 
 /** HSL color object. */
 export interface PanelColorHSL {
-  /** Hue (0-360) */
+  /** Hue (0-360). */
   h: number;
-  /** Saturation (0-1) */
+  /** Saturation (0-1). */
   s: number;
-  /** Lightness (0-1) */
+  /** Lightness (0-1). */
   l: number;
-  /** Alpha channel (0-1) */
+  /** Alpha channel (0-1). */
   a?: number;
 }
 
 /** HSV color object. */
 export interface PanelColorHSV {
-  /** Hue (0-360) */
+  /** Hue (0-360). */
   h: number;
-  /** Saturation (0-1) */
+  /** Saturation (0-1). */
   s: number;
-  /** Value/Brightness (0-1) */
+  /** Value/Brightness (0-1). */
   v: number;
-  /** Alpha channel (0-1) */
+  /** Alpha channel (0-1). */
   a?: number;
 }
 
@@ -150,20 +148,18 @@ export interface PanelLibraryColors {
     alpha?: boolean,
   ) => string;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Dayjs Types
-// -----------------------------------------------------------------------------
+// #region Dayjs Types
 
 /** Pattern part information. */
 export interface PanelDayjsPatternPart {
-  /** Part index in pattern */
   index: number;
-  /** Unit type or undefined for separators */
+  /** Unit type or undefined for separators. */
   unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
-  /** Start position in pattern string */
+  /** Start position in pattern string. */
   start: number;
-  /** End position in pattern string */
+  /** End position in pattern string. */
   end: number;
 }
 
@@ -172,9 +168,9 @@ export interface PanelDayjsPatternPart {
  * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsPattern {
-  /** Original pattern string */
+  /** Original pattern string. */
   pattern: string;
-  /** Parsed pattern parts */
+  /** Parsed pattern parts. */
   parts: PanelDayjsPatternPart[];
   /**
    * Gets part information at cursor position/selection range.
@@ -333,13 +329,12 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
 
-  /** Creates a dayjs instance from Unix timestamp (seconds) */
+  /** Creates a dayjs instance from Unix timestamp (seconds). */
   unix: (t: number) => PanelDayjsInstance;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Autosize Types
-// -----------------------------------------------------------------------------
+// #region Autosize Types
 
 /**
  * Autosize library for textarea auto-resizing.
@@ -380,10 +375,9 @@ export interface PanelLibraryAutosize {
     element: T,
   ) => T;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Main Library Interface
-// -----------------------------------------------------------------------------
+// #region Main Library Interface
 
 /**
  * Panel libraries available on the Vue prototype as `$library`.
@@ -407,3 +401,4 @@ export interface PanelLibrary {
 
   dayjs: PanelLibraryDayjs;
 }
+// #endregion

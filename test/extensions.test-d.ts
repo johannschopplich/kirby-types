@@ -13,9 +13,7 @@ import type {
 } from "../src/panel";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
-// -----------------------------------------------------------------------------
-// 1. Writer Toolbar Button
-// -----------------------------------------------------------------------------
+// #region Writer Toolbar Button
 
 expectAssignable<WriterToolbarButton>({
   icon: "bold",
@@ -32,10 +30,9 @@ expectAssignable<WriterToolbarButton>({
   separator: true,
   when: ["heading", "paragraph"],
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 2. Writer Generic Extension
-// -----------------------------------------------------------------------------
+// #region Writer Generic Extension
 
 // Minimal
 expectAssignable<WriterExtension>({
@@ -79,10 +76,9 @@ expectAssignable<WriterExtension>({
     };
   },
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 3. Writer Mark Extension
-// -----------------------------------------------------------------------------
+// #region Writer Mark Extension
 
 // Minimal
 expectAssignable<WriterMarkExtension>({
@@ -153,10 +149,9 @@ expectAssignable<WriterMarkExtension>({
     { id: "h2", icon: "h2", label: "Heading 2" },
   ],
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 4. Writer Node Extension
-// -----------------------------------------------------------------------------
+// #region Writer Node Extension
 
 // Minimal
 expectAssignable<WriterNodeExtension>({
@@ -202,10 +197,9 @@ expectAssignable<WriterNodeExtension>({
     };
   },
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 5. Textarea Button
-// -----------------------------------------------------------------------------
+// #region Textarea Button
 
 expectAssignable<TextareaButton>({
   label: "Bold",
@@ -234,7 +228,7 @@ expectAssignable<TextareaButton>({
     {
       label: "Heading 1",
       icon: "h1",
-      // Arrow function captures outer `this` (toolbar context)
+      // Arrow function captures outer `this` (toolbar context).
       click: () => {
         // In real code: this.command("prepend", "#")
       },
@@ -248,10 +242,9 @@ expectAssignable<TextareaButton>({
     },
   ],
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 6. Textarea Toolbar Context
-// -----------------------------------------------------------------------------
+// #region Textarea Toolbar Context
 
 declare const context: TextareaToolbarContext;
 
@@ -263,10 +256,9 @@ expectType<void>(
 );
 expectType<void>(context.close());
 expectType<string>(context.$t("toolbar.button.bold"));
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 7. Panel Plugin Extensions
-// -----------------------------------------------------------------------------
+// #region Panel Plugin Extensions
 
 expectAssignable<PanelPluginExtensions>({
   blocks: {
@@ -354,10 +346,9 @@ expectAssignable<PanelPluginExtensions>({
     },
   },
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 8. Panel.plugin() Method
-// -----------------------------------------------------------------------------
+// #region Panel.plugin() Method
 
 declare const panel: Panel;
 
@@ -382,13 +373,13 @@ expectType<Record<string, string>>(panel.plugins.icons);
 expectType<Record<string, TextareaButton>>(panel.plugins.textareaButtons);
 expectType<Record<string, WriterMarkExtension>>(panel.plugins.writerMarks);
 expectType<Record<string, WriterNodeExtension>>(panel.plugins.writerNodes);
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Negative Tests
-// -----------------------------------------------------------------------------
+// #region Negative Tests
 
 // Missing required fields
 expectNotAssignable<WriterToolbarButton>({
   icon: "bold",
   // Missing label
 });
+// #endregion

@@ -5,17 +5,17 @@
  * for queries, plus any custom models you define.
  *
  * Built-in models include:
- * - `site` - The site object
- * - `page` - A page object
- * - `user` - A user object
- * - `file` - A file object
- * - `collection` - A collection object
- * - `kirby` - The Kirby instance
- * - `content` - Content field data
- * - `item` - Generic item in collections
- * - `arrayItem` - An item in an array
- * - `structureItem` - An item in a structure field
- * - `block` - A block in the blocks field
+ * - `site` - The site object.
+ * - `page` - A page object.
+ * - `user` - A user object.
+ * - `file` - A file object.
+ * - `collection` - A collection object.
+ * - `kirby` - The Kirby instance.
+ * - `content` - Content field data.
+ * - `item` - Generic item in collections.
+ * - `arrayItem` - An item in an array.
+ * - `structureItem` - An item in a structure field.
+ * - `block` - A block in the blocks field.
  *
  * @example
  * ```ts
@@ -96,7 +96,7 @@ export type KirbyQueryChain<M extends string = never> =
  * - Simple model names (e.g., `"site"`, `"page"`)
  * - Property chains (e.g., `"page.children.listed"`)
  * - Method calls (e.g., `'site("home")'`, `'page.filterBy("status", "published")'`)
- * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`)
+ * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`).
  *
  * Invalid queries (unknown models, malformed syntax) will be rejected at the type level.
  *
@@ -175,8 +175,8 @@ type ParseQuerySegment<T extends string> =
  * Parses a Kirby Query Language (KQL) string into a structured object.
  *
  * This type breaks down a query string into its constituent parts:
- * - `model`: The root model the query starts with (e.g., `site`, `page`, `user`)
- * - `chain`: An array of query segments representing the method calls and property accesses
+ * - `model`: The root model the query starts with (e.g., `site`, `page`, `user`).
+ * - `chain`: An array of query segments representing the method calls and property accesses.
  *
  * @example
  * ```ts

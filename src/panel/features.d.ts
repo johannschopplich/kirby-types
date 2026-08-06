@@ -22,9 +22,7 @@ import type {
   PanelState,
 } from "./base";
 
-// -----------------------------------------------------------------------------
-// Timer
-// -----------------------------------------------------------------------------
+// #region Timer
 
 /**
  * Simple timer utility for auto-closing notifications.
@@ -48,17 +46,16 @@ export interface PanelTimer {
   /** Stops the timer and clears the interval. */
   stop: () => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Activation
-// -----------------------------------------------------------------------------
+// #region Activation
 
 /**
  * Default state for the activation feature.
  * @source panel/src/panel/activation.ts
  */
 export interface PanelActivationDefaults {
-  /** Whether the activation card is visible */
+  /** Whether the activation card is visible. */
   isOpen: boolean;
 }
 
@@ -79,19 +76,18 @@ export interface PanelActivation
   /** Opens the activation card and clears session storage state. */
   open: () => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Drag
-// -----------------------------------------------------------------------------
+// #region Drag
 
 /**
  * Default state for drag operations.
  * @source panel/src/panel/drag.ts
  */
 export interface PanelDragDefaults {
-  /** Type of item being dragged */
+  /** Type of item being dragged. */
   type: string | null;
-  /** Data associated with the dragged item */
+  /** Data associated with the dragged item. */
   data: Record<string, any>;
 }
 
@@ -103,7 +99,7 @@ export interface PanelDragDefaults {
  */
 export interface PanelDrag
   extends PanelState<PanelDragDefaults>, PanelDragDefaults {
-  /** Whether a drag operation is in progress */
+  /** Whether a drag operation is in progress. */
   readonly isDragging: boolean;
 
   /**
@@ -117,19 +113,18 @@ export interface PanelDrag
   /** Stops the current drag operation and resets state. */
   stop: () => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Theme
-// -----------------------------------------------------------------------------
+// #region Theme
 
 /**
  * Default state for theme management.
  * @source panel/src/panel/theme.ts
  */
 export interface PanelThemeDefaults {
-  /** User's theme preference from localStorage */
+  /** User's theme preference from localStorage. */
   setting: string | null;
-  /** System preference from media query */
+  /** System preference from media query. */
   system: "light" | "dark";
 }
 
@@ -177,27 +172,24 @@ export interface PanelTheme
    */
   set: (theme: PanelThemeValue) => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Language (Content Language)
-// -----------------------------------------------------------------------------
+// #region Language (Content Language)
 
 /**
  * Default state for content language.
  * @source panel/src/panel/language.ts
  */
 export interface PanelLanguageDefaults {
-  /** Language code (e.g., `"en"`, `"de"`) */
+  /** Language code (e.g., `"en"`, `"de"`). */
   code: string | null;
-  /** Whether this is the default language */
   default: boolean;
-  /** Text direction */
+  /** Text direction. */
   direction: "ltr" | "rtl";
   /** Whether the language uses a custom domain. */
   hasCustomDomain: boolean;
-  /** Language name */
   name: string | null;
-  /** Slug conversion rules */
+  /** Slug conversion rules. */
   rules: Record<string, string>;
 }
 
@@ -210,26 +202,23 @@ export interface PanelLanguageDefaults {
  * @source panel/src/panel/language.ts
  */
 export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
-  /** Language code (e.g., `"en"`, `"de"`) */
+  /** Language code (e.g., `"en"`, `"de"`). */
   code: string;
-  /** Whether this is the default language */
   default: boolean;
-  /** Text direction */
+  /** Text direction. */
   direction: "ltr" | "rtl";
   /** Whether the language uses a custom domain. */
   hasCustomDomain: boolean;
-  /** Language name */
   name: string;
-  /** Slug conversion rules */
+  /** Slug conversion rules. */
   rules: Record<string, string>;
 
-  /** Alias for `default` property */
+  /** Alias for `default` property. */
   readonly isDefault: boolean;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Menu
-// -----------------------------------------------------------------------------
+// #region Menu
 
 /**
  * Menu entry types.
@@ -241,28 +230,28 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
  * @source src/Panel/Menu.php
  */
 export interface PanelMenuEntry {
-  /** Whether this entry is currently active */
+  /** Whether this entry is currently active. */
   current?: boolean;
-  /** Optional dialog URL – when set, the entry opens a dialog instead of navigating */
+  /** Optional dialog URL – when set, the entry opens a dialog instead of navigating. */
   dialog?: string;
   /** Whether the entry is rendered as visually disabled. */
   disabled?: boolean;
-  /** Optional drawer URL – when set, the entry opens a drawer instead of navigating */
+  /** Optional drawer URL – when set, the entry opens a drawer instead of navigating. */
   drawer?: string;
-  /** Icon name */
+  /** Icon name. */
   icon?: string;
   /**
    * Stable area id of the menu item.
    * @since 6
    */
   id?: string;
-  /** Link URL */
+  /** Link URL. */
   link?: string;
-  /** Anchor target attribute (e.g. `"_blank"`) */
+  /** Anchor target attribute (e.g. `"_blank"`). */
   target?: string;
-  /** Display text */
+  /** Display text. */
   text?: string;
-  /** Tooltip text */
+  /** Tooltip text. */
   title?: string;
 }
 
@@ -276,9 +265,9 @@ export interface PanelMenuDefaults {
    * @deprecated Renamed to `items` in K6.
    */
   entries: (PanelMenuEntry | "-")[];
-  /** Whether menu is being hovered */
+  /** Whether menu is being hovered. */
   hover: boolean;
-  /** Whether menu is expanded */
+  /** Whether menu is expanded. */
   isOpen: boolean;
   /**
    * Menu items; replaces `entries` in the K6 MenuState shape.
@@ -342,27 +331,25 @@ export interface PanelMenu
   /** Toggles the sidebar menu state. */
   toggle: () => void;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Notification
-// -----------------------------------------------------------------------------
+// #region Notification
 
 /**
  * Default state for notifications.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotificationDefaults {
-  /** Context where notification appears */
+  /** Context where notification appears. */
   context: PanelContext | null;
   /** Additional details (for error dialogs); defaults to an empty object. */
   details: Record<string, any>;
-  /** Icon name */
+  /** Icon name. */
   icon: string | null;
-  /** Whether notification is visible */
+  /** Whether notification is visible. */
   isOpen: boolean;
-  /** Notification message */
   message: string | null;
-  /** Visual theme */
+  /** Visual theme. */
   theme: NotificationTheme | null;
   /** Auto-close timeout in ms; `0` disables auto-close. Default `0`. */
   timeout: number;
@@ -375,15 +362,14 @@ export interface PanelNotificationDefaults {
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotificationOptions {
-  /** Context where notification appears */
+  /** Context where notification appears. */
   context?: PanelContext;
-  /** Additional details */
+  /** Additional details. */
   details?: Record<string, any>;
-  /** Icon name */
+  /** Icon name. */
   icon?: string;
-  /** Notification message */
   message?: string;
-  /** Visual theme */
+  /** Visual theme. */
   theme?: NotificationTheme;
   /**
    * Auto-close delay in ms. For non-error notifications any falsy value
@@ -392,7 +378,6 @@ export interface PanelNotificationOptions {
    * passed value and default to `0`, i.e. no auto-close.
    */
   timeout?: number;
-  /** Notification type */
   type?: NotificationType;
 }
 
@@ -401,11 +386,10 @@ export interface PanelNotificationOptions {
  * @source panel/src/panel/notification.ts
  */
 export interface PanelErrorObject {
-  /** Error message */
   message: string;
-  /** Additional error details */
+  /** Additional error details. */
   details?: Record<string, any>;
-  /** Error key for special handling */
+  /** Error key for special handling. */
   key?: string;
 }
 
@@ -420,10 +404,10 @@ export interface PanelErrorObject {
  */
 export interface PanelNotification
   extends PanelState<PanelNotificationDefaults>, PanelNotificationDefaults {
-  /** Timer for auto-close functionality */
+  /** Timer for auto-close functionality. */
   timer: PanelTimer;
 
-  /** Whether this is a fatal error notification */
+  /** Whether this is a fatal error notification. */
   readonly isFatal: boolean;
 
   /** Closes the notification and resets state. */
@@ -482,27 +466,26 @@ export interface PanelNotification
     success?: string | PanelNotificationOptions,
   ) => PanelNotificationDefaults;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// System
-// -----------------------------------------------------------------------------
+// #region System
 
 /**
  * Default state for system information.
  * @source panel/src/panel/system.ts
  */
 export interface PanelSystemDefaults {
-  /** ASCII character replacements for slugs */
+  /** ASCII character replacements for slugs. */
   ascii: Record<string, string>;
-  /** CSRF token for API requests */
+  /** CSRF token for API requests. */
   csrf: string;
-  /** Whether running on localhost */
+  /** Whether running on localhost. */
   isLocal: boolean;
-  /** Locale names by code */
+  /** Locale names by code. */
   locales: Record<string, string>;
-  /** Slug rules by language */
+  /** Slug rules by language. */
   slugs: Record<string, string>;
-  /** Site title */
+  /** Site title. */
   title: string;
 }
 
@@ -516,25 +499,23 @@ export interface PanelSystemDefaults {
  */
 export interface PanelSystem
   extends PanelState<PanelSystemDefaults>, PanelSystemDefaults {}
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Translation (Interface Language)
-// -----------------------------------------------------------------------------
+// #region Translation (Interface Language)
 
 /**
  * Default state for interface translation.
  * @source panel/src/panel/translation.ts
  */
 export interface PanelTranslationDefaults {
-  /** Translation code (e.g., `"en"`, `"de"`) */
+  /** Translation code (e.g., `"en"`, `"de"`). */
   code: string;
-  /** Translation strings by key */
+  /** Translation strings by key. */
   data: Record<string, string>;
-  /** Text direction */
+  /** Text direction. */
   direction: "ltr" | "rtl";
-  /** Translation name */
   name: string;
-  /** First day of week (`0`=Sunday, `1`=Monday) */
+  /** First day of week (`0`=Sunday, `1`=Monday). */
   weekday: number;
 }
 
@@ -569,25 +550,20 @@ export interface PanelTranslation
     fallback?: string | null,
   ) => string | undefined;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// User
-// -----------------------------------------------------------------------------
+// #region User
 
 /**
  * Default state for the current user.
  * @source panel/src/panel/user.ts
  */
 export interface PanelUserDefaults {
-  /** User email */
   email: string | null;
-  /** User ID */
   id: string | null;
-  /** User's interface language */
+  /** User's interface language. */
   language: string | null;
-  /** User's role */
   role: string | null;
-  /** Username */
   username: string | null;
 }
 
@@ -601,19 +577,18 @@ export interface PanelUserDefaults {
  */
 export interface PanelUser
   extends PanelState<PanelUserDefaults>, PanelUserDefaults {}
+// #endregion
 
-// -----------------------------------------------------------------------------
-// View
-// -----------------------------------------------------------------------------
+// #region View
 
 /**
  * Breadcrumb item for view navigation.
  * @source panel/src/panel/view.ts
  */
 export interface PanelBreadcrumbItem {
-  /** Display label */
+  /** Display label. */
   label: string;
-  /** Navigation link */
+  /** Navigation link. */
   link: string;
   /**
    * Optional icon for plugin-supplied breadcrumbs; PHP does not currently emit this.
@@ -627,21 +602,17 @@ export interface PanelBreadcrumbItem {
  * @source panel/src/panel/feature.ts
  */
 export interface PanelViewDefaults extends PanelFeatureDefaults {
-  /** Breadcrumb navigation items */
+  /** Breadcrumb navigation items. */
   breadcrumb: PanelBreadcrumbItem[];
-  /** Label for current breadcrumb */
+  /** Label for current breadcrumb. */
   breadcrumbLabel: string | null;
-  /** View icon */
   icon: string | null;
-  /** View ID */
   id: string | null;
-  /** View link */
   link: string | null;
-  /** Relative path to this view */
+  /** Relative path to this view. */
   path: string;
-  /** Default search type */
+  /** Default search type. */
   search: string;
-  /** View title */
   title: string | null;
 }
 
@@ -677,25 +648,22 @@ export interface PanelView
    */
   submit: () => Promise<never>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Dropdown
-// -----------------------------------------------------------------------------
+// #region Dropdown
 
 /**
  * Dropdown option item.
  * @source panel/src/panel/dropdown.ts
  */
 export interface PanelDropdownOption {
-  /** Option text */
   text: string;
-  /** Icon name */
+  /** Icon name. */
   icon?: string;
-  /** Click handler, or a link string */
+  /** Click handler, or a link string. */
   click?: (() => void) | string;
-  /** Whether option is disabled */
   disabled?: boolean;
-  /** Additional properties */
+  /** Additional properties. */
   [key: string]: any;
 }
 
@@ -739,10 +707,9 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   /** Sets dropdown state, handling deprecated responses. */
   set: (state: Partial<PanelFeatureDefaults>) => PanelFeatureDefaults;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Dialog
-// -----------------------------------------------------------------------------
+// #region Dialog
 
 /**
  * Default state for the dialog modal.
@@ -752,7 +719,7 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
  * @source panel/src/panel/modal.ts
  */
 export interface PanelDialogDefaults extends PanelFeatureDefaults {
-  /** Unique dialog ID */
+  /** Unique dialog ID. */
   id: string | null;
   /**
    * Whether using legacy Vue component.
@@ -816,10 +783,9 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
    */
   openComponent: (dialog: any) => Promise<PanelDialogDefaults>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Drawer
-// -----------------------------------------------------------------------------
+// #region Drawer
 
 /**
  * Default state for the drawer modal.
@@ -829,7 +795,7 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
  * @source panel/src/panel/modal.ts
  */
 export interface PanelDrawerDefaults extends PanelFeatureDefaults {
-  /** Unique drawer ID */
+  /** Unique drawer ID. */
   id: string | null;
 }
 
@@ -845,10 +811,10 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  * @source panel/src/panel/modal.ts
  */
 export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
-  /** Breadcrumb from history milestones */
+  /** Breadcrumb from history milestones. */
   readonly breadcrumb: PanelHistory["milestones"];
 
-  /** Drawer icon, defaults to `"box"` */
+  /** Drawer icon, defaults to `"box"`. */
   readonly icon: string;
 
   /** Opens a drawer by URL or state object. */
@@ -875,10 +841,9 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Returns the modal listeners extended with drawer-specific `crumb` (history navigation) and `tab` handlers. */
   listeners: () => PanelModalListeners;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Content
-// -----------------------------------------------------------------------------
+// #region Content
 
 /**
  * Content version representing saved or changed state.
@@ -895,9 +860,9 @@ export interface PanelContentVersion {
  * @source panel/src/panel/content.ts
  */
 export interface PanelContentVersions {
-  /** Original saved content */
+  /** Original saved content. */
   latest: PanelContentVersion;
-  /** Current unsaved changes */
+  /** Current unsaved changes. */
   changes: PanelContentVersion;
 }
 
@@ -932,9 +897,9 @@ export interface PanelContentLock {
  * @source panel/src/panel/content.ts
  */
 export interface PanelContentEnv {
-  /** API endpoint path */
+  /** API endpoint path. */
   api?: string;
-  /** Content language code */
+  /** Content language code. */
   language?: string;
 }
 
@@ -949,10 +914,10 @@ export interface PanelContentEnv {
  * @source panel/src/panel/content.ts
  */
 export interface PanelContent {
-  /** Reference to lock dialog if open */
+  /** Reference to lock dialog if open. */
   dialog: PanelDialog | null;
 
-  /** Whether content is being saved/published/discarded */
+  /** Whether content is being saved/published/discarded. */
   isProcessing: boolean;
 
   /**
@@ -1133,10 +1098,9 @@ export interface PanelContent {
   /** Returns all content versions. */
   versions: () => PanelContentVersions;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Searcher
-// -----------------------------------------------------------------------------
+// #region Searcher
 
 /**
  * Search pagination info.
@@ -1153,9 +1117,8 @@ export interface PanelSearchPagination {
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearchOptions {
-  /** Page number */
   page?: number;
-  /** Results per page */
+  /** Results per page. */
   limit?: number;
 }
 
@@ -1164,9 +1127,9 @@ export interface PanelSearchOptions {
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearchResult {
-  /** Result list (null if query too short) */
+  /** Result list (null if query too short). */
   results: any[] | null;
-  /** Pagination info */
+  /** Pagination info. */
   pagination: PanelSearchPagination;
 }
 
@@ -1179,13 +1142,13 @@ export interface PanelSearchResult {
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearcher {
-  /** AbortController for current request */
+  /** AbortController for current request. */
   controller: AbortController | undefined;
 
-  /** Number of active requests */
+  /** Number of active requests. */
   requests: number;
 
-  /** Whether any search is loading */
+  /** Whether any search is loading. */
   readonly isLoading: boolean;
 
   /**
@@ -1208,10 +1171,9 @@ export interface PanelSearcher {
     options?: PanelSearchOptions,
   ) => Promise<PanelSearchResult | undefined>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Upload
-// -----------------------------------------------------------------------------
+// #region Upload
 
 /**
  * Server-side file model passed to `PanelUpload.replace()` and stored in
@@ -1223,13 +1185,13 @@ export interface PanelSearcher {
  * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadReplaceFile {
-  /** API path segment used to build the upload URL */
+  /** API path segment used to build the upload URL. */
   link: string;
-  /** File extension without dot, used for the picker `accept` filter */
+  /** File extension without dot, used for the picker `accept` filter. */
   extension: string;
-  /** MIME type, used for the picker `accept` filter */
+  /** MIME type, used for the picker `accept` filter. */
   mime: string;
-  /** Additional server-side fields */
+  /** Additional server-side fields. */
   [key: string]: any;
 }
 
@@ -1240,31 +1202,30 @@ export interface PanelUploadReplaceFile {
  * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadFile {
-  /** Unique file ID */
+  /** Unique file ID. */
   id: string;
-  /** Original File object */
+  /** Original File object. */
   src: File;
-  /** File name without extension */
+  /** File name without extension. */
   name: string;
-  /** File extension without dot */
+  /** File extension without dot. */
   extension: string;
-  /** Original filename with extension */
+  /** Original filename with extension. */
   filename: string;
-  /** File size in bytes */
+  /** File size in bytes. */
   size: number;
-  /** Formatted file size (e.g., `"1.2 MB"`) */
+  /** Formatted file size (e.g., `"1.2 MB"`). */
   niceSize: string;
-  /** MIME type */
+  /** MIME type. */
   type: string;
-  /** Blob URL for preview */
+  /** Blob URL for preview. */
   url: string;
-  /** Upload progress (`0`-`100`) */
+  /** Upload progress (`0`-`100`). */
   progress: number;
-  /** Whether upload completed */
   completed: boolean;
-  /** Error message if failed */
+  /** Error message if failed. */
   error: string | null;
-  /** Response model after successful upload */
+  /** Response model after successful upload. */
   model: any | null;
 }
 
@@ -1274,23 +1235,22 @@ export interface PanelUploadFile {
  * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadDefaults {
-  /** AbortController for current upload */
+  /** AbortController for current upload. */
   abort: AbortController | null;
-  /** Accepted file types */
+  /** Accepted file types. */
   accept: string;
-  /** Additional file attributes */
+  /** Additional file attributes. */
   attributes: Record<string, any>;
-  /** Files to upload */
   files: PanelUploadFile[];
-  /** Maximum number of files */
+  /** Maximum number of files. */
   max: number | null;
-  /** Whether multiple files allowed */
+  /** Whether multiple files allowed. */
   multiple: boolean;
-  /** File preview data */
+  /** File preview data. */
   preview: Record<string, any>;
   /** Server file model being replaced (carries `link`, `extension`, `mime`). */
   replacing: PanelUploadReplaceFile | null;
-  /** Upload endpoint URL */
+  /** Upload endpoint URL. */
   url: string | null;
 }
 
@@ -1429,10 +1389,9 @@ export interface PanelUpload
     attributes?: Record<string, any>,
   ) => Promise<void>;
 }
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Events
-// -----------------------------------------------------------------------------
+// #region Events
 
 /**
  * Event emitter interface (mitt-compatible).
@@ -1454,10 +1413,10 @@ export interface PanelEventEmitter {
  * @source panel/src/panel/events.ts
  */
 export interface PanelEvents extends PanelEventEmitter {
-  /** Element that was entered during drag */
+  /** Element that was entered during drag. */
   entered: EventTarget | null;
 
-  // Global event handlers
+  // #region Global event handlers
 
   /**
    * Handles window beforeunload event.
@@ -1587,6 +1546,7 @@ export interface PanelEvents extends PanelEventEmitter {
    * @param event - Event to prevent
    */
   prevent: (event: Event) => void;
+  // #endregion
 
   /** Subscribes all global event listeners. */
   subscribe: () => void;
@@ -1594,3 +1554,4 @@ export interface PanelEvents extends PanelEventEmitter {
   /** Unsubscribes all global event listeners. */
   unsubscribe: () => void;
 }
+// #endregion

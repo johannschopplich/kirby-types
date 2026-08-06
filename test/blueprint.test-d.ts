@@ -25,9 +25,7 @@ import type {
 } from "../src/blueprint";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
-// -----------------------------------------------------------------------------
-// 1. Kirby Option
-// -----------------------------------------------------------------------------
+// #region Kirby Option
 
 expectAssignable<KirbyOption>({
   disabled: false,
@@ -44,10 +42,9 @@ expectAssignable<KirbyOption>({
   text: "Published",
   value: 1,
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 2. Base Field Props
-// -----------------------------------------------------------------------------
+// #region Base Field Props
 
 expectAssignable<KirbyFieldProps>({
   autofocus: false,
@@ -81,10 +78,9 @@ expectAssignable<KirbyFieldProps>({
   when: { status: "draft" },
   width: "1/1",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 3. Text Field Props
-// -----------------------------------------------------------------------------
+// #region Text Field Props
 
 expectAssignable<KirbyTextFieldProps>({
   autofocus: false,
@@ -123,10 +119,9 @@ expectAssignable<KirbyTextareaFieldProps>({
 expectType<"text" | "slug" | "url" | "email" | "tel">(
   {} as KirbyTextFieldProps["type"],
 );
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 4. Number Field Props
-// -----------------------------------------------------------------------------
+// #region Number Field Props
 
 expectAssignable<KirbyNumberFieldProps>({
   autofocus: false,
@@ -155,10 +150,9 @@ expectAssignable<KirbyNumberFieldProps>({
   value: 49.99,
   width: "1/2",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 5. Options Field Props
-// -----------------------------------------------------------------------------
+// #region Options Field Props
 
 expectAssignable<KirbyOptionsFieldProps>({
   autofocus: false,
@@ -197,10 +191,9 @@ expectAssignable<KirbyOptionsFieldProps>({
 expectType<"select" | "radio" | "checkboxes" | "multiselect" | "toggles">(
   {} as KirbyOptionsFieldProps["type"],
 );
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 6. Toggle Field Props
-// -----------------------------------------------------------------------------
+// #region Toggle Field Props
 
 expectAssignable<KirbyToggleFieldProps>({
   autofocus: false,
@@ -228,10 +221,9 @@ expectAssignable<KirbyToggleFieldProps>({
   value: false,
   width: "1/2",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 7. Date Field Props
-// -----------------------------------------------------------------------------
+// #region Date Field Props
 
 expectAssignable<KirbyDateFieldProps>({
   autofocus: false,
@@ -263,10 +255,9 @@ expectAssignable<KirbyDateFieldProps>({
   value: "2024-06-15",
   width: "1/3",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 8. Files Field Props
-// -----------------------------------------------------------------------------
+// #region Files Field Props
 
 expectAssignable<KirbyFilesFieldProps>({
   autofocus: false,
@@ -304,10 +295,9 @@ expectAssignable<KirbyFilesFieldProps>({
   value: [{ id: "image.jpg", text: "image.jpg" }],
   width: "1/1",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 9. Color Field Props
-// -----------------------------------------------------------------------------
+// #region Color Field Props
 
 expectAssignable<KirbyColorFieldProps>({
   autofocus: false,
@@ -337,10 +327,9 @@ expectAssignable<KirbyColorFieldProps>({
   value: "hsl(0, 100%, 50%)",
   width: "1/2",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 10. Structure Field Props
-// -----------------------------------------------------------------------------
+// #region Structure Field Props
 
 expectAssignable<KirbyStructureFieldProps>({
   autofocus: false,
@@ -374,10 +363,9 @@ expectAssignable<KirbyStructureColumn>({
   mobile: true,
   align: "left",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 11. Object Field Props
-// -----------------------------------------------------------------------------
+// #region Object Field Props
 
 expectAssignable<KirbyObjectFieldProps>({
   autofocus: false,
@@ -404,14 +392,13 @@ expectAssignable<KirbyObjectFieldProps>({
   width: "1/1",
 });
 
-// Object value can be empty string (Kirby quirk) or undefined
+// Object value can be empty string (Kirby quirk) or undefined.
 expectType<Record<string, any> | "" | undefined>(
   {} as KirbyObjectFieldProps["value"],
 );
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 12. Blocks Field Props
-// -----------------------------------------------------------------------------
+// #region Blocks Field Props
 
 expectAssignable<KirbyBlocksFieldProps>({
   autofocus: false,
@@ -432,10 +419,9 @@ expectAssignable<KirbyBlockValue>({
   isHidden: false,
   type: "text",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 13. Layout Field Props
-// -----------------------------------------------------------------------------
+// #region Layout Field Props
 
 expectAssignable<KirbyLayoutFieldProps>({
   autofocus: false,
@@ -462,10 +448,9 @@ expectAssignable<KirbyLayoutColumnValue>({
   id: "col-1",
   width: "1/2",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 14. Writer Field Props
-// -----------------------------------------------------------------------------
+// #region Writer Field Props
 
 expectAssignable<KirbyWriterFieldProps>({
   autofocus: false,
@@ -500,10 +485,9 @@ expectAssignable<KirbyWriterFieldProps>({
   value: "<p>Content</p>",
   width: "1/1",
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 15. Fieldset Props
-// -----------------------------------------------------------------------------
+// #region Fieldset Props
 
 expectAssignable<KirbyFieldsetProps>({
   disabled: false,
@@ -549,10 +533,9 @@ expectAssignable<KirbyFieldsetGroup>({
   open: true,
   sets: ["text", "heading", "quote"],
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// Negative Tests
-// -----------------------------------------------------------------------------
+// #region Negative Tests
 
 // Missing required base props
 expectNotAssignable<KirbyFieldProps>({
@@ -592,3 +575,4 @@ expectNotAssignable<KirbyTextFieldProps>({
   type: "text",
   width: "1/1",
 });
+// #endregion

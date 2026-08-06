@@ -6,9 +6,7 @@ import type {
 } from "../src/layout";
 import { expectAssignable, expectNotAssignable } from "tsd";
 
-// -----------------------------------------------------------------------------
-// 1. Layout Types
-// -----------------------------------------------------------------------------
+// #region Layout Types
 
 expectAssignable<KirbyLayoutColumnWidth>("1/1");
 expectAssignable<KirbyLayoutColumnWidth>("1/2");
@@ -47,7 +45,7 @@ expectAssignable<KirbyLayout>({
   columns: [{ id: "col-1", width: "1/1", blocks: [] }],
 });
 
-// Kirby returns [] when no attrs
+// Kirby returns [] when no attrs.
 expectAssignable<KirbyLayout>({
   id: "layout-2",
   attrs: [],
@@ -56,10 +54,9 @@ expectAssignable<KirbyLayout>({
     { id: "col-2", width: "1/2", blocks: [] },
   ],
 });
+// #endregion
 
-// -----------------------------------------------------------------------------
-// 2. Negative Tests
-// -----------------------------------------------------------------------------
+// #region Negative Tests
 
 expectNotAssignable<KirbyLayoutColumn>({
   id: "col-1",
@@ -74,3 +71,4 @@ expectNotAssignable<KirbyLayoutColumn>({
   width: "invalid",
   blocks: [],
 });
+// #endregion
