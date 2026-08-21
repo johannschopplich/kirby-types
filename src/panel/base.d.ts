@@ -714,8 +714,27 @@ export type NotificationType = "error" | "fatal";
  * Visual theme for notifications.
  * - `positive`: Green, for success.
  * - `negative`: Red, for errors.
+ * - `notice`: Orange, for an outcome needing attention that is not an error.
+ * - `warning`: Yellow, for a risky action.
  * - `info`: Blue, for information.
+ * - `love`: Pink, for licensing prompts.
+ * - `passive`: Gray, for muted, secondary content.
+ * - `text`: White, for plain, unstyled content.
+ *
+ * Kirby leaves `state.theme` untyped and matches the stylesheet by prefix, so
+ * plain color names (`red`, `green`, ...) and suffixed variants such as
+ * `positive-icon` are styled as well. Hence the open union.
  * @source panel/src/panel/notification.ts
+ * @source panel/src/styles/utilities/theme.css
  */
-export type NotificationTheme = "positive" | "negative" | "info";
+export type NotificationTheme =
+  | "positive"
+  | "negative"
+  | "notice"
+  | "warning"
+  | "info"
+  | "love"
+  | "passive"
+  | "text"
+  | (string & {});
 // #endregion
