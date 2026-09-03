@@ -7,7 +7,7 @@
  * @since 4.0.0
  */
 
-import type { PanelApp } from "./index";
+import type { PanelGlobalProperties } from "./index";
 
 // #region Textarea Toolbar Context
 
@@ -19,7 +19,7 @@ import type { PanelApp } from "./index";
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
 export interface TextareaToolbarContext extends Pick<
-  PanelApp,
+  PanelGlobalProperties,
   "$panel" | "$library" | "$helper" | "$esc"
 > {
   /**

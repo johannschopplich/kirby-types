@@ -331,7 +331,7 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 Vue is an optional peer dependency for Panel types:
 
 ```bash
-pnpm add -D vue@^2.7.0
+pnpm add -D vue@^3.5.0
 ```
 
 `dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `interpret`, `pattern`, …):

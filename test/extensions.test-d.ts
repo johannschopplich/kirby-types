@@ -1,9 +1,12 @@
 // Tests representative plugin-author types (writer + textarea + plugin extensions) – not exhaustive.
 import type { Node as ProseMirrorNode } from "prosemirror-model";
+import type { ComponentPublicInstance } from "vue";
 import type {
   Panel,
   PanelApp,
   PanelComponentExtension,
+  PanelHelpers,
+  PanelLibrary,
   PanelPluginExtensions,
   TextareaButton,
   TextareaToolbarContext,
@@ -309,8 +312,8 @@ expectAssignable<PanelPluginExtensions>({
       template: `<k-button>Click me</k-button>`,
     },
   },
-  created(app) {
-    expectType<PanelApp>(app);
+  created(instance) {
+    expectType<ComponentPublicInstance>(instance);
   },
   textareaButtons: {
     timestamp: {
@@ -394,4 +397,12 @@ expectNotAssignable<WriterToolbarButton>({
   icon: "bold",
   // Missing label
 });
+// #endregion
+
+// #region Panel App
+// The index signature of `globalProperties` must not widen the helpers to `any`.
+declare const app: PanelApp;
+expectType<PanelHelpers>(app.config.globalProperties.$helper);
+expectType<PanelLibrary>(app.config.globalProperties.$library);
+expectType<(string: unknown) => string>(app.config.globalProperties.$esc);
 // #endregion
