@@ -39,7 +39,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --write",
     "format:check": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --check",
-    "release": "bumpp --commit --push --tag",
+    "release": "bumpp",
     "test": "tsd -f \"test/**/*.test-d.ts\""
   },
   "peerDependencies": {
