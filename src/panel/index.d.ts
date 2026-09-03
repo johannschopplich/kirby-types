@@ -18,13 +18,14 @@
  */
 
 import type {
+  App,
+  AppConfig,
+  ComponentCustomProperties,
   ComponentOptions,
+  ComponentPublicInstance,
   DefineComponent,
-  PluginFunction,
-  PluginObject,
+  Plugin,
   VNode,
-  VueConstructor,
-  h as VueH,
 } from "vue";
 import type { PanelApi } from "./api";
 import type {
@@ -152,10 +153,6 @@ export type {
 /**
  * Vue application instance with Panel extensions.
  *
- * The Panel Vue app includes additional properties on the Vue prototype:
- * - `$helper` - Utility functions for common operations.
- * - `$library` - External libraries (colors, dayjs, autosize).
- *
  * @example
  * ```ts
  * // In a Vue component
@@ -167,11 +164,17 @@ export type {
  * @source panel/src/index.js
  * @source panel/src/index.ts
  */
-export type PanelApp = InstanceType<VueConstructor> & {
+export interface PanelGlobalProperties {
   $library: PanelLibrary;
   $helper: PanelHelpers;
   /** Shortcut for escaping HTML (alias for `$helper.string.escapeHTML`). */
   $esc: (string: string) => string;
+}
+
+export type PanelApp = Omit<App, "config"> & {
+  config: Omit<AppConfig, "globalProperties"> & {
+    globalProperties: ComponentCustomProperties & PanelGlobalProperties;
+  };
 };
 // #endregion
 
@@ -209,7 +212,7 @@ export type PanelComponentExtension =
       mixins?: (string | ComponentOptions<any>)[];
       template?: string;
       /** Render function. */
-      render?: (h: typeof VueH) => VNode;
+      render?: () => VNode;
       [key: string]: any;
     };
 // #endregion
@@ -547,27 +550,28 @@ export interface PanelPluginExtensions {
   viewButtons?: Record<string, PanelComponentExtension>;
 
   /**
-   * Vue plugins to install via `Vue.use()`.
+   * Vue plugins to install via `app.use()`.
    *
-   * Can be used to add global methods, directives, or mixins.
+   * Can be used to add global properties, directives, or mixins.
    */
-  use?: Record<string, PluginObject<any> | PluginFunction<any>>;
+  use?: Record<string, Plugin>;
 
   /**
-   * Callback executed after the Panel Vue app is created.
+   * Callback executed in the `created` hook of the Panel's root component.
    *
-   * Receives the Vue app instance as parameter.
+   * Receives the root component instance as parameter. The application
+   * itself is available as `window.panel.app`.
    *
    * @example
    * ```ts
    * window.panel.plugin("my-plugin", {
-   *   created(app) {
-   *     console.log("Panel app created", app);
+   *   created(instance) {
+   *     console.log("Panel created", instance.$panel);
    *   }
    * });
    * ```
    */
-  created?: (app: PanelApp) => void;
+  created?: (instance: ComponentPublicInstance) => void;
 
   /**
    * Custom login form component.
@@ -652,8 +656,8 @@ export interface PanelPlugins {
     DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
   >;
 
-  /** Callbacks to run after Panel creation. */
-  created: ((app: PanelApp) => void)[];
+  /** Callbacks to run in the `created` hook of the root component. */
+  created: ((instance: ComponentPublicInstance) => void)[];
 
   /** Registered SVG icons. */
   icons: Record<string, string>;
@@ -684,8 +688,8 @@ export interface PanelPlugins {
   /** Registered third-party plugin data. */
   thirdParty: Record<string, any>;
 
-  /** Installed Vue plugins via `Vue.use()`. */
-  use: (PluginObject<any> | PluginFunction<any>)[];
+  /** Installed Vue plugins via `app.use()`. */
+  use: Plugin[];
 
   /** Reserved bucket for view-button plugins (initialized empty; entries are actually stored under `components` as `k-${name}-view-button`). */
   viewButtons: Record<
