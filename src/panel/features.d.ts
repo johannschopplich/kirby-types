@@ -1052,11 +1052,16 @@ export interface PanelContent {
 
   /**
    * Saves current changes.
+   * Resolves to a boolean since 5.6.0, `void` before.
    *
    * @param values - Values to save
    * @param env - Environment context
+   * @returns `true` if saved, `false` if locked or replaced by a newer save
    */
-  save: (values?: Record<string, any>, env?: PanelContentEnv) => Promise<void>;
+  save: (
+    values?: Record<string, any>,
+    env?: PanelContentEnv,
+  ) => Promise<boolean | void>;
 
   /**
    * Releases the content lock without discarding changes.

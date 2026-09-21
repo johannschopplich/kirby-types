@@ -192,7 +192,7 @@ declare const content: PanelContent;
 expectType<boolean>(content.hasDiff());
 expectType<boolean>(content.isCurrent());
 expectType<boolean>(content.isLocked());
-expectType<Promise<void>>(content.save());
+expectType<Promise<boolean | void>>(content.save());
 expectType<Promise<void>>(content.publish());
 expectType<Promise<void>>(content.discard());
 // #endregion
