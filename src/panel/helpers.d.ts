@@ -106,7 +106,7 @@ export interface PanelHelpersString {
    * Checks if string contains emoji characters.
    *
    * @param string - String to check
-   * @returns True if contains emoji
+   * @returns `true` if contains emoji
    */
   hasEmoji: (string: unknown) => boolean;
 
@@ -115,7 +115,7 @@ export interface PanelHelpersString {
    *
    * @param string - String to check
    * @param strict - Reject a trailing query/hash after the domain
-   * @returns True if the string looks like an email address
+   * @returns `true` if the string looks like an email address
    * @since 5.4.4
    */
   isEmail: (string: unknown, strict?: boolean) => boolean;
@@ -124,7 +124,7 @@ export interface PanelHelpersString {
    * Checks if string is empty or falsy.
    *
    * @param string - String to check
-   * @returns True if empty
+   * @returns `true` if empty
    */
   isEmpty: (string: string | null | undefined) => boolean;
 
@@ -287,15 +287,15 @@ export interface PanelHelpersObject {
    * Checks if value is empty (`null`, `undefined`, `""`, empty object/array).
    *
    * @param value - Value to check
-   * @returns True if empty
+   * @returns `true` if empty
    */
   isEmpty: (value: unknown) => boolean;
 
   /**
-   * Checks if input is a plain object (not array, null, etc.).
+   * Checks if input is a plain object (not array, `null`, etc.).
    *
    * @param input - Value to check
-   * @returns True if plain object
+   * @returns `true` if plain object
    */
   isObject: (input: unknown) => input is Record<string, unknown>;
 
@@ -321,7 +321,7 @@ export interface PanelHelpersObject {
    *
    * @param a - First object
    * @param b - Second object
-   * @returns True if identical
+   * @returns `true` if identical
    */
   same: (a: unknown, b: unknown) => boolean;
 
@@ -381,7 +381,7 @@ export interface PanelHelpersUrl {
    * `vbscript:`, `data:`) after stripping ignorable characters.
    *
    * @param url - URL to check
-   * @returns True if the URL uses a dangerous scheme
+   * @returns `true` if the URL uses a dangerous scheme
    * @since 5.4.4
    */
   hasDangerousScheme: (url: unknown) => boolean;
@@ -390,7 +390,7 @@ export interface PanelHelpersUrl {
    * Checks if URL string starts with http:// or https://.
    *
    * @param url - URL to check
-   * @returns True if absolute
+   * @returns `true` if absolute
    */
   isAbsolute: (url: unknown) => boolean;
 
@@ -398,7 +398,7 @@ export interface PanelHelpersUrl {
    * Checks if URL is on the same origin as current page.
    *
    * @param url - URL to check
-   * @returns True if same origin
+   * @returns `true` if same origin
    */
   isSameOrigin: (url: string | URL) => boolean;
 
@@ -407,7 +407,7 @@ export interface PanelHelpersUrl {
    *
    * @param url - URL to validate
    * @param strict - Use Kirby's URL regex for validation
-   * @returns True if valid URL
+   * @returns `true` if valid URL
    */
   isUrl: (url: unknown, strict?: boolean) => url is URL | Location | string;
 
@@ -444,7 +444,7 @@ export interface PanelHelpersClipboard {
    *
    * @param event - Event (narrowed to ClipboardEvent at runtime) or string
    * @param plain - Read as plain text only
-   * @returns Clipboard content, or null if no event/string was provided
+   * @returns Clipboard content, or `null` if no event/string was provided
    */
   read: (event?: Event | string | null, plain?: boolean) => string | null;
 
@@ -472,7 +472,7 @@ export interface PanelHelpersEmbed {
    *
    * @param url - YouTube video URL
    * @param doNotTrack - Enable privacy-enhanced mode
-   * @returns Embed URL or false if not valid
+   * @returns Embed URL or `false` if not valid
    */
   youtube: (url: string, doNotTrack?: boolean) => string | false;
 
@@ -481,7 +481,7 @@ export interface PanelHelpersEmbed {
    *
    * @param url - Vimeo video URL
    * @param doNotTrack - Enable do-not-track mode
-   * @returns Embed URL or false if not valid
+   * @returns Embed URL or `false` if not valid
    */
   vimeo: (url: string, doNotTrack?: boolean) => string | false;
 
@@ -490,7 +490,7 @@ export interface PanelHelpersEmbed {
    *
    * @param url - Video URL
    * @param doNotTrack - Privacy mode
-   * @returns Embed URL or false if not valid
+   * @returns Embed URL or `false` if not valid
    */
   video: (url: string, doNotTrack?: boolean) => string | false;
 }
@@ -537,11 +537,11 @@ export interface PanelHelpersField {
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
-   * Checks if a field or section is visible. Returns false for hidden fields, otherwise evaluates `when` conditions against current form values.
+   * Checks if a field or section is visible. Returns `false` for hidden fields, otherwise evaluates `when` conditions against current form values.
    *
    * @param field - Field definition
    * @param values - Current form values
-   * @returns True if visible
+   * @returns `true` if visible
    */
   isVisible: (
     field: PanelFieldDefinition,
@@ -662,7 +662,7 @@ export interface PanelHelpersLink {
    *
    * @param value - Link value to detect
    * @param types - Custom type definitions
-   * @returns Detection result or undefined if no match
+   * @returns Detection result or `undefined` if no match
    */
   detect: (
     value: string,
@@ -689,7 +689,7 @@ export interface PanelHelpersLink {
    * Checks if value is a file UUID or permalink.
    *
    * @param value - Value to check
-   * @returns True if file reference
+   * @returns `true` if file reference
    */
   isFileUUID: (value: string) => boolean;
 
@@ -697,7 +697,7 @@ export interface PanelHelpersLink {
    * Checks if value is `site://`, a `page://` UUID, or a page permalink.
    *
    * @param value - Value to check
-   * @returns True if page reference
+   * @returns `true` if page reference
    */
   isPageUUID: (value: string) => boolean;
 
@@ -706,7 +706,7 @@ export interface PanelHelpersLink {
    *
    * @param link - Link detection result
    * @param fields - Fields to fetch
-   * @returns Preview data or null
+   * @returns Preview data or `null`
    * @deprecated K6 dropped `preview` from `helper.link`; on K6 this property is `undefined` at runtime.
    */
   preview?: (
@@ -888,7 +888,7 @@ export interface PanelHelpers {
    * Resolves CSS color to CSS variable.
    *
    * @param value - Color name or value
-   * @returns CSS variable or original value, undefined if not a string
+   * @returns CSS variable or original value, `undefined` if not a string
    * @source panel/src/helpers/color.ts
    */
   color: (value: unknown) => string | undefined;
@@ -927,9 +927,9 @@ export interface PanelHelpers {
   /**
    * Sets focus to element or first focusable child.
    *
-   * @param element - Selector, element, or null (returns false)
+   * @param element - Selector, element, or `null` (returns `false`)
    * @param field - Specific input name to focus
-   * @returns The focused element, or false if nothing could be focused
+   * @returns The focused element, or `false` if nothing could be focused
    * @source panel/src/helpers/focus.ts
    */
   focus: (
@@ -945,7 +945,7 @@ export interface PanelHelpers {
    *
    * @param name - Component name
    * @param app - Optional Vue app instance (since Kirby 6)
-   * @returns True if registered
+   * @returns `true` if registered
    * @source panel/src/helpers/isComponent.ts
    * @source panel/src/helpers/index.ts
    */
@@ -955,7 +955,7 @@ export interface PanelHelpers {
    * Checks if event is a file drag/drop event.
    *
    * @param event - Event to check
-   * @returns True if file upload event
+   * @returns `true` if file upload event
    * @source panel/src/helpers/isUploadEvent.ts
    * @source panel/src/helpers/index.ts
    */
@@ -1097,7 +1097,7 @@ export interface PanelHelpers {
 export interface PanelHelpersWriter {
   /**
    * Resolves the list of allowed extension names from a permissive `allowed`
-   * argument (boolean, array, object map, or undefined).
+   * argument (boolean, array, object map, or `undefined`).
    *
    * @param available - Map of all available extensions keyed by name
    * @param allowed - `true` to allow all, `false` to allow none, an array of

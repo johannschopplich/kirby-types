@@ -139,7 +139,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * Checks if a listener is registered for an event.
    *
    * @param event - Event name to check
-   * @returns True if a function is registered for this event
+   * @returns `true` if a function is registered for this event
    */
   hasEventListener: (event: TEvents) => boolean;
 
@@ -218,7 +218,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 
   /**
    * Whether the feature is currently loading data.
-   * Set to true during `load()`, `get()`, and `post()` calls.
+   * Set to `true` during `load()`, `get()`, and `post()` calls.
    */
   isLoading: boolean;
 
@@ -249,7 +249,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    *
    * @param url - URL to fetch
    * @param options - Request options
-   * @returns Response data or false on error
+   * @returns Response data or `false` on error
    */
   get: (
     url: string | URL,
@@ -288,7 +288,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    *
    * @param value - Data to send
    * @param options - Request options
-   * @returns Response data or false on error
+   * @returns Response data or `false` on error
    * @throws Error if feature has no path
    */
   post: (value?: any, options?: PanelRequestOptions) => Promise<any | false>;
@@ -306,7 +306,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Reloads the feature by re-opening its current URL.
    *
    * @param options - Request options
-   * @returns False if no path exists; otherwise the feature's state after re-opening.
+   * @returns `false` if no path exists; otherwise the feature's state after re-opening.
    */
   reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
@@ -416,8 +416,8 @@ export interface PanelModal<
   /**
    * Closes the modal, optionally by ID.
    *
-   * @param id - Specific modal ID, `true` to close all, or undefined for current
-   * @returns Promise resolving to the previous modal's state, or void
+   * @param id - Specific modal ID, `true` to close all, or `undefined` for current
+   * @returns Promise resolving to the previous modal's state, or `void`
    */
   close: (id?: string | true) => Promise<TDefaults | void>;
 
@@ -465,7 +465,7 @@ export interface PanelModal<
    * Reloads the modal by closing and reopening at the same URL.
    *
    * @param options - Request options
-   * @returns False if no path exists; K6 forwards the `open()` result, K5 returns void.
+   * @returns `false` if no path exists; K6 forwards the `open()` result, K5 returns `void`.
    */
   reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
@@ -515,7 +515,7 @@ export interface PanelModal<
    * Handles redirects from success response.
    *
    * @param state - Success response with route/redirect
-   * @returns False if no redirect, otherwise navigates
+   * @returns `false` if no redirect, otherwise navigates
    */
   successRedirect: (
     state: PanelSuccessResponse,
@@ -561,7 +561,7 @@ export interface PanelHistory {
    * The state must have an `id` property.
    *
    * @param state - State object with required `id`
-   * @param replace - If true, replaces the last milestone instead of adding
+   * @param replace - If `true`, replaces the last milestone instead of adding
    * @throws Error if state has no `id`
    */
   add: (state: PanelHistoryMilestone, replace?: boolean) => void;
@@ -571,7 +571,7 @@ export interface PanelHistory {
    * Supports negative indices (-1 for last).
    *
    * @param index - Array index
-   * @returns Milestone at index, or undefined
+   * @returns Milestone at index, or `undefined`
    */
   at: (index: number) => PanelHistoryMilestone | undefined;
 
@@ -581,8 +581,8 @@ export interface PanelHistory {
   /**
    * Gets milestone by ID, or all milestones if no ID provided.
    *
-   * @param id - Milestone ID, or null/undefined for all
-   * @returns Single milestone, all milestones, or undefined
+   * @param id - Milestone ID, or `null`/`undefined` for all
+   * @returns Single milestone, all milestones, or `undefined`
    */
   get: (
     id?: string | null,
@@ -592,7 +592,7 @@ export interface PanelHistory {
    * Navigates to a milestone, removing all items after it.
    *
    * @param id - Milestone ID to navigate to
-   * @returns The milestone, or undefined if not found
+   * @returns The milestone, or `undefined` if not found
    */
   goto: (id: string) => PanelHistoryMilestone | undefined;
 
@@ -604,7 +604,7 @@ export interface PanelHistory {
   has: (id: string) => boolean;
 
   /**
-   * Returns true when more than one milestone is stored.
+   * Returns `true` when more than one milestone is stored.
    * @since 5.5.0
    */
   hasPrevious: () => boolean;
@@ -626,7 +626,7 @@ export interface PanelHistory {
   /**
    * Removes a milestone by ID, or the last milestone if no ID.
    *
-   * @param id - Milestone ID, or null to remove last
+   * @param id - Milestone ID, or `null` to remove last
    * @returns Updated milestones array
    */
   remove: (id?: string | null) => PanelHistoryMilestone[];
@@ -663,7 +663,7 @@ export interface PanelRequestOptions {
   query?: Record<string, string | number | boolean>;
   signal?: AbortSignal;
   /**
-   * If true, skips setting `isLoading` state.
+   * If `true`, skips setting `isLoading` state.
    * Useful for background requests.
    */
   silent?: boolean;

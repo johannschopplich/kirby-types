@@ -111,7 +111,7 @@ export interface PanelLibraryColors {
    * - HSL: `hsl(180 50% 50%)`, `hsl(180deg 50% 50% / 0.5)`
    *
    * @param string - CSS color string
-   * @returns Parsed color or null if invalid
+   * @returns Parsed color or `null` if invalid
    */
   parse: (string: string) => string | PanelColorObject | null | false;
 
@@ -177,14 +177,14 @@ export interface PanelDayjsPattern {
    *
    * @param start - Start position
    * @param end - End position (defaults to start)
-   * @returns Part info or undefined
+   * @returns Part info or `undefined`
    */
   at: (start: number, end?: number) => PanelDayjsPatternPart | undefined;
   /**
    * Formats a dayjs instance using this pattern.
    *
    * @param dt - Dayjs instance (optional)
-   * @returns Formatted string or null if invalid
+   * @returns Formatted string or `null` if invalid
    */
   format: (dt?: Dayjs | null) => string | null;
 }
@@ -261,7 +261,7 @@ export interface PanelDayjsStaticExtensions {
    *
    * @param input - Input string to parse
    * @param format - Expected format type (default: `"date"`)
-   * @returns Dayjs instance or null if no format matched
+   * @returns Dayjs instance or `null` if no format matched
    */
   interpret: (
     input: string,
@@ -273,7 +273,7 @@ export interface PanelDayjsStaticExtensions {
    *
    * @param value - ISO string
    * @param format - ISO format type. If omitted, tries all three formats.
-   * @returns Dayjs instance or null if invalid
+   * @returns Dayjs instance or `null` if invalid
    */
   iso: (
     value: string,
