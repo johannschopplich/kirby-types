@@ -983,8 +983,8 @@ export interface Panel {
    * Centralized error handler: ignores `AbortError`, marks the Panel offline on `OfflineError`, logs in debug mode, and optionally opens an error notification.
    *
    * @param error - Error or message
-   * @param openNotification - Whether to show notification (default: true)
-   * @returns Notification state if opened, void otherwise
+   * @param openNotification - Whether to show notification (default: `true`)
+   * @returns Notification state if opened, `void` otherwise
    */
   error: (
     error: Error | string,
@@ -1109,7 +1109,7 @@ export interface Panel {
    * @param type - Search type (`"pages"`, `"files"`, `"users"`)
    * @param query - Search query string
    * @param options - Search options (page, limit)
-   * @returns Search results when query provided, void otherwise
+   * @returns Search results when query provided, `void` otherwise
    */
   search: {
     (type: string): void;

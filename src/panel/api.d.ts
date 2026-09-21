@@ -381,7 +381,7 @@ export interface PanelApiPages {
   /**
    * Creates a new page.
    *
-   * @param parent - Parent page ID (null for root)
+   * @param parent - Parent page ID (`null` for root)
    * @param data - Page data
    * @returns Created page
    */
@@ -455,7 +455,7 @@ export interface PanelApiPages {
   /**
    * Searches direct children of a parent page (or the site root).
    *
-   * @param parent - Parent page ID (null for root)
+   * @param parent - Parent page ID (`null` for root)
    * @param query - Search query
    * @returns Search results
    */
@@ -807,7 +807,7 @@ export interface PanelApiUsers {
   /**
    * Gets API URL for a user.
    *
-   * @param id - User ID (null for the users collection root)
+   * @param id - User ID (`null` for the users collection root)
    * @param path - Additional path
    * @returns API URL
    */

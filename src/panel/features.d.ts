@@ -289,7 +289,7 @@ export interface PanelMenu
   extends Omit<PanelState<PanelMenuDefaults>, "set">, PanelMenuDefaults {
   /**
    * Handles outside clicks to close mobile menu.
-   * Returns false if not mobile/open, void otherwise.
+   * Returns `false` if not mobile/open, `void` otherwise.
    * @internal
    */
   blur: (event: Event) => false | void;
@@ -302,7 +302,7 @@ export interface PanelMenu
 
   /**
    * Handles escape key to close mobile menu.
-   * Returns false if not mobile/open, void otherwise.
+   * Returns `false` if not mobile/open, `void` otherwise.
    * @internal
    */
   escape: () => false | void;
@@ -424,7 +424,7 @@ export interface PanelNotification
    * Always shows the error notification bar; in view context also opens an error dialog. Forwards `JsonRequestError` to `fatal()` and redirects authenticated users to logout on `AuthError`.
    *
    * @param error - Error object, string, or Error instance
-   * @returns Notification state, or void if redirected
+   * @returns Notification state, or `void` if redirected
    */
   error: (
     error: Error | string | PanelErrorObject,
@@ -542,7 +542,7 @@ export interface PanelTranslation
    * @param key - Translation key (non-strings return `undefined`)
    * @param data - Placeholder values
    * @param fallback - Fallback if key not found
-   * @returns Translated string or undefined
+   * @returns Translated string or `undefined`
    */
   translate: (
     key: unknown,
@@ -1363,7 +1363,7 @@ export interface PanelUpload
    * Also accepts an `Event` whose `target.files` is unwrapped to a `FileList`.
    * Throws if the resolved value is not a `FileList`.
    *
-   * @param files - Files to add (or input change Event, or null)
+   * @param files - Files to add (or input change Event, or `null`)
    * @param options - Upload options
    */
   select: (

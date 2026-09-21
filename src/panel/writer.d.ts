@@ -124,9 +124,9 @@ export interface WriterEditor {
   /**
    * Creates a ProseMirror document from content.
    *
-   * @param content - HTML string, JSON object, or null for empty document
+   * @param content - HTML string, JSON object, or `null` for empty document
    * @param parseOptions - Optional ProseMirror parse options
-   * @returns The created document node, or false if content type is unsupported
+   * @returns The created document node, or `false` if content type is unsupported
    */
   createDocument: (
     content: string | Record<string, any> | null,
@@ -402,7 +402,7 @@ export interface WriterUtils {
    *
    * @param state - The current editor state
    * @param type - The mark type to check
-   * @returns True if the mark is active
+   * @returns `true` if the mark is active
    */
   markIsActive: (state: EditorState, type: MarkType) => boolean;
 
@@ -450,7 +450,7 @@ export interface WriterUtils {
    * @param state - The current editor state
    * @param type - The node type to check
    * @param attrs - Optional attributes to match
-   * @returns True if the node is active
+   * @returns `true` if the node is active
    */
   nodeIsActive: (
     state: EditorState,
@@ -813,7 +813,7 @@ export interface WriterMarkExtension {
    * @param context - Context with schema, type, and utils
    * @returns A command function, or an object mapping command names to functions.
    *          Commands can return any value - ProseMirror commands return boolean,
-   *          but custom commands may return void or emit events.
+   *          but custom commands may return `void` or emit events.
    *
    * @example
    * ```js
@@ -1052,7 +1052,7 @@ export interface WriterNodeExtension {
    * @param context - Context with schema, type, and utils
    * @returns A command function, or an object mapping command names to functions.
    *          Commands can return any value - ProseMirror commands return boolean,
-   *          but custom commands may return void or emit events.
+   *          but custom commands may return `void` or emit events.
    */
   commands?: (
     context: WriterNodeContext,
