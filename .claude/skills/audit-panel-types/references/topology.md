@@ -57,9 +57,9 @@ Hybrid clusters – PHP rules nullability. K6 `*State` is JS-bootstrap shape, no
 ### `features-content`
 
 - **Symbols**: PanelContentVersion, PanelContentVersions, PanelContentLock, PanelContentEnv, PanelContent
-- **Modules**: `panel/src/panel/content` (K6-only methods `unlock`, `renewLock` – git-verify `@since`)
+- **Modules**: `panel/src/panel/content` (K6-only method `renewLock` – git-verify `@since`)
 - **PHP**: `kirby/src/Content/{Lock,Version}.php`, `kirby/src/Cms/ContentTranslation.php`
-- **Watch**: PanelContent is a plain `reactive({...})` returned by `Content(panel)` – it does NOT extend PanelFeature. Don't flag a missing-extends.
+- **Watch**: PanelContent is a plain `reactive({...})` returned by `Content(panel)` – it does NOT extend PanelFeature. Don't flag a missing-extends. `save()` keeps `| void` on the Kirby 4/5 line: 5.0–5.5 resolve to `void`.
 
 ### `features-modals`
 
