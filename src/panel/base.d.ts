@@ -64,7 +64,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    * Validates that the state is a plain object.
    *
    * @throws Error if state is not an object
-   * @deprecated Absent from both K5 5.5.x and K6 – the object check is inlined into `set()`. Calls throw on every supported version; consider removing.
+   * @deprecated Absent from Kirby 5.5.x onward – the object check is inlined into `set()`, so calls throw there; consider removing.
    */
   validateState: (state: unknown) => boolean;
 }
@@ -131,7 +131,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * @param event - Event name to emit
    * @param args - Arguments to pass to the listener
    * @returns Listener result, or `undefined` when no listener is registered.
-   *   K5 returned a noop function in that case; K6 dropped the fallback.
    */
   emit: <TReturn = any>(event: TEvents, ...args: any[]) => TReturn | undefined;
 
@@ -320,7 +319,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 /**
  * Modal event types for dialogs and drawers.
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export type PanelModalEvent =
   "cancel" | "close" | "closed" | "input" | "open" | "submit" | "success";
@@ -328,7 +326,6 @@ export type PanelModalEvent =
 /**
  * Bound listener functions returned by `modal.listeners()`.
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
@@ -342,7 +339,6 @@ export interface PanelModalListeners {
 /**
  * Success response from modal submission.
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export interface PanelSuccessResponse {
   message?: string;
@@ -385,11 +381,10 @@ export interface PanelSuccessResponse {
  * ```
  *
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export interface PanelModal<
   TDefaults extends object = PanelFeatureDefaults & { id: string | null },
-> extends PanelFeature<TDefaults> {
+> extends Omit<PanelFeature<TDefaults>, "reload"> {
   /**
    * Unique ID for identifying nested modals.
    * Auto-generated via UUID if not provided.
@@ -465,9 +460,9 @@ export interface PanelModal<
    * Reloads the modal by closing and reopening at the same URL.
    *
    * @param options - Request options
-   * @returns `false` if no path exists; K6 forwards the `open()` result, K5 returns `void`.
+   * @returns `false` if no path exists, otherwise `void` (the re-open is not awaited).
    */
-  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
+  reload: (options?: PanelRequestOptions) => Promise<false | void>;
 
   /**
    * Sets modal state, auto-generating an ID if not provided.
@@ -695,7 +690,6 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
  * Panel context indicating which layer is currently active.
  * Used to determine where notifications appear and which feature has focus.
  * @source panel/src/panel/panel.js
- * @source panel/src/panel/panel.ts
  * @source panel/src/panel/notification.ts
  */
 export type PanelContext = "view" | "dialog" | "drawer";

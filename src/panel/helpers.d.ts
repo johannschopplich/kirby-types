@@ -707,9 +707,8 @@ export interface PanelHelpersLink {
    * @param link - Link detection result
    * @param fields - Fields to fetch
    * @returns Preview data or `null`
-   * @deprecated K6 dropped `preview` from `helper.link`; on K6 this property is `undefined` at runtime.
    */
-  preview?: (
+  preview: (
     link: PanelLinkDetection,
     fields?: string[],
   ) => Promise<PanelLinkPreview | null>;
@@ -791,11 +790,7 @@ export interface PanelUploadParams {
   /** AbortSignal for cancellation. */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
-  /**
-   * Complete callback (declared but never invoked at runtime).
-   *
-   * @deprecated K6 removed `complete` from the upload params; on K6 this option does not exist.
-   */
+  /** Complete callback (declared but never invoked at runtime). */
   complete?: () => void;
   success?: PanelUploadResultCallback;
   error?: PanelUploadResultCallback;
@@ -940,16 +935,12 @@ export interface PanelHelpers {
   /**
    * Checks if component is registered globally.
    *
-   * The optional `app` argument (Vue 3 `App` instance) defaults to
-   * `window.panel?.app`; ignored on K5.
-   *
    * @param name - Component name
-   * @param app - Optional Vue app instance (since Kirby 6)
    * @returns `true` if registered
    * @source panel/src/helpers/isComponent.ts
    * @source panel/src/helpers/index.ts
    */
-  isComponent: (name: string, app?: unknown) => boolean;
+  isComponent: (name: string) => boolean;
 
   /**
    * Checks if event is a file drag/drop event.
@@ -1080,7 +1071,7 @@ export interface PanelHelpers {
 }
 // #endregion
 
-// #region Writer Helpers (K6+)
+// #region Writer Helpers
 
 /**
  * Writer extension helper utilities.

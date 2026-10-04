@@ -240,11 +240,6 @@ export interface PanelMenuEntry {
   drawer?: string;
   /** Icon name. */
   icon?: string;
-  /**
-   * Stable area id of the menu item.
-   * @since 6
-   */
-  id?: string;
   /** Link URL. */
   link?: string;
   /** Anchor target attribute (e.g. `"_blank"`). */
@@ -260,20 +255,12 @@ export interface PanelMenuEntry {
  * @source panel/src/panel/menu.ts
  */
 export interface PanelMenuDefaults {
-  /**
-   * Menu entries (items or separator strings).
-   * @deprecated Renamed to `items` in K6.
-   */
+  /** Menu entries (items or separator strings). */
   entries: (PanelMenuEntry | "-")[];
   /** Whether menu is being hovered. */
   hover: boolean;
   /** Whether menu is expanded. */
   isOpen: boolean;
-  /**
-   * Menu items; replaces `entries` in the K6 MenuState shape.
-   * @since 6
-   */
-  items?: (PanelMenuEntry | "-")[];
 }
 
 /**
@@ -319,13 +306,7 @@ export interface PanelMenu
    */
   resize: () => void;
 
-  /**
-   * Sets menu entries and handles initial resize.
-   *
-   * On K5 the resulting state exposes the value as `entries`. K6 renamed the
-   * state field to `items` (`set(items)` returns a state with `items`), so
-   * read through `panel.menu.items` on K6.
-   */
+  /** Sets menu entries and handles initial resize. */
   set: (entries: (PanelMenuEntry | "-")[]) => PanelMenuDefaults;
 
   /** Toggles the sidebar menu state. */
@@ -714,22 +695,14 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 /**
  * Default state for the dialog modal.
  * @source panel/src/panel/dialog.js
- * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export interface PanelDialogDefaults extends PanelFeatureDefaults {
   /** Unique dialog ID. */
   id: string | null;
-  /**
-   * Whether using legacy Vue component.
-   * @deprecated K6 removed this field.
-   */
+  /** Whether using legacy Vue component. */
   legacy: boolean;
-  /**
-   * Reference to legacy component.
-   * @deprecated K6 removed this field.
-   */
+  /** Reference to legacy component. */
   ref: any;
 }
 
@@ -740,26 +713,15 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  *
  * @since 4.0.0
  * @source panel/src/panel/dialog.js
- * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
-  /**
-   * Whether using legacy Vue component for the Vue-2 bridge.
-   * @deprecated K6 removed this field.
-   */
+  /** Whether using legacy Vue component for the Vue-2 bridge. */
   legacy: boolean;
-  /**
-   * Reference to legacy component for the Vue-2 bridge.
-   * @deprecated K6 removed this field.
-   */
+  /** Reference to legacy component for the Vue-2 bridge. */
   ref: any;
 
-  /**
-   * Closes the dialog, handling legacy components.
-   * @deprecated K5 also hid any legacy Vue-2 component referenced via `ref`; K6 removed the override.
-   */
+  /** Closes the dialog, hiding any legacy Vue component referenced via `ref`. */
   close: () => Promise<void>;
 
   /**
@@ -790,9 +752,7 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
 /**
  * Default state for the drawer modal.
  * @source panel/src/panel/drawer.js
- * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export interface PanelDrawerDefaults extends PanelFeatureDefaults {
   /** Unique drawer ID. */
@@ -806,9 +766,7 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  *
  * @since 4.0.0
  * @source panel/src/panel/drawer.js
- * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.js
- * @source panel/src/panel/modal.ts
  */
 export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Breadcrumb from history milestones. */
@@ -848,7 +806,6 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 /**
  * Content version representing saved or changed state.
  * @source panel/src/panel/content.js
- * @source panel/src/panel/content.ts
  */
 export interface PanelContentVersion {
   [field: string]: any;
@@ -857,7 +814,6 @@ export interface PanelContentVersion {
 /**
  * Content versions container.
  * @source panel/src/panel/content.js
- * @source panel/src/panel/content.ts
  */
 export interface PanelContentVersions {
   /** Original saved content. */
@@ -870,11 +826,9 @@ export interface PanelContentVersions {
  * Lock state for content editing.
  *
  * Always emitted as `{ isLegacy, isLocked, modified, user }`. After a
- * successful save, `modified` is replaced in place with a fresh `Date`
- * (K5 inline, K6 via `renewLock()`).
+ * successful save, `modified` is replaced in place with a fresh `Date`.
  *
  * @source panel/src/panel/content.js
- * @source panel/src/panel/content.ts
  * @source src/Content/Lock.php
  */
 export interface PanelContentLock {
@@ -894,7 +848,6 @@ export interface PanelContentLock {
 /**
  * Environment context for content operations.
  * @source panel/src/panel/content.js
- * @source panel/src/panel/content.ts
  */
 export interface PanelContentEnv {
   /** API endpoint path. */
@@ -911,7 +864,6 @@ export interface PanelContentEnv {
  *
  * @since 5.0.0
  * @source panel/src/panel/content.js
- * @source panel/src/panel/content.ts
  */
 export interface PanelContent {
   /** Reference to lock dialog if open. */
@@ -920,10 +872,7 @@ export interface PanelContent {
   /** Whether content is being saved/published/discarded. */
   isProcessing: boolean;
 
-  /**
-   * Throttled save function. K5 throttles at 1000ms; K6 halved the
-   * delay to 500ms.
-   */
+  /** Save function throttled at 1000ms. */
   saveLazy: ((
     values?: Record<string, any>,
     env?: PanelContentEnv,
@@ -1027,15 +976,6 @@ export interface PanelContent {
     values?: Record<string, any>,
     env?: PanelContentEnv,
   ) => Promise<void>;
-
-  /**
-   * Updates the lock's `modified` timestamp with a new `Date` after a
-   * successful save. K5 performed this mutation inline at the save site.
-   *
-   * @param env - Environment context
-   * @since 6
-   */
-  renewLock: (env?: PanelContentEnv) => void;
 
   /**
    * Sends a content API request.
@@ -1187,7 +1127,6 @@ export interface PanelSearcher {
  * configure the upload picker (`url`, `accept`).
  *
  * @source panel/src/panel/upload.js
- * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadReplaceFile {
   /** API path segment used to build the upload URL. */
@@ -1204,7 +1143,6 @@ export interface PanelUploadReplaceFile {
  * Upload file state representing a file in the upload queue.
  *
  * @source panel/src/panel/upload.js
- * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadFile {
   /** Unique file ID. */
@@ -1237,7 +1175,6 @@ export interface PanelUploadFile {
 /**
  * Default state for upload feature.
  * @source panel/src/panel/upload.js
- * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadDefaults {
   /** AbortController for current upload. */
@@ -1267,17 +1204,13 @@ export interface PanelUploadDefaults {
  *
  * @since 4.0.0
  * @source panel/src/panel/upload.js
- * @source panel/src/panel/upload.ts
  */
 export interface PanelUpload
   extends
     Omit<PanelState<PanelUploadDefaults>, "set">,
     PanelEventListeners,
     PanelUploadDefaults {
-  /**
-   * Hidden file input element.
-   * @deprecated K6 no longer stores the file input on the instance; `pick()` creates a local element instead.
-   */
+  /** Hidden file input element. */
   input: HTMLInputElement | null;
 
   /** Server file models for files that completed uploading. */
@@ -1462,7 +1395,6 @@ export interface PanelEvents extends PanelEventEmitter {
    * Handles window dragexit event.
    *
    * @param event - DragEvent
-   * @deprecated K6 removed the `dragexit` handler (non-standard DOM event).
    */
   dragexit: (event: DragEvent) => void;
 

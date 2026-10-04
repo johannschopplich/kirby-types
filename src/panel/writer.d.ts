@@ -44,9 +44,7 @@ import type {
  * when using class-based extensions, or that is passed to event handlers.
  *
  * @source panel/src/components/Forms/Writer/Editor.js
- * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/components/Forms/Writer/Emitter.js
- * @source panel/src/components/Forms/Writer/Emitter.ts
  */
 export interface WriterEditor {
   // #region Properties
@@ -70,11 +68,7 @@ export interface WriterEditor {
   focused: boolean;
   /** Active input rules. */
   inputRules: InputRule[];
-  /**
-   * Check if a mark or node is active.
-   *
-   * @deprecated Removed in Kirby 6.
-   */
+  /** Check if a mark or node is active. */
   isActive: Record<string, (attrs?: Record<string, any>) => boolean>;
   keymaps: Plugin[];
   /**
@@ -154,11 +148,7 @@ export interface WriterEditor {
   getJSON: () => Record<string, any>;
   /** Returns attributes for a mark type, or `undefined` when the mark is not active. */
   getMarkAttrs: (type?: string) => Record<string, any> | undefined;
-  /**
-   * Returns the schema as JSON.
-   *
-   * @deprecated Removed in Kirby 6.
-   */
+  /** Returns the schema as JSON. */
   getSchemaJSON: () => {
     nodes: Record<string, any>;
     marks: Record<string, any>;
@@ -231,17 +221,7 @@ export interface WriterEditorOptions {
 export interface WriterExtensions {
   /** All registered extension instances. */
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /**
-   * The editor instance this extensions manager belongs to.
-   *
-   * @since 6
-   */
-  editor: WriterEditor;
-  /**
-   * ProseMirror EditorView assigned by the editor after initialization.
-   *
-   * @deprecated Removed in Kirby 6; the extensions manager reads the view from its `editor` reference instead.
-   */
+  /** ProseMirror EditorView assigned by the editor after initialization. */
   view: EditorView;
 
   /** Returns toolbar buttons for the given type. */
@@ -267,12 +247,9 @@ export interface WriterExtensions {
  * Buttons appear in the Writer toolbar and trigger commands when clicked.
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/components/Forms/Writer/Nodes/Heading.js
- * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
  * @source panel/src/components/Forms/Writer/Marks/Link.js
- * @source panel/src/components/Forms/Writer/Marks/Link.ts
  */
 export interface WriterToolbarButton {
   /** Unique identifier (defaults to extension name). */
@@ -306,7 +283,6 @@ export interface WriterToolbarButton {
  * extension methods via the context object.
  *
  * @source panel/src/components/Forms/Writer/Utils/index.js
- * @source panel/src/components/Forms/Writer/Utils/index.ts
  */
 export interface WriterUtils {
   // #region ProseMirror Commands
@@ -465,7 +441,6 @@ export interface WriterUtils {
    * @param type - The mark type to apply
    * @param getAttrs - Optional function to compute mark attributes from the matched string
    * @returns A ProseMirror plugin
-   * @deprecated Use `markPasteRule` instead (deprecated since Kirby 6).
    */
   pasteRule: (
     regexp: RegExp,
@@ -550,7 +525,6 @@ export interface WriterUtils {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterMarkContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -574,7 +548,6 @@ export interface WriterMarkContext {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterNodeContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -592,7 +565,6 @@ export interface WriterNodeContext {
  * are provided.
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensionContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -630,7 +602,6 @@ export interface WriterExtensionContext {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions/History.js
  * @source panel/src/components/Forms/Writer/Extensions/Insert.js
  * @source panel/src/components/Forms/Writer/Extensions/Keys.js
@@ -740,11 +711,8 @@ export interface WriterExtension {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Mark.js
- * @source panel/src/components/Forms/Writer/Mark.ts
  * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Marks/Bold.js
  * @source panel/src/components/Forms/Writer/Marks/Clear.js
  * @source panel/src/components/Forms/Writer/Marks/Code.js
@@ -986,11 +954,8 @@ export interface WriterMarkExtension {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Node.js
- * @source panel/src/components/Forms/Writer/Node.ts
  * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Nodes/BulletList.js
  * @source panel/src/components/Forms/Writer/Nodes/Doc.js
  * @source panel/src/components/Forms/Writer/Nodes/HardBreak.js

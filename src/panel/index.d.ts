@@ -163,9 +163,7 @@ export type {
  * const date = this.$library.dayjs("2024-01-15").format("DD.MM.YYYY");
  * ```
  * @source panel/src/panel/app.js
- * @source panel/src/panel/app.ts
  * @source panel/src/index.js
- * @source panel/src/index.ts
  */
 export type PanelApp = InstanceType<VueConstructor> & {
   $library: PanelLibrary;
@@ -220,9 +218,7 @@ export type PanelComponentExtension =
  * Global Panel configuration.
  *
  * @source panel/src/panel/panel.js
- * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
- * @source src/Panel/State.php
  */
 export interface PanelConfig {
   /** API configuration. */
@@ -378,7 +374,6 @@ export interface PanelPermissions {
 /**
  * Search type definition.
  * @source src/Panel/View.php
- * @source src/Panel/State.php
  */
 export interface PanelSearchType {
   icon: string;
@@ -389,9 +384,7 @@ export interface PanelSearchType {
 /**
  * Available search types in the Panel.
  * @source panel/src/panel/panel.js
- * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
- * @source src/Panel/State.php
  */
 export interface PanelSearches {
   pages: PanelSearchType;
@@ -406,18 +399,11 @@ export interface PanelSearches {
 /**
  * Base URLs for Panel operations.
  * @source panel/src/panel/panel.js
- * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
- * @source src/Panel/State.php
  */
 export interface PanelUrls {
   api: string;
   site: string;
-  /**
-   * Absolute URL of the Panel itself (`kirby->url('panel')`); not emitted by Kirby 5.
-   * @since 6
-   */
-  panel?: string;
 }
 // #endregion
 
@@ -573,9 +559,6 @@ export interface PanelPluginExtensions {
    * Custom login form component.
    *
    * Replaces the default login form with a custom implementation.
-   *
-   * @deprecated Kirby 6 removed the `login` handler from `panel.plugin()`;
-   * the option is silently ignored there. Register a custom login view instead.
    */
   login?: PanelComponentExtension;
 
@@ -716,7 +699,6 @@ export interface PanelPlugins {
  * Language information for multi-language sites.
  * @source src/Cms/Language.php
  * @source src/Panel/View.php
- * @source src/Panel/State.php
  */
 export interface PanelLanguageInfo {
   /** Language code (e.g., `"en"`, `"de"`). */
@@ -739,7 +721,6 @@ export interface PanelLanguageInfo {
 /**
  * Global Panel state for `panel.state()`.
  * @source panel/src/panel/panel.js
- * @source panel/src/panel/panel.ts
  */
 export interface PanelGlobalState {
   config: PanelConfig;
@@ -759,29 +740,6 @@ export interface PanelGlobalState {
   urls: PanelUrls;
   user: PanelFeatures.PanelUserDefaults;
   view: PanelFeatures.PanelViewDefaults;
-}
-// #endregion
-
-// #region Panel HTML
-
-/**
- * Trusted, pre-escaped HTML string wrapper. Extends the native `String`, so it
- * interpolates, concatenates and serializes like a plain string, but is
- * recognizable via `instanceof` and can be rendered (`v-html`/`v-safe-html`)
- * without further escaping.
- * @since 6
- * @source panel/src/panel/html.ts
- */
-// eslint-disable-next-line ts/no-wrapper-object-types -- deliberately mirrors K6's `class HtmlString extends String`
-export interface HtmlString extends String {}
-
-/**
- * Wraps a value as trusted, pre-escaped HTML by returning an `HtmlString`.
- * @since 6
- * @source panel/src/panel/html.ts
- */
-export interface PanelHtml {
-  (value: unknown): HtmlString;
 }
 // #endregion
 
@@ -809,9 +767,7 @@ export interface PanelHtml {
  * ```
  *
  * @source panel/src/panel/panel.js
- * @source panel/src/panel/panel.ts
  * @source panel/src/index.js
- * @source panel/src/index.ts
  * @source panel/public/js/plugins.js
  */
 export interface Panel {
@@ -837,27 +793,6 @@ export interface Panel {
 
   /** Whether the browser is offline. */
   isOffline: boolean;
-
-  /**
-   * Shared singleton observers, currently exposing a `ResizeObserver` that
-   * dispatches a `resize` `CustomEvent` on each observed target. Only emitted
-   * by Kirby 6.
-   * @since 6
-   * @source panel/src/panel/observers.ts
-   */
-  observers?: {
-    resize: ResizeObserver;
-  };
-
-  /**
-   * Wraps a value as trusted, pre-escaped HTML.
-   *
-   * The returned `HtmlString` behaves like a string but can be rendered via
-   * `v-html`/`v-safe-html` without re-escaping. Only available in Kirby 6.
-   * @since 6
-   * @source panel/src/panel/html.ts
-   */
-  html?: PanelHtml;
   // #endregion
 
   // #region State Objects (extend State)
@@ -945,14 +880,6 @@ export interface Panel {
 
   /** Available search types. */
   searches: PanelSearches;
-
-  /**
-   * Whether at least one search type is registered (`Object.keys(searches).length > 0`).
-   * Only emitted by Kirby 6.
-   * @since 6
-   * @source panel/src/panel/panel.js
-   */
-  readonly hasSearch?: boolean;
 
   /** Base URLs. */
   urls: PanelUrls;
@@ -1256,7 +1183,6 @@ interface PanelViewPropsNavigation {
  * User adds `account`/`avatar`/`email`/`language`/`name`/`role`/`username`;
  * Site has only `link`/`previewUrl`/`title`/`uuid`.
  *
- * @deprecated K6 dropped this block – use the top-level view props instead.
  * @source src/Panel/Page.php
  * @source src/Panel/File.php
  * @source src/Panel/User.php
@@ -1343,37 +1269,25 @@ export interface PanelViewProps {
   /** Active blueprint tab. Only present when the blueprint defines tabs. */
   tab?: PanelViewPropsTab;
   /**
-   * Sibling navigation link to the next model. K5 emits this only on Page,
-   * File and User views (may be `null` when there is no next sibling); not
-   * emitted on Site. K6 always emits it on every model view, including
-   * `null` on the Site view.
+   * Sibling navigation link to the next model. Emitted only on Page, File
+   * and User views (may be `null` when there is no next sibling); not
+   * emitted on Site.
    */
   next?: PanelViewPropsNavigation | null;
   /**
-   * Sibling navigation link to the previous model. K5 emits this only on
-   * Page, File and User views (may be `null` when there is no previous
-   * sibling); not emitted on Site. K6 always emits it on every model view,
-   * including `null` on the Site view.
+   * Sibling navigation link to the previous model. Emitted only on Page,
+   * File and User views (may be `null` when there is no previous sibling);
+   * not emitted on Site.
    */
   prev?: PanelViewPropsNavigation | null;
   blueprint: string;
+  /** Legacy nested model information. */
+  model: PanelViewPropsModel;
   /**
-   * Legacy nested model information.
-   * @deprecated K6 dropped this block – use the top-level view props instead.
-   */
-  model?: PanelViewPropsModel;
-  /**
-   * View title. K6 always emits this; K5 Page and Site set it inside
-   * props, but K5 File and User omit it from the inner props payload
-   * (the title appears only on the view envelope).
+   * View title. Page and Site set it inside props, but File and User omit
+   * it from the inner props payload (the title appears only on the view
+   * envelope).
    */
   title?: string;
-  /**
-   * Search collection identifier. K6 emits it inside the file (`'files'`) and
-   * user (`'users'`) props payloads. K5 does not emit it here – the File view
-   * sets `search` on the view envelope and the User view omits it entirely.
-   * @since 6
-   */
-  search?: string;
 }
 // #endregion
