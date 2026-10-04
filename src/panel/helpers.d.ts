@@ -10,7 +10,7 @@
 
 /** Search options for array filtering. */
 export interface PanelArraySearchOptions {
-  /** Minimum query length (default: 0). */
+  /** Query length at or below which the array is returned unfiltered (default: `0`). */
   min?: number;
   /** Field to search in (default: `"text"`). */
   field?: string;
@@ -36,7 +36,8 @@ export interface PanelHelpersArray {
    * Searches through an array by query string.
    *
    * @param array - Array to search
-   * @param query - Search query (nullish queries are treated as empty)
+   * @param query - Search query; `null` and `undefined` return the array
+   *   unfiltered before 5.5.0 and throw since.
    * @param options - Search options
    * @returns Filtered array
    */
@@ -47,7 +48,7 @@ export interface PanelHelpersArray {
   ) => T[];
 
   /**
-   * Sorts array by field and direction.
+   * Sorts the array in place by field and direction, case-insensitively.
    *
    * @param array - Array to sort
    * @param sortBy - Sort specification (e.g., `"name asc"`, `"date desc"`)
@@ -126,7 +127,7 @@ export interface PanelHelpersString {
    * @param string - String to check
    * @returns `true` if empty
    */
-  isEmpty: (string: string | null | undefined) => boolean;
+  isEmpty: (string: unknown) => boolean;
 
   /**
    * Converts first letter to lowercase.
@@ -277,6 +278,7 @@ export interface PanelHelpersObject {
    * @param object - Object to filter
    * @param predicate - Filter function
    * @returns Filtered object
+   * @since 5.0.0
    */
   filter: <T extends Record<string, any>>(
     object: T,
@@ -312,9 +314,15 @@ export interface PanelHelpersObject {
    *
    * @param target - Target object
    * @param source - Source object
-   * @returns Merged object
+   * @returns The mutated target
    */
-  merge: <T extends Record<string, any>>(target: T, source?: Partial<T>) => T;
+  merge: <
+    T extends Record<string, any>,
+    S extends Record<string, any> = Partial<T>,
+  >(
+    target: T,
+    source?: S,
+  ) => T & S;
 
   /**
    * Compares objects by JSON stringification.
@@ -387,7 +395,7 @@ export interface PanelHelpersUrl {
   hasDangerousScheme: (url: unknown) => boolean;
 
   /**
-   * Checks if URL string starts with http:// or https://.
+   * Checks if URL string starts with `http://` or `https://`.
    *
    * @param url - URL to check
    * @returns `true` if absolute
@@ -590,7 +598,7 @@ export interface PanelHelpersFile {
    * Formats byte size as human-readable string.
    *
    * @param size - Size in bytes
-   * @returns Formatted size (e.g., `"1.2 MB"`)
+   * @returns Formatted size (e.g., `"1KB"`, `"1.3MB"`)
    */
   niceSize: (size: number) => string;
 }
@@ -617,7 +625,7 @@ export interface PanelHelpersKeyboard {
 
 /** Link type definition. */
 export interface PanelLinkType {
-  /** Detection function. */
+  /** Returns `true` if the value belongs to this link type. */
   detect: (value: string) => boolean;
   /** Icon name. */
   icon: string;
@@ -773,6 +781,8 @@ export type PanelUploadResultCallback = (
 
 /**
  * Upload parameters.
+ *
+ * @source panel/src/helpers/upload.ts
  */
 export interface PanelUploadParams {
   /** Upload endpoint URL (default: `"/"`). */
@@ -799,19 +809,31 @@ export interface PanelUploadParams {
 
 // #region Debounce/Throttle Helpers
 
-/** Debounce options. */
+/**
+ * Debounce options. Omitting the object calls on the trailing edge only; in a
+ * passed object, an unset key counts as `false`.
+ *
+ * @since 5.0.0
+ * @source panel/src/helpers/debounce.ts
+ */
 export interface PanelDebounceOptions {
-  /** Call on leading edge (default: false). */
+  /** Call on leading edge. */
   leading?: boolean;
-  /** Call on trailing edge (default: true). */
+  /** Call on trailing edge. */
   trailing?: boolean;
 }
 
-/** Throttle options. */
+/**
+ * Throttle options. Omitting the object calls on the leading edge only; in a
+ * passed object, an unset key counts as `false`.
+ *
+ * @since 5.0.0
+ * @source panel/src/helpers/throttle.ts
+ */
 export interface PanelThrottleOptions {
-  /** Call on leading edge (default: true). */
+  /** Call on leading edge. */
   leading?: boolean;
-  /** Call on trailing edge (default: false). */
+  /** Call on trailing edge. */
   trailing?: boolean;
 }
 
@@ -830,11 +852,15 @@ export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
 
 // #region Sort Helper
 
-/** Sort options. */
+/**
+ * Sort options.
+ *
+ * @source panel/src/helpers/sort.ts
+ */
 export interface PanelSortOptions {
-  /** Sort descending (default: false). */
+  /** Sort descending (default: `false`). */
   desc?: boolean;
-  /** Case insensitive comparison (default: false). */
+  /** Case insensitive comparison (default: `false`). */
   insensitive?: boolean;
 }
 
@@ -983,9 +1009,9 @@ export interface PanelHelpers {
   /**
    * Converts aspect ratio to percentage.
    *
-   * @param fraction - Ratio string (e.g., `"3/2"`)
-   * @param fallback - Fallback value (default: `"100%"`)
-   * @param vertical - Calculate for vertical orientation
+   * @param fraction - Ratio string (default: `"3/2"`)
+   * @param fallback - Value returned when the fraction does not split into two parts (default: `"100%"`)
+   * @param vertical - Calculate for vertical orientation (default: `true`)
    * @returns Percentage string
    * @source panel/src/helpers/ratio.ts
    */
@@ -1025,6 +1051,7 @@ export interface PanelHelpers {
    * @param delay - Delay in milliseconds
    * @param options - Throttle options
    * @returns Throttled function with cancel method
+   * @since 5.0.0
    * @source panel/src/helpers/throttle.ts
    * @source panel/src/helpers/index.ts
    */
@@ -1079,8 +1106,6 @@ export interface PanelHelpers {
  * Resolves which marks and nodes are allowed in a Writer field, builds
  * extension instances (including those contributed by plugins), and exposes
  * the lower-level building blocks used by `createMarks` / `createNodes`.
- *
- * Available since Kirby 5.5.0.
  *
  * @source panel/src/helpers/writer.js
  * @since 5.5.0
@@ -1177,10 +1202,10 @@ export interface PanelHelpersWriter {
    * @param allowed - Allowed extension configuration
    * @returns Map of installed extensions
    */
-  filterExtensions: (
-    available: Record<string, any>,
+  filterExtensions: <T>(
+    available: Record<string, T>,
     allowed?: boolean | string[] | Record<string, unknown> | null,
-  ) => Record<string, any>;
+  ) => Record<string, T>;
 
   /**
    * Filters a list of node extension instances down to those whose schema is
