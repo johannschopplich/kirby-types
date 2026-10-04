@@ -245,7 +245,7 @@ expectType<Promise<PanelRequestResponse>>(panel.request("/api/pages/home"));
 
 declare const model: PanelModelData;
 expectType<string | undefined>(model.id);
-expectType<string>(model.title);
+expectType<string | undefined>(model.title);
 expectType<Record<string, any>>(model.content);
 
 // Generic content

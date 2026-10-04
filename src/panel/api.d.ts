@@ -17,13 +17,20 @@ import type { PanelRequestOptions } from "./base";
  * @source panel/src/panel/request.ts
  */
 export interface PanelApiRequestOptions extends PanelRequestOptions {
+  /**
+   * HTTP method. The verb helpers set their own; without one, the request
+   * goes out as `POST` while method override is on, its default
+   * (`api.methodOverride`, `api.methodOverwrite` before 5.0.0).
+   */
+  method?: string;
   /** Whether to skip loading indicator. */
   silent?: boolean;
 }
 
 /**
- * Pagination query parameters.
- * @source panel/src/api/index.js
+ * Page and page size of a paginated collection.
+ * @source src/Api/Collection.php
+ * @source src/Toolkit/Pagination.php
  */
 export interface PanelApiPagination {
   page?: number;
@@ -32,14 +39,28 @@ export interface PanelApiPagination {
 }
 
 /**
- * Search query parameters.
- * @source panel/src/api/index.js
+ * Search request body.
+ * @source src/Cms/Api.php
+ * @source config/api/routes/users.php
+ * @source config/api/routes/files.php
+ * @source src/Cms/Collection.php
  */
-export interface PanelApiSearchQuery extends PanelApiPagination {
+export interface PanelApiSearchQuery {
+  /** Search term, or a term with search options. */
+  search?: string | { query?: string; options?: Record<string, any> };
+  /** Maximum number of items searched – `paginate` limits the results. */
+  limit?: number;
+  /** Number of items skipped before searching. */
+  offset?: number;
+  /** Page size, or page and page size, to paginate the results by. */
+  paginate?: number | PanelApiPagination;
+  /** @deprecated Ignored by the search routes – pass `paginate` instead. */
+  page?: number;
+  /** @deprecated Ignored by the search routes – pass the term as `search` instead. */
   query?: string;
-  /** Field selection. */
+  /** @deprecated Ignored in the request body – Kirby reads `select` from the URL query only. */
   select?: string;
-  /** Sort field and direction. */
+  /** @deprecated Ignored by the search routes. */
   sort?: string;
 }
 // #endregion
@@ -64,12 +85,16 @@ export interface PanelApiSearchQuery extends PanelApiPagination {
  * }
  * ```
  * @source panel/src/api/request.js
+ * @source config/api/models/Page.php
+ * @source config/api/models/Site.php
+ * @source config/api/models/File.php
+ * @source config/api/models/User.php
  */
 export interface PanelModelData<TContent = Record<string, any>> {
   /** Model identifier (page id, file id, user id; undefined for site). */
   id?: string;
-  /** Model title or name. */
-  title: string;
+  /** Model title – only pages and the site carry one, files and users carry `name` instead. */
+  title?: string;
   /** Content field values. */
   content: TContent;
 }
@@ -82,10 +107,9 @@ export interface PanelModelData<TContent = Record<string, any>> {
  * @source panel/src/api/auth.js
  */
 export interface PanelApiLoginData {
-  /** User email. */
   email: string;
-  /** User password. */
   password: string;
+  /** Whether to keep the user logged in for an extended session. */
   remember?: boolean;
 }
 
@@ -132,13 +156,15 @@ export interface PanelApiAuth {
 /**
  * Files API methods.
  *
+ * `parent` is the API path of the file's parent model – `site`, `pages/blog+post` or `users/abc` – or `null` to address the file by its id or UUID alone.
+ *
  * @source panel/src/api/files.js
  */
 export interface PanelApiFiles {
   /**
    * Changes a file's name.
    *
-   * @param parent - Parent page/site path
+   * @param parent - Parent API path
    * @param filename - Current filename
    * @param to - New name (without extension)
    * @returns Updated file data
@@ -152,7 +178,7 @@ export interface PanelApiFiles {
   /**
    * Deletes a file.
    *
-   * @param parent - Parent page/site path
+   * @param parent - Parent API path
    * @param filename - Filename to delete
    */
   delete: (parent: string | null, filename: string) => Promise<any>;
@@ -160,7 +186,7 @@ export interface PanelApiFiles {
   /**
    * Gets a file.
    *
-   * @param parent - Parent page/site path
+   * @param parent - Parent API path
    * @param filename - Filename
    * @param query - Query parameters
    * @returns File data
@@ -226,8 +252,13 @@ export interface PanelApiLanguageData {
   default?: boolean;
   /** Locale code. */
   locale?: string;
-  /** Slug conversion rules. */
+  /**
+   * Slug conversion rules.
+   * @deprecated Ignored on create and update – pass `slugs` instead.
+   */
   rules?: Record<string, string>;
+  /** Custom slug conversion rules, merged over the locale's default rules. */
+  slugs?: Record<string, string>;
 }
 
 /**
@@ -279,18 +310,27 @@ export interface PanelApiLanguages {
 
 // #region Pages API
 
-/** Page creation data. */
+/**
+ * Page creation data.
+ * @source src/Cms/PageActions.php
+ */
 export interface PanelApiPageCreateData {
   slug: string;
+  /** @deprecated Ignored by Kirby – set the title as `content.title` instead. */
   title?: string;
   template?: string;
   /** Initial content. */
   content?: Record<string, any>;
-  /** Initial status. */
+  /** Whether the page starts as a draft, `true` by default – `false` creates an unlisted page. */
+  draft?: boolean;
+  /** @deprecated Ignored by Kirby – new pages are drafts unless `draft` is `false`. */
   status?: "draft" | "unlisted" | "listed";
 }
 
-/** Page duplicate options. */
+/**
+ * Page duplicate options.
+ * @source panel/src/api/pages.js
+ */
 export interface PanelApiPageDuplicateOptions {
   /** Copy children pages. */
   children?: boolean;
@@ -566,6 +606,9 @@ export interface PanelApiSystemInstallData {
   password: string;
   /** Admin language. */
   language?: string;
+  name?: string;
+  /** Role of the first user, `default` when omitted – the Panel's installer sends `admin`. */
+  role?: string;
 }
 
 /** License registration data. */
@@ -642,6 +685,7 @@ export interface PanelApiUserCreateData {
   name?: string;
   role?: string;
   language?: string;
+  content?: Record<string, any>;
 }
 
 /**
@@ -818,8 +862,8 @@ export interface PanelApiUsers {
  * // Create a new page
  * await panel.api.pages.create("blog", {
  *   slug: "new-post",
- *   title: "New Post",
- *   template: "article"
+ *   template: "article",
+ *   content: { title: "New Post" }
  * });
  * ```
  *
