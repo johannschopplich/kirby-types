@@ -23,6 +23,8 @@ import type {
   PanelNotification,
   PanelNotificationDefaults,
   PanelSearchResult,
+  PanelUpload,
+  PanelUploadDefaults,
   PanelUploadFile,
   PanelUser,
   PanelUserDefaults,
@@ -104,6 +106,22 @@ expectAssignable<PanelUploadFile>({
   error: null,
   model: null,
 });
+
+expectAssignable<PanelUploadDefaults>({
+  abort: null,
+  accept: "*",
+  attributes: {},
+  files: [],
+  max: null,
+  multiple: true,
+  preview: {},
+  replacing: null,
+  url: null,
+});
+expectAssignable<Parameters<PanelUpload["pick"]>[0]>({
+  on: { done: () => {} },
+  immediate: true,
+});
 // #endregion
 
 // #region Panel State
@@ -179,7 +197,7 @@ expectType<void>(undefined as ReturnType<PanelDrawer["tab"]>);
 // #region Notification & Content
 
 expectType<() => PanelNotificationDefaults>({} as PanelNotification["close"]);
-expectType<PanelNotificationDefaults | void>(
+expectType<PanelNotificationDefaults | false>(
   {} as ReturnType<PanelNotification["error"]>,
 );
 
