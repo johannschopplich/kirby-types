@@ -20,10 +20,10 @@ export interface TextareaToolbarContext {
    * Emits a command to the textarea input component.
    *
    * Available commands:
-   * - `"dialog"` - Opens a dialog component.
+   * - `"dialog"` - Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
    * - `"insert"` - Inserts the given text at the current selection.
    * - `"prepend"` - Prepends the given text to the current selection.
-   * - `"toggle"` - Toggles wrapping of current selection (accepts before, after texts).
+   * - `"toggle"` - Toggles wrapping of current selection (accepts `before`, `after` texts).
    * - `"upload"` - Opens the file upload dialog.
    * - `"wrap"` - Wraps the current selection with the given text.
    * - `"file"` - Opens the file picker.
@@ -82,12 +82,7 @@ export interface TextareaToolbarContext {
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  */
 export interface TextareaButton {
-  /**
-   * Display label for the button (appears in tooltip).
-   *
-   * Optional: on K5 the toolbar falls back to `title` when `label` is unset,
-   * so a button with only `title` is valid at runtime.
-   */
+  /** Button label, shown as its tooltip. Falls back to `title` when unset. */
   label?: string;
 
   /**
@@ -99,7 +94,7 @@ export interface TextareaButton {
   icon?: string;
 
   /**
-   * Click handler. `this` is bound to the toolbar component (see {@link TextareaToolbarContext}), so `this.command(...)` is available.
+   * Runs when the button is clicked or its `shortcut` is pressed. `this` is bound to the toolbar component (see {@link TextareaToolbarContext}), so `this.command(...)` is available.
    *
    * @example
    * ```js
@@ -122,7 +117,8 @@ export interface TextareaButton {
   /**
    * Keyboard shortcut key (without modifier).
    *
-   * Will be triggered with Cmd/Ctrl + the specified key.
+   * Fires with Cmd/Ctrl + the key while the textarea has focus and no other
+   * modifier is held. Matched against `KeyboardEvent.key`.
    *
    * @example
    * ```js
@@ -132,33 +128,35 @@ export interface TextareaButton {
   shortcut?: string;
 
   /**
-   * Keyboard event handler for the button.
+   * Handles `keydown` events while the button itself has focus.
    *
-   * Called when a key is pressed while the button is focused.
-   * This is different from `shortcut`, which is triggered globally
-   * with Cmd/Ctrl modifier.
+   * This differs from `shortcut`, which fires while the textarea has focus.
    *
    * @param event - The native keyboard event
    */
   key?: (event: KeyboardEvent) => void;
 
   /**
-   * Dropdown menu items.
+   * Dropdown menu items. A `"-"` entry renders a separator.
    *
-   * If provided, the button shows a dropdown instead of executing click directly.
+   * If provided, clicking the button opens the dropdown instead of running
+   * `click`. The `shortcut` still runs `click`.
    */
-  dropdown?: TextareaDropdownItem[];
+  dropdown?: (TextareaDropdownItem | "-")[];
 
-  /** Conditional rendering. If false, the button won't be shown. */
+  /** Visibility condition – the button is hidden when `false`. */
   when?: boolean;
 
-  /** Disables the button. */
   disabled?: boolean;
 
-  /** Sets the aria-current attribute for active state styling. */
+  /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
 
-  /** Tooltip text used as a fallback when `label` is not set. */
+  /**
+   * Tooltip text used as a fallback when `label` is not set.
+   *
+   * @since 4.7.0
+   */
   title?: string;
 
   /** Custom CSS class for the button. */
@@ -175,46 +173,57 @@ export interface TextareaButton {
  * are NOT called with the toolbar context as `this`. The `this` context is
  * the surrounding dropdown component, which does not expose `command()`.
  *
- * For this reason, dropdown items should use arrow functions and access
- * the toolbar's functionality through closures or other means.
+ * The built-in buttons reach the toolbar because their items are arrow
+ * functions defined inside the toolbar component. A plugin's
+ * `textareaButtons` entry is a static object with no toolbar reference to
+ * close over. To react to an item elsewhere, use the `{ global, payload }`
+ * click form (since 4.3.0), which emits an event on the global event bus.
  *
  * @example
  * ```js
- * // Built-in buttons use arrow functions to capture toolbar's `this`
  * dropdown: [
  *   {
- *     label: "Option 1",
- *     icon: "check",
- *     click: () => {
- *       // Access toolbar methods through closure
- *       toolbar.command("insert", "text");
- *     }
+ *     label: "Notify",
+ *     icon: "bell",
+ *     click: { global: "my-plugin:notify", payload: { level: 1 } }
+ *   },
+ *   "-",
+ *   {
+ *     label: "Log",
+ *     icon: "code",
+ *     click: () => console.log("clicked")
  *   }
  * ]
  * ```
+ *
+ * @source panel/src/components/Dropdowns/DropdownContent.vue
  */
 export interface TextareaDropdownItem {
-  /** Display label. */
-  label: string;
+  /** Item label. Falls back to `text` when unset. */
+  label?: string;
 
-  /** Icon name. */
+  text?: string;
+
   icon?: string;
 
   /**
-   * Click handler.
-   *
-   * Note: Unlike main button clicks, `this` is NOT bound to the toolbar context.
-   * Use arrow functions and capture any needed references through closures.
+   * Click action. The dropdown closes first, then:
+   * - a callback runs with `this` bound to the dropdown component, not the
+   *   toolbar
+   * - a string is emitted as an `action` event on the dropdown, which the
+   *   toolbar does not listen to
+   * - since 4.3.0, an object emits `name` on the dropdown and `global` on
+   *   the global event bus, each with `payload`.
    */
-  click: () => void;
+  click?:
+    (() => void) | string | { name?: string; payload?: any; global?: string };
 
-  /** Conditional rendering. If false, the item won't be shown. */
+  /** Visibility condition – the item is hidden when `false`. */
   when?: boolean;
 
-  /** Disables the dropdown item. */
   disabled?: boolean;
 
-  /** Sets the aria-current attribute for active state styling. */
+  /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
 }
 // #endregion
