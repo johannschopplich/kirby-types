@@ -64,7 +64,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    * Validates that the state is a plain object.
    *
    * @throws Error if state is not an object
-   * @deprecated Absent from Kirby 5.5.x onward – the object check is inlined into `set()`, so calls throw there; consider removing.
+   * @deprecated Removed in 5.5.0; `set()` checks for a plain object itself.
    */
   validateState: (state: unknown) => boolean;
 }
@@ -131,6 +131,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * @param event - Event name to emit
    * @param args - Arguments to pass to the listener
    * @returns Listener result, or `undefined` when no listener is registered.
+   *   Before 5.5.0, a noop function in that case.
    */
   emit: <TReturn = any>(event: TEvents, ...args: any[]) => TReturn | undefined;
 
@@ -168,6 +169,10 @@ export interface PanelEventListeners<TEvents extends string = string> {
  * @source panel/src/panel/feature.ts
  */
 export interface PanelFeatureDefaults {
+  /**
+   * @since 5.1.0
+   * @deprecated Not part of the defaults since 5.5.0 – read `abortController` on the feature itself.
+   */
   abortController: AbortController | undefined;
   component: string | null;
   isLoading: boolean;
@@ -206,6 +211,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   /**
    * AbortController for canceling pending requests.
    * Created on each `load()` call to enable request cancellation.
+   * @since 5.1.0
    */
   abortController: AbortController | undefined;
 
@@ -249,6 +255,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * @param url - URL to fetch
    * @param options - Request options
    * @returns Response data or `false` on error
+   * @since 5.1.0
    */
   get: (
     url: string | URL,
@@ -260,12 +267,12 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Creates an AbortController and routes through `panel.open()`.
    *
    * @param url - Feature URL to load
-   * @param options - Request options or submit handler function
+   * @param options - Request options
    * @returns The feature's state after loading
    */
   load: (
     url: string | URL,
-    options?: PanelRequestOptions | PanelEventCallback,
+    options?: PanelRequestOptions,
   ) => Promise<TDefaults>;
 
   /**
@@ -332,7 +339,7 @@ export interface PanelModalListeners {
   close: (id?: string | true) => Promise<void>;
   input: (value: any) => void;
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
-  success: (response: PanelSuccessResponse) => void;
+  success: (response: PanelSuccessResponse | string) => any;
   [key: string]: ((...args: any[]) => any) | undefined;
 }
 
@@ -341,10 +348,11 @@ export interface PanelModalListeners {
  * @source panel/src/panel/modal.js
  */
 export interface PanelSuccessResponse {
+  /** Text of the success notification. */
   message?: string;
   /** Events to emit (string or array of strings). */
   event?: string | string[];
-  /** Whether to emit the global `"success"` event (default: true). */
+  /** Whether to emit the global `"success"` event (default: `true`). */
   emit?: boolean;
   /** URL to navigate to. */
   route?: string | { url: string; options?: PanelRequestOptions };
@@ -352,7 +360,6 @@ export interface PanelSuccessResponse {
   redirect?: string | { url: string; options?: PanelRequestOptions };
   /** Whether to reload the view. */
   reload?: boolean | PanelRequestOptions;
-  /** Additional properties. */
   [key: string]: any;
 }
 
@@ -405,7 +412,7 @@ export interface PanelModal<
    */
   readonly value: any;
 
-  /** Cancels the modal by emitting 'cancel' and closing. */
+  /** Cancels the modal by emitting `"cancel"` and closing. */
   cancel: () => Promise<void>;
 
   /**
@@ -431,15 +438,15 @@ export interface PanelModal<
   goTo: (id: string) => void;
 
   /**
-   * Updates the form value and emits 'input' event.
+   * Updates the form value and emits the `"input"` event.
    *
    * @param value - New form value
    */
   input: (value: any) => void;
 
   /**
-   * Returns bound listener functions for the Fiber component.
-   * Includes: cancel, close, input, submit, success, plus custom listeners.
+   * Returns the listeners to bind on the modal component via `v-on`:
+   * `cancel`, `close`, `input`, `submit`, `success`, plus custom listeners.
    */
   listeners: () => PanelModalListeners;
 
@@ -487,13 +494,13 @@ export interface PanelModal<
    * Shows notification, emits events, and handles redirect/reload.
    *
    * @param success - Success response object or message string
-   * @returns The success response
+   * @returns The `success` listener's result if one is registered, otherwise the given response
    */
-  success: (success: PanelSuccessResponse | string) => PanelSuccessResponse;
+  success: (success: PanelSuccessResponse | string) => any;
 
   /**
    * Emits events specified in the success response.
-   * Wraps single events in array and emits 'success' unless disabled.
+   * Wraps single events in array and emits `"success"` unless disabled.
    *
    * @param state - Success response with event data
    */
@@ -512,9 +519,7 @@ export interface PanelModal<
    * @param state - Success response with route/redirect
    * @returns `false` if no redirect, otherwise navigates
    */
-  successRedirect: (
-    state: PanelSuccessResponse,
-  ) => false | void | Promise<void>;
+  successRedirect: (state: PanelSuccessResponse) => false | Promise<any>;
 }
 // #endregion
 
@@ -563,7 +568,7 @@ export interface PanelHistory {
 
   /**
    * Gets milestone at a specific index.
-   * Supports negative indices (-1 for last).
+   * Supports negative indices (`-1` for last).
    *
    * @param index - Array index
    * @returns Milestone at index, or `undefined`
@@ -608,7 +613,7 @@ export interface PanelHistory {
    * Gets the array index of a milestone.
    *
    * @param id - Milestone ID
-   * @returns Index, or -1 if not found
+   * @returns Index, or `-1` if not found
    */
   index: (id: string) => number;
 
@@ -635,7 +640,7 @@ export interface PanelHistory {
 
   /**
    * Replaces a milestone at a specific index.
-   * Index -1 replaces the last milestone.
+   * Index `-1` replaces the last milestone.
    *
    * @param index - Array index to replace
    * @param state - New state to insert
@@ -651,11 +656,15 @@ export interface PanelHistory {
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/feature.ts
  */
-export interface PanelRequestOptions {
+export interface PanelRequestOptions extends Omit<
+  RequestInit,
+  "body" | "headers" | "referrer"
+> {
   headers?: Record<string, string>;
   /** Request body for POST/PATCH. */
   body?: any;
-  query?: Record<string, string | number | boolean>;
+  /** Query parameters; `null` values are skipped. */
+  query?: Record<string, string | number | boolean | null>;
   signal?: AbortSignal;
   /**
    * If `true`, skips setting `isLoading` state.
@@ -666,11 +675,11 @@ export interface PanelRequestOptions {
   /** CSRF token sent as the `x-csrf` header. */
   csrf?: string | false;
   /**
-   * Globals sent as the `x-panel-globals` header (was `x-fiber-globals` in K5).
+   * Globals sent as the `x-fiber-globals` header.
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
-  /** Referrer path sent as the `x-panel-referrer` header (was `x-fiber-referrer` in K5). */
+  /** Referrer path sent as the `x-fiber-referrer` header. */
   referrer?: string | false;
 }
 

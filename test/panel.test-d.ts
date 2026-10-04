@@ -14,7 +14,6 @@ import type {
   PanelHistoryMilestone,
   PanelModal,
   PanelModalListeners,
-  PanelSuccessResponse,
 } from "../src/panel/base";
 import type {
   PanelContent,
@@ -162,13 +161,9 @@ expectType<Promise<any>>(modal.submit({}));
 expectType<void>(modal.goTo("milestone-id"));
 expectType<void>(modal.input({ field: "value" }));
 expectType<PanelModalListeners>(modal.listeners());
-expectType<PanelSuccessResponse>(modal.success("Done"));
-expectType<PanelSuccessResponse>(
-  modal.success({ message: "Success", redirect: "/home" }),
-);
-expectType<false | void | Promise<void>>(
-  modal.successRedirect({ redirect: "/" }),
-);
+expectType<any>(modal.success("Done"));
+expectType<any>(modal.success({ message: "Success", redirect: "/home" }));
+expectType<false | Promise<any>>(modal.successRedirect({ redirect: "/" }));
 // #endregion
 
 // #region Dialog & Drawer
