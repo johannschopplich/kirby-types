@@ -1,37 +1,34 @@
 ---
 name: audit-panel-types
-description: Audit kirby-types panel augmentation types against Kirby PHP, K6 TypeScript, and K5 JavaScript sources via a two-pass agent swarm.
+description: Audit kirby-types panel augmentation types against the Kirby PHP and Panel source of the release line the branch targets, via a two-pass agent swarm.
 disable-model-invocation: true
 ---
 
 # Audit Panel Types
 
-Authority: **PHP > K6 TS > K5 JS**. PHP overrules K6 when they disagree.
+Authority: **PHP > Panel source** of one Kirby release line. Each kirby-types branch types exactly one line – see [rubric.md – Lines](references/rubric.md#lines).
 
 ## Roots
 
-Ask the user for three absolute paths. Don't auto-detect.
+Ask the user for two absolute paths. Don't auto-detect.
 
-- `<KIRBY_TYPES_ROOT>` – the kirby-types checkout being audited
-- `<KIRBY_K5_ROOT>` – Kirby 5 checkout (PHP source + K5 JS)
-- `<KIRBY_K6_ROOT>` – Kirby 6 checkout (K6 TS)
+- `<KIRBY_TYPES_ROOT>` – the kirby-types checkout being audited; its branch picks the line
+- `<KIRBY_ROOT>` – the Kirby checkout of that line (PHP source + Panel source)
 
-If `<KIRBY_K6_ROOT>` is absent, treat K6 as silent and proceed with PHP + K5.
-
-## Probe – map the live sources
+## Probe – map the live source
 
 Kirby migrates modules between `.js` and `.ts` every release. Never trust hard-coded file status – discover it:
 
 ```
-node scripts/probe.mjs <KIRBY_K5_ROOT> <KIRBY_K6_ROOT> <KIRBY_TYPES_ROOT>
+node scripts/probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>
 ```
 
-`probe.mjs` creates `<KIRBY_TYPES_ROOT>/.review/.raw/` and writes `source-map.json` beside it. The map reports, per module, whether K5/K6 ship `.js`/`.ts`/`absent`; the `$helper` and panel-singleton registrations; both Kirby versions; and `postureFlags`. **Completion criterion**: `source-map.json` exists and its `modules` map is non-empty.
+`probe.mjs` creates `<KIRBY_TYPES_ROOT>/.review/.raw/` and writes `source-map.json` beside it: the line, the Kirby version, per-module `.js`/`.ts` status, and the `$helper` and panel-singleton registrations. **Completion criterion**: `source-map.json` exists and its `modules` map is non-empty.
 
-Then branch on `postureFlags`:
+Then branch on `flags`:
 
-- **A flag contains `RE-CONFIRM`** (K6 shipped, K5 retired, or the plugin shape flipped) → surface it to the user and get a decision before launching. The standing posture lives in [rubric.md](references/rubric.md); a boundary crossing is the only thing that reopens it.
-- **A flag contains `SHALLOW-HISTORY`** → that root's history floor is its current release, so it silently mis-dates `@since`. Don't gate the user; route all `@since` archaeology to the deepest-history root (per [rubric.md](references/rubric.md)) and proceed.
+- **`LINE-UNKNOWN` or `LINE-MISMATCH`** → surface it and get the right branch or root before launching.
+- **`SHALLOW-HISTORY`** → unshallow the root with the command the flag names, then re-probe. `@since` archaeology needs the full history.
 - **Otherwise** → launch. Routine runs ask nothing.
 
 [topology.md](references/topology.md) gives the **stable** map only: symbol → cluster → module + PHP authority. Every agent reads `source-map.json` for file status and cites it – never the extensions in topology.
@@ -53,7 +50,7 @@ Pass 1 may surface `renameCandidates`. Aggregate across clusters.
 - **Empty or all "keep as-is" advisories**: skip the gate. Proceed to pass 2 with `APPROVED RENAMES: none`.
 - **Otherwise**: present as a multi-select to the user with each rationale. Pass the approved subset to pass 2. Rejected ones get DEFER with `user did not approve rename`.
 
-A `learnFrom` whose new identifier differs from the old is a rename in disguise. Route it through the gate.
+A `tighten` whose new identifier differs from the old is a rename in disguise. Route it through the gate.
 
 ## Pass 2 – verify + apply
 

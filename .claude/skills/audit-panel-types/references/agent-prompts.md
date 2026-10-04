@@ -13,11 +13,11 @@ OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<CLUSTER>.json
 
 TS FILE TO REVIEW: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
 
-KIRBY ROOTS:
-- <KIRBY_K5_ROOT> – PHP authority at `src/`; K5 client at `panel/src/`.
-- <KIRBY_K6_ROOT> – K6 client at `panel/src/`. (May be absent – treat K6 as silent if so.)
+LINE: <line from source-map.json> – the row in rubric.md's Lines table sets the plugin shape and the `@since` baseline.
 
-SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json – per module, whether K5/K6 ship `.js`/`.ts`/`absent`, plus `$helper`/singleton registrations. Resolve every module's extension from here. NEVER assume `.js` vs `.ts`.
+KIRBY ROOT: <KIRBY_ROOT> – PHP authority at `src/`, Panel source at `panel/src/`, full git history for `@since`.
+
+SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json – per module, whether the root ships `.js`, `.ts`, or both, plus `$helper`/singleton registrations. Resolve every module's extension from here. NEVER assume `.js` vs `.ts`.
 
 SYMBOLS YOU OWN:
 <COMMA-SEPARATED LIST FROM TOPOLOGY>
@@ -28,14 +28,13 @@ PHP: <PHP paths from topology, or "silent">
 
 JOB:
 1. Resolve each owned symbol's module(s) to real files via the source map, then read them.
-2. Trinary diff PHP → K6 → K5, then sweep TYPES → SOURCES.
-3. Apply the rubric. For `@source`: cite the file the map says exists; a `.js` the map marks migrated is a **phantom** → replace with the `.ts`, don't dual-source.
+2. Diff PHP → Panel source, then sweep TYPES → SOURCES.
+3. Apply the rubric. For `@source`: cite the file the map lists; a path under the other extension or absent from the map is a **phantom** → replace or drop it.
 
 OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 {
   "annotations": [{ "symbol": "...", "anchor": "export interface ... {", "sources": ["panel/src/..."] }],
-  "drift": [{ "symbol": "...", "k5": "...", "k6": "...", "php": "...", "note": "..." }],
-  "learnFrom": [{ "symbol": "...", "k6Shape": "...", "kirbyTypesCurrent": "...", "rationale": "...", "phpAuthority": "..." }],
+  "tighten": [{ "symbol": "...", "sourceShape": "...", "kirbyTypesCurrent": "...", "rationale": "...", "phpAuthority": "..." }],
   "renameCandidates": [{ "current": "...", "proposed": "...", "rationale": "..." }],
   "findings": {
     "missing": [{ "symbol": "...", "name": "...", "where": "...", "note": "..." }],
@@ -43,7 +42,7 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
     "signatureMismatch": [{ "symbol": "...", "name": "...", "tsSig": "...", "sourceSig": "...", "note": "..." }],
     "soft": []
   },
-  "patches": [{ "symbol": "...", "kind": "learn|rename", "gated": "rename|none", "old_string": "...", "new_string": "..." }],
+  "patches": [{ "symbol": "...", "kind": "tighten|fix|rename", "gated": "rename|none", "old_string": "...", "new_string": "..." }],
   "intentional": [{ "symbol": "...", "name": "...", "note": "..." }],
   "summary": "1-3 sentences."
 }
@@ -53,18 +52,18 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 
 ### Per-cluster watchpoints
 
-- **Hybrid clusters** (`features-*`): PHP rules nullability. K6 `*State` is JS-bootstrap shape, not PHP authority. Never widen on K6 evidence alone.
+- **Hybrid clusters** (`features-*`): PHP rules nullability. Panel `*State` types are JS-bootstrap shape, not PHP authority. Never widen on Panel evidence alone.
 - **Inheritance-aware** (`features-view`, `features-modals`, `features-content`): never re-flag inherited PanelFeature/PanelModal members. Focus on what the module ADDS or OVERRIDES.
-- **PHP-rooted** (`index-config`, `index-permissions`, `index-viewprops`): PHP `toArray()` / `props()` is the response shape. K6 TS `*State` types are JS-side state, not the server payload – don't import.
-- **API clusters**: JS client is source of truth. PHP routes only when JSDoc on the JS wrapper is missing.
-- **`index-panel`**: K6 plugin shape uses Vue 3 (`App`, `Plugin`, `ConcreteComponent`). Record as drift only – never propose backports.
+- **PHP-rooted** (`index-config`, `index-permissions`, `index-viewprops`): PHP `toArray()` / `props()` is the response shape. Panel `*State` types are JS-side state, not the server payload – don't import.
+- **API clusters**: the Panel client is source of truth. PHP routes only when JSDoc on the client wrapper is missing.
+- **`index-panel`**: the plugin shape (`PanelApp`, `PanelComponentExtension`, `PanelPlugins`, `PanelPluginExtensions`) follows the line's Vue version.
 - **Helpers**: anchors are short property names (`array:`, `slug:`). Use surrounding context for uniqueness, or anchor on the wrapping interface.
 
 ## Pass 2
 
 One Agent call per `.d.ts`, `run_in_background: true`. Same model-inheritance rule as pass 1.
 
-Time-box: pass 1 already cited PHP/K6/K5 paths. Re-read a source only when the finding is unclear. If still ambiguous after one quick check, DEFER.
+Time-box: pass 1 already cited PHP and Panel paths. Re-read a source only when the finding is unclear. If still ambiguous after one quick check, DEFER.
 
 ````
 ROLE: Pass-2 verifier for kirby-types Panel types. Re-verify pass-1 findings and emit `{old_string, new_string}` patches for confirmed issues. READ-ONLY on every file – DO NOT use the Edit tool. Write only to the JSON output path before returning.
@@ -73,9 +72,9 @@ OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<TS_FILE>.pass2.json
 
 TS FILE: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
 
-KIRBY ROOTS:
-- <KIRBY_K5_ROOT> – PHP authority + K5 JS
-- <KIRBY_K6_ROOT> – K6 TS (may be absent)
+LINE: <line from source-map.json> – see rubric.md's Lines table.
+
+KIRBY ROOT: <KIRBY_ROOT> – PHP authority + Panel source
 
 PASS-1 FINDINGS – read each:
 - <KIRBY_TYPES_ROOT>/.review/.raw/<cluster1>.json
@@ -87,17 +86,19 @@ APPROVED RENAMES (from the user gate):
 
 JOB – for every pass-1 finding:
 
-1. Re-verify against PHP first, K6 TS second, K5 JS only when both silent.
+1. Re-verify against PHP first, Panel source second.
 2. Decide:
    - **ACT** – confirmed wrong, fix is straightforward, no cascade-break.
-   - **DEFER** – real issue but cost > value (deep PHP types, server-hydrated null narrowings consumers never observe, K6 plugin Vue-3 shape, deprecated Vue-2 paths, K6-only methods on K5-targeted types).
+   - **DEFER** – real issue but cost > value (deep PHP types, server-hydrated null narrowings consumers never observe).
    - **DISMISS** – pass 1 was wrong on re-examination.
 3. Renames: ACT only if approved at the gate. Otherwise DEFER with `user did not approve rename`.
-4. For each ACT, emit `{old_string, new_string}`:
-   - `old_string` is a unique exact substring within the TS file.
+4. Several clusters may report the same member – dedupe into ONE patch.
+5. For each ACT, emit `{old_string, new_string}`:
+   - `old_string` is a unique exact substring within the TS file; patches never overlap – merge neighbours.
    - Preserve indentation and existing JSDoc/`@source` lines.
    - When adding a new property/method, follow the JSDoc rules in [rubric.md](rubric.md#jsdoc-style).
    - Minimal – no surrounding refactor.
+   - A broken `test/*.test-d.ts` assertion gets its own patch with `"file": "test/<name>.test-d.ts"`.
 
 Soft items: tighten if statically known and won't cascade. Otherwise DEFER.
 
@@ -106,7 +107,7 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
   "verifications": [
     {
       "finding": "<short identifier>",
-      "bucket": "drift|learn|rename|missing|redundant|signatureMismatch|soft",
+      "bucket": "tighten|rename|missing|redundant|signatureMismatch|soft",
       "decision": "ACT|DEFER|DISMISS",
       "rationale": "<1-2 sentences citing source path>",
       "patch": { "old_string": "...", "new_string": "..." }
@@ -123,13 +124,12 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 
 ACT:
 
-- K6-only members → add with `@since 6` (see [rubric.md](rubric.md#k6-only-members))
-- K6-renamed identifiers, after gate approval
+- Members the line ships that TS lacks
+- Panel TS shapes PHP confirms (`tighten`)
+- Renamed identifiers, after gate approval
 
 DEFER:
 
 - JS-defaults vs PHP-runtime divergence (defaults-as-runtime fallacy)
-- K6 plugin Vue-3 shape – drift only
 - Deep per-blueprint shapes (e.g. `PanelViewPropsModel` per content type)
-- Already-`@deprecated` Vue-2 paths
 - JSDoc-only documentation gaps
