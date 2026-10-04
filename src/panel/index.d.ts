@@ -153,6 +153,7 @@ export type {
  * Vue application instance with Panel extensions.
  *
  * The Panel Vue app includes additional properties on the Vue prototype:
+ * - `$panel` - The Panel instance.
  * - `$helper` - Utility functions for common operations.
  * - `$library` - External libraries (colors, dayjs, autosize).
  *
@@ -164,8 +165,11 @@ export type {
  * ```
  * @source panel/src/panel/app.js
  * @source panel/src/index.js
+ * @source panel/src/helpers/index.ts
+ * @source panel/src/libraries/index.ts
  */
 export type PanelApp = InstanceType<VueConstructor> & {
+  $panel: Panel;
   $library: PanelLibrary;
   $helper: PanelHelpers;
   /** Shortcut for escaping HTML (alias for `$helper.string.escapeHTML`). */
@@ -221,20 +225,42 @@ export type PanelComponentExtension =
  * @source src/Panel/View.php
  */
 export interface PanelConfig {
-  /** API configuration. */
+  /**
+   * API configuration.
+   *
+   * @since 4.5.0
+   */
   api: {
-    /** Whether to use method override for PUT/PATCH/DELETE. */
+    /**
+     * Whether requests other than `GET` and `POST` are sent as `POST` with an
+     * `X-HTTP-Method-Override` header. Named `methodOverwrite` before 5.0.0.
+     *
+     * @since 5.0.0
+     */
     methodOverride: boolean;
   };
   /** Whether debug mode is enabled. */
   debug: boolean;
   /** Whether KirbyText is enabled. */
   kirbytext: boolean;
-  /** Current theme setting. */
+  /**
+   * Default color theme from the `panel.theme` option (`"system"` unless
+   * configured). A theme the user picks overrides it.
+   *
+   * @since 5.1.0
+   */
   theme: string;
-  /** Current translation code. */
+  /**
+   * Default interface language code from the `panel.language` option. The
+   * logged-in user's language lives on `panel.translation`.
+   */
   translation: string;
-  /** Maximum upload size in bytes. */
+  /**
+   * Chunk size in bytes for chunked file uploads – 95% of the smallest
+   * server upload limit.
+   *
+   * @since 5.0.0
+   */
   upload: number;
 }
 // #endregion
@@ -244,9 +270,10 @@ export interface PanelConfig {
 /**
  * Access permissions for Panel areas.
  * @source src/Cms/Permissions.php
- * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsAccess {
+  /** Access to custom Panel areas registered by plugins, keyed by area id. */
+  [area: string]: boolean;
   account: boolean;
   languages: boolean;
   panel: boolean;
@@ -258,7 +285,6 @@ interface PanelPermissionsAccess {
 /**
  * File operation permissions.
  * @source src/Cms/Permissions.php
- * @source src/Cms/FilePermissions.php
  */
 interface PanelPermissionsFiles {
   access: boolean;
@@ -276,7 +302,6 @@ interface PanelPermissionsFiles {
 /**
  * Language operation permissions.
  * @source src/Cms/Permissions.php
- * @source src/Cms/LanguagePermissions.php
  */
 interface PanelPermissionsLanguages {
   create: boolean;
@@ -287,7 +312,6 @@ interface PanelPermissionsLanguages {
 /**
  * Page operation permissions.
  * @source src/Cms/Permissions.php
- * @source src/Cms/PagePermissions.php
  */
 interface PanelPermissionsPages {
   access: boolean;
@@ -309,18 +333,21 @@ interface PanelPermissionsPages {
 /**
  * Site operation permissions.
  * @source src/Cms/Permissions.php
- * @source src/Cms/SitePermissions.php
  */
 interface PanelPermissionsSite {
   access: boolean;
   changeTitle: boolean;
+  /**
+   * Whether the user may open the site preview.
+   * @since 5.5.2
+   */
+  preview: boolean;
   update: boolean;
 }
 
 /**
  * User management permissions (for other users).
  * @source src/Cms/Permissions.php
- * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUsers {
   access: boolean;
@@ -338,7 +365,6 @@ interface PanelPermissionsUsers {
 /**
  * Current user permissions (for own account).
  * @source src/Cms/Permissions.php
- * @source src/Cms/UserPermissions.php
  */
 interface PanelPermissionsUser {
   access: boolean;
@@ -356,7 +382,7 @@ interface PanelPermissionsUser {
  * Complete permission set for the current user.
  *
  * @source src/Cms/Permissions.php
- * @source src/Cms/Role.php
+ * @source src/Panel/View.php
  */
 export interface PanelPermissions {
   access: PanelPermissionsAccess;
@@ -387,10 +413,13 @@ export interface PanelSearchType {
  * @source src/Panel/View.php
  */
 export interface PanelSearches {
-  pages: PanelSearchType;
-  files: PanelSearchType;
-  users: PanelSearchType;
-  [key: string]: PanelSearchType;
+  /** Omitted when the user has no access to the site area. */
+  pages?: PanelSearchType;
+  /** Omitted when the user has no access to the site area. */
+  files?: PanelSearchType;
+  /** Omitted when the user has no access to the users area. */
+  users?: PanelSearchType;
+  [key: string]: PanelSearchType | undefined;
 }
 // #endregion
 
@@ -592,13 +621,12 @@ export interface PanelPluginExtensions {
  * Panel plugin system.
  *
  * Manages Vue components, icons, and extensions registered by plugins.
- * Properties are ordered to match `panel/public/js/plugins.js`.
  *
  * @source panel/src/panel/plugins.ts
  * @source panel/public/js/plugins.js
  */
 export interface PanelPlugins {
-  // #region Helper Functions (from panel/src/panel/plugins.js)
+  // #region Helper Functions
 
   /**
    * Resolves a component extension if defined as component name.
@@ -641,8 +669,11 @@ export interface PanelPlugins {
   /** Registered SVG icons. */
   icons: Record<string, string>;
 
-  /** Custom login component (set dynamically by plugins). */
-  login: DefineComponent<
+  /**
+   * Custom login component. Until a plugin registers one, `null` before
+   * 5.5.0 and `undefined` since.
+   */
+  login?: DefineComponent<
     any,
     any,
     any,
@@ -705,7 +736,12 @@ export interface PanelLanguageInfo {
   code: string;
   default: boolean;
   direction: "ltr" | "rtl";
-  /** Whether the configured language `url` is an absolute URL (i.e., starts with `http://` or `https://`). */
+  /**
+   * Whether the language is configured with an absolute `url` (e.g.
+   * `https://example.de` or `//example.de`) rather than a path prefix.
+   *
+   * @since 5.2.3
+   */
   hasCustomDomain: boolean;
   /** PHP locale settings keyed by `LC_*` integer constants (e.g., `LC_ALL`, `LC_CTYPE`). */
   locale: Record<number, string>;
@@ -753,8 +789,8 @@ export interface PanelGlobalState {
  *
  * @example
  * ```ts
- * // Access via window.$panel in browser
- * const panel = window.$panel;
+ * // `window.panel` in the browser, `this.$panel` inside components
+ * const panel = window.panel;
  *
  * // Navigate to a page
  * await panel.view.open("/pages/home");
@@ -763,7 +799,7 @@ export interface PanelGlobalState {
  * await panel.dialog.open("/dialogs/pages/create");
  *
  * // Make an API request
- * const data = await panel.get("/api/pages/home");
+ * const page = await panel.api.get("pages/home");
  * ```
  *
  * @source panel/src/panel/panel.js
@@ -905,12 +941,12 @@ export interface Panel {
   /**
    * Centralized error handler: ignores `AbortError`, marks the Panel offline on `OfflineError`, logs in debug mode, and optionally opens an error notification.
    *
-   * @param error - Error or message
+   * @param error - Error, message, or any other thrown value
    * @param openNotification - Whether to show notification (default: `true`)
    * @returns Notification state if opened, `void` otherwise
    */
   error: (
-    error: Error | string,
+    error: unknown,
     openNotification?: boolean,
   ) => void | PanelFeatures.PanelNotificationDefaults;
 
@@ -931,12 +967,14 @@ export interface Panel {
    *
    * @param url - URL to open or state object
    * @param options - Request options
-   * @returns The new Panel state
+   * @returns The new Panel state, or on failure the error notification state or `undefined`
    */
   open: (
     url: string | URL | Partial<PanelGlobalState>,
     options?: PanelRequestOptions,
-  ) => Promise<PanelGlobalState>;
+  ) => Promise<
+    PanelGlobalState | PanelFeatures.PanelNotificationDefaults | undefined
+  >;
 
   /**
    * Returns all open overlay types.
@@ -992,18 +1030,23 @@ export interface Panel {
   ) => Promise<any>;
 
   /**
-   * Navigates to a different Panel path.
+   * Navigates the browser to the absolute URL. Since 5.5.0, throws a
+   * redirect error that the Panel's error handler catches; before, navigated
+   * directly and returned `false`.
    *
    * @param path - Path or URL to navigate to
    */
-  redirect: (path: string | URL) => void;
+  redirect: (path: string | URL) => false;
 
   /**
    * Reloads the current view.
    *
    * @param options - Request options
+   * @returns The new view state, or `false` if the view has no path
    */
-  reload: (options?: PanelRequestOptions) => Promise<void>;
+  reload: (
+    options?: PanelRequestOptions,
+  ) => Promise<PanelFeatures.PanelViewDefaults | false>;
 
   /**
    * Sends a request through the Panel router.
@@ -1032,15 +1075,15 @@ export interface Panel {
    * @param type - Search type (`"pages"`, `"files"`, `"users"`)
    * @param query - Search query string
    * @param options - Search options (page, limit)
-   * @returns Search results when query provided, `void` otherwise
+   * @returns Search results when a query is provided, `undefined` if a newer search aborted the request
    */
   search: {
-    (type: string): void;
+    (type: string): Promise<void>;
     (
       type: string,
       query: string,
       options?: PanelFeatures.PanelSearchOptions,
-    ): Promise<PanelFeatures.PanelSearchResult>;
+    ): Promise<PanelFeatures.PanelSearchResult | undefined>;
   };
 
   /**
@@ -1067,6 +1110,13 @@ export interface Panel {
   t: (key: string, ...args: any[]) => string;
 
   /**
+   * Translates a key using the current translation.
+   *
+   * @deprecated Legacy alias of `t()`; use `t()` instead.
+   */
+  $t: (key: string, ...args: any[]) => string;
+
+  /**
    * Creates a URL object for a Panel path.
    *
    * @param path - Path or URL to build (default: empty string)
@@ -1074,7 +1124,11 @@ export interface Panel {
    * @param origin - Base origin
    * @returns URL object
    */
-  url: (path?: string, query?: Record<string, any>, origin?: string) => URL;
+  url: (
+    path?: string | URL,
+    query?: Record<string, any>,
+    origin?: string | URL,
+  ) => URL;
   // #endregion
 }
 // #endregion
@@ -1082,7 +1136,8 @@ export interface Panel {
 // #region View Props (commonly used)
 
 /**
- * Lock information for content.
+ * User holding the content lock. Both fields are `null` when nobody holds
+ * the lock or, since 5.4.1, the holder is not listable.
  * @source src/Content/Lock.php
  */
 interface PanelViewPropsLockUser {
@@ -1123,20 +1178,32 @@ interface PanelViewPropsPermissions {
   changePassword?: boolean;
   /** User permission. Present on User views. */
   changeRole?: boolean;
-  changeSlug: boolean;
-  changeStatus: boolean;
-  changeTemplate: boolean;
-  changeTitle: boolean;
-  create: boolean;
-  delete: boolean;
-  duplicate: boolean;
-  list: boolean;
-  move: boolean;
-  preview: boolean;
-  read: boolean;
+  /** Page permission. Present on Page views. */
+  changeSlug?: boolean;
+  /** Page permission. Present on Page views. */
+  changeStatus?: boolean;
+  /** Page / File permission. Present on Page and File views. */
+  changeTemplate?: boolean;
+  /** Page / Site permission. Present on Page and Site views. */
+  changeTitle?: boolean;
+  /** Page / File / User permission. Present on Page, File and User views. */
+  create?: boolean;
+  /** Page / File / User permission. Present on Page, File and User views. */
+  delete?: boolean;
+  /** Page permission. Present on Page views. */
+  duplicate?: boolean;
+  /** Page / File / User permission. Present on Page, File and User views. */
+  list?: boolean;
+  /** Page permission. Present on Page views. */
+  move?: boolean;
+  /** Page / Site permission. Present on Page and Site views. */
+  preview?: boolean;
+  /** Page / File permission. Present on Page and File views. */
+  read?: boolean;
   /** File permission. Present on File views. */
   replace?: boolean;
-  sort: boolean;
+  /** Page / File permission. Present on Page and File views. */
+  sort?: boolean;
   update: boolean;
 }
 
@@ -1177,7 +1244,7 @@ interface PanelViewPropsNavigation {
 /**
  * Legacy nested model information.
  *
- * Emitted by Page/File/User/Site `props()` with per-blueprint shape
+ * Emitted on Page, File, User and Site views with per-blueprint shape
  * variance. The fields below model the Page variant; File adds
  * `dimensions`/`extension`/`filename`/`mime`/`niceSize`/`template`/`type`/`url`;
  * User adds `account`/`avatar`/`email`/`language`/`name`/`role`/`username`;
@@ -1250,10 +1317,7 @@ interface PanelViewPropsButton {
  */
 export interface PanelViewProps {
   api: string;
-  /**
-   * View buttons. May contain `'-'` string separators between groups.
-   * @source src/Panel/Ui/Buttons/ViewButtons.php
-   */
+  /** View buttons. May contain `'-'` string separators between groups. */
   buttons: (PanelViewPropsButton | "-")[];
   id: string;
   link: string;

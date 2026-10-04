@@ -214,8 +214,10 @@ expectType<Promise<void>>(content.discard());
 
 declare const panel: Panel;
 
-expectType<void>(panel.search("pages"));
-expectType<Promise<PanelSearchResult>>(panel.search("pages", "test"));
+expectType<Promise<void>>(panel.search("pages"));
+expectType<Promise<PanelSearchResult | undefined>>(
+  panel.search("pages", "test"),
+);
 expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
