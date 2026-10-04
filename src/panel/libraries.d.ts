@@ -7,7 +7,13 @@
  * @since 4.0.0
  */
 
-import type { ConfigType, Dayjs, PluginFunc, UnitType } from "dayjs";
+import type {
+  ConfigType,
+  Dayjs,
+  PluginFunc,
+  UnitType,
+  UnitTypeLong,
+} from "dayjs";
 
 // #region Color Types
 
@@ -111,7 +117,7 @@ export interface PanelLibraryColors {
    * - HSL: `hsl(180 50% 50%)`, `hsl(180deg 50% 50% / 0.5)`
    *
    * @param string - CSS color string
-   * @returns Parsed color or `null` if invalid
+   * @returns Parsed color, `null` if unparsable, or `false` for empty input
    */
   parse: (string: string) => string | PanelColorObject | null | false;
 
@@ -120,7 +126,7 @@ export interface PanelLibraryColors {
    *
    * @param string - CSS color string
    * @param format - Target format
-   * @returns Converted color or `false` if invalid
+   * @returns Converted color, `null` if unparsable, or `false` for empty input
    */
   parseAs: {
     (string: string, format: "hex"): string | null | false;
@@ -232,17 +238,18 @@ export interface PanelDayjsExtensions {
   ) => Dayjs & PanelDayjsExtensions;
 
   /**
-   * Rounds to nearest unit step.
+   * Rounds to the nearest step of a unit, e.g. to the nearest 15 minutes.
    *
-   * Note: `day` is an alias for `date`. Units `week` and `millisecond`
-   * are NOT supported and will throw an error.
+   * `day` is read as `date`. All sub-units of the step unit are cleared,
+   * except milliseconds when rounding to `second`.
+   * `millisecond` throws.
    *
-   * @param unit - Unit to round (default: `"date"`)
-   * @param size - Step size (default: `1`). Must divide evenly into the unit's range.
+   * @param unit - Unit to round to (default: `"date"`)
+   * @param size - Step size (default: `1`). Has to divide the unit evenly, e.g. `15` of 60 minutes; `date`, `month`, and `year` only take `1`.
    * @returns Rounded dayjs instance
-   * @throws Error if unit is invalid or size doesn't divide evenly
+   * @throws If the unit or the step size is not supported
    */
-  round: (unit?: UnitType, size?: number) => Dayjs & PanelDayjsExtensions;
+  round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
 }
 
 /** Kirby-extended dayjs instance type. */
@@ -283,7 +290,7 @@ export interface PanelDayjsStaticExtensions {
   /**
    * Creates a pattern analyzer for date/time formatting.
    *
-   * @param pattern - Date format pattern (e.g., "YYYY-MM-DD")
+   * @param pattern - Date format pattern, e.g. `YYYY-MM-DD`
    * @returns Pattern analyzer object
    */
   pattern: (pattern: string) => PanelDayjsPattern;
@@ -306,9 +313,6 @@ export interface PanelDayjsStaticExtensions {
  *
  * @since 4.0.0
  * @source panel/src/libraries/dayjs.ts
- * @source panel/src/libraries/dayjs-interpret.ts
- * @source panel/src/libraries/dayjs-iso.ts
- * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   (date?: ConfigType): PanelDayjsInstance;
@@ -325,6 +329,7 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
     option?: T,
   ) => typeof import("dayjs");
 
+  /** Activates or registers a locale and returns the active locale name. */
   locale: (preset?: string, object?: object, isLocal?: boolean) => string;
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
@@ -341,7 +346,6 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
  *
  * Automatically adjusts textarea height based on content.
  *
- * @source panel/src/libraries/index.ts
  * @source @types/autosize/index.d.ts
  */
 export interface PanelLibraryAutosize {
@@ -351,9 +355,9 @@ export interface PanelLibraryAutosize {
    * @param element - Element(s) to autosize
    * @returns The input element(s)
    */
-  (
-    element: HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList,
-  ): typeof element;
+  <T extends HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList>(
+    element: T,
+  ): T;
 
   /**
    * Triggers a resize update.
@@ -391,8 +395,6 @@ export interface PanelLibraryAutosize {
  * ```
  *
  * @source panel/src/libraries/index.ts
- * @source panel/src/libraries/colors.ts
- * @source panel/src/libraries/dayjs.ts
  */
 export interface PanelLibrary {
   autosize: PanelLibraryAutosize;
