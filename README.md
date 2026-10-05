@@ -205,7 +205,7 @@ window.panel.theme.set("dark");
 
 // Navigation
 await window.panel.view.open("/pages/blog");
-await window.panel.dialog.open("/dialogs/pages/create");
+await window.panel.dialog.open("pages/create");
 
 // API calls
 const page = await window.panel.api.pages.get("blog");

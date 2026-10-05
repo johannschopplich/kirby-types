@@ -796,7 +796,7 @@ export interface PanelGlobalState {
  * await panel.view.open("/pages/home");
  *
  * // Open a dialog
- * await panel.dialog.open("/dialogs/pages/create");
+ * await panel.dialog.open("pages/create");
  *
  * // Make an API request
  * const page = await panel.api.get("pages/home");

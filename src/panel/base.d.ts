@@ -201,7 +201,7 @@ export interface PanelFeatureDefaults {
  * await panel.view.load("/pages/home");
  *
  * // Open a dropdown with options
- * await panel.dropdown.open("/dropdowns/pages/home/options");
+ * await panel.dropdown.open("pages/home/options");
  * ```
  *
  * @source panel/src/panel/feature.ts
@@ -378,7 +378,7 @@ export interface PanelSuccessResponse {
  * @example
  * ```ts
  * // Open a dialog
- * await panel.dialog.open("/dialogs/pages/create", {
+ * await panel.dialog.open("pages/create", {
  *   on: {
  *     submit: (value) => console.log("Created:", value)
  *   }
