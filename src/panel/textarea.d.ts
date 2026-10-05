@@ -18,10 +18,7 @@ import type { PanelGlobalProperties } from "./index";
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
-export interface TextareaToolbarContext extends Pick<
-  PanelGlobalProperties,
-  "$panel" | "$library" | "$helper" | "$esc"
-> {
+export interface TextareaToolbarContext extends PanelGlobalProperties {
   /**
    * Emits a command to the textarea input component.
    *
@@ -53,9 +50,6 @@ export interface TextareaToolbarContext extends Pick<
 
   /** Closes all dropdowns. */
   close: () => void;
-
-  /** Translates a Kirby translation key, with optional placeholder values. */
-  $t: (key: string, ...args: any[]) => string;
 }
 // #endregion
 
