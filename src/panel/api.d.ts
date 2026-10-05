@@ -17,9 +17,10 @@ import type { PanelRequestOptions } from "./base";
  */
 export interface PanelApiRequestOptions extends PanelRequestOptions {
   /**
-   * HTTP method. The verb helpers set their own; without one, the request
-   * goes out as `POST` while method override is on, its default
-   * (`api.methodOverride`).
+   * HTTP method, `GET` when omitted. The verb helpers set their own. While
+   * method override is on – its default (`api.methodOverride`) – any method
+   * other than `GET` and `POST` goes out as `POST`, with the real method in
+   * the `x-http-method-override` header.
    */
   method?: string;
   /**
@@ -41,7 +42,7 @@ export interface PanelApiPagination {
 
 /**
  * Search request body.
- * @source src/Cms/Api.php
+ * @source src/Api/Api.php
  * @source config/api/routes/users.php
  * @source config/api/routes/files.php
  * @source src/Cms/Collection.php
@@ -55,14 +56,6 @@ export interface PanelApiSearchQuery {
   offset?: number;
   /** Page size, or page and page size, to paginate the results by. */
   paginate?: number | PanelApiPagination;
-  /** @deprecated Ignored by the search routes – pass `paginate` instead. */
-  page?: number;
-  /** @deprecated Ignored by the search routes – pass the term as `search` instead. */
-  query?: string;
-  /** @deprecated Ignored in the request body – Kirby reads `select` from the URL query only. */
-  select?: string;
-  /** @deprecated Ignored by the search routes. */
-  sort?: string;
 }
 // #endregion
 
@@ -244,7 +237,10 @@ export interface PanelApiFiles {
 
 // #region Languages API
 
-/** Language data for create/update. */
+/**
+ * Language data for create/update.
+ * @source src/Cms/Language.php
+ */
 export interface PanelApiLanguageData {
   code: string;
   name?: string;
@@ -253,11 +249,6 @@ export interface PanelApiLanguageData {
   default?: boolean;
   /** Locale code. */
   locale?: string;
-  /**
-   * Slug conversion rules.
-   * @deprecated Ignored on create and update – pass `slugs` instead.
-   */
-  rules?: Record<string, string>;
   /** Custom slug conversion rules, merged over the locale's default rules. */
   slugs?: Record<string, string>;
   /** SmartyPants options for this language. */
@@ -364,10 +355,10 @@ export interface PanelApiPages {
    * Gets available blueprints for a page.
    *
    * @param parent - Page ID
-   * @param section - Section name
+   * @param field - Field name to narrow the blueprints to; all fields when omitted
    * @returns Array of blueprints
    */
-  blueprints: (parent: string, section?: string) => Promise<any[]>;
+  blueprints: (parent: string, field?: string) => Promise<any[]>;
 
   /**
    * Changes a page's slug.
@@ -448,7 +439,7 @@ export interface PanelApiPages {
   duplicate: (
     id: string,
     slug: string,
-    options: PanelApiPageDuplicateOptions,
+    options?: PanelApiPageDuplicateOptions,
   ) => Promise<any>;
 
   /**
@@ -606,7 +597,11 @@ export interface PanelApiSite {
 
 // #region System API
 
-/** System installation data. */
+/**
+ * System installation data.
+ * @source config/api/routes/system.php
+ * @source src/Cms/UserActions.php
+ */
 export interface PanelApiSystemInstallData {
   /** Admin email. */
   email: string;
@@ -619,7 +614,10 @@ export interface PanelApiSystemInstallData {
   role?: string;
 }
 
-/** License registration data. */
+/**
+ * License registration data.
+ * @source config/api/routes/system.php
+ */
 export interface PanelApiSystemRegisterData {
   /** License key. */
   license: string;
@@ -686,7 +684,11 @@ export interface PanelApiTranslations {
 
 // #region Users API
 
-/** User creation data. */
+/**
+ * User creation data.
+ * @source src/Cms/UserActions.php
+ * @source src/Cms/User.php
+ */
 export interface PanelApiUserCreateData {
   /** User ID, generated when omitted. */
   id?: string;
@@ -713,13 +715,13 @@ export interface PanelApiUsers {
   blueprint: (id: string) => Promise<any>;
 
   /**
-   * Gets available blueprints for users.
+   * Gets the blueprints accepted by a user's fields.
    *
-   * @param id - User ID for context
-   * @param section - Section name to filter by
+   * @param id - User ID
+   * @param field - Field name to narrow the blueprints to; all fields when omitted
    * @returns Array of blueprints
    */
-  blueprints: (id: string, section?: string) => Promise<any[]>;
+  blueprints: (id: string, field?: string) => Promise<any[]>;
 
   /**
    * Changes a user's email.
@@ -898,8 +900,8 @@ export interface PanelApi {
    */
   ping: () => void;
 
-  /** Active request IDs. */
-  requests: string[];
+  /** Number of API requests in flight. The loading indicator stops once it drops to `0`. */
+  requests: number;
 
   /** Current language code, or `null` when no language is active (set from the Panel's active language on construction and refreshed on each request). */
   language: string | null;
