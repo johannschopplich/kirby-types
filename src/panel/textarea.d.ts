@@ -7,15 +7,21 @@
  * @since 4.0.0
  */
 
+import type { PanelApp } from "./index";
+
 // #region Textarea Toolbar Context
 
 /**
  * The toolbar component context available as `this` in button click handlers.
+ * The Panel's global properties, such as `$panel` and `$helper`, are available too.
  *
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
-export interface TextareaToolbarContext {
+export interface TextareaToolbarContext extends Pick<
+  PanelApp,
+  "$panel" | "$library" | "$helper" | "$esc"
+> {
   /**
    * Emits a command to the textarea input component.
    *
@@ -24,9 +30,9 @@ export interface TextareaToolbarContext {
    * - `"insert"` - Inserts the given text at the current selection.
    * - `"prepend"` - Prepends the given text to the current selection.
    * - `"toggle"` - Toggles wrapping of current selection (accepts `before`, `after` texts).
-   * - `"upload"` - Opens the file upload dialog.
+   * - `"upload"` - Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
    * - `"wrap"` - Wraps the current selection with the given text.
-   * - `"file"` - Opens the file picker.
+   * - `"file"` - Opens a dialog to select an existing file and inserts its tag.
    *
    * @param name - Command name
    * @param args - Command arguments
@@ -58,8 +64,10 @@ export interface TextareaToolbarContext {
 /**
  * A custom textarea toolbar button.
  *
- * These buttons are registered via `window.panel.plugin("name", { textareaButtons: { ... } })`
- * and appear in the Kirby textarea field toolbar.
+ * These buttons are registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
+ * A button appears only in textarea fields whose `buttons` option lists its
+ * name – the default toolbar shows the built-in buttons alone. A registered
+ * name that matches a built-in button replaces it.
  *
  * @example
  * ```js
@@ -88,8 +96,8 @@ export interface TextareaButton {
   /**
    * Icon name from Kirby's icon set.
    *
-   * Optional: the toolbar renders without a default icon, so label-only
-   * buttons (no icon) are valid at runtime.
+   * The toolbar shows no button text, so a button without an icon renders
+   * empty, with its `label` only as the tooltip.
    */
   icon?: string;
 
