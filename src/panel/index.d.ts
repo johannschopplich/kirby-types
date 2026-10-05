@@ -1345,7 +1345,11 @@ export interface PanelViewProps {
    */
   prev?: PanelViewPropsNavigation | null;
   blueprint: string;
-  /** Legacy nested model information. */
+  /**
+   * Legacy nested model information.
+   *
+   * @deprecated Since 5.0.0; use the top-level view props instead.
+   */
   model: PanelViewPropsModel;
   /**
    * View title. Page and Site set it inside props, but File and User omit
