@@ -318,11 +318,6 @@ expectAssignable<PanelPluginExtensions>({
   icons: {
     custom: `<svg>...</svg>`,
   },
-  sections: {
-    stats: {
-      template: `<div>{{ data }}</div>`,
-    },
-  },
   viewButtons: {
     "my-button": {
       template: `<k-button>Click me</k-button>`,

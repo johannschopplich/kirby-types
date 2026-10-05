@@ -217,7 +217,7 @@ expectType<Promise<void>>(panel.search("pages"));
 expectType<Promise<PanelSearchResult | undefined>>(
   panel.search("pages", "test"),
 );
-expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
+expectType<void>(panel.error(new Error("Failed")));
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval> | undefined>(

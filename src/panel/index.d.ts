@@ -155,7 +155,7 @@ export type {
 // #region Panel App
 
 /**
- * Vue application instance with Panel extensions.
+ * Global properties the Panel installs on every component instance.
  *
  * @example
  * ```ts
@@ -163,7 +163,7 @@ export type {
  * const slug = this.$helper.slug("My Page Title");
  * const date = this.$library.dayjs("2024-01-15").format("DD.MM.YYYY");
  * ```
- * @source panel/src/panel/app.ts
+ * @source panel/src/panel/panel.ts
  * @source panel/src/panel/legacy.ts
  * @source panel/src/index.ts
  * @source panel/src/helpers/index.ts
@@ -187,10 +187,14 @@ export interface PanelGlobalProperties {
   $events: PanelFeatures.PanelEvents;
   /** Opens a view; alias of `$panel.view.open()`. */
   $go: PanelFeatures.PanelView["open"];
+  /** Wraps a value as trusted HTML; alias of `$panel.html()`. */
+  $h: Panel["html"];
   /** Reloads the current view; alias of `$panel.reload()`. */
   $reload: Panel["reload"];
   /** Translates a key; alias of `$panel.t()`. */
   $t: Panel["t"];
+  /** Translates a key into trusted HTML; alias of `$panel.th()`. */
+  $th: Panel["th"];
   /** Builds a Panel URL; alias of `$panel.url()`. */
   $url: Panel["url"];
   // #endregion
@@ -233,7 +237,7 @@ export type PanelComponentExtension =
             any,
             any
           >;
-      /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects. */
+      /** Named mixins (`"dialog"`, `"drawer"`) or component objects. */
       mixins?: (string | ComponentOptions<any>)[];
       template?: string;
       /** Render function. */
@@ -248,7 +252,6 @@ export type PanelComponentExtension =
  * Global Panel configuration.
  *
  * @source panel/src/panel/panel.ts
- * @source src/Panel/View.php
  * @source src/Panel/State.php
  */
 export interface PanelConfig {
@@ -399,8 +402,9 @@ interface PanelPermissionsUser {
 /**
  * Complete permission set for the current user.
  *
+ * @source panel/src/panel/panel.ts
  * @source src/Cms/Permissions.php
- * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelPermissions {
   access: PanelPermissionsAccess;
@@ -422,7 +426,6 @@ export interface PanelPermissions {
 
 /**
  * Search type definition.
- * @source src/Panel/View.php
  * @source src/Panel/State.php
  */
 export interface PanelSearchType {
@@ -434,7 +437,6 @@ export interface PanelSearchType {
 /**
  * Available search types in the Panel.
  * @source panel/src/panel/panel.ts
- * @source src/Panel/View.php
  * @source src/Panel/State.php
  */
 export interface PanelSearches {
@@ -453,7 +455,6 @@ export interface PanelSearches {
 /**
  * Base URLs for Panel operations.
  * @source panel/src/panel/panel.ts
- * @source src/Panel/View.php
  * @source src/Panel/State.php
  */
 export interface PanelUrls {
@@ -481,7 +482,10 @@ export interface PanelRequestResponse {
    */
   response: {
     headers: Headers;
-    /** Parsed JSON data. */
+    /**
+     * Parsed JSON body. Each `<key>` entry arrives renamed to `key`, its
+     * strings wrapped as `HtmlString`.
+     */
     json: any;
     ok: boolean;
     status: number;
@@ -512,13 +516,6 @@ export interface PanelRequestResponse {
  *     "color-picker": {
  *       extends: "k-text-field",
  *       template: `<k-field v-bind="$props">...</k-field>`
- *     }
- *   },
- *
- *   // Custom sections
- *   sections: {
- *     stats: {
- *       template: `<div>{{ data }}</div>`
  *     }
  *   },
  *
@@ -574,14 +571,6 @@ export interface PanelPluginExtensions {
    * SVG icon definitions.
    */
   icons?: Record<string, string>;
-
-  /**
-   * Custom section types.
-   *
-   * Registered as `k-${name}-section` components.
-   * The `section` mixin is automatically prepended to the mixins array.
-   */
-  sections?: Record<string, PanelComponentExtension>;
 
   /**
    * View button components.
@@ -697,6 +686,9 @@ export interface PanelPlugins {
   /** Registered SVG icons. */
   icons: Record<string, string>;
 
+  /** Reserved bucket for plugin-registered routes (initialized empty; not currently written to by `panel.plugin()`). */
+  routes: Record<string, any>[];
+
   /**
    * Registered textarea toolbar buttons.
    */
@@ -736,7 +728,6 @@ export interface PanelPlugins {
 /**
  * Language information for multi-language sites.
  * @source src/Cms/Language.php
- * @source src/Panel/View.php
  * @source src/Panel/State.php
  */
 export interface PanelLanguageInfo {
@@ -833,6 +824,10 @@ export interface PanelHtml {
  *
  * @source panel/src/panel/panel.ts
  * @source panel/src/index.ts
+ * @source panel/src/panel/html.ts
+ * @source panel/src/panel/legacy.ts
+ * @source panel/src/panel/observers.ts
+ * @source panel/src/panel/translation.ts
  * @source panel/public/js/plugins.js
  */
 export interface Panel {
@@ -850,8 +845,9 @@ export interface Panel {
   /** Text direction. */
   readonly direction: "ltr" | "rtl";
 
-  /** Document title getter/setter; on set, the system title is appended as a suffix when present. */
-  title: string;
+  /** Document title; setting it appends the system title as a suffix when present. */
+  get title(): string;
+  set title(title: string | null);
 
   /** Whether the Panel is currently loading a new view via `open()`. */
   isLoading: boolean;
@@ -862,7 +858,6 @@ export interface Panel {
   /**
    * Shared singleton observers, currently exposing a `ResizeObserver` that
    * dispatches a `resize` `CustomEvent` on each observed target.
-   * @source panel/src/panel/observers.ts
    */
   observers: {
     resize: ResizeObserver;
@@ -873,7 +868,6 @@ export interface Panel {
    *
    * The returned `HtmlString` behaves like a string but can be rendered via
    * `v-html`/`v-safe-html` without re-escaping.
-   * @source panel/src/panel/html.ts
    */
   html: PanelHtml;
   // #endregion
@@ -964,25 +958,14 @@ export interface Panel {
   /** Available search types. */
   searches: PanelSearches;
 
-  /**
-   * Whether at least one search type is registered.
-   * @source panel/src/panel/panel.ts
-   */
-  readonly hasSearch?: boolean;
+  /** Whether at least one search type is registered. */
+  readonly hasSearch: boolean;
 
   /** Base URLs. */
   urls: PanelUrls;
   // #endregion
 
   // #region Methods
-
-  /**
-   * Creates the Panel Vue app.
-   *
-   * @param plugins - Optional plugins to register
-   * @returns The Panel instance
-   */
-  create: (plugins?: Record<string, any>) => Panel;
 
   /**
    * Logs a deprecation warning.
@@ -992,16 +975,14 @@ export interface Panel {
   deprecated: (message: string) => void;
 
   /**
-   * Centralized error handler: ignores `AbortError`, marks the Panel offline on `OfflineError`, logs in debug mode, and optionally opens an error notification.
+   * Handles a thrown value: ignores aborted requests, navigates the browser
+   * for a redirect, marks the Panel offline on a network failure, logs the
+   * error in debug mode, and opens an error notification.
    *
    * @param error - Error, message, or any other thrown value
-   * @param openNotification - Whether to show notification (default: `true`)
-   * @returns Notification state if opened, `void` otherwise
+   * @param openNotification - Whether to show the notification (default: `true`)
    */
-  error: (
-    error: unknown,
-    openNotification?: boolean,
-  ) => void | PanelFeatures.PanelNotificationDefaults;
+  error: (error: unknown, openNotification?: boolean) => void;
 
   /**
    * Sends a GET request through the Panel router.
@@ -1020,14 +1001,12 @@ export interface Panel {
    *
    * @param url - URL to open or state object
    * @param options - Request options
-   * @returns The new Panel state, or on failure the error notification state or `undefined`
+   * @returns The new Panel state, or `undefined` on failure
    */
   open: (
     url: string | URL | Partial<PanelGlobalState>,
     options?: PanelRequestOptions,
-  ) => Promise<
-    PanelGlobalState | PanelFeatures.PanelNotificationDefaults | undefined
-  >;
+  ) => Promise<PanelGlobalState | undefined>;
 
   /**
    * Returns all open overlay types.
@@ -1124,7 +1103,7 @@ export interface Panel {
    *
    * When called with a query, performs the search and returns results.
    *
-   * Without a type, the dialog preselects the current view's search type.
+   * Without a type, the current view's search type is used.
    *
    * @param type - Search type (`"pages"`, `"files"`, `"users"`)
    * @param query - Search query string
@@ -1134,7 +1113,7 @@ export interface Panel {
   search: {
     (type?: string): Promise<void>;
     (
-      type: string,
+      type: string | undefined,
       query: string,
       options?: PanelFeatures.PanelSearchOptions,
     ): Promise<PanelFeatures.PanelSearchResult | undefined>;
@@ -1155,20 +1134,41 @@ export interface Panel {
   state: () => PanelGlobalState;
 
   /**
-   * Translates a key using the current translation.
+   * Translates a key into the current interface language, filling
+   * `{placeholder}` values from `data`. A missing key falls back to
+   * `fallback`, then to the key itself; a string second argument is the
+   * fallback.
    *
    * @param key - Translation key
-   * @param args - Replacement values
+   * @param data - Placeholder values
+   * @param fallback - Text used when the key is missing
    * @returns Translated string
    */
-  t: (key: string, ...args: any[]) => string;
+  t: {
+    (key: string, fallback: string): string;
+    (key: string, data?: Record<string, any>, fallback?: string): string;
+  };
 
   /**
    * Translates a key using the current translation.
    *
    * @deprecated Legacy alias of `t()`; use `t()` instead.
    */
-  $t: (key: string, ...args: any[]) => string;
+  $t: Panel["t"];
+
+  /**
+   * Translates a key like `t()`, but escapes every filled placeholder and
+   * returns trusted HTML. Values already wrapped by `html()` pass through
+   * unescaped.
+   *
+   * @param key - Translation key
+   * @param data - Placeholder values
+   * @param fallback - Text used when the key is missing
+   */
+  th: {
+    (key: string, fallback: string): HtmlString;
+    (key: string, data?: Record<string, any>, fallback?: string): HtmlString;
+  };
 
   /**
    * Creates a URL object for a Panel path.
@@ -1202,7 +1202,6 @@ interface PanelViewPropsLockUser {
 /**
  * Content lock state.
  * @source src/Content/Lock.php
- * @source src/Panel/Model.php
  */
 interface PanelViewPropsLock {
   isLegacy: boolean;
@@ -1214,11 +1213,11 @@ interface PanelViewPropsLock {
 /**
  * Content permissions for a view.
  * @source src/Cms/ModelPermissions.php
- * @source src/Cms/PageBlueprint.php
- * @source src/Cms/FileBlueprint.php
- * @source src/Cms/UserBlueprint.php
- * @source src/Cms/SiteBlueprint.php
- * @source src/Panel/Site.php
+ * @source src/Blueprint/PageBlueprint.php
+ * @source src/Blueprint/FileBlueprint.php
+ * @source src/Blueprint/UserBlueprint.php
+ * @source src/Blueprint/SiteBlueprint.php
+ * @source src/Panel/Controller/View/SiteViewController.php
  */
 interface PanelViewPropsPermissions {
   access: boolean;
@@ -1263,7 +1262,7 @@ interface PanelViewPropsPermissions {
 
 /**
  * Version information.
- * @source src/Panel/Model.php
+ * @source src/Panel/Controller/View/ModelViewController.php
  */
 interface PanelViewPropsVersions {
   latest: Record<string, any>;
@@ -1272,7 +1271,7 @@ interface PanelViewPropsVersions {
 
 /**
  * Tab definition.
- * @source src/Cms/Blueprint.php
+ * @source src/Blueprint/Tab.php
  */
 interface PanelViewPropsTab {
   label: string;
@@ -1286,9 +1285,10 @@ interface PanelViewPropsTab {
 /**
  * Navigation link (next/prev).
  * @source src/Panel/Model.php
- * @source src/Panel/Page.php
- * @source src/Panel/File.php
- * @source src/Panel/User.php
+ * @source src/Panel/Controller/View/ModelViewController.php
+ * @source src/Panel/Controller/View/PageViewController.php
+ * @source src/Panel/Controller/View/FileViewController.php
+ * @source src/Panel/Controller/View/UserViewController.php
  */
 interface PanelViewPropsNavigation {
   link: string;
@@ -1297,9 +1297,10 @@ interface PanelViewPropsNavigation {
 
 /**
  * Button definition.
- * @source src/Panel/Ui/Buttons/ViewButton.php
+ * @source src/Panel/Ui/Button/ViewButton.php
+ * @source src/Panel/Ui/Button/ModelButton.php
  * @source src/Panel/Ui/Button.php
- * @source src/Panel/Ui/Buttons/ViewButtons.php
+ * @source src/Panel/Ui/Button/ViewButtons.php
  * @source src/Panel/Ui/Component.php
  */
 interface PanelViewPropsButton {
@@ -1339,11 +1340,12 @@ interface PanelViewPropsButton {
 
 /**
  * Common view props passed from backend.
- * @source src/Panel/Model.php
- * @source src/Panel/Page.php
- * @source src/Panel/File.php
- * @source src/Panel/User.php
- * @source src/Panel/Site.php
+ * @source src/Panel/Controller/View/ModelViewController.php
+ * @source src/Panel/Controller/View/PageViewController.php
+ * @source src/Panel/Controller/View/SiteViewController.php
+ * @source src/Panel/Controller/View/FileViewController.php
+ * @source src/Panel/Controller/View/UserViewController.php
+ * @source src/Panel/Ui/View.php
  */
 export interface PanelViewProps {
   api: string;
@@ -1353,11 +1355,16 @@ export interface PanelViewProps {
   link: string;
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
-  tabs: Record<string, any>[];
-  /**
-   * UUID of the model. Is `null` when the `content.uuid` option is `false`.
-   */
-  uuid: string | null;
+  /** Tab bar entries. Each lists the lowercase names of its fields to count unsaved changes per tab. */
+  tabs: {
+    fields: string[];
+    icon: string | null;
+    label: string;
+    link: string;
+    name: string;
+  }[];
+  /** UUID of the model. Absent when the `content.uuid` option is `false`. */
+  uuid?: string;
   versions: PanelViewPropsVersions;
   /** Active blueprint tab. Only present when the blueprint defines tabs. */
   tab?: PanelViewPropsTab;
@@ -1367,7 +1374,5 @@ export interface PanelViewProps {
   prev: PanelViewPropsNavigation | null;
   blueprint: string;
   title: string;
-  /** Search type of the file (`"files"`) and user (`"users"`) views. */
-  search?: string;
 }
 // #endregion
