@@ -178,19 +178,29 @@ type PaginatedResponse = KirbyQueryResponse<BlogPostSummary[], true>;
 
 ## Panel Types
 
-> [!NOTE]
-> The Panel types track Kirby 6's own sources: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Kirby 6 Panel source – PHP wins where they disagree. Kirby 4 and 5 are typed by kirby-types v1.
+| kirby-types | Kirby   | Panel   |
+| ----------- | ------- | ------- |
+| v2          | 6       | Vue 3   |
+| v1          | 4 and 5 | Vue 2.7 |
 
-For Panel plugin development, type the global `window.panel` object:
+> [!NOTE]
+> The Panel types track Kirby 6's own sources: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Kirby 6 Panel source – PHP wins where they disagree.
+
+For Panel plugin development, import the opt-in globals once, e.g. in your plugin's entry file. The import types `window.panel` and the Panel's global properties on every Vue component (`this.$panel`, `this.$t`, `this.$helper`, …):
 
 ```ts
-import type { Panel } from "kirby-types";
+import "kirby-types/panel-globals";
 
-declare global {
-  interface Window {
-    panel: Panel;
-  }
-}
+window.panel.plugin("my/plugin", {
+  fields: {
+    color: {
+      extends: "k-text-field",
+    },
+  },
+  created(instance) {
+    instance.$panel.notification.info("Plugin ready");
+  },
+});
 ```
 
 Common Panel operations:
@@ -212,7 +222,7 @@ const page = await window.panel.api.pages.get("blog");
 await window.panel.api.pages.update("blog", { title: "New Title" });
 
 // Content state
-const currentContent = panel.content.version("changes");
+const currentContent = window.panel.content.version("changes");
 ```
 
 ## Advanced: Writer Extensions
@@ -334,7 +344,7 @@ Vue is an optional peer dependency for Panel types:
 pnpm add -D vue@^3.5.0
 ```
 
-`dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `interpret`, `pattern`, …):
+`dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `parse`, `pattern`, …):
 
 ```bash
 pnpm add -D dayjs
