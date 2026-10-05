@@ -10,10 +10,11 @@ Authority: **PHP > Panel source** of one Kirby release line. Each kirby-types br
 
 ## Roots
 
-Ask the user for two absolute paths. Don't auto-detect.
+Ask the user for the absolute paths. Don't auto-detect.
 
 - `<KIRBY_TYPES_ROOT>` – the kirby-types checkout being audited; its branch names the line
 - `<KIRBY_ROOT>` – the Kirby checkout of that line (PHP source + Panel source)
+- `<KIRBYUSE_ROOT>` – the kirbyuse checkout on the same line, for [Downstream](#downstream--kirbyuse)
 
 ## Probe – map the live source
 
@@ -60,3 +61,12 @@ One verifier per `.d.ts`, read-only. Each reads the cluster JSONs for its file, 
 Prompt template: [agent-prompts.md – Pass 2](references/agent-prompts.md#pass-2). Apply walk: see [edit-gotchas.md](references/edit-gotchas.md).
 
 **Completion criterion**: every `.d.ts` in [topology.md](references/topology.md) has a written `.raw/<file>.pass2.json` before the apply – a missing file means a dropped verifier, relaunch it. After the apply, `tsc --noEmit`, `pnpm test`, `pnpm lint`, and `node scripts/check-line.mjs <KIRBY_TYPES_ROOT>` exit clean, with `test/*.test-d.ts` assertions broken by the new types updated in the same pass. Once committed, `scripts/check-commits.sh <KIRBY_TYPES_ROOT> <BASE>`, with `<BASE>` the commit the audit started from, passes every commit on its own.
+
+## Downstream – kirbyuse
+
+kirbyuse builds on these types, so an apply that changed them leaves `<KIRBYUSE_ROOT>` to check. Point it at this checkout with `pnpm link <KIRBY_TYPES_ROOT>`, which writes a `link:` override into `pnpm-workspace.yaml` and the lockfile – revert both before committing.
+
+- **Grep** kirbyuse's `src/` and README for every member pass 2 deleted, renamed, or retyped, and for comments naming `kirby-types` (`//.*kirby-types`) – the marker a workaround for a types gap carries.
+- **Check** `pnpm test:types`, `pnpm lint`, and `pnpm build`.
+
+**Completion criterion**: every grep hit is fixed or named to the user, the checks pass against the linked types, and `dist/index.d.ts` still declares what `src/index.ts` hands its users – `window.panel` or the `kirby-types/panel-globals` re-export. Release in the order the `kirby` skill gives, minding its prerelease-notes gotcha.
