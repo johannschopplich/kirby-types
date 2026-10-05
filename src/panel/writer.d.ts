@@ -11,6 +11,7 @@
 
 import type { InputRule } from "prosemirror-inputrules";
 import type {
+  Attrs,
   Fragment,
   Mark,
   MarkSpec,
@@ -27,6 +28,7 @@ import type {
   Plugin,
   PluginSpec,
   Selection as ProseMirrorSelection,
+  Transaction,
 } from "prosemirror-state";
 import type {
   EditorView,
@@ -35,6 +37,52 @@ import type {
 } from "prosemirror-view";
 
 // #region Writer Editor
+
+/**
+ * Payload of the editor's `transaction` and `update` events.
+ *
+ * @source panel/src/components/Forms/Writer/Editor.js
+ */
+export interface WriterEditorTransactionPayload {
+  editor: WriterEditor;
+  getHTML: (fragment?: Fragment) => string;
+  getJSON: () => Record<string, any>;
+  state: EditorState;
+  transaction: Transaction;
+}
+
+/**
+ * Payload of the editor's `select` and `deselect` events.
+ *
+ * @source panel/src/components/Forms/Writer/Editor.js
+ */
+export interface WriterEditorSelectPayload extends WriterEditorTransactionPayload {
+  from: number;
+  /** Whether the selection differs from the one before the transaction. */
+  hasChanged: boolean;
+  to: number;
+}
+
+/**
+ * Payloads of the core editor events, keyed by event name. Each listener
+ * receives its payload as the only argument. `drop` is left out: it passes the view,
+ * the event, the slice, and the `moved` flag as separate arguments.
+ *
+ * @source panel/src/components/Forms/Writer/Editor.js
+ */
+export interface WriterEditorEvents {
+  blur: { event: FocusEvent; state: EditorState; view: EditorView };
+  deselect: WriterEditorSelectPayload;
+  focus: { event: FocusEvent; state: EditorState; view: EditorView };
+  init: { state: EditorState; view: EditorView };
+  select: WriterEditorSelectPayload;
+  transaction: WriterEditorTransactionPayload;
+  /**
+   * Payload of a document change that was not silenced. Before 5.0.0, sent
+   * for every document change and every transaction that was not silenced.
+   */
+  update: WriterEditorTransactionPayload;
+}
 
 /**
  * The Kirby Writer editor instance.
@@ -102,7 +150,9 @@ export interface WriterEditor {
   selectionIsAtEnd: boolean;
   /** Whether the cursor is at the start of the document. */
   selectionIsAtStart: boolean;
+  /** Current editor state, `undefined` until the view exists. */
   state: EditorState;
+  /** ProseMirror view, `undefined` until it exists. */
   view: EditorView;
   // #endregion
 
@@ -121,16 +171,24 @@ export interface WriterEditor {
    *
    * @param content - HTML string, JSON object, or `null` for empty document
    * @param parseOptions - Optional ProseMirror parse options
-   * @returns The created document node, or `false` if content type is unsupported
+   * @returns The created document node, or `false` for any other content type
    */
-  createDocument: (
+  createDocument: ((
     content: string | Record<string, any> | null,
     parseOptions?: ParseOptions,
-  ) => ProseMirrorNode | false;
+  ) => ProseMirrorNode) &
+    ((
+      content: unknown,
+      parseOptions?: ParseOptions,
+    ) => ProseMirrorNode | false);
   /** Destroys the editor instance. */
   destroy: () => void;
   /** Emits an event to all registered listeners. */
-  emit: (event: string, ...args: any[]) => this;
+  emit: (<K extends keyof WriterEditorEvents>(
+    event: K,
+    payload: WriterEditorEvents[K],
+  ) => this) &
+    ((event: string, ...args: any[]) => this);
   /** Focuses the editor at the given position. */
   focus: (position?: "start" | "end" | number | boolean | null) => void;
   /**
@@ -171,14 +229,22 @@ export interface WriterEditor {
    * @param event - Event name (omit to remove all listeners)
    * @param fn - Specific handler to remove (omit to remove all for event)
    */
-  off: (event?: string, fn?: (...args: any[]) => any) => this;
+  off: (<K extends keyof WriterEditorEvents>(
+    event: K,
+    fn?: (payload: WriterEditorEvents[K]) => void,
+  ) => this) &
+    ((event?: string, fn?: (...args: any[]) => any) => this);
   /**
    * Subscribes to an event.
    *
-   * @param event - Event name (e.g. `update`, `focus`, `blur`, `transaction`)
+   * @param event - Event name; a key of `WriterEditorEvents` types the payload
    * @param fn - Event handler function
    */
-  on: (event: string, fn: (...args: any[]) => any) => this;
+  on: (<K extends keyof WriterEditorEvents>(
+    event: K,
+    fn: (payload: WriterEditorEvents[K]) => void,
+  ) => this) &
+    ((event: string, fn: (...args: any[]) => any) => this);
   /** Removes a mark from the current selection. */
   removeMark: (mark: string) => boolean | undefined;
   /**
@@ -278,7 +344,7 @@ export interface WriterExtensions {
  * @source panel/src/components/Forms/Writer/Marks/Link.js
  */
 export interface WriterToolbarButton {
-  /** Unique identifier (defaults to extension name). */
+  /** Key of a button in an extension's button array, `name` when omitted. */
   id?: string;
   /** Command name to execute. */
   command?: string;
@@ -362,7 +428,7 @@ export interface WriterUtils {
    * @param type - The mark type to get attributes for
    * @returns The mark attributes or an empty object
    */
-  getMarkAttrs: (state: EditorState, type: MarkType) => Record<string, any>;
+  getMarkAttrs: (state: EditorState, type: MarkType) => Attrs;
 
   /**
    * Gets the attributes of the active node of the given type.
@@ -371,7 +437,7 @@ export interface WriterUtils {
    * @param type - The node type to get attributes for
    * @returns The node attributes or an empty object
    */
-  getNodeAttrs: (state: EditorState, type: NodeType) => Record<string, any>;
+  getNodeAttrs: (state: EditorState, type: NodeType) => Attrs;
 
   /**
    * Creates a command that inserts a node of the given type.
@@ -385,7 +451,7 @@ export interface WriterUtils {
    */
   insertNode: (
     type: NodeType,
-    attrs?: Record<string, any> | null,
+    attrs?: Attrs | null,
     content?: Fragment | ProseMirrorNode | ProseMirrorNode[] | null,
     marks?: Mark[] | null,
   ) => Command;
@@ -401,8 +467,7 @@ export interface WriterUtils {
   markInputRule: (
     regexp: RegExp,
     type: MarkType,
-    getAttrs?:
-      Record<string, any> | ((match: RegExpMatchArray) => Record<string, any>),
+    getAttrs?: Attrs | ((match: RegExpMatchArray) => Attrs),
   ) => InputRule;
 
   /**
@@ -425,8 +490,7 @@ export interface WriterUtils {
   markPasteRule: (
     regexp: RegExp,
     type: MarkType,
-    getAttrs?:
-      Record<string, any> | ((match: RegExpMatchArray) => Record<string, any>),
+    getAttrs?: Attrs | ((match: RegExpMatchArray) => Attrs),
   ) => Plugin;
 
   /**
@@ -450,8 +514,7 @@ export interface WriterUtils {
   nodeInputRule: (
     regexp: RegExp,
     type: NodeType,
-    getAttrs?:
-      Record<string, any> | ((match: RegExpMatchArray) => Record<string, any>),
+    getAttrs?: Attrs | ((match: RegExpMatchArray) => Attrs),
   ) => InputRule;
 
   /**
@@ -462,11 +525,7 @@ export interface WriterUtils {
    * @param attrs - Optional attributes to match
    * @returns `true` if the node is active
    */
-  nodeIsActive: (
-    state: EditorState,
-    type: NodeType,
-    attrs?: Record<string, any>,
-  ) => boolean;
+  nodeIsActive: (state: EditorState, type: NodeType, attrs?: Attrs) => boolean;
 
   /**
    * Creates a paste rule that applies a mark to pasted text matching the pattern.
@@ -479,7 +538,7 @@ export interface WriterUtils {
   pasteRule: (
     regexp: RegExp,
     type: MarkType,
-    getAttrs?: Record<string, any> | ((match: string) => Record<string, any>),
+    getAttrs?: Attrs | ((match: string) => Attrs),
   ) => Plugin;
 
   /**
@@ -501,7 +560,7 @@ export interface WriterUtils {
   toggleBlockType: (
     type: NodeType,
     toggleType: NodeType,
-    attrs?: Record<string, any>,
+    attrs?: Attrs,
   ) => Command;
 
   /**
@@ -520,7 +579,7 @@ export interface WriterUtils {
    * @param attrs - Optional attributes for the wrapping node
    * @returns A ProseMirror command
    */
-  toggleWrap: (type: NodeType, attrs?: Record<string, any>) => Command;
+  toggleWrap: (type: NodeType, attrs?: Attrs) => Command;
 
   /**
    * Creates a command that updates the attributes of the active mark.
@@ -529,7 +588,7 @@ export interface WriterUtils {
    * @param attrs - The new attributes
    * @returns A ProseMirror command
    */
-  updateMark: (type: MarkType, attrs: Record<string, any>) => Command;
+  updateMark: (type: MarkType, attrs: Attrs) => Command;
   // #endregion
 }
 // #endregion
@@ -628,10 +687,10 @@ export interface WriterExtension {
   name?: string;
 
   /**
-   * Discriminator value.
-   *
-   * Defaults to `"extension"` for generic extensions, but built-ins such as
-   * the Toolbar extension override it (e.g. `"toolbar"`).
+   * Discriminator value. Among plain extensions, the editor collects
+   * `inputRules`, `keys`, `pasteRules`, and `plugins` only from one typed
+   * `"extension"`;
+   * built-ins such as the toolbar extension use their own value (`"toolbar"`).
    */
   type?: string;
 
@@ -643,6 +702,13 @@ export interface WriterExtension {
 
   /** Default options for the extension. */
   defaults?: Record<string, any>;
+
+  /**
+   * Stores the editor on `editor`. The editor calls it and then `init()` on
+   * every extension, so a plain object passed to the `extensions` prop of
+   * `k-writer-input` needs both.
+   */
+  bindEditor?: (editor: WriterEditor) => void;
 
   /** Runs after the editor is bound to the extension. */
   init?: () => null | void;
@@ -737,8 +803,8 @@ export interface WriterMarkExtension {
   /**
    * Unique name of the mark extension.
    *
-   * When using object literals with `window.panel.plugin()`, this is
-   * typically derived from the object key in `writerMarks`.
+   * Defaults to the mark's key in `writerMarks`; a `name` in the definition
+   * overrides it.
    */
   name?: string;
 
@@ -790,8 +856,8 @@ export interface WriterMarkExtension {
    *
    * @param context - Context with schema, type, and utils
    * @returns A command function, or an object mapping command names to functions.
-   *          Commands can return any value – ProseMirror commands return boolean,
-   *          but custom commands may return `void` or emit events.
+   *          A command that returns a ProseMirror command has it run against the
+   *          editor view; any other return value is passed through.
    *
    * @example
    * ```js
@@ -841,7 +907,7 @@ export interface WriterMarkExtension {
    * ```js
    * keys({ type, utils }) {
    *   return {
-   *     "Mod-b": () => utils.toggleMark(type)
+   *     "Mod-b": utils.toggleMark(type)
    *   };
    * }
    * ```
@@ -1024,10 +1090,11 @@ export interface WriterNodeExtension {
   /**
    * Returns the commands this extension provides.
    *
+   * A single function registers under the node's `name`, an object under its
+   * keys. A command that returns a function has it run as a ProseMirror
+   * command against the view; any other return value passes through.
+   *
    * @param context - Context with schema, type, and utils
-   * @returns A command function, or an object mapping command names to functions.
-   *          Commands can return any value – ProseMirror commands return boolean,
-   *          but custom commands may return `void` or emit events.
    */
   commands?: (
     context: WriterNodeContext,

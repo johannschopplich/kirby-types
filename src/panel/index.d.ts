@@ -137,6 +137,9 @@ export type { TextareaButton, TextareaToolbarContext } from "./textarea";
 
 export type {
   WriterEditor,
+  WriterEditorEvents,
+  WriterEditorSelectPayload,
+  WriterEditorTransactionPayload,
   WriterToolbarButton,
   WriterUtils,
   WriterMarkContext,

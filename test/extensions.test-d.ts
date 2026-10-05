@@ -1,4 +1,5 @@
 // Tests representative plugin-author types (writer + textarea + plugin extensions) – not exhaustive.
+import type { Node as ProseMirrorNode } from "prosemirror-model";
 import type { DefineComponent } from "vue";
 import type {
   Panel,
@@ -6,6 +7,8 @@ import type {
   PanelPluginExtensions,
   TextareaButton,
   TextareaToolbarContext,
+  WriterEditor,
+  WriterEditorTransactionPayload,
   WriterExtension,
   WriterMarkExtension,
   WriterNodeExtension,
@@ -197,6 +200,20 @@ expectAssignable<WriterNodeExtension>({
     };
   },
 });
+// #endregion
+
+// #region Writer Editor
+
+declare const editor: WriterEditor;
+
+editor.on("update", (payload) => {
+  expectType<WriterEditorTransactionPayload>(payload);
+});
+editor.on("custom", (...args) => {
+  expectType<any[]>(args);
+});
+expectType<ProseMirrorNode>(editor.createDocument("<p>Text</p>"));
+expectType<ProseMirrorNode | false>(editor.createDocument(42 as unknown));
 // #endregion
 
 // #region Textarea Button
