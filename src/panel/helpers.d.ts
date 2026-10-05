@@ -98,10 +98,10 @@ export interface PanelHelpersString {
   /**
    * Escapes HTML special characters.
    *
-   * @param string - String to escape
+   * @param string - Value to escape
    * @returns Escaped string
    */
-  escapeHTML: (string: string) => string;
+  escapeHTML: (string: unknown) => string;
 
   /**
    * Checks if string contains emoji characters.

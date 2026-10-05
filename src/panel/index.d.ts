@@ -168,6 +168,7 @@ export type {
  * const date = this.$library.dayjs("2024-01-15").format("DD.MM.YYYY");
  * ```
  * @source panel/src/panel/app.js
+ * @source panel/src/panel/legacy.js
  * @source panel/src/index.js
  * @source panel/src/helpers/index.ts
  * @source panel/src/libraries/index.ts
@@ -176,8 +177,27 @@ export type PanelApp = InstanceType<VueConstructor> & {
   $panel: Panel;
   $library: PanelLibrary;
   $helper: PanelHelpers;
-  /** Shortcut for escaping HTML (alias for `$helper.string.escapeHTML`). */
-  $esc: (string: string) => string;
+  /** Escapes HTML; alias of `$helper.string.escapeHTML()`. */
+  $esc: PanelHelpers["string"]["escapeHTML"];
+  // #region Shortcuts
+
+  $api: PanelApi;
+  /** Opens a dialog; alias of `$panel.dialog.open()`. */
+  $dialog: PanelFeatures.PanelDialog["open"];
+  /** Opens a drawer; alias of `$panel.drawer.open()`. */
+  $drawer: PanelFeatures.PanelDrawer["open"];
+  /** Opens a dropdown; alias of `$panel.dropdown.openAsync()`. */
+  $dropdown: PanelFeatures.PanelDropdown["openAsync"];
+  $events: PanelFeatures.PanelEvents;
+  /** Opens a view; alias of `$panel.view.open()`. */
+  $go: PanelFeatures.PanelView["open"];
+  /** Reloads the current view; alias of `$panel.reload()`. */
+  $reload: Panel["reload"];
+  /** Translates a key; alias of `$panel.t()`. */
+  $t: Panel["t"];
+  /** Builds a Panel URL; alias of `$panel.url()`. */
+  $url: Panel["url"];
+  // #endregion
 };
 // #endregion
 
@@ -396,6 +416,11 @@ export interface PanelPermissions {
   site: PanelPermissionsSite;
   users: PanelPermissionsUsers;
   user: PanelPermissionsUser;
+  /**
+   * Permission categories registered by plugins, keyed by the plugin name
+   * with `/` replaced by `.` (`acme/shop` registers `acme.shop`).
+   */
+  [category: `${string}.${string}`]: Record<string, boolean>;
 }
 // #endregion
 
@@ -635,37 +660,45 @@ export interface PanelPlugins {
   /**
    * Resolves a component extension if defined as component name.
    *
-   * @param app - Vue application instance
+   * @param app - Vue constructor
    * @param name - Component name being registered
    * @param component - Component options object
    * @returns Updated/extended component options
+   * @since 5.0.0
    */
-  resolveComponentExtension: (app: any, name: string, component: any) => any;
+  resolveComponentExtension: (
+    app: VueConstructor,
+    name: string,
+    component: PanelComponentExtension,
+  ) => PanelComponentExtension;
 
   /**
    * Resolves available mixins if they are defined.
    *
    * @param component - Component options object
    * @returns Updated component options with resolved mixins
+   * @since 5.0.0
    */
-  resolveComponentMixins: (component: any) => any;
+  resolveComponentMixins: (
+    component: PanelComponentExtension,
+  ) => PanelComponentExtension;
 
   /**
    * Resolves a component's competing template/render options.
    *
    * @param component - Component options object
    * @returns Updated component options
+   * @since 5.0.0
    */
-  resolveComponentRender: (component: any) => any;
+  resolveComponentRender: (
+    component: PanelComponentExtension,
+  ) => PanelComponentExtension;
   // #endregion
 
   // #region Plugin Data
 
   /** Registered Vue components. */
-  components: Record<
-    string,
-    DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
-  >;
+  components: Record<string, PanelComponentExtension>;
 
   /** Callbacks to run after Panel creation. */
   created: ((app: PanelApp) => void)[];
@@ -1076,13 +1109,17 @@ export interface Panel {
    *
    * When called with a query, performs the search and returns results.
    *
+   * Without a type, the dialog preselects the current view's search type.
+   * Before 4.1.0, passing a type without a query ran a search instead of
+   * opening the dialog.
+   *
    * @param type - Search type (`"pages"`, `"files"`, `"users"`)
    * @param query - Search query string
    * @param options - Search options (page, limit)
    * @returns Search results when a query is provided, `undefined` if a newer search aborted the request
    */
   search: {
-    (type: string): Promise<void>;
+    (type?: string): Promise<void>;
     (
       type: string,
       query: string,
@@ -1302,10 +1339,10 @@ interface PanelViewPropsButton {
     style?: string;
     target?: string;
     /** Visible button label. */
-    text?: string | Record<string, any>;
+    text?: string;
     /** Visual theme variant (e.g., `"positive"`, `"negative"`). */
     theme?: string;
-    title?: string | Record<string, any>;
+    title?: string;
     type?: string;
     variant?: string;
   };
@@ -1329,8 +1366,9 @@ export interface PanelViewProps {
   permissions: PanelViewPropsPermissions;
   tabs: Record<string, any>[];
   /**
-   * UUID of the model. May be `null` when UUIDs are disabled
-   * (e.g. `content.uuid` config flag) or for models without UUID support.
+   * UUID of the model. Is `null` when the `content.uuid` option is `false`.
+   *
+   * @since 5.0.0
    */
   uuid: string | null;
   versions: PanelViewPropsVersions;

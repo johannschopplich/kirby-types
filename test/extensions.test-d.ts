@@ -1,9 +1,9 @@
 // Tests representative plugin-author types (writer + textarea + plugin extensions) – not exhaustive.
 import type { Node as ProseMirrorNode } from "prosemirror-model";
-import type { DefineComponent } from "vue";
 import type {
   Panel,
   PanelApp,
+  PanelComponentExtension,
   PanelPluginExtensions,
   TextareaButton,
   TextareaToolbarContext,
@@ -380,12 +380,7 @@ expectType<void>(
   }),
 );
 
-expectType<
-  Record<
-    string,
-    DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
-  >
->(panel.plugins.components);
+expectType<Record<string, PanelComponentExtension>>(panel.plugins.components);
 expectType<Record<string, string>>(panel.plugins.icons);
 expectType<Record<string, TextareaButton>>(panel.plugins.textareaButtons);
 expectType<Record<string, WriterMarkExtension>>(panel.plugins.writerMarks);
