@@ -152,10 +152,10 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 
 ### `index-panel`
 
-- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls (+ **(K6 line)** `panel.html`)
-- **Modules**: `panel/src/panel/{panel,app,plugins,request,search}`, `panel/src/index`, **(K6 line)** `panel/src/panel/{html,observers}`
+- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls (+ **(K6 line)** PanelGlobalProperties, `panel.html`)
+- **Modules**: `panel/src/panel/{panel,app,legacy,plugins,request,search}`, `panel/src/types/{vue,global}`, `panel/src/index`, **(K6 line)** `panel/src/panel/{html,observers}`
 - **PHP**: `src/Panel/{Panel,View}.php` (urls/globals/searches)
-- **Watch**: `PanelApp`/`PanelComponentExtension`/`PanelPlugins`/`PanelPluginExtensions`/`created` follow the line's Vue version – Vue 2 on `main`; **(K6 line)** Vue 3 `App`/`Plugin`/`ComponentPublicInstance`, plus `panel.html` and `panel.observers` (see Modeling notes).
+- **Watch**: `PanelApp`/`PanelComponentExtension`/`PanelPlugins`/`PanelPluginExtensions`/`created` follow the line's Vue version – Vue 2 on `main`; **(K6 line)** Vue 3 `App`/`Plugin`/`ComponentPublicInstance`, plus `panel.html` and `panel.observers` (see Modeling notes). The component globals – `PanelApp`'s shortcuts on `main`, **(K6 line)** `PanelGlobalProperties`, which `panel-globals.d.ts` augments onto every component – mirror Kirby's own `ComponentCustomProperties` in `panel/src/types/vue`: a shortcut Kirby adds, drops, or deprecates there moves the same way here. **(K6 line)** `PanelComponentExtension` follows the `Component` type in `plugins`.
 
 ### `index-config`
 
