@@ -23,9 +23,9 @@ import type {
   ComponentCustomProperties,
   ComponentOptions,
   ComponentPublicInstance,
+  ConcreteComponent,
   DefineComponent,
   Plugin,
-  VNode,
 } from "vue";
 import type { PanelApi } from "./api";
 import type {
@@ -222,26 +222,12 @@ export type PanelComponentExtension =
   | ComponentOptions<any>
   | {
       /** Extend another component by name (e.g., `"k-text-field"`). */
-      extends?:
-        | string
-        | DefineComponent<
-            any,
-            any,
-            any,
-            any,
-            any,
-            any,
-            any,
-            any,
-            any,
-            any,
-            any
-          >;
+      extends?: string | ComponentOptions<any> | ConcreteComponent;
       /** Named mixins (`"dialog"`, `"drawer"`) or component objects. */
-      mixins?: (string | ComponentOptions<any>)[];
+      mixins?: (string | ComponentOptions<any> | ConcreteComponent)[];
       template?: string;
-      /** Render function. */
-      render?: () => VNode;
+      /** Render function; `null` clears an inherited one so the component's own template renders. */
+      render?: ComponentOptions["render"] | null;
       [key: string]: any;
     };
 // #endregion

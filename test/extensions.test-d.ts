@@ -308,6 +308,12 @@ expectAssignable<PanelPluginExtensions>({
     "k-custom-component": {
       template: `<div>Custom</div>`,
     },
+    "k-custom-dialog": {
+      extends: "k-text-dialog",
+      mixins: ["dialog"],
+      render: null,
+      template: `<k-dialog v-bind="$props">...</k-dialog>`,
+    },
   },
   fields: {
     "color-picker": {
