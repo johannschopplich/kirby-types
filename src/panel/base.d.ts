@@ -327,11 +327,6 @@ export interface PanelModalListeners {
 }
 
 /**
- * @deprecated Use `PanelModalSubmitResponse` instead.
- */
-export type PanelSuccessResponse = PanelModalSubmitResponse;
-
-/**
  * Success response from modal submission.
  * @source panel/src/panel/modal.ts
  */
@@ -348,9 +343,9 @@ export interface PanelModalSubmitResponse {
   redirect?: string | { url: string; options?: PanelRequestOptions };
   /**
    * Options for the view reload that follows when neither `route` nor
-   * `redirect` is set. The view reloads either way; a boolean has no effect.
+   * `redirect` is set. The view reloads either way.
    */
-  reload?: boolean | PanelRequestOptions;
+  reload?: PanelRequestOptions;
   [key: string]: any;
 }
 
@@ -359,7 +354,6 @@ export interface PanelModalSubmitResponse {
  *
  * Modals extend features with overlay-specific functionality
  * like history navigation, form handling, and open/close states.
- * They manage document overflow and scroll position when open.
  *
  * Modals include `dialog` and `drawer`.
  *
@@ -398,21 +392,21 @@ export interface PanelModal<
   history: PanelHistory;
 
   /**
-   * Quick access to `props.value`.
+   * Quick access to `props.value`, or an empty object when unset.
    * Dialogs and drawers often contain forms.
    */
-  readonly value: any;
+  readonly value: Record<string, any>;
 
   /** Cancels the modal by emitting `"cancel"` and closing. */
   cancel: () => Promise<void>;
 
   /**
    * Closes the modal, optionally by ID.
+   * Reopens the previous modal when the history holds one.
    *
    * @param id - Specific modal ID, `true` to close all, or `undefined` for current
-   * @returns Promise resolving to the previous modal's state, or `void`
    */
-  close: (id?: string | true) => Promise<TDefaults | void>;
+  close: (id?: string | true) => Promise<void>;
 
   /**
    * Sets focus to the first focusable input or a specific input.
@@ -444,7 +438,8 @@ export interface PanelModal<
 
   /**
    * Opens the modal by URL or state object.
-   * Closes the current notification on first open and blocks document overflow.
+   * Closes the current notification on first open and marks the modal
+   * as open once a component is set.
    *
    * @param modal - URL or state object
    * @param options - Request options
@@ -487,7 +482,7 @@ export interface PanelModal<
    * Shows notification, emits events, and handles redirect/reload.
    *
    * @param success - Success response object or message string
-   * @returns The `success` listener's result if one is registered, otherwise the given response
+   * @returns The `success` listener's result if one is registered, `undefined` for a string message, otherwise the given response
    */
   success: (success: PanelModalSubmitResponse | string) => any;
 
@@ -649,6 +644,7 @@ export interface PanelHistory {
  * Options for Panel API requests.
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/feature.ts
+ * @source panel/src/panel/panel.ts
  */
 export interface PanelRequestOptions extends Omit<
   RequestInit,
@@ -659,7 +655,7 @@ export interface PanelRequestOptions extends Omit<
    * Request body. Forms, `FormData`, and objects are sent as JSON;
    * strings are sent as-is.
    */
-  body?: any;
+  body?: string | FormData | HTMLFormElement | Record<string, any> | null;
   /** Query parameters; `null` values are skipped. */
   query?: Record<string, string | number | boolean | null>;
   signal?: AbortSignal;
@@ -670,17 +666,22 @@ export interface PanelRequestOptions extends Omit<
   silent?: boolean;
   on?: PanelEventListenerMap;
   /**
+   * Content language code sent as the `x-language` header.
+   * Defaults to the current content language; `null` omits the header.
+   */
+  language?: string | null;
+  /**
    * CSRF token sent as the `x-csrf` header.
    * Defaults to the system token; `false` omits the header.
    */
   csrf?: string | false;
   /**
-   * Globals sent as the `x-fiber-globals` header.
+   * Globals sent as the `x-panel-globals` header.
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
   /**
-   * Referrer path sent as the `x-fiber-referrer` header.
+   * Referrer path sent as the `x-panel-referrer` header.
    * Defaults to the current view path; `false` omits the header.
    */
   referrer?: string | false;

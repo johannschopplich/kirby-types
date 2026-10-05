@@ -174,7 +174,7 @@ declare const modal: PanelModal<PanelDialogDefaults>;
 
 expectType<Promise<void>>(modal.cancel());
 expectType<Promise<false | PanelDialogDefaults>>(modal.reload());
-expectType<Promise<PanelDialogDefaults | void>>(modal.close());
+expectType<Promise<void>>(modal.close());
 expectType<Promise<any>>(modal.submit({}));
 expectType<void>(modal.goTo("milestone-id"));
 expectType<void>(modal.input({ field: "value" }));
