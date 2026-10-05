@@ -27,12 +27,18 @@
     ".": {
       "types": "./index.d.ts",
       "default": "./index.js"
+    },
+    "./panel-globals": {
+      "types": "./panel-globals.d.ts",
+      "default": "./panel-globals.js"
     }
   },
   "types": "./index.d.ts",
   "files": [
     "index.d.ts",
     "index.js",
+    "panel-globals.d.ts",
+    "panel-globals.js",
     "src"
   ],
   "scripts": {
