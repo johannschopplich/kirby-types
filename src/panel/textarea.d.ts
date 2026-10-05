@@ -4,7 +4,7 @@
  * This module provides types for custom textarea toolbar buttons
  * that can be registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
  *
- * @since 4.0.0
+ * @since 6.0.0
  */
 
 import type { PanelGlobalProperties } from "./index";
@@ -162,8 +162,6 @@ export interface TextareaButton {
 
   /**
    * Tooltip text used as a fallback when `label` is not set.
-   *
-   * @since 4.7.0
    */
   title?: string;
 
@@ -185,7 +183,7 @@ export interface TextareaButton {
  * functions defined inside the toolbar component. A plugin's
  * `textareaButtons` entry is a static object with no toolbar reference to
  * close over. To react to an item elsewhere, use the `{ global, payload }`
- * click form (since 4.3.0), which emits an event on the global event bus.
+ * click form, which emits an event on the global event bus.
  *
  * @example
  * ```js
@@ -204,7 +202,7 @@ export interface TextareaButton {
  * ]
  * ```
  *
- * @source panel/src/components/Dropdowns/DropdownContent.vue
+ * @source panel/src/components/Dropdowns/Dropdown.vue
  */
 export interface TextareaDropdownItem {
   /** Item label. Falls back to `text` when unset. */
@@ -220,7 +218,7 @@ export interface TextareaDropdownItem {
    *   toolbar
    * - a string is emitted as an `action` event on the dropdown, which the
    *   toolbar does not listen to
-   * - since 4.3.0, an object emits `name` on the dropdown and `global` on
+   * - an object emits `name` on the dropdown and `global` on
    *   the global event bus, each with `payload`.
    */
   click?:

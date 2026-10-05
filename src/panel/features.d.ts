@@ -4,7 +4,7 @@
  * This module provides typed interfaces for all Panel features,
  * including state objects, features, and modals.
  *
- * @since 4.0.0
+ * @since 6.0.0
  */
 
 import type {
@@ -27,7 +27,7 @@ import type {
 /**
  * Simple timer utility for auto-closing notifications.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/helpers/timer.ts
  */
 export interface PanelTimer {
@@ -65,7 +65,7 @@ export interface PanelActivationDefaults {
  * Controls visibility of the license activation card based on
  * session storage state.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/activation.ts
  */
 export interface PanelActivation
@@ -94,7 +94,7 @@ export interface PanelDragDefaults {
 /**
  * Drag state for tracking drag-and-drop operations.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/drag.ts
  */
 export interface PanelDrag
@@ -140,7 +140,7 @@ export type PanelThemeValue = "light" | "dark" | "system";
  * Supports user preference, system preference, and config-based themes.
  * Watches system media query for dark mode changes.
  *
- * @since 5.0.0
+ * @since 6.0.0
  * @source panel/src/panel/theme.ts
  */
 export interface PanelTheme
@@ -149,7 +149,6 @@ export interface PanelTheme
     PanelThemeDefaults {
   /**
    * Default theme from the `panel.theme` option; `"system"` unless configured.
-   * @since 5.1.0
    */
   readonly config: string;
 
@@ -201,7 +200,7 @@ export interface PanelLanguageDefaults {
  *
  * Represents the current content language for multilingual sites.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/language.ts
  */
 export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
@@ -225,27 +224,26 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
 // #region Menu
 
 /**
- * Menu entry types.
+ * Props of a menu button.
  *
- * All fields are optional; the backend filters out any falsy values before
- * emitting the entry, so consumers may receive a sparse object.
+ * All fields are optional; the backend filters out `null` props before
+ * emitting the button, so consumers may receive a sparse object.
  *
- * @source panel/src/panel/menu.ts
- * @source src/Panel/Menu.php
+ * @source src/Panel/Ui/Button.php
  */
 export interface PanelMenuEntry {
   /** Whether this entry is currently active. */
   current?: boolean;
   /**
    * Dialog URL or options – when set, the entry opens a dialog instead of
-   * navigating. Options objects since 5.2.0, URL strings only before.
+   * navigating.
    */
   dialog?: string | Record<string, any>;
   /** Whether the entry is rendered as visually disabled. */
   disabled?: boolean;
   /**
    * Drawer URL or options – when set, the entry opens a drawer instead of
-   * navigating. Options objects since 5.2.0, URL strings only before.
+   * navigating.
    */
   drawer?: string | Record<string, any>;
   icon?: string;
@@ -258,16 +256,30 @@ export interface PanelMenuEntry {
 }
 
 /**
+ * Menu item, rendered by the backend as a UI component.
+ *
+ * @source panel/src/panel/menu.ts
+ * @source src/Panel/Menu.php
+ * @source src/Panel/Ui/Component.php
+ */
+export interface PanelMenuItem {
+  /** Component name, e.g. `"k-button"`. */
+  component: string;
+  key: string;
+  props: PanelMenuEntry;
+}
+
+/**
  * Default state for the sidebar menu.
  * @source panel/src/panel/menu.ts
  */
 export interface PanelMenuDefaults {
-  /** Menu entries (items or separator strings). */
-  entries: (PanelMenuEntry | "-")[];
   /** Whether menu is being hovered. */
   hover: boolean;
   /** Whether menu is expanded. */
   isOpen: boolean;
+  /** Menu items and `"-"` separators. */
+  items: (PanelMenuItem | "-")[];
 }
 
 /**
@@ -276,7 +288,7 @@ export interface PanelMenuDefaults {
  * Manages the Panel sidebar with responsive behavior
  * for mobile and desktop layouts.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/menu.ts
  */
 export interface PanelMenu
@@ -313,8 +325,10 @@ export interface PanelMenu
    */
   resize: () => void;
 
-  /** Sets menu entries and handles initial resize. */
-  set: (entries: (PanelMenuEntry | "-")[]) => PanelMenuDefaults;
+  /**
+   * Sets the menu items and restores the open or closed state.
+   */
+  set: (items: (PanelMenuItem | "-")[]) => PanelMenuDefaults;
 
   /** Toggles the sidebar menu state. */
   toggle: () => void;
@@ -357,10 +371,9 @@ export interface PanelNotificationOptions {
   /** Visual theme. */
   theme?: NotificationTheme;
   /**
-   * Auto-close delay in ms. For non-error notifications a missing value
-   * falls back to `4000` ms since 4.3.0, and any falsy one (including `0`)
-   * since 5.5.0, so auto-close cannot be disabled for them from then on.
-   * `error` and `fatal` notifications keep the passed value and otherwise
+   * Auto-close delay in ms. For non-error notifications a falsy value
+   * (including `0`) falls back to `4000` ms, so auto-close cannot be
+   * disabled for them. `error` and `fatal` notifications keep the passed value and otherwise
    * never auto-close.
    */
   timeout?: number;
@@ -368,14 +381,13 @@ export interface PanelNotificationOptions {
 }
 
 /**
- * Plain error object that `error()` and `fatal()` accept. `fatal()` shows its
- * `message`. Before 5.5.0, `error()` showed its `message` too; since 5.5.0 it
- * reads `Something went wrong` instead.
+ * Plain error object that `error()` accepts. Its `message` is shown, or
+ * `Something went wrong` when it is not a string.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelErrorObject {
   message: string;
-  /** Details the error dialog lists in view context, read by `error()` before 5.5.0. */
+  /** Details the error dialog lists in view context. */
   details?: Record<string, any>;
   /** @deprecated The notification never reads this field. */
   key?: string;
@@ -387,7 +399,7 @@ export interface PanelErrorObject {
  * Displays contextual notifications in view, dialog, or drawer.
  * Supports auto-close timers and different severity levels.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotification
@@ -411,17 +423,15 @@ export interface PanelNotification
   /**
    * Shows the error notification bar; in view context also opens an error
    * dialog. A response that cannot be parsed becomes a fatal notification,
-   * and an authentication error sends a logged-in user to the logout. The
-   * redirect throws since 5.5.0 and returned `false` before.
+   * and an authentication error sends a logged-in user to the logout, which
+   * throws a redirect error.
    *
    * @param error - Error instance, message string, or plain
-   *   `{ message, details }` object; since 5.5.0 a plain object shows
-   *   `Something went wrong` instead.
-   * @returns Notification state, or `false` from a logout redirect before 5.5.0
+   *   `{ message, details }` object
    */
   error: (
     error: Error | string | PanelErrorObject,
-  ) => PanelNotificationDefaults | false;
+  ) => PanelNotificationDefaults;
 
   /**
    * Creates a fatal error notification, displayed in an isolated iframe.
@@ -439,12 +449,14 @@ export interface PanelNotification
    * Creates an info notification.
    *
    * @param info - Message string or options object
-   * @since 4.3.0
    */
   info: (info?: string | PanelNotificationOptions) => PanelNotificationDefaults;
 
   /**
-   * Opens a notification. When passed a string, delegates to `success()`. Otherwise sets the Panel context, since 4.3.0 replaces a `null` or `undefined` `timeout` (any falsy one since 5.5.0) with `4000` ms for types other than `error` and `fatal`, opens the notification, and starts the auto-close timer.
+   * Opens a notification. When passed a string, delegates to `success()`.
+   * Otherwise sets the Panel context, replaces a falsy `timeout` with `4000`
+   * ms for types other than `error` and `fatal`, opens the notification, and
+   * starts the auto-close timer.
    *
    * @param notification - Message string or options object
    */
@@ -489,7 +501,7 @@ export interface PanelSystemDefaults {
  *
  * Contains static system information from the server.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/system.ts
  */
 export interface PanelSystem
@@ -520,7 +532,7 @@ export interface PanelTranslationDefaults {
  * Manages UI translations for the current user.
  * Updates document language and direction on change.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/translation.ts
  */
 export interface PanelTranslation
@@ -567,7 +579,7 @@ export interface PanelUserDefaults {
  *
  * Contains information about the logged-in user.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/user.ts
  */
 export interface PanelUser
@@ -589,7 +601,6 @@ export interface PanelBreadcrumbItem {
   link?: string;
   /**
    * Tooltip text, e.g. why a page's crumb is redacted. Falls back to `label`.
-   * @since 5.6.0
    */
   title?: string;
   /** Icon for plugin-supplied breadcrumbs; core views never set it. */
@@ -623,7 +634,7 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  * Manages the primary view state, document title,
  * and browser history.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
  */
@@ -639,9 +650,9 @@ export interface PanelView
 
   /**
    * Sets view state and updates document title and browser URL.
-   * Returns the merged state since 5.5.0, `void` before.
+   * Returns the merged state.
    */
-  set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults | void;
+  set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
   /**
    * Submits the view form.
@@ -656,15 +667,14 @@ export interface PanelView
 /**
  * Dropdown option item.
  * @source panel/src/panel/dropdown.ts
- * @source panel/src/components/Dropdowns/DropdownContent.vue
+ * @source panel/src/components/Dropdowns/Dropdown.vue
  */
 export interface PanelDropdownOption {
   text: string;
   icon?: string;
   /**
    * Click handler: a callback, an action name emitted to the parent
-   * component as `action`, or, since 4.3.0, an object that emits `name` on
-   * the parent and `global` on the global event bus, each with `payload`.
+   * component as `action`, or an object that emits `name` on the parent and `global` on the global event bus, each with `payload`.
    */
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
@@ -678,7 +688,7 @@ export interface PanelDropdownOption {
  * Manages dropdown menus loaded from the server
  * or created programmatically.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/dropdown.ts
  * @source panel/src/panel/feature.ts
  */
@@ -700,7 +710,7 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
    * `ready(items)` with the resolved option list. The closure rejects when
    * the dropdown has no options.
    *
-   * @deprecated Since 4.0.0; use `open()` and read `options()` instead.
+   * @deprecated Use `open()` and read `options()` instead.
    */
   openAsync: (
     dropdown: string | URL | Partial<PanelFeatureDefaults>,
@@ -725,55 +735,28 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 
 /**
  * Default state for the dialog modal.
- * @source panel/src/panel/dialog.js
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/dialog.ts
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelDialogDefaults extends PanelFeatureDefaults {
   /**
    * ID that tells nested dialogs apart, generated when the state brings none.
-   *
-   * @since 5.1.0
    */
   id: string | null;
-  /**
-   * Whether using legacy Vue component.
-   */
-  legacy: boolean;
-  /**
-   * Reference to legacy component.
-   */
-  ref: any;
 }
 
 /**
- * Dialog modal for overlays.
+ * Dialog modal for overlays, loaded from the server or opened from a state
+ * object.
  *
- * Supports both server-loaded dialogs and legacy Vue component dialogs.
- *
- * @since 4.0.0
- * @source panel/src/panel/dialog.js
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/dialog.ts
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   /**
-   * Whether the dialog is a component instance from a template, opened via
-   * the deprecated `openComponent()`, that renders itself.
-   */
-  legacy: boolean;
-  /** The component instance `openComponent()` opened. */
-  ref: any;
-
-  /**
-   * Closes the current dialog and hides a legacy component referenced via
-   * `ref`. Ignores a modal ID and resolves to `undefined`.
-   */
-  close: () => Promise<void>;
-
-  /**
-   * Opens a dialog by path, `URL`, state object, or legacy Vue component
-   * instance. A string path loads from `/dialogs/`; an object with
-   * `component` and `props` opens inline. Since 5.2.0, an object with `url`
-   * loads that path and passes its other keys as options. Since 5.1.0,
+   * Opens a dialog by path, `URL`, or state object. A string path loads from
+   * `/dialogs/`; an object with `component` and `props` opens inline, and an
+   * object with `url` loads that path and passes its other keys as options.
    * `replace: true` on a state object swaps the current dialog in the history
    * instead of stacking on top of it.
    */
@@ -784,14 +767,6 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
       | (Partial<PanelDialogDefaults> & { url?: string; replace?: boolean }),
     options?: PanelRequestOptions | PanelEventCallback,
   ) => Promise<PanelDialogDefaults>;
-
-  /**
-   * Opens a legacy Vue component dialog.
-   *
-   * @param dialog - Vue component instance
-   * @deprecated Use `open()` with a component object instead.
-   */
-  openComponent: (dialog: any) => Promise<PanelDialogDefaults>;
 }
 // #endregion
 
@@ -799,8 +774,8 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
 
 /**
  * Default state for the drawer modal.
- * @source panel/src/panel/drawer.js
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/drawer.ts
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelDrawerDefaults extends PanelFeatureDefaults {
   /** ID that tells nested drawers apart, generated when the state brings none. */
@@ -812,9 +787,9 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  *
  * Supports nested drawers with breadcrumb navigation.
  *
- * @since 4.0.0
- * @source panel/src/panel/drawer.js
- * @source panel/src/panel/modal.js
+ * @since 6.0.0
+ * @source panel/src/panel/drawer.ts
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Drawer states stacked in the history, oldest first. */
@@ -826,7 +801,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /**
    * Opens a drawer by path, `URL`, or state object, switches to `tab` of a
    * state object, the first tab otherwise, and focuses the drawer. A string path loads from
-   * `/drawers/`. Since 5.2.0, an object with `url` loads that path and passes
+   * `/drawers/`. An object with `url` loads that path and passes
    * its other keys as options. `replace: true` on a state object swaps the
    * current drawer in the history instead of stacking on top of it.
    */
@@ -859,7 +834,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 
 /**
  * Content version representing saved or changed state.
- * @source panel/src/panel/content.js
+ * @source panel/src/panel/content.ts
  */
 export interface PanelContentVersion {
   [field: string]: any;
@@ -867,7 +842,7 @@ export interface PanelContentVersion {
 
 /**
  * Content versions container.
- * @source panel/src/panel/content.js
+ * @source panel/src/panel/content.ts
  */
 export interface PanelContentVersions {
   /** Original saved content. */
@@ -880,9 +855,10 @@ export interface PanelContentVersions {
  * Lock state for content editing.
  *
  * Always emitted as `{ isLegacy, isLocked, modified, user }`. After a
- * successful save, `modified` is replaced in place with a fresh `Date`.
+ * successful save, `renewLock()` replaces `modified` in place with a fresh
+ * `Date`.
  *
- * @source panel/src/panel/content.js
+ * @source panel/src/panel/content.ts
  * @source src/Content/Lock.php
  */
 export interface PanelContentLock {
@@ -901,8 +877,7 @@ export interface PanelContentLock {
 
 /**
  * Environment context for content operations.
- * @source panel/src/panel/content.js
- * @source src/Panel/View.php
+ * @source panel/src/panel/content.ts
  */
 export interface PanelContentEnv {
   /** API endpoint path. */
@@ -917,8 +892,8 @@ export interface PanelContentEnv {
  * Manages content versions, saving, publishing, and lock handling.
  * Provides automatic save on input with throttling.
  *
- * @since 5.0.0
- * @source panel/src/panel/content.js
+ * @since 6.0.0
+ * @source panel/src/panel/content.ts
  */
 export interface PanelContent {
   /** Reference to lock dialog if open. */
@@ -928,7 +903,7 @@ export interface PanelContent {
   isProcessing: boolean;
 
   /**
-   * Saves throttled at `1000` ms: the first call saves at once, further
+   * Saves throttled at `500` ms: the first call saves at once, further
    * calls within the delay collapse into one trailing save.
    */
   saveLazy: ((values?: Record<string, any>, env?: PanelContentEnv) => void) & {
@@ -1035,6 +1010,14 @@ export interface PanelContent {
   ) => Promise<void>;
 
   /**
+   * Updates the lock's `modified` timestamp with a new `Date` after a
+   * successful save.
+   *
+   * @param env - Environment context
+   */
+  renewLock: (env?: PanelContentEnv) => void;
+
+  /**
    * Sends a content API request.
    *
    * @param method - API method: `save`, `publish`, or `discard`
@@ -1062,18 +1045,15 @@ export interface PanelContent {
   /**
    * Releases the content lock without discarding changes.
    *
-   * Since 5.6.0, first saves any pending changes of the current view and
-   * resolves to `false` without unlocking when the view got locked or a
-   * newer save took over (other save errors reject); otherwise
-   * posts to `<api>/changes/unlock` (failures are ignored, the lock expires
-   * on its own) and resolves to `true`. Before 5.6.0, sent the request via
-   * `navigator.sendBeacon` and returned nothing.
+   * First saves any pending changes of the current view and resolves to
+   * `false` without unlocking when the view got locked or a newer save took
+   * over (other save errors reject); otherwise posts to
+   * `<api>/changes/unlock` (failures are ignored, the lock expires on its
+   * own) and resolves to `true`.
    *
    * @param env - Environment context
-   * @returns `false` if the view got locked or a newer save took over, otherwise `true`
-   * @since 5.5.0
    */
-  unlock: (env?: PanelContentEnv) => Promise<boolean> | void;
+  unlock: (env?: PanelContentEnv) => Promise<boolean>;
 
   /**
    * Sends the unlock request via `navigator.sendBeacon`, which browsers
@@ -1081,7 +1061,6 @@ export interface PanelContent {
    * when the beacon cannot be queued. Cancels pending saves first.
    *
    * @param env - Environment context
-   * @since 5.6.0
    */
   unlockBeaconRequest: (env?: PanelContentEnv) => void;
 
@@ -1090,13 +1069,11 @@ export interface PanelContent {
    * Cancels pending saves first.
    *
    * @param env - Environment context
-   * @since 5.6.0
    */
   unlockPostRequest: (env?: PanelContentEnv) => Promise<any>;
 
   /**
    * Updates form values and saves.
-   * Resolves to a boolean since 5.6.0, `void` before.
    *
    * @param values - Values to update
    * @param env - Environment context
@@ -1164,8 +1141,8 @@ export interface PanelSearchOptions {
  */
 export interface PanelSearchResult {
   /**
-   * Result items. Since 4.4.0, `null` for a query shorter than two
-   * characters and empty when the request fails.
+   * Result items, `null` for a query shorter than two characters and empty
+   * when the request fails.
    */
   results: any[] | null;
   pagination: PanelSearchPagination;
@@ -1176,7 +1153,7 @@ export interface PanelSearchResult {
  *
  * Manages search dialog and query requests.
  *
- * @since 4.4.0
+ * @since 6.0.0
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearcher {
@@ -1219,7 +1196,7 @@ export interface PanelSearcher {
  * client-side queued upload). Carries the fields read by `replace()` to
  * configure the upload picker (`url`, `accept`).
  *
- * @source panel/src/panel/upload.js
+ * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadReplaceFile {
   /** API path segment used to build the upload URL. */
@@ -1239,7 +1216,7 @@ export interface PanelUploadReplaceFile {
 /**
  * Upload file state representing a file in the upload queue.
  *
- * @source panel/src/panel/upload.js
+ * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadFile {
   /** Unique file ID. */
@@ -1269,19 +1246,17 @@ export interface PanelUploadFile {
   model: any | null;
   /**
    * Preview settings spread in from `preview`, such as `icon` or `color`.
-   * @since 4.4.0
    */
   [key: string]: any;
 }
 
 /**
  * Default state for upload feature.
- * @source panel/src/panel/upload.js
+ * @source panel/src/panel/upload.ts
  */
 export interface PanelUploadDefaults {
   /**
    * AbortController for current upload.
-   * @since 5.0.0
    */
   abort: AbortController | null;
   /** Accepted file types. */
@@ -1296,7 +1271,6 @@ export interface PanelUploadDefaults {
   /**
    * Preview settings (`back`, `color`, `cover`, `icon`) spread into every
    * queued file.
-   * @since 4.4.0
    */
   preview: Record<string, any>;
   /** Server file model being replaced (carries `link`, `extension`, `mime`). */
@@ -1316,23 +1290,19 @@ type PanelUploadOptions = Partial<PanelUploadDefaults> & {
  * Manages file selection, upload progress, and completion.
  * Supports chunked uploads for large files.
  *
- * @since 4.0.0
- * @source panel/src/panel/upload.js
+ * @since 6.0.0
+ * @source panel/src/panel/upload.ts
  */
 export interface PanelUpload
   extends
     Omit<PanelState<PanelUploadDefaults>, "set">,
     PanelEventListeners,
     PanelUploadDefaults {
-  /** Hidden file input element. */
-  input: HTMLInputElement | null;
-
   /** Server file models for files that completed uploading. */
   readonly completed: any[];
 
   /**
    * Shows a success notification and emits `model.update`.
-   * @since 5.0.0
    */
   announce: () => void;
 
@@ -1428,8 +1398,7 @@ export interface PanelUpload
 
   /**
    * Uploads a single file with chunking support.
-   * Since 5.0.0, fails the file when called before `submit()` has set
-   * `abort`: its `error` is set and `file.upload.error` fires.
+   * Fails the file when called before `submit()` has set `abort`: its `error` is set and `file.upload.error` fires.
    *
    * @param file - File to upload
    * @param attributes - Additional attributes
@@ -1460,7 +1429,7 @@ export interface PanelEventEmitter {
  * Provides global event subscriptions and keyboard shortcut handling.
  * Uses mitt for the internal event bus.
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/panel/events.ts
  */
 export interface PanelEvents extends PanelEventEmitter {
@@ -1503,13 +1472,6 @@ export interface PanelEvents extends PanelEventEmitter {
    * @param event - DragEvent
    */
   dragenter: (event: DragEvent) => void;
-
-  /**
-   * Handles window dragexit event.
-   *
-   * @param event - DragEvent
-   */
-  dragexit: (event: DragEvent) => void;
 
   /**
    * Handles window dragleave event.

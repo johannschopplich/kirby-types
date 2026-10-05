@@ -4,7 +4,7 @@
  * This module provides the foundational types for the Panel's
  * state management hierarchy: State → Feature → Modal.
  *
- * @since 4.0.0
+ * @since 6.0.0
  */
 
 // #region State Management
@@ -20,7 +20,7 @@
  *
  * @example
  * ```ts
- * // State is used by: activation (since 5.0.0), drag, language, menu, notification, system, theme (since 5.0.0), translation, upload, user
+ * // State is used by: activation, drag, language, menu, notification, system, theme, translation, upload, user
  * const notification: PanelState<PanelNotificationDefaults> = panel.notification;
  * notification.set({ message: "Saved!" });
  * ```
@@ -59,14 +59,6 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    * Properties not in defaults are excluded.
    */
   state: () => TDefaults;
-
-  /**
-   * Validates that the state is a plain object.
-   *
-   * @throws Error if state is not an object
-   * @deprecated Removed in 5.5.0; `set()` checks for a plain object itself.
-   */
-  validateState: (state: unknown) => boolean;
 }
 // #endregion
 
@@ -110,7 +102,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
   /**
    * Registers a single event listener, replacing an existing one for the
-   * event (with a console warning since 5.5.0). Only functions are
+   * event with a console warning. Only functions are
    * registered; other values are ignored.
    *
    * @param event - Event name to listen for
@@ -132,7 +124,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * @param event - Event name to emit
    * @param args - Arguments to pass to the listener
    * @returns Listener result, or `undefined` when no listener is registered.
-   *   Before 5.5.0, a noop function in that case.
    */
   emit: <TReturn = any>(event: TEvents, ...args: any[]) => TReturn | undefined;
 
@@ -151,14 +142,12 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * Removes the listener registered for `event`.
    *
    * @param event - Event name whose listener should be removed
-   * @since 5.5.0
    */
   removeEventListener: (event: TEvents) => void;
 
   /**
    * Clears every registered listener. Called automatically when feature
    * state is replaced.
-   * @since 5.5.0
    */
   removeEventListeners: () => void;
 }
@@ -170,11 +159,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
  * @source panel/src/panel/feature.ts
  */
 export interface PanelFeatureDefaults {
-  /**
-   * @since 5.1.0
-   * @deprecated Not part of the defaults since 5.5.0 – read `abortController` on the feature itself.
-   */
-  abortController: AbortController | null | undefined;
   component: string | null;
   isLoading: boolean;
   on: PanelEventListenerMap;
@@ -211,11 +195,9 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   extends PanelState<TDefaults>, PanelEventListeners {
   /**
    * AbortController for canceling pending requests.
-   * Created on each `load()` call to enable request cancellation; `null`
-   * instead of `undefined` before 5.5.0.
-   * @since 5.1.0
+   * Created on each `load()` call to enable request cancellation.
    */
-  abortController: AbortController | null | undefined;
+  abortController: AbortController | undefined;
 
   /**
    * Current Vue component name to render.
@@ -257,7 +239,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * @param url - URL to fetch
    * @param options - Request options
    * @returns Response data or `false` on error
-   * @since 5.1.0
    */
   get: (
     url: string | URL,
@@ -327,14 +308,14 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 
 /**
  * Modal event types for dialogs and drawers.
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export type PanelModalEvent =
   "cancel" | "close" | "closed" | "input" | "open" | "submit" | "success";
 
 /**
  * Bound listener functions returned by `modal.listeners()`.
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
@@ -352,7 +333,7 @@ export type PanelSuccessResponse = PanelModalSubmitResponse;
 
 /**
  * Success response from modal submission.
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModalSubmitResponse {
   /** Text of the success notification. */
@@ -397,11 +378,11 @@ export interface PanelModalSubmitResponse {
  * panel.drawer.goTo("previous-drawer-id");
  * ```
  *
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModal<
   TDefaults extends object = PanelFeatureDefaults & { id: string | null },
-> extends Omit<PanelFeature<TDefaults>, "reload"> {
+> extends PanelFeature<TDefaults> {
   /**
    * Unique ID for identifying nested modals.
    * Auto-generated via UUID if not provided.
@@ -478,9 +459,9 @@ export interface PanelModal<
    * Reloads the modal by closing and reopening at the same URL.
    *
    * @param options - Request options
-   * @returns `false` if no path exists, otherwise `void` (the re-open is not awaited).
+   * @returns `false` if no path exists, otherwise the `open()` result
    */
-  reload: (options?: PanelRequestOptions) => Promise<false | void>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
   /**
    * Sets modal state, auto-generating an ID if not provided.
@@ -492,7 +473,7 @@ export interface PanelModal<
 
   /**
    * Submits the modal form.
-   * Does nothing while loading since 5.0.0. Checks for a submit listener
+   * Does nothing while loading. Checks for a submit listener
    * first, then sends a POST request if a path exists.
    *
    * @param value - Form value (defaults to `props.value`)
@@ -571,7 +552,7 @@ export interface PanelHistory {
   /**
    * Adds a state to history.
    * A state whose `id` is already stored is ignored, unless `replace` is
-   * `true` (since 5.1.0).
+   * `true`.
    * The state must have an `id` property.
    *
    * @param state - State object with required `id`
@@ -619,7 +600,6 @@ export interface PanelHistory {
 
   /**
    * Returns `true` when more than one milestone is stored.
-   * @since 5.5.0
    */
   hasPrevious: () => boolean;
 
@@ -691,8 +671,7 @@ export interface PanelRequestOptions extends Omit<
   on?: PanelEventListenerMap;
   /**
    * CSRF token sent as the `x-csrf` header.
-   * Defaults to the system token. Since 5.5.0, `false` omits the header;
-   * before, it is sent as the value `false`.
+   * Defaults to the system token; `false` omits the header.
    */
   csrf?: string | false;
   /**
@@ -702,8 +681,7 @@ export interface PanelRequestOptions extends Omit<
   globals?: string | string[];
   /**
    * Referrer path sent as the `x-fiber-referrer` header.
-   * Defaults to the current view path. Since 5.5.0, `false` omits the
-   * header; before, it is sent as the value `false`.
+   * Defaults to the current view path; `false` omits the header.
    */
   referrer?: string | false;
 }
@@ -723,7 +701,7 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
 /**
  * Panel context indicating which layer is currently active.
  * Used to determine where notifications appear and which feature has focus.
- * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source panel/src/panel/notification.ts
  */
 export type PanelContext = "view" | "dialog" | "drawer";

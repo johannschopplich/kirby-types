@@ -133,7 +133,6 @@ expectType<void>(userState.reset());
 expectType<PanelUserDefaults>(userState.set({ email: "new@test.com" }));
 expectType<PanelUserDefaults>(userState.state());
 expectType<string>(userState.key());
-expectType<boolean>(userState.validateState({}));
 expectType<string | null>({} as PanelUser["email"]);
 expectType<string | null>({} as PanelUser["id"]);
 expectType<string | null>({} as PanelUser["language"]);
@@ -174,7 +173,7 @@ expectType<PanelHistoryMilestone | undefined>(history.goto("id"));
 declare const modal: PanelModal<PanelDialogDefaults>;
 
 expectType<Promise<void>>(modal.cancel());
-expectType<Promise<false | void>>(modal.reload());
+expectType<Promise<false | PanelDialogDefaults>>(modal.reload());
 expectType<Promise<PanelDialogDefaults | void>>(modal.close());
 expectType<Promise<any>>(modal.submit({}));
 expectType<void>(modal.goTo("milestone-id"));
@@ -198,7 +197,7 @@ expectType<void>(undefined as ReturnType<PanelDrawer["tab"]>);
 // #region Notification & Content
 
 expectType<() => PanelNotificationDefaults>({} as PanelNotification["close"]);
-expectType<PanelNotificationDefaults | false>(
+expectType<PanelNotificationDefaults>(
   {} as ReturnType<PanelNotification["error"]>,
 );
 
@@ -222,7 +221,10 @@ expectType<Promise<PanelSearchResult | undefined>>(
 expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
-expectType<ReturnType<typeof setInterval> | null>({} as PanelApi["ping"]);
+expectType<ReturnType<typeof setInterval> | undefined>(
+  {} as PanelApi["pingId"],
+);
+expectType<void>(panel.api.ping());
 expectAssignable<PanelApi["auth"]>({
   login: async () => ({}),
   logout: async () => {},

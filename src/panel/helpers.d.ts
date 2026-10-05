@@ -3,7 +3,7 @@
  *
  * Provides types for the `$helper` utilities available on the Vue prototype.
  *
- * @since 4.0.0
+ * @since 6.0.0
  */
 
 // #region Array Helpers
@@ -36,8 +36,7 @@ export interface PanelHelpersArray {
    * Searches through an array by query string.
    *
    * @param array - Array to search
-   * @param query - Search query; `null` and `undefined` return the array
-   *   unfiltered before 5.5.0 and throw since.
+   * @param query - Search query; `null` and `undefined` throw
    * @param options - Search options
    * @returns Filtered array
    */
@@ -117,7 +116,6 @@ export interface PanelHelpersString {
    * @param string - String to check
    * @param strict - Reject a trailing query/hash after the domain
    * @returns `true` if the string looks like an email address
-   * @since 5.4.4
    */
   isEmail: (string: unknown, strict?: boolean) => boolean;
 
@@ -204,7 +202,6 @@ export interface PanelHelpersString {
    * @param options.marks - Allowed marks; strings are treated as mark names, objects as mark configs
    * @param options.nodes - Allowed nodes; strings are treated as node names, objects as node configs
    * @returns Sanitized HTML string
-   * @since 5.5.0
    */
   sanitizeHTML: (
     html: unknown,
@@ -278,7 +275,6 @@ export interface PanelHelpersObject {
    * @param object - Object to filter
    * @param predicate - Filter function
    * @returns Filtered object
-   * @since 5.0.0
    */
   filter: <T extends Record<string, any>>(
     object: T,
@@ -390,7 +386,6 @@ export interface PanelHelpersUrl {
    *
    * @param url - URL to check
    * @returns `true` if the URL uses a dangerous scheme
-   * @since 5.4.4
    */
   hasDangerousScheme: (url: unknown) => boolean;
 
@@ -649,12 +644,6 @@ export interface PanelLinkDetection {
   link: string;
 }
 
-/** Link preview data. */
-export interface PanelLinkPreview {
-  label: string;
-  image?: { url: string; [key: string]: any };
-}
-
 /**
  * Link helper utilities.
  *
@@ -704,18 +693,6 @@ export interface PanelHelpersLink {
    * @returns `true` if page reference
    */
   isPageUUID: (value: string) => boolean;
-
-  /**
-   * Fetches preview data for a link.
-   *
-   * @param link - Link detection result
-   * @param fields - Fields to fetch
-   * @returns Preview data or `null`
-   */
-  preview: (
-    link: PanelLinkDetection,
-    fields?: string[],
-  ) => Promise<PanelLinkPreview | null>;
 
   /**
    * Returns available link types.
@@ -796,8 +773,6 @@ export interface PanelUploadParams {
   /** AbortSignal for cancellation. */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
-  /** Complete callback (declared but never invoked at runtime). */
-  complete?: () => void;
   success?: PanelUploadResultCallback;
   error?: PanelUploadResultCallback;
 }
@@ -809,7 +784,7 @@ export interface PanelUploadParams {
  * Debounce options. Omitting the object calls on the trailing edge only; in a
  * passed object, an unset key counts as `false`.
  *
- * @since 5.0.0
+ * @since 6.0.0
  * @source panel/src/helpers/debounce.ts
  */
 export interface PanelDebounceOptions {
@@ -823,7 +798,7 @@ export interface PanelDebounceOptions {
  * Throttle options. Omitting the object calls on the leading edge only; in a
  * passed object, an unset key counts as `false`.
  *
- * @since 5.0.0
+ * @since 6.0.0
  * @source panel/src/helpers/throttle.ts
  */
 export interface PanelThrottleOptions {
@@ -957,12 +932,15 @@ export interface PanelHelpers {
   /**
    * Checks if component is registered globally.
    *
+   * The optional `app` argument defaults to `window.panel?.app`.
+   *
    * @param name - Component name
+   * @param app - Vue app instance
    * @returns `true` if registered
    * @source panel/src/helpers/isComponent.ts
    * @source panel/src/helpers/index.ts
    */
-  isComponent: (name: string) => boolean;
+  isComponent: (name: string, app?: unknown) => boolean;
 
   /**
    * Checks if event is a file drag/drop event.
@@ -1047,7 +1025,6 @@ export interface PanelHelpers {
    * @param delay - Delay in milliseconds
    * @param options - Throttle options
    * @returns Throttled function with cancel method
-   * @since 5.0.0
    * @source panel/src/helpers/throttle.ts
    * @source panel/src/helpers/index.ts
    */
@@ -1085,14 +1062,12 @@ export interface PanelHelpers {
 
   /**
    * Writer (ProseMirror) extension helpers for resolving allowed marks/nodes
-   * and building extension instances. Available since Kirby 5.5.0; on earlier
-   * versions this property is `undefined` at runtime.
+   * and building extension instances.
    *
-   * @since 5.5.0
-   * @source panel/src/helpers/writer.js
+   * @source panel/src/helpers/writer.ts
    * @source panel/src/helpers/index.ts
    */
-  writer?: PanelHelpersWriter;
+  writer: PanelHelpersWriter;
 }
 // #endregion
 
@@ -1105,8 +1080,8 @@ export interface PanelHelpers {
  * extension instances (including those contributed by plugins), and exposes
  * the lower-level building blocks used by `createMarks` / `createNodes`.
  *
- * @source panel/src/helpers/writer.js
- * @since 5.5.0
+ * @source panel/src/helpers/writer.ts
+ * @since 6.0.0
  */
 export interface PanelHelpersWriter {
   /**

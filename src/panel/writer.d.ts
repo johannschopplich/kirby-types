@@ -6,7 +6,7 @@
  * - Mark and node extensions for plugins
  * - Utility functions and contexts.
  *
- * @since 4.0.0
+ * @since 6.0.0
  */
 
 import type { InputRule } from "prosemirror-inputrules";
@@ -41,7 +41,7 @@ import type {
 /**
  * Payload of the editor's `transaction` and `update` events.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  */
 export interface WriterEditorTransactionPayload {
   editor: WriterEditor;
@@ -54,7 +54,7 @@ export interface WriterEditorTransactionPayload {
 /**
  * Payload of the editor's `select` and `deselect` events.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  */
 export interface WriterEditorSelectPayload extends WriterEditorTransactionPayload {
   from: number;
@@ -68,7 +68,7 @@ export interface WriterEditorSelectPayload extends WriterEditorTransactionPayloa
  * receives its payload as the only argument. `drop` is left out: it passes the view,
  * the event, the slice, and the `moved` flag as separate arguments.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  */
 export interface WriterEditorEvents {
   blur: { event: FocusEvent; state: EditorState; view: EditorView };
@@ -78,8 +78,7 @@ export interface WriterEditorEvents {
   select: WriterEditorSelectPayload;
   transaction: WriterEditorTransactionPayload;
   /**
-   * Payload of a document change that was not silenced. Before 5.0.0, sent
-   * for every document change and every transaction that was not silenced.
+   * Payload of a document change that was not silenced.
    */
   update: WriterEditorTransactionPayload;
 }
@@ -90,8 +89,8 @@ export interface WriterEditorEvents {
  * This is the editor object that extensions can access via `this.editor`
  * when using class-based extensions, or that is passed to event handlers.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
- * @source panel/src/components/Forms/Writer/Emitter.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
+ * @source panel/src/components/Forms/Writer/Emitter.ts
  */
 export interface WriterEditor {
   // #region Properties
@@ -116,11 +115,6 @@ export interface WriterEditor {
   extensions: WriterExtensions;
   focused: boolean;
   inputRules: InputRule[];
-  /**
-   * Keyed by array index rather than by mark or node name, and every entry
-   * throws when called – read `activeMarks` and `activeNodes` instead.
-   */
-  isActive: Record<string, (attrs?: Record<string, any>) => boolean>;
   keymaps: Plugin[];
   /**
    * Raw mark schema definitions.
@@ -212,11 +206,6 @@ export interface WriterEditor {
   getMarkAttrs: <T extends object = Record<string, any>>(
     type?: string | null,
   ) => T | undefined;
-  /** Returns the schema as JSON. */
-  getSchemaJSON: () => {
-    nodes: Record<string, any>;
-    marks: Record<string, any>;
-  };
   /** Inserts text at the current selection. */
   insertText: (text: string, selected?: boolean) => void;
   /** Checks if the editor is editable. */
@@ -273,7 +262,7 @@ export interface WriterEditor {
 /**
  * Editor initialization options.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  */
 export interface WriterEditorOptions {
   autofocus?: boolean | "start" | "end" | number;
@@ -296,13 +285,15 @@ export interface WriterEditorOptions {
  *
  * Manages all registered mark, node, and generic extensions.
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensions {
   /** All registered extension instances. */
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /** ProseMirror EditorView assigned by the editor after initialization. */
-  view: EditorView;
+  /**
+   * The editor instance this extensions manager belongs to.
+   */
+  editor: WriterEditor;
 
   /** Returns toolbar buttons for the given type, `mark` by default. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
@@ -310,16 +301,12 @@ export interface WriterExtensions {
   marks: Record<string, MarkSpec>;
   /**
    * Views of the mark extensions that define one, keyed by mark name.
-   *
-   * @since 4.2.0
    */
   markViews: Record<string, MarkViewConstructor>;
   /** Raw node schema definitions from all node extensions. */
   nodes: Record<string, NodeSpec>;
   /**
    * Views of the node extensions that define one, keyed by node name.
-   *
-   * @since 4.2.0
    */
   nodeViews: Record<string, NodeViewConstructor>;
   /**
@@ -338,10 +325,10 @@ export interface WriterExtensions {
  *
  * Buttons appear in the Writer toolbar and trigger commands when clicked.
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Toolbar.vue
- * @source panel/src/components/Forms/Writer/Nodes/Heading.js
- * @source panel/src/components/Forms/Writer/Marks/Link.js
+ * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
+ * @source panel/src/components/Forms/Writer/Marks/Link.ts
  */
 export interface WriterToolbarButton {
   /** Key of a button in an extension's button array, `name` when omitted. */
@@ -360,8 +347,6 @@ export interface WriterToolbarButton {
   separator?: boolean;
   /**
    * Whether a node button shows inline in the toolbar instead of in the block dropdown.
-   *
-   * @since 5.0.0
    */
   inline?: boolean;
   /** Names of active node types under which this dropdown button stays enabled. */
@@ -378,7 +363,7 @@ export interface WriterToolbarButton {
  * with marks, nodes, and editor state. These utilities are passed to
  * extension methods via the context object.
  *
- * @source panel/src/components/Forms/Writer/Utils/index.js
+ * @source panel/src/components/Forms/Writer/Utils/index.ts
  */
 export interface WriterUtils {
   // #region ProseMirror Commands
@@ -447,7 +432,6 @@ export interface WriterUtils {
    * @param content - Optional initial content for the node
    * @param marks - Optional marks to apply to the node
    * @returns A ProseMirror command
-   * @since 4.3.0
    */
   insertNode: (
     type: NodeType,
@@ -534,6 +518,7 @@ export interface WriterUtils {
    * @param type - The mark type to apply
    * @param getAttrs - Optional mark attributes, or a function computing them from the matched string
    * @returns A ProseMirror plugin
+   * @deprecated Use `markPasteRule` instead.
    */
   pasteRule: (
     regexp: RegExp,
@@ -617,7 +602,7 @@ export interface WriterUtils {
  * }
  * ```
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterMarkContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -640,7 +625,7 @@ export interface WriterMarkContext {
  * }
  * ```
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterNodeContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -657,7 +642,7 @@ export interface WriterNodeContext {
  * Generic extensions don't have a specific type, so only schema and utils
  * are provided.
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensionContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -678,8 +663,8 @@ export interface WriterExtensionContext {
  * extensions reach the editor as instances passed to the `extensions` prop of
  * `k-writer-input`, and custom shortcuts through its `keys` prop.
  *
- * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
  */
 export interface WriterExtension {
@@ -792,10 +777,10 @@ export interface WriterExtension {
  * });
  * ```
  *
- * @source panel/src/components/Forms/Writer/Mark.js
- * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/helpers/writer.js
+ * @source panel/src/components/Forms/Writer/Mark.ts
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/helpers/writer.ts
  */
 export interface WriterMarkExtension {
   // #region Instance Properties (available via `this` in extension methods)
@@ -955,8 +940,6 @@ export interface WriterMarkExtension {
   /**
    * Creates the mark view that renders this mark in the editor instead of
    * the schema's `toDOM` output.
-   *
-   * @since 4.2.0
    */
   view?: MarkViewConstructor;
   // #endregion
@@ -1032,10 +1015,10 @@ export interface WriterMarkExtension {
  * });
  * ```
  *
- * @source panel/src/components/Forms/Writer/Node.js
- * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/helpers/writer.js
+ * @source panel/src/components/Forms/Writer/Node.ts
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/helpers/writer.ts
  */
 export interface WriterNodeExtension {
   // #region Instance Properties (available via `this` in extension methods)
@@ -1135,8 +1118,6 @@ export interface WriterNodeExtension {
   /**
    * Creates the node view that renders this node in the editor instead of
    * the schema's `toDOM` output.
-   *
-   * @since 4.2.0
    */
   view?: NodeViewConstructor;
   // #endregion

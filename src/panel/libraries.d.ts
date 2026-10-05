@@ -4,7 +4,7 @@
  * Provides types for the `$library` utilities available on the Vue prototype.
  * Includes color manipulation, date handling (dayjs), and textarea autosize.
  *
- * @since 4.0.0
+ * @since 6.0.0
  */
 
 import type {
@@ -72,7 +72,7 @@ export type PanelColorInput = string | PanelColorObject;
  * const css = this.$library.colors.toString(hex, "rgb");
  * ```
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/libraries/colors.ts
  * @source panel/src/libraries/colors-checks.ts
  */
@@ -279,8 +279,7 @@ export interface PanelDayjsStaticExtensions {
    * Parses ISO formatted string.
    *
    * @param value - ISO string
-   * @param format - ISO format type. If omitted, tries all three formats
-   *   since 4.2.0 – before, only `datetime`.
+   * @param format - ISO format type. If omitted, tries all three formats.
    * @returns Dayjs instance or `null` if invalid
    */
   iso: (
@@ -312,7 +311,7 @@ export interface PanelDayjsStaticExtensions {
  * const parsed = this.$library.dayjs.interpret("Jan 15 2024", "date");
  * ```
  *
- * @since 4.0.0
+ * @since 6.0.0
  * @source panel/src/libraries/dayjs.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {

@@ -179,7 +179,7 @@ type PaginatedResponse = KirbyQueryResponse<BlogPostSummary[], true>;
 ## Panel Types
 
 > [!NOTE]
-> The Panel types track Kirby's own sources: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Kirby 5 Panel source – PHP wins where they disagree. Members added after Kirby 4 carry a git-verified `@since` tag, so your editor flags anything newer than the Kirby version you target. Kirby 6 types ship in kirby-types v2.
+> The Panel types track Kirby 6's own sources: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Kirby 6 Panel source – PHP wins where they disagree. Kirby 4 and 5 are typed by kirby-types v1.
 
 For Panel plugin development, type the global `window.panel` object:
 
@@ -321,8 +321,8 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 | [`KirbyLinkFieldProps`](./src/blueprint.d.ts)     | Link field props                |
 | [`KirbyObjectFieldProps`](./src/blueprint.d.ts)   | Object field props              |
 | [`KirbyWriterFieldProps`](./src/blueprint.d.ts)   | Writer (rich text) field props  |
-| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)  | Entries field props (Kirby 5+)  |
-| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)    | Stats field props (Kirby 5.1+)  |
+| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)  | Entries field props             |
+| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)    | Stats field props               |
 
 </details>
 

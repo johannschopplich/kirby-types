@@ -14,7 +14,7 @@
  * - `writer.d.ts` - Writer (ProseMirror) editor and extensions
  * - `textarea.d.ts` - Textarea toolbar buttons
  *
- * @since 4.0.0
+ * @since 6.0.0
  */
 
 import type {
@@ -90,6 +90,7 @@ export type {
   PanelTheme,
   PanelLanguage,
   PanelMenuEntry,
+  PanelMenuItem,
   PanelMenu,
   PanelNotificationOptions,
   PanelErrorObject,
@@ -247,21 +248,18 @@ export type PanelComponentExtension =
 /**
  * Global Panel configuration.
  *
- * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelConfig {
   /**
    * API configuration.
-   *
-   * @since 4.5.0
    */
   api: {
     /**
      * Whether requests other than `GET` and `POST` are sent as `POST` with an
-     * `X-HTTP-Method-Override` header. Named `methodOverwrite` before 5.0.0.
-     *
-     * @since 5.0.0
+     * `X-HTTP-Method-Override` header.
      */
     methodOverride: boolean;
   };
@@ -272,8 +270,6 @@ export interface PanelConfig {
   /**
    * Default color theme from the `panel.theme` option (`"system"` unless
    * configured). A theme the user picks overrides it.
-   *
-   * @since 5.1.0
    */
   theme: string;
   /**
@@ -284,8 +280,6 @@ export interface PanelConfig {
   /**
    * Chunk size in bytes for chunked file uploads – 95% of the smallest
    * server upload limit.
-   *
-   * @since 5.0.0
    */
   upload: number;
 }
@@ -365,7 +359,6 @@ interface PanelPermissionsSite {
   changeTitle: boolean;
   /**
    * Whether the user may open the site preview.
-   * @since 5.5.2
    */
   preview: boolean;
   update: boolean;
@@ -431,6 +424,7 @@ export interface PanelPermissions {
 /**
  * Search type definition.
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelSearchType {
   icon: string;
@@ -440,8 +434,9 @@ export interface PanelSearchType {
 
 /**
  * Available search types in the Panel.
- * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelSearches {
   /** Omitted when the user has no access to the site area. */
@@ -458,11 +453,15 @@ export interface PanelSearches {
 
 /**
  * Base URLs for Panel operations.
- * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelUrls {
   api: string;
+  /** URL of the Panel's icon sprite. */
+  icons: string;
+  panel: string;
   site: string;
 }
 // #endregion
@@ -617,13 +616,6 @@ export interface PanelPluginExtensions {
   created?: (instance: ComponentPublicInstance) => void;
 
   /**
-   * Custom login form component.
-   *
-   * Replaces the default login form with a custom implementation.
-   */
-  login?: PanelComponentExtension;
-
-  /**
    * Custom textarea toolbar buttons.
    */
   textareaButtons?: Record<string, TextareaButton>;
@@ -667,7 +659,6 @@ export interface PanelPlugins {
    * @param name - Component name being registered
    * @param component - Component options object
    * @returns Updated/extended component options
-   * @since 5.0.0
    */
   resolveComponentExtension: (
     app: App,
@@ -680,7 +671,6 @@ export interface PanelPlugins {
    *
    * @param component - Component options object
    * @returns Updated component options with resolved mixins
-   * @since 5.0.0
    */
   resolveComponentMixins: (
     component: PanelComponentExtension,
@@ -691,7 +681,6 @@ export interface PanelPlugins {
    *
    * @param component - Component options object
    * @returns Updated component options
-   * @since 5.0.0
    */
   resolveComponentRender: (
     component: PanelComponentExtension,
@@ -708,27 +697,6 @@ export interface PanelPlugins {
 
   /** Registered SVG icons. */
   icons: Record<string, string>;
-
-  /**
-   * Custom login component. Until a plugin registers one, `null` before
-   * 5.5.0 and `undefined` since.
-   */
-  login?: DefineComponent<
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any
-  > | null;
-
-  /** Reserved bucket for plugin-registered routes (initialized empty; not currently written to by `panel.plugin()`). */
-  routes: Record<string, any>[];
 
   /**
    * Registered textarea toolbar buttons.
@@ -770,6 +738,7 @@ export interface PanelPlugins {
  * Language information for multi-language sites.
  * @source src/Cms/Language.php
  * @source src/Panel/View.php
+ * @source src/Panel/State.php
  */
 export interface PanelLanguageInfo {
   /** Language code (e.g., `"en"`, `"de"`). */
@@ -779,8 +748,6 @@ export interface PanelLanguageInfo {
   /**
    * Whether the language is configured with an absolute `url` (e.g.
    * `https://example.de` or `//example.de`) rather than a path prefix.
-   *
-   * @since 5.2.3
    */
   hasCustomDomain: boolean;
   /** PHP locale settings keyed by `LC_*` integer constants (e.g., `LC_ALL`, `LC_CTYPE`). */
@@ -796,7 +763,7 @@ export interface PanelLanguageInfo {
 
 /**
  * Global Panel state for `panel.state()`.
- * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  */
 export interface PanelGlobalState {
   config: PanelConfig;
@@ -816,6 +783,29 @@ export interface PanelGlobalState {
   urls: PanelUrls;
   user: PanelFeatures.PanelUserDefaults;
   view: PanelFeatures.PanelViewDefaults;
+}
+// #endregion
+
+// #region Panel HTML
+
+/**
+ * Trusted, pre-escaped HTML string wrapper. Extends the native `String`, so it
+ * interpolates, concatenates and serializes like a plain string, but is
+ * recognizable via `instanceof` and can be rendered (`v-html`/`v-safe-html`)
+ * without further escaping.
+ * @since 6.0.0
+ * @source panel/src/panel/html.ts
+ */
+// eslint-disable-next-line ts/no-wrapper-object-types -- Mirrors the Panel's `class HtmlString extends String`.
+export interface HtmlString extends String {}
+
+/**
+ * Wraps a value as trusted, pre-escaped HTML by returning an `HtmlString`.
+ * @since 6.0.0
+ * @source panel/src/panel/html.ts
+ */
+export interface PanelHtml {
+  (value: unknown): HtmlString;
 }
 // #endregion
 
@@ -842,8 +832,8 @@ export interface PanelGlobalState {
  * const page = await panel.api.get("pages/home");
  * ```
  *
- * @source panel/src/panel/panel.js
- * @source panel/src/index.js
+ * @source panel/src/panel/panel.ts
+ * @source panel/src/index.ts
  * @source panel/public/js/plugins.js
  */
 export interface Panel {
@@ -869,6 +859,24 @@ export interface Panel {
 
   /** Whether the browser is offline. */
   isOffline: boolean;
+
+  /**
+   * Shared singleton observers, currently exposing a `ResizeObserver` that
+   * dispatches a `resize` `CustomEvent` on each observed target.
+   * @source panel/src/panel/observers.ts
+   */
+  observers: {
+    resize: ResizeObserver;
+  };
+
+  /**
+   * Wraps a value as trusted, pre-escaped HTML.
+   *
+   * The returned `HtmlString` behaves like a string but can be rendered via
+   * `v-html`/`v-safe-html` without re-escaping.
+   * @source panel/src/panel/html.ts
+   */
+  html: PanelHtml;
   // #endregion
 
   // #region State Objects (extend State)
@@ -956,6 +964,12 @@ export interface Panel {
 
   /** Available search types. */
   searches: PanelSearches;
+
+  /**
+   * Whether at least one search type is registered.
+   * @source panel/src/panel/panel.ts
+   */
+  readonly hasSearch?: boolean;
 
   /** Base URLs. */
   urls: PanelUrls;
@@ -1070,13 +1084,12 @@ export interface Panel {
   ) => Promise<any>;
 
   /**
-   * Navigates the browser to the absolute URL. Since 5.5.0, throws a
-   * redirect error that the Panel's error handler catches; before, navigated
-   * directly and returned `false`.
+   * Throws a redirect error that the Panel's error handler catches and
+   * answers by navigating the browser to the absolute URL.
    *
    * @param path - Path or URL to navigate to
    */
-  redirect: (path: string | URL) => false;
+  redirect: (path: string | URL) => never;
 
   /**
    * Reloads the current view.
@@ -1113,8 +1126,6 @@ export interface Panel {
    * When called with a query, performs the search and returns results.
    *
    * Without a type, the dialog preselects the current view's search type.
-   * Before 4.1.0, passing a type without a query ran a search instead of
-   * opening the dialog.
    *
    * @param type - Search type (`"pages"`, `"files"`, `"users"`)
    * @param query - Search query string
@@ -1181,7 +1192,7 @@ export interface Panel {
 
 /**
  * User holding the content lock. Both fields are `null` when nobody holds
- * the lock or, since 5.4.1, the holder is not listable.
+ * the lock or the holder is not listable.
  * @source src/Content/Lock.php
  */
 interface PanelViewPropsLockUser {
@@ -1286,30 +1297,6 @@ interface PanelViewPropsNavigation {
 }
 
 /**
- * Legacy nested model information.
- *
- * Emitted on Page, File, User and Site views with per-blueprint shape
- * variance. The fields below model the Page variant; File adds
- * `dimensions`/`extension`/`filename`/`mime`/`niceSize`/`template`/`type`/`url`;
- * User adds `account`/`avatar`/`email`/`language`/`name`/`role`/`username`;
- * Site has only `link`/`previewUrl`/`title`/`uuid`.
- *
- * @source src/Panel/Page.php
- * @source src/Panel/File.php
- * @source src/Panel/User.php
- * @source src/Panel/Site.php
- */
-interface PanelViewPropsModel {
-  id: string;
-  link: string;
-  parent: string;
-  previewUrl: string;
-  status: string;
-  title: string;
-  uuid: string;
-}
-
-/**
  * Button definition.
  * @source src/Panel/Ui/Buttons/ViewButton.php
  * @source src/Panel/Ui/Button.php
@@ -1370,37 +1357,18 @@ export interface PanelViewProps {
   tabs: Record<string, any>[];
   /**
    * UUID of the model. Is `null` when the `content.uuid` option is `false`.
-   *
-   * @since 5.0.0
    */
   uuid: string | null;
   versions: PanelViewPropsVersions;
   /** Active blueprint tab. Only present when the blueprint defines tabs. */
   tab?: PanelViewPropsTab;
-  /**
-   * Sibling navigation link to the next model. Emitted only on Page, File
-   * and User views (may be `null` when there is no next sibling); not
-   * emitted on Site.
-   */
-  next?: PanelViewPropsNavigation | null;
-  /**
-   * Sibling navigation link to the previous model. Emitted only on Page,
-   * File and User views (may be `null` when there is no previous sibling);
-   * not emitted on Site.
-   */
-  prev?: PanelViewPropsNavigation | null;
+  /** Sibling navigation link to the next model, `null` without one. */
+  next: PanelViewPropsNavigation | null;
+  /** Sibling navigation link to the previous model, `null` without one. */
+  prev: PanelViewPropsNavigation | null;
   blueprint: string;
-  /**
-   * Legacy nested model information.
-   *
-   * @deprecated Since 5.0.0; use the top-level view props instead.
-   */
-  model: PanelViewPropsModel;
-  /**
-   * View title. Page and Site set it inside props, but File and User omit
-   * it from the inner props payload (the title appears only on the view
-   * envelope).
-   */
-  title?: string;
+  title: string;
+  /** Search type of the file (`"files"`) and user (`"users"`) views. */
+  search?: string;
 }
 // #endregion
