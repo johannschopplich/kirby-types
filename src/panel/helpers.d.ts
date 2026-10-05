@@ -627,11 +627,8 @@ export interface PanelHelpersKeyboard {
 export interface PanelLinkType {
   /** Returns `true` if the value belongs to this link type. */
   detect: (value: string) => boolean;
-  /** Icon name. */
   icon: string;
-  /** Type identifier. */
   id: string;
-  /** Display label. */
   label: string;
   /** Extracts link from value. */
   link: (value: string) => string;
@@ -654,7 +651,6 @@ export interface PanelLinkDetection {
 
 /** Link preview data. */
 export interface PanelLinkPreview {
-  /** Display label. */
   label: string;
   image?: { url: string; [key: string]: any };
 }
@@ -845,7 +841,7 @@ export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
 /** Throttled function with cancel method. */
 export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): void;
-  /** Cancels pending invocation. */
+  /** Drops the pending trailing call and ends the cooldown. */
   cancel: () => void;
 }
 // #endregion
@@ -909,7 +905,7 @@ export interface PanelHelpers {
    * Resolves CSS color to CSS variable.
    *
    * @param value - Color name or value
-   * @returns CSS variable or original value, `undefined` if not a string
+   * @returns CSS variable if one matches, otherwise the lowercased value; `undefined` if not a string
    * @source panel/src/helpers/color.ts
    */
   color: (value: unknown) => string | undefined;
@@ -1066,7 +1062,9 @@ export interface PanelHelpers {
    *
    * @param file - File to upload
    * @param params - Upload parameters
-   * @returns Promise resolving to response
+   * @returns Promise resolving to the parsed JSON response; rejects with the
+   *   server's error response, or a generic `{ status: "error", message }`
+   *   object when the body is not JSON; stays pending on a network error or abort
    * @source panel/src/helpers/upload.ts
    * @source panel/src/helpers/index.ts
    */
@@ -1117,7 +1115,7 @@ export interface PanelHelpersWriter {
    *
    * @param available - Map of all available extensions keyed by name
    * @param allowed - `true` to allow all, `false` to allow none, an array of
-   *   names, or an object map (keys with falsy values are filtered out)
+   *   names, or an object map (keys set to `false` are filtered out)
    * @returns Array of allowed extension names
    */
   allowedExtensions: (
