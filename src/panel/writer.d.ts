@@ -147,7 +147,10 @@ export interface WriterEditor {
   getHTMLStartToSelectionToEnd: () => [string, string];
   /** Returns the current content as JSON. */
   getJSON: () => Record<string, any>;
-  /** Returns attributes for a mark type, or `undefined` when the mark is not active. */
+  /**
+   * Returns attributes for a mark type: `{}` when no text in the selection
+   * carries the mark, `undefined` for a name the schema lacks.
+   */
   getMarkAttrs: <T extends object = Record<string, any>>(
     type?: string | null,
   ) => T | undefined;
