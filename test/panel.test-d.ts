@@ -103,17 +103,16 @@ expectAssignable<PanelUploadFile>({
   url: "blob:http://localhost/abc123",
   progress: 50,
   completed: false,
-  error: null,
   model: null,
 });
 
 expectAssignable<PanelUploadDefaults>({
-  abort: null,
   accept: "*",
   attributes: {},
   files: [],
   max: null,
   multiple: true,
+  on: {},
   preview: {},
   replacing: null,
   url: null,
