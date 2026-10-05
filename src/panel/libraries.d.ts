@@ -161,11 +161,11 @@ export interface PanelLibraryColors {
 /** Pattern part information. */
 export interface PanelDayjsPatternPart {
   index: number;
-  /** Unit type or undefined for separators. */
+  /** Unit the part refers to, `undefined` for a letter sequence that is not a supported token, e.g. `Do`. */
   unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
-  /** Start position in pattern string. */
+  /** Start position in the pattern. */
   start: number;
-  /** End position in pattern string. */
+  /** End position (inclusive) in the pattern. */
   end: number;
 }
 
@@ -206,7 +206,7 @@ export interface PanelDayjsExtensions {
   /**
    * Formats as ISO string (Kirby format).
    *
-   * @param format - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"`
+   * @param format - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"` (default: `"datetime"`)
    * @returns ISO formatted string
    */
   toISO: (format?: "date" | "time" | "datetime") => string;
@@ -279,7 +279,8 @@ export interface PanelDayjsStaticExtensions {
    * Parses ISO formatted string.
    *
    * @param value - ISO string
-   * @param format - ISO format type. If omitted, tries all three formats.
+   * @param format - ISO format type. If omitted, tries all three formats
+   *   since 4.2.0 – before, only `datetime`.
    * @returns Dayjs instance or `null` if invalid
    */
   iso: (
@@ -329,8 +330,18 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
     option?: T,
   ) => typeof import("dayjs");
 
-  /** Activates or registers a locale and returns the active locale name. */
-  locale: (preset?: string, object?: object, isLocal?: boolean) => string;
+  /**
+   * Activates or registers a locale and returns the active locale name.
+   *
+   * @param preset - Locale name or locale object
+   * @param object - Locale data to register under `preset`
+   * @param isLocal - Whether to return the locale without activating it
+   */
+  locale: (
+    preset?: string | ILocale,
+    object?: Partial<ILocale>,
+    isLocal?: boolean,
+  ) => string;
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
 
@@ -355,9 +366,7 @@ export interface PanelLibraryAutosize {
    * @param element - Element(s) to autosize
    * @returns The input element(s)
    */
-  <T extends HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList>(
-    element: T,
-  ): T;
+  <T extends ArrayLike<Element> | Element>(element: T): T;
 
   /**
    * Triggers a resize update.
@@ -365,9 +374,7 @@ export interface PanelLibraryAutosize {
    * @param element - Element(s) to update
    * @returns The input element(s)
    */
-  update: <T extends HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList>(
-    element: T,
-  ) => T;
+  update: <T extends ArrayLike<Element> | Element>(element: T) => T;
 
   /**
    * Removes autosize behavior and restores the original textarea styling.
@@ -375,9 +382,7 @@ export interface PanelLibraryAutosize {
    * @param element - Element(s) to destroy
    * @returns The input element(s)
    */
-  destroy: <T extends HTMLTextAreaElement | HTMLTextAreaElement[] | NodeList>(
-    element: T,
-  ) => T;
+  destroy: <T extends ArrayLike<Element> | Element>(element: T) => T;
 }
 // #endregion
 
