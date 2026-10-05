@@ -355,10 +355,11 @@ export interface PanelNotificationOptions {
   /** Visual theme. */
   theme?: NotificationTheme;
   /**
-   * Auto-close delay in ms. For non-error notifications any falsy value
-   * (including `0`) falls back to the `4000` ms default, so auto-close
-   * cannot be disabled for them. `error` and `fatal` notifications keep the
-   * passed value and default to `0`, i.e. no auto-close.
+   * Auto-close delay in ms. For non-error notifications a missing value
+   * falls back to `4000` ms since 4.3.0, and any falsy one (including `0`)
+   * since 5.5.0, so auto-close cannot be disabled for them from then on.
+   * `error` and `fatal` notifications keep the passed value and otherwise
+   * never auto-close.
    */
   timeout?: number;
   type?: NotificationType;
