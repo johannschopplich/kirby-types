@@ -2,12 +2,12 @@
 
 ## Lines
 
-Each kirby-types branch types one Kirby release line. The probe reads the branch and checks the Kirby root against it.
+Each kirby-types branch types one Kirby release line.
 
-| Branch         | Package | Kirby   | Plugin shape | `@since` baseline |
-| -------------- | ------- | ------- | ------------ | ----------------- |
-| `main`         | v1.x    | 4 and 5 | Vue 2.7      | 4.0.0             |
-| `feat/kirby-6` | v2      | 6       | Vue 3        | 6.0.0             |
+| Branch         | Package | Kirby                               | Plugin shape | `@since` baseline |
+| -------------- | ------- | ----------------------------------- | ------------ | ----------------- |
+| `main`         | v1.x    | 4 and 5, audited against a 5.x root | Vue 2.7      | 4.0.0             |
+| `feat/kirby-6` | v2      | 6                                   | Vue 3        | 6.0.0             |
 
 Types describe the line's runtime and nothing beyond it: a member another line adds, removes, or reshapes belongs to that line's branch. A member the line itself removed or ignores in a later release keeps `@deprecated` with a one-line note naming the release.
 
@@ -19,12 +19,12 @@ PHP is the response-shape contract for everything Features render. Panel TS is t
 
 Panel TS is **evidence-strength, not absolute**. PHP overrules it when they disagree:
 
-- `PanelSystem.csrf` – Kirby 6 TS typed `string | null`, PHP `csrfFromSession()` always returns `string`. Keep `string`.
-- `PanelLanguageInfo.slugs` – Kirby 6 TS typed `string[]`, PHP emits `Record<string, string>`. Keep the record.
+- `PanelSystem.csrf` – the Panel TS types `string | null`, PHP `csrfFromSession()` always returns `string`. Keep `string`.
+- `PanelSystem.slugs` – the Panel TS types `string[]`, PHP emits `Record<string, string>`. Keep the record.
 
 ## Anti-pattern: defaults-as-runtime fallacy
 
-JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for nullability claims. Never widen a property to `T | null` on JS evidence alone.
+For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for its nullability and never widen it to `T | null` on JS evidence alone: `PanelView.path`, `PanelSystem.csrf`, `PanelTranslation.code` stay non-nullable. A browser-only property takes its nullability from the Panel source, release by release.
 
 ## Finding categories
 
@@ -47,7 +47,6 @@ JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for nullabili
 - `Record<string, any>` for query bags (e.g. `query?: Record<string, any>`)
 - `Promise<any>` for dynamic backend response data
 - Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants, blueprint-driven view tabs)
-- Feature/State properties whose JS `defaults()` returns `null` but whose PHP response always sets a value (e.g. `PanelView.path`, `PanelSystem.csrf`, `PanelTranslation.code`). Type is non-nullable; do not re-widen on JS evidence.
 
 ## Panel TS evidence
 
@@ -63,7 +62,7 @@ JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for nullabili
 
 ## Escape hatch
 
-If you cannot locate PHP source confirming runtime nullability, DEFER any nullable widening and emit a `soft` finding. Never widen on JS evidence alone.
+If you cannot locate PHP source confirming runtime nullability, DEFER any nullable widening and emit a `soft` finding.
 
 ## JSDoc style
 
@@ -74,4 +73,4 @@ If you cannot locate PHP source confirming runtime nullability, DEFER any nullab
 - **Callables open with a third-person verb, everything else takes a noun phrase.** `key: () => string` gets "Returns the state key identifier."; `timestamp: number | null` gets "Timestamp from the backend for cache invalidation." A function-typed property is a callable and takes the verb.
 - **Bulleted lists** completing a colon lead-in are punctuated once, on the last item. Items keyed by a label are independent descriptions and each take a period. A list of literal values under a label is verbatim and takes none.
 - **Sections are `// #region Name` … `// #endregion`,** never a rule-line banner and never a bare label. Regions nest – `WriterUtils` and `PanelEvents` group members inside an interface that way.
-- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface, citing the file the source map lists. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see` – source URLs rot. A **phantom `@source`** cites a file the map lists under the other extension or not at all: replace or drop it.
+- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see` – source URLs rot. A **phantom `@source`** cites a `panel/src` file the source map doesn't list, in a directory the map covers: re-point it to the listed extension, or drop it when the module is gone.

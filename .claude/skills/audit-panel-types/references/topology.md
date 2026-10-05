@@ -4,7 +4,7 @@ Paste the relevant cluster's entry into the pass-1 prompt template in [agent-pro
 
 **File status is NOT in this file.** Which modules ship `.js`, `.ts`, or both in the Kirby root comes from `source-map.json` (produced by `scripts/probe.mjs`). Module paths below are written extension-free precisely so they never rot – the agent resolves each one against the map.
 
-Clusters, modules, and watchpoints hold for both lines. Where Kirby 6 moved a file, the PHP line names both (`View.php` → K6 `State.php`); the agent reads the one its root has. A watchpoint tagged **(K6 line)** applies only when the root is Kirby 6.
+Clusters, modules, and watchpoints hold for both lines; an entry tagged **(K6 line)** applies only when the root is Kirby 6.
 
 `@since` is per-symbol and git-derived – see [rubric.md](rubric.md#since).
 
@@ -20,19 +20,19 @@ Clusters, modules, and watchpoints hold for both lines. Where Kirby 6 moved a fi
 
 - **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelSuccessResponse, PanelHistory, PanelHistoryMilestone, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
-- **PHP**: `kirby/src/Panel/{View,Dialog,Drawer}.php`, `kirby/src/Panel/Json.php` (Fiber response keys)
+- **PHP**: `src/Panel/{View,Dialog,Drawer}.php`, `src/Panel/Json.php` (Fiber response keys)
 - **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer` (K6 line; Kirby 5 emits `x-fiber*`). `NotificationType`: only `"error"`/`"fatal"` are ever assigned to `state.type`; the wider `success`/`info` union is unreachable – note, don't flag.
 
 ## features.d.ts (6 clusters)
 
-Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape, not PHP authority. Never widen on Panel evidence alone.
+Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape, not PHP authority (defaults-as-runtime fallacy).
 
 ### `features-stateonly`
 
 - **Symbols**: PanelTimer, PanelActivation*, PanelDrag*, PanelTheme*, PanelThemeValue, PanelLanguage*, PanelMenu*, PanelMenuEntry, PanelSystem*, PanelTranslation*, PanelUser*
 - **Modules**: `panel/src/panel/{activation,drag,theme,language,menu,system,translation,user}`, `panel/src/helpers/timer` (older Kirby 5 releases spell it `activiation`)
-- **PHP**: `kirby/src/Panel/View.php` (`$translation`, `$system`, `$language`, `$user`, `$menu` resolvers)
-- **Watch**: PHP overrules Panel TS – `PanelSystem.csrf: string` (not `string | null`), `PanelLanguageInfo.slugs: Record` (not `string[]`), title `string`. Menu state is `entries` on Kirby 5; **(K6 line)** `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` re-lists fields manually (no Defaults intersection); `locale`/`url` are stripped by `state.set()` before reaching `panel.language` – they belong on `PanelLanguageInfo`, not here.
+- **PHP**: `src/Panel/View.php` (`$translation`, `$system`, `$language`, `$user`, `$menu` resolvers)
+- **Watch**: PHP overrules Panel TS – title `string`. Menu state is `entries` on Kirby 5; **(K6 line)** `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` re-lists fields manually (no Defaults intersection); `locale`/`url` are stripped by `state.set()` before reaching `panel.language` – they belong on `PanelLanguageInfo`, not here.
 
 ### `features-notification`
 
@@ -44,38 +44,38 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 - **Symbols**: PanelBreadcrumbItem, PanelViewDefaults, PanelView, PanelSearchPagination, PanelSearchOptions, PanelSearchResult, PanelSearcher
 - **Modules**: `panel/src/panel/{view,search,feature}`
-- **PHP**: `kirby/src/Panel/{View,Page,File,User,Site}.php` (`$view` resolver + per-model props)
+- **PHP**: `src/Panel/{View,Page,File,User,Site}.php` (`$view` resolver + per-model props)
 - **Watch**: PanelView extends PanelFeature – never re-flag inherited members; focus on what view ADDS/OVERRIDES. `PanelView.path` non-nullable (PHP always sets it) even though JS `defaults()` returns null.
 
 ### `features-upload`
 
 - **Symbols**: PanelUploadFile, PanelUploadDefaults, PanelUpload
 - **Modules**: `panel/src/panel/upload` (+ `panel/src/helpers/upload` for context)
-- **PHP**: `kirby/src/Panel/File.php` (server file model for `replacing` / `completed`)
+- **PHP**: `src/Panel/File.php` (server file model for `replacing` / `completed`)
 - **Watch**: **(K6 line)** the Panel TS reuses its queued-upload type for `replacing`, which is WRONG against PHP – PHP is authority for the `replacing` shape.
 
 ### `features-content`
 
 - **Symbols**: PanelContentVersion, PanelContentVersions, PanelContentLock, PanelContentEnv, PanelContent
 - **Modules**: `panel/src/panel/content` (**(K6 line)** `renewLock`)
-- **PHP**: `kirby/src/Content/{Lock,Version}.php`, `kirby/src/Cms/ContentTranslation.php`
+- **PHP**: `src/Content/{Lock,Version}.php`
 - **Watch**: PanelContent is a plain `reactive({...})` returned by `Content(panel)` – it does NOT extend PanelFeature. Don't flag a missing-extends. `save()` keeps `| void` on the Kirby 4/5 line: 5.0–5.5 resolve to `void`.
 
 ### `features-modals`
 
 - **Symbols**: PanelDropdownOption, PanelDropdownDefaults, PanelDropdown, PanelDialogDefaults, PanelDialog, PanelDrawerDefaults, PanelDrawer, PanelEventEmitter, PanelEvents
 - **Modules**: `panel/src/panel/{dropdown,dialog,drawer,events,modal,feature}`
-- **PHP**: `kirby/src/Panel/View.php` (`$dialogs`/`$drawers`/`$dropdowns` config endpoints), `kirby/src/Panel/{Dialog,Drawer}.php`
-- **Watch**: Dialog/Drawer/Dropdown extend PanelModal – never re-flag inherited members. Kirby 5 keeps `legacy`/`ref`/`openComponent` for Vue-2 plugin compat; the K6 line has none of them.
+- **PHP**: `src/Panel/View.php` (`$dialogs`/`$drawers`/`$dropdowns` config endpoints), `src/Panel/{Dialog,Drawer}.php`
+- **Watch**: Dialog/Drawer extend PanelModal, Dropdown extends PanelFeature – review only the members each adds or overrides. Kirby 5 keeps `legacy`/`ref`/`openComponent` for Vue-2 plugin compat; the K6 line has none of them.
 
 ## api.d.ts (4 clusters)
 
-JS/TS client is source of truth. PHP routes (`kirby/config/api/routes/*.php`) consulted only when JSDoc on the wrapper is missing. Query bags stay `Record<string, any>`; dynamic response data stays `Promise<any>` – intentional looseness.
+JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulted only when JSDoc on the wrapper is missing. Query bags stay `Record<string, any>`; dynamic response data stays `Promise<any>` – intentional looseness.
 
 ### `api-core`
 
 - **Symbols**: PanelApi, PanelApiRequestOptions, PanelApiPagination, PanelApiSearchQuery, PanelModelData, PanelApiAuth, PanelApiLoginData
-- **Modules**: `panel/src/api/{index,auth}`, `panel/src/panel/request`. Verb helpers (`get/post/patch/delete/request`) are separate files on Kirby 5 and methods on the `Api` class in `index` on the K6 line. **(K6 line)** `auth` exposes `ping()` posting `auth/ping`; the `pingId` field and `ping()` method coexist. On Kirby 5, `api.ping` is the heartbeat interval ID.
+- **Modules**: `panel/src/api/{index,auth}`, `panel/src/panel/request`. Verb helpers (`get/post/patch/delete/request`) are separate files on Kirby 5 and methods on the `Api` class in `index` on the K6 line. `auth.ping()` posts `auth/ping`. **(K6 line)** the `api.pingId` field and `api.ping()` method coexist. On Kirby 5, `api.ping` is the heartbeat interval ID.
 
 ### `api-content`
 
@@ -119,7 +119,7 @@ JS/TS source is the runtime contract. Anchors are short property names (`array:`
 
 - **Symbols**: PanelLibrary, PanelLibraryColors, PanelLibraryDayjs, PanelDayjsExtensions, PanelDayjsStaticExtensions, PanelDayjsPattern, PanelLibraryAutosize
 - **Modules**: `panel/src/libraries/{index,colors,colors-checks,colors-func,dayjs,dayjs-interpret,dayjs-iso,dayjs-merge,dayjs-pattern,dayjs-round,dayjs-validate}` (+ `@types/autosize`)
-- **Watch**: **(K6 line)** the Panel uses `declare module 'dayjs'` to globally augment `Dayjs`; kirby-types intentionally keeps a `Dayjs & PanelDayjsExtensions` intersection on chainable returns. Do NOT switch to global augmentation – note as intentional divergence.
+- **Watch**: the Panel uses `declare module 'dayjs'` to globally augment `Dayjs`; kirby-types intentionally keeps a `Dayjs & PanelDayjsExtensions` intersection on chainable returns – note it as intentional divergence.
 
 ## writer.d.ts (3 clusters)
 
@@ -152,16 +152,16 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 
 ### `index-panel`
 
-- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls (+ `panel.html`)
-- **Modules**: `panel/src/panel/{panel,app,plugins,request,search,html,observers}`, `panel/src/index`
-- **PHP**: `kirby/src/Panel/{Panel,State,View}.php` (urls/globals/searches)
+- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls (+ **(K6 line)** `panel.html`)
+- **Modules**: `panel/src/panel/{panel,app,plugins,request,search}`, `panel/src/index`, **(K6 line)** `panel/src/panel/{html,observers}`
+- **PHP**: `src/Panel/{Panel,View}.php` (urls/globals/searches)
 - **Watch**: `PanelApp`/`PanelComponentExtension`/`PanelPlugins`/`PanelPluginExtensions`/`created` follow the line's Vue version – Vue 2 on `main`; **(K6 line)** Vue 3 `App`/`Plugin`/`ComponentPublicInstance`, plus `panel.html` and `panel.observers` (see Modeling notes).
 
 ### `index-config`
 
 - **Symbols**: PanelConfig, PanelLanguageInfo
 - **Modules**: `panel/src/panel/panel` (the `Config` type + `config` defaults)
-- **PHP**: `kirby/src/Panel/{View,Document,State}.php`, `kirby/src/Cms/Language.php`
+- **PHP**: `src/Panel/{View,Document}.php`, `src/Cms/Language.php`
 - **Watch**: defaults are bootstrap state, not runtime contract – cite PHP for nullability (defaults-as-runtime fallacy).
 
 ### `index-permissions`
@@ -169,7 +169,7 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 PHP-rooted. PHP `toArray()` is the shape; JS only consumes the JSON.
 
 - **Symbols**: PanelPermissions, PanelPermissions{Access,Files,Languages,Pages,Site,Users,User}
-- **PHP**: `kirby/src/Cms/{Permissions,UserPermissions,FilePermissions,PagePermissions,SitePermissions,LanguagePermissions}.php`, `kirby/src/Panel/View.php`
+- **PHP**: `src/Cms/{Permissions,UserPermissions,FilePermissions,PagePermissions,SitePermissions,LanguagePermissions}.php`, `src/Panel/View.php`
 - **Watch**: **(K6 line)** PHP refactored internals (`$actions` → `$defaults`, `$extendedAreas`) but the public `toArray()` shape is unchanged. Per-blueprint deep model permissions are intentional looseness.
 
 ### `index-viewprops`
@@ -177,5 +177,5 @@ PHP-rooted. PHP `toArray()` is the shape; JS only consumes the JSON.
 PHP-rooted. PHP `props()` / `toArray()` is the response shape.
 
 - **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,Navigation,Model,Button}
-- **PHP**: `kirby/src/Panel/{Model,View,Page,File,User,Site}.php`, `kirby/src/Cms/{Page,File,User,Site}Blueprint.php`, `kirby/src/Panel/Ui/Button.php`, `kirby/src/Panel/Ui/Buttons/ViewButton{,s}.php`, `kirby/src/Content/Lock.php`
+- **PHP**: `src/Panel/{Model,View,Page,File,User,Site}.php`, `src/Cms/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Buttons/ViewButton{,s}.php`, `src/Content/Lock.php`
 - **Watch**: **(K6 line)** `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. Deep per-blueprint model shapes (`PanelViewPropsModel` per content type) are intentional looseness. The Panel's `ViewState` in `view` is JS-side state, not the server `props` payload – don't import it here.

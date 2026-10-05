@@ -12,7 +12,7 @@ Authority: **PHP > Panel source** of one Kirby release line. Each kirby-types br
 
 Ask the user for two absolute paths. Don't auto-detect.
 
-- `<KIRBY_TYPES_ROOT>` – the kirby-types checkout being audited; its branch picks the line
+- `<KIRBY_TYPES_ROOT>` – the kirby-types checkout being audited; its branch names the line
 - `<KIRBY_ROOT>` – the Kirby checkout of that line (PHP source + Panel source)
 
 ## Probe – map the live source
@@ -20,18 +20,19 @@ Ask the user for two absolute paths. Don't auto-detect.
 Kirby migrates modules between `.js` and `.ts` every release. Never trust hard-coded file status – discover it:
 
 ```
-node scripts/probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>
+node scripts/probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
 ```
 
 `probe.mjs` creates `<KIRBY_TYPES_ROOT>/.review/.raw/` and writes `source-map.json` beside it: the line, the Kirby version, per-module `.js`/`.ts` status, and the `$helper` and panel-singleton registrations. **Completion criterion**: `source-map.json` exists and its `modules` map is non-empty.
 
 Then branch on `flags`:
 
-- **`LINE-UNKNOWN` or `LINE-MISMATCH`** → surface it and get the right branch or root before launching.
-- **`SHALLOW-HISTORY`** → unshallow the root with the command the flag names, then re-probe. `@since` archaeology needs the full history.
+- **`LINE-UNKNOWN`** → ask which Lines-table branch the work targets, then re-probe with it as `LINE`.
+- **`LINE-MISMATCH` or `NOT-GIT`** → surface it and get a matching, full-history root from the user.
+- **`SHALLOW-HISTORY`** → run the command the flag names, then re-probe.
 - **Otherwise** → launch. Routine runs ask nothing.
 
-[topology.md](references/topology.md) gives the **stable** map only: symbol → cluster → module + PHP authority. Every agent reads `source-map.json` for file status and cites it – never the extensions in topology.
+[topology.md](references/topology.md) gives the **stable** map only: symbol → cluster → module + PHP authority.
 
 ## Pass 1 – annotate + report
 
@@ -58,4 +59,4 @@ One verifier per `.d.ts`, read-only. Each reads the cluster JSONs for its file, 
 
 Prompt template: [agent-prompts.md – Pass 2](references/agent-prompts.md#pass-2). Apply walk: see [edit-gotchas.md](references/edit-gotchas.md).
 
-**Completion criterion**: `tsc --noEmit` and `pnpm test` both exit clean; `test/*.test-d.ts` assertions broken by the new types are updated in the same pass.
+**Completion criterion**: every `.d.ts` in [topology.md](references/topology.md) has a written `.raw/<file>.pass2.json` before the apply – a missing file means a dropped verifier, relaunch it. After the apply, `tsc --noEmit`, `pnpm test`, and `pnpm lint` exit clean, with `test/*.test-d.ts` assertions broken by the new types updated in the same pass.

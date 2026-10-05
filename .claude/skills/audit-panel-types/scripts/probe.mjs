@@ -5,24 +5,21 @@
 // version, history reach, flags – are DISCOVERED here, never hard-coded in
 // topology.md. Agents read the map; they never guess file status.
 //
-// Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>
+// Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const [KIRBY, TYPES] = process.argv.slice(2);
+const [KIRBY, TYPES, LINE_ARG] = process.argv.slice(2);
 if (!KIRBY || !TYPES) {
   process.stderr.write(
-    "Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>\n",
+    "Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]\n",
   );
   process.exit(1);
 }
 
-// The kirby-types branch decides the line; the Kirby root must match it.
-const LINES = {
-  main: { major: "5", line: "kirby-5" },
-  "feat/kirby-6": { major: "6", line: "kirby-6" },
-};
+// The line is the kirby-types branch unless LINE names one; the Kirby root must match it.
+const LINE_MAJORS = { main: "5", "feat/kirby-6": "6" };
 
 // Directories whose file-extension status drifts between releases. Discovered by
 // listing, so no per-module list rots. Relative to <root>/panel/src.
@@ -53,7 +50,7 @@ function moduleMap() {
     for (const f of entries) {
       const m = f.match(/^(.*)\.(ts|js)$/);
       if (!m || /\.(test|spec|test-d)$/.test(m[1])) continue;
-      (map[`${dir}/${m[1]}`] ??= []).push(m[2]);
+      (map[`panel/src/${dir}/${m[1]}`] ??= []).push(m[2]);
     }
   }
   return Object.fromEntries(
@@ -75,9 +72,13 @@ function version() {
 }
 
 function historyReach() {
-  // A shallow clone collapses every pre-floor member to its oldest commit, so
-  // `git tag --contains` silently mis-dates @since.
+  // A shallow clone attributes every older member to its oldest fetched commit,
+  // so `git tag --contains` mis-dates @since.
   try {
+    // A root nested in another checkout answers with the parent's history.
+    const topLevel = run(`git -C "${KIRBY}" rev-parse --show-toplevel`).trim();
+    if (fs.realpathSync(topLevel) !== fs.realpathSync(KIRBY))
+      throw new Error("not a checkout root");
     const shallow =
       run(`git -C "${KIRBY}" rev-parse --is-shallow-repository`).trim() ===
       "true";
@@ -133,37 +134,45 @@ function panelSingletons() {
 const kirbyVersion = version();
 const flags = [];
 
-let branch = "unknown";
-try {
-  branch = run(`git -C "${TYPES}" branch --show-current`).trim();
-} catch {}
-const expected = LINES[branch];
-if (!expected) {
+let line = LINE_ARG ?? "";
+if (!line) {
+  try {
+    line = run(`git -C "${TYPES}" branch --show-current`).trim();
+  } catch {}
+}
+const lineLabel = line ? `\`${line}\`` : "a detached HEAD";
+const expectedMajor = LINE_MAJORS[line];
+if (!expectedMajor) {
   flags.push(
-    `LINE-UNKNOWN: kirby-types is on \`${branch}\`, not \`main\` or \`feat/kirby-6\` -> ask which line this audit targets.`,
+    `LINE-UNKNOWN: the line is ${lineLabel}, not \`main\` or \`feat/kirby-6\` -> ask which line this audit targets.`,
   );
-} else if (!kirbyVersion.startsWith(`${expected.major}.`)) {
+} else if (!kirbyVersion.startsWith(`${expectedMajor}.`)) {
   flags.push(
-    `LINE-MISMATCH: \`${branch}\` audits Kirby ${expected.major}, but the Kirby root is ${kirbyVersion} -> ask for the matching root.`,
+    `LINE-MISMATCH: ${lineLabel} audits Kirby ${expectedMajor}, but the Kirby root is ${kirbyVersion} -> ask for the matching root.`,
   );
 }
 
 const reach = historyReach();
-if (reach.shallow || reach.minorTagLines < 3) {
+if (reach.unreadable) {
   flags.push(
-    `SHALLOW-HISTORY: ${KIRBY} (shallow=${reach.shallow}, ${reach.minorTagLines} minor-tag line(s)) cannot date @since -> run \`git -C ${KIRBY} fetch --unshallow --tags\` before pass 1.`,
+    `NOT-GIT: ${KIRBY} is not the root of a git checkout -> ask for a full-history clone of getkirby/kirby.`,
+  );
+} else if (reach.shallow) {
+  flags.push(
+    `SHALLOW-HISTORY: ${KIRBY} is a shallow clone and cannot date @since -> run \`git -C ${KIRBY} fetch --unshallow --tags\`, then re-probe.`,
+  );
+} else if (reach.minorTagLines < 3) {
+  flags.push(
+    `SHALLOW-HISTORY: ${KIRBY} holds ${reach.minorTagLines} minor-tag line(s) and cannot date @since -> run \`git -C ${KIRBY} fetch --tags\`, then re-probe.`,
   );
 }
 
-// Create .review/.raw (recursive covers .review) so pass-1 agents have somewhere
-// to write, then drop the map beside it.
 fs.mkdirSync(path.join(TYPES, ".review", ".raw"), { recursive: true });
 fs.writeFileSync(
   path.join(TYPES, ".review", "source-map.json"),
   JSON.stringify(
     {
-      line: expected?.line ?? "unknown",
-      branch,
+      line,
       kirbyVersion,
       historyReach: reach,
       flags,
@@ -176,5 +185,5 @@ fs.writeFileSync(
   ) + "\n",
 );
 process.stdout.write(
-  `source-map.json written (${expected?.line ?? "unknown line"}, Kirby ${kirbyVersion}).\n`,
+  `source-map.json written (${lineLabel}, Kirby ${kirbyVersion}).\n`,
 );

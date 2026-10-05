@@ -1,13 +1,13 @@
 # Apply step
 
-Walk every pass-2 JSON. Collect every `{old_string, new_string}` from any ACT entry. Apply via the Edit tool in file-position order so earlier replacements don't invalidate later offsets.
+Walk every pass-2 JSON. Collect every `{old_string, new_string}` from any ACT entry and apply it with the Edit tool to the patch's `file` when set, else to the verifier's TS file.
 
 `old_string` must be present and unique:
 
 - Absent → already applied. Skip silently. Re-runs must be no-ops.
 - Non-unique → log and skip. Better to drop one patch than write to the wrong line.
 
-After applying, run `tsc --noEmit` and `pnpm test`. Both must exit clean. Type-test files (`test/*.test-d.ts`) consume the augmentations – update broken `expectType`/`expectAssignable` assertions in the same commit.
+Then run the completion check in [SKILL.md](../SKILL.md#pass-2--verify--apply).
 
 ## Schema is tolerant
 
@@ -26,6 +26,4 @@ Walk any nested object collecting `{old_string, new_string}` pairs from ACT entr
 
 **Anchor uniqueness.** Some property names legitimately appear twice (e.g. `clone:`, `pad:`, `slug:`, `uuid:` on both a sub-interface and as parent shortcuts). Verify uniqueness before applying. Disambiguate by widening the anchor to include the surrounding declaration or the trailing `{`.
 
-**Idempotence.** Patches whose `old_string` is gone are already applied – that's a no-op, not an error.
-
-**Narrowing a base type cascades to derived overrides.** Narrowing a member on a parent interface can make a wider override on a child interface an illegal override – `tsc` then fails on the child, not the patched line. Example: narrowing `PanelFeature.reload` to `Promise<T | false>` broke `PanelModal.reload` (still `Promise<T | false | void>`), because a child's return must stay assignable to the parent's. When a patch narrows a member, grep for interfaces that `extends` the patched one and narrow their overrides in the same pass.
+**Narrowing a base type cascades to derived overrides.** Narrowing a member on a parent interface can make a wider override on a child interface an illegal override – `tsc` then fails on the child, not the patched line. When a patch narrows a member, grep for interfaces that `extends` the patched one and narrow their overrides in the same pass – or, where the child legitimately differs, omit the member from the parent in the child's `extends`, as `PanelModal` does with `Omit<PanelFeature<TDefaults>, "reload">`.

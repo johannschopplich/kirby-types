@@ -1,6 +1,6 @@
 # Agent prompt templates
 
-One template per pass. Both passes are read-only on every file – never use the Edit tool from inside an agent. Substitute `<placeholders>` from [topology.md](topology.md). Paste the rubric block from [rubric.md](rubric.md) verbatim.
+One template per pass. Both passes are read-only on every file – never use the Edit tool from inside an agent. Substitute `<placeholders>`: the roots from the user, `LINE` from `source-map.json` `line`, the cluster slots from [topology.md](topology.md).
 
 ## Pass 1
 
@@ -13,7 +13,9 @@ OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<CLUSTER>.json
 
 TS FILE TO REVIEW: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
 
-LINE: <line from source-map.json> – the row in rubric.md's Lines table sets the plugin shape and the `@since` baseline.
+LINE: <LINE> – its row in the rubric's Lines table sets the plugin shape and the `@since` baseline.
+
+RUBRIC: <KIRBY_TYPES_ROOT>/.claude/skills/audit-panel-types/references/rubric.md – read it in full before step 1.
 
 KIRBY ROOT: <KIRBY_ROOT> – PHP authority at `src/`, Panel source at `panel/src/`, full git history for `@since`.
 
@@ -24,12 +26,13 @@ SYMBOLS YOU OWN:
 
 MODULES (extension-free – resolve each against the source map):
 <MODULE LIST FROM TOPOLOGY>
-PHP: <PHP paths from topology, or "silent">
+PHP: <PHP paths from topology, or "silent"> – Kirby 5 paths; on a Kirby 6 root, find each counterpart by grepping its resolver or method name (`View.php` resolvers moved to `State.php`, model props to `ModelViewController`).
+WATCH: <from topology: the file section's preamble, the cluster's preamble, and its Watch line – or "none">
 
 JOB:
 1. Resolve each owned symbol's module(s) to real files via the source map, then read them.
 2. Diff PHP → Panel source, then sweep TYPES → SOURCES.
-3. Apply the rubric. For `@source`: cite the file the map lists; a path under the other extension or absent from the map is a **phantom** → replace or drop it.
+3. Apply the rubric, including its phantom `@source` rule.
 
 OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 {
@@ -42,22 +45,13 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
     "signatureMismatch": [{ "symbol": "...", "name": "...", "tsSig": "...", "sourceSig": "...", "note": "..." }],
     "soft": []
   },
-  "patches": [{ "symbol": "...", "kind": "tighten|fix|rename", "gated": "rename|none", "old_string": "...", "new_string": "..." }],
+  "patches": [{ "symbol": "...", "kind": "<finding category>", "gated": "renameCandidate|none", "old_string": "...", "new_string": "..." }],
   "intentional": [{ "symbol": "...", "name": "...", "note": "..." }],
   "summary": "1-3 sentences."
 }
 
 `anchor` must uniquely identify the declaration line. `old_string` must be unique within the .d.ts. Source paths file-only, no `:line` suffix. Renames go to `renameCandidates` for the user gate – never auto-applied.
 ````
-
-### Per-cluster watchpoints
-
-- **Hybrid clusters** (`features-*`): PHP rules nullability. Panel `*State` types are JS-bootstrap shape, not PHP authority. Never widen on Panel evidence alone.
-- **Inheritance-aware** (`features-view`, `features-modals`, `features-content`): never re-flag inherited PanelFeature/PanelModal members. Focus on what the module ADDS or OVERRIDES.
-- **PHP-rooted** (`index-config`, `index-permissions`, `index-viewprops`): PHP `toArray()` / `props()` is the response shape. Panel `*State` types are JS-side state, not the server payload – don't import.
-- **API clusters**: the Panel client is source of truth. PHP routes only when JSDoc on the client wrapper is missing.
-- **`index-panel`**: the plugin shape (`PanelApp`, `PanelComponentExtension`, `PanelPlugins`, `PanelPluginExtensions`) follows the line's Vue version.
-- **Helpers**: anchors are short property names (`array:`, `slug:`). Use surrounding context for uniqueness, or anchor on the wrapping interface.
 
 ## Pass 2
 
@@ -72,9 +66,13 @@ OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<TS_FILE>.pass2.json
 
 TS FILE: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
 
-LINE: <line from source-map.json> – see rubric.md's Lines table.
+LINE: <LINE> – see the rubric's Lines table.
+
+RUBRIC: <KIRBY_TYPES_ROOT>/.claude/skills/audit-panel-types/references/rubric.md – read it in full before step 1.
 
 KIRBY ROOT: <KIRBY_ROOT> – PHP authority + Panel source
+
+SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json
 
 PASS-1 FINDINGS – read each:
 - <KIRBY_TYPES_ROOT>/.review/.raw/<cluster1>.json
@@ -95,8 +93,8 @@ JOB – for every pass-1 finding:
 4. Several clusters may report the same member – dedupe into ONE patch.
 5. For each ACT, emit `{old_string, new_string}`:
    - `old_string` is a unique exact substring within the TS file; patches never overlap – merge neighbours.
-   - Preserve indentation and existing JSDoc/`@source` lines.
-   - When adding a new property/method, follow the JSDoc rules in [rubric.md](rubric.md#jsdoc-style).
+   - Preserve indentation and existing JSDoc – a phantom `@source` is the one existing line you rewrite.
+   - When adding a new property/method, follow the rubric's JSDoc style.
    - Minimal – no surrounding refactor.
    - A broken `test/*.test-d.ts` assertion gets its own patch with `"file": "test/<name>.test-d.ts"`.
 
@@ -107,10 +105,10 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
   "verifications": [
     {
       "finding": "<short identifier>",
-      "bucket": "tighten|rename|missing|redundant|signatureMismatch|soft",
+      "bucket": "tighten|renameCandidate|missing|redundant|signatureMismatch|soft",
       "decision": "ACT|DEFER|DISMISS",
       "rationale": "<1-2 sentences citing source path>",
-      "patch": { "old_string": "...", "new_string": "..." }
+      "patch": { "file": "<optional – a test/*.test-d.ts path; default the TS file>", "old_string": "...", "new_string": "..." }
     }
   ],
   "annotations": [
