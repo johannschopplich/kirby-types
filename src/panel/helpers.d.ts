@@ -1,10 +1,13 @@
 /**
  * Helper type definitions for Kirby Panel.
  *
- * Provides types for the `$helper` utilities available on the Vue prototype.
+ * Provides types for the `$helper` utilities registered as a global property
+ * on the Panel app.
  *
  * @since 6.0.0
  */
+
+import type { App } from "vue";
 
 // #region Array Helpers
 
@@ -201,7 +204,7 @@ export interface PanelHelpersString {
    * @param options - Allowed marks/nodes (defaults to common writer marks)
    * @param options.marks - Allowed marks; strings are treated as mark names, objects as mark configs
    * @param options.nodes - Allowed nodes; strings are treated as node names, objects as node configs
-   * @returns Sanitized HTML string
+   * @returns Promise resolving to the sanitized HTML string
    */
   sanitizeHTML: (
     html: unknown,
@@ -209,7 +212,7 @@ export interface PanelHelpersString {
       marks?: (string | Record<string, any>)[];
       nodes?: (string | Record<string, any>)[];
     },
-  ) => string;
+  ) => Promise<string>;
 
   /**
    * Replaces `{name}`, `{{name}}`, and dotted-path placeholders (e.g. `{nested.prop}`) with values from the lookup object.
@@ -262,7 +265,9 @@ export interface PanelHelpersString {
  */
 export interface PanelHelpersObject {
   /**
-   * Deep clones a value. Returns `undefined` unchanged.
+   * Deep copies plain objects and arrays and unwraps reactive proxies into
+   * plain data. Every other value, including `Date`, `Map`, and class
+   * instances, is returned as is.
    *
    * @param value - Value to clone
    * @returns Cloned value
@@ -356,6 +361,8 @@ export interface PanelHelpersUrl {
 
   /**
    * Builds URLSearchParams from object, merging with origin query.
+   * Nested objects become `parent[child]` keys, `null` removes a param, and
+   * `undefined` leaves it untouched.
    *
    * @param query - Query parameters
    * @param origin - Existing URL or query string
@@ -510,7 +517,7 @@ export interface PanelFieldDefinition {
   /** Conditional visibility. */
   when?: Record<string, any>;
   /** API endpoint. */
-  endpoints?: { field?: string; section?: string; model?: string };
+  endpoints?: { field?: string; model?: string };
   /** Nested fields. */
   fields?: Record<string, PanelFieldDefinition>;
   /** Additional properties. */
@@ -540,7 +547,7 @@ export interface PanelHelpersField {
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
-   * Checks if a field or section is visible. Returns `false` for hidden fields, otherwise evaluates `when` conditions against current form values.
+   * Checks if a field is visible. Returns `false` for hidden fields, otherwise evaluates `when` conditions against current form values.
    *
    * @param field - Field definition
    * @param values - Current form values
@@ -552,7 +559,9 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
-   * Annotates subfields with the parent's section name and, when present, its API endpoints (suffixing the field endpoint with the subfield name).
+   * Points each subfield's API endpoints at the parent's field endpoint,
+   * suffixed with `+` and the subfield name, when the parent has endpoints.
+   * Mutates the passed subfield definitions.
    *
    * @param field - Parent field
    * @param fields - Subfield definitions
@@ -808,12 +817,20 @@ export interface PanelThrottleOptions {
   trailing?: boolean;
 }
 
-/** Debounced function (without cancel method). */
+/**
+ * Debounced function (without cancel method).
+ *
+ * @source panel/src/helpers/debounce.ts
+ */
 export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): void;
 }
 
-/** Throttled function with cancel method. */
+/**
+ * Throttled function with cancel method.
+ *
+ * @source panel/src/helpers/throttle.ts
+ */
 export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
   (...args: Parameters<T>): void;
   /** Drops the pending trailing call and ends the cooldown. */
@@ -845,7 +862,7 @@ export type PanelComparator = (
 // #region Main Helpers Interface
 
 /**
- * Panel helpers available on the Vue prototype as `$helper`.
+ * Panel helpers registered as the `$helper` global property of the Panel app.
  *
  * Provides utility functions for common operations.
  *
@@ -869,8 +886,8 @@ export interface PanelHelpers {
   clipboard: PanelHelpersClipboard;
 
   /**
-   * Deep clones a value.
-   * Shortcut for `object.clone()`.
+   * Deep copies plain objects and arrays and unwraps reactive proxies into
+   * plain data. Shortcut for `object.clone()`.
    * @source panel/src/helpers/object.ts
    * @source panel/src/helpers/index.ts
    */
@@ -940,7 +957,7 @@ export interface PanelHelpers {
    * @source panel/src/helpers/isComponent.ts
    * @source panel/src/helpers/index.ts
    */
-  isComponent: (name: string, app?: unknown) => boolean;
+  isComponent: (name: string, app?: App) => boolean;
 
   /**
    * Checks if event is a file drag/drop event.
@@ -951,6 +968,32 @@ export interface PanelHelpers {
    * @source panel/src/helpers/index.ts
    */
   isUploadEvent: (event: DragEvent) => boolean;
+
+  /**
+   * Requests item props by model ID. Calls from the same tick share one
+   * request per endpoint and query, and an ID already in flight joins the
+   * pending request. A blank ID, an unknown ID, or a failed request resolves
+   * to `undefined` – the promise never rejects.
+   *
+   * @param endpoint - API endpoint, e.g. `"items/files"`
+   * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs
+   * @param query - Query passed on to the endpoint
+   * @returns Item props, or an array of them in the order of the IDs
+   * @source panel/src/helpers/items.ts
+   * @source panel/src/helpers/index.ts
+   */
+  items: {
+    (
+      endpoint: string,
+      id: string,
+      query?: Record<string, any>,
+    ): Promise<Record<string, any> | undefined>;
+    (
+      endpoint: string,
+      ids: string[],
+      query?: Record<string, any>,
+    ): Promise<(Record<string, any> | undefined)[]>;
+  };
 
   /**
    * @source panel/src/helpers/keyboard.ts
@@ -1085,18 +1128,19 @@ export interface PanelHelpers {
  */
 export interface PanelHelpersWriter {
   /**
-   * Resolves the list of allowed extension names from a permissive `allowed`
+   * Resolves the list of allowed extensions from a permissive `allowed`
    * argument (boolean, array, object map, or `undefined`).
    *
    * @param available - Map of all available extensions keyed by name
    * @param allowed - `true` to allow all, `false` to allow none, an array of
-   *   names, or an object map (keys set to `false` are filtered out)
-   * @returns Array of allowed extension names
+   *   names and extension instances, or an object map (keys set to `false`
+   *   are filtered out)
+   * @returns Allowed extension names, plus any instances passed in the array
    */
-  allowedExtensions: (
+  allowedExtensions: <T = never>(
     available: Record<string, unknown>,
-    allowed?: boolean | string[] | Record<string, unknown> | null,
-  ) => string[];
+    allowed?: boolean | (string | T)[] | Record<string, unknown> | null,
+  ) => (string | T)[];
 
   /**
    * Returns all available built-in mark extension instances merged with
@@ -1139,7 +1183,11 @@ export interface PanelHelpersWriter {
    * @returns Map of mark instances to install
    */
   createMarks: (
-    marks?: boolean | string[] | Record<string, unknown> | null,
+    marks?:
+      | boolean
+      | (string | Record<string, any>)[]
+      | Record<string, unknown>
+      | null,
     required?: string[],
   ) => Record<string, any>;
 
@@ -1153,7 +1201,11 @@ export interface PanelHelpersWriter {
    * @returns Map of node instances to install
    */
   createNodes: (
-    nodes?: boolean | string[] | Record<string, unknown> | null,
+    nodes?:
+      | boolean
+      | (string | Record<string, any>)[]
+      | Record<string, unknown>
+      | null,
     required?: string[],
   ) => Record<string, any>;
 
@@ -1165,19 +1217,21 @@ export interface PanelHelpersWriter {
    * @returns Map of extension options keyed by extension name
    */
   extensionOptions: (
-    allowed?: boolean | string[] | Record<string, unknown> | null,
+    allowed?: boolean | unknown[] | Record<string, unknown> | null,
   ) => Record<string, Record<string, any>>;
 
   /**
-   * Filters a map of available extensions down to those listed in `allowed`.
+   * Filters a map of available extensions down to those listed in `allowed`,
+   * in the order of `allowed`. An extension instance in the array is installed
+   * under its own name.
    *
    * @param available - Map of available extensions keyed by name
    * @param allowed - Allowed extension configuration
    * @returns Map of installed extensions
    */
-  filterExtensions: <T>(
+  filterExtensions: <T extends { name: string }>(
     available: Record<string, T>,
-    allowed?: boolean | string[] | Record<string, unknown> | null,
+    allowed?: boolean | (string | T)[] | Record<string, unknown> | null,
   ) => Record<string, T>;
 
   /**
