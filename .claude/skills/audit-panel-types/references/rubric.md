@@ -2,7 +2,7 @@
 
 ## Lines
 
-Each kirby-types branch types one Kirby release line.
+Each kirby-types branch types one Kirby release line. The scripts read the branches, majors, and baselines from `scripts/lines.mjs` – a new line changes both.
 
 | Branch         | Package | Kirby                               | Plugin shape | `@since` baseline |
 | -------------- | ------- | ----------------------------------- | ------------ | ----------------- |

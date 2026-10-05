@@ -59,4 +59,4 @@ One verifier per `.d.ts`, read-only. Each reads the cluster JSONs for its file, 
 
 Prompt template: [agent-prompts.md – Pass 2](references/agent-prompts.md#pass-2). Apply walk: see [edit-gotchas.md](references/edit-gotchas.md).
 
-**Completion criterion**: every `.d.ts` in [topology.md](references/topology.md) has a written `.raw/<file>.pass2.json` before the apply – a missing file means a dropped verifier, relaunch it. After the apply, `tsc --noEmit`, `pnpm test`, and `pnpm lint` exit clean, with `test/*.test-d.ts` assertions broken by the new types updated in the same pass.
+**Completion criterion**: every `.d.ts` in [topology.md](references/topology.md) has a written `.raw/<file>.pass2.json` before the apply – a missing file means a dropped verifier, relaunch it. After the apply, `tsc --noEmit`, `pnpm test`, `pnpm lint`, and `node scripts/check-line.mjs <KIRBY_TYPES_ROOT>` exit clean, with `test/*.test-d.ts` assertions broken by the new types updated in the same pass. Once committed, `scripts/check-commits.sh <KIRBY_TYPES_ROOT> <BASE>`, with `<BASE>` the commit the audit started from, passes every commit on its own.
