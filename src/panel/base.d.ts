@@ -20,7 +20,7 @@
  *
  * @example
  * ```ts
- * // State is used by: language, menu, notification, system, translation, user, drag, theme
+ * // State is used by: activation (since 5.0.0), drag, language, menu, notification, system, theme (since 5.0.0), translation, upload, user
  * const notification: PanelState<PanelNotificationDefaults> = panel.notification;
  * notification.set({ message: "Saved!" });
  * ```
@@ -109,8 +109,9 @@ export interface PanelEventListeners<TEvents extends string = string> {
   on: PanelEventListenerMap<TEvents>;
 
   /**
-   * Registers a single event listener.
-   * Only functions are registered; other values are ignored.
+   * Registers a single event listener, replacing an existing one for the
+   * event (with a console warning since 5.5.0). Only functions are
+   * registered; other values are ignored.
    *
    * @param event - Event name to listen for
    * @param callback - Function to call when event fires
@@ -364,7 +365,10 @@ export interface PanelModalSubmitResponse {
   route?: string | { url: string; options?: PanelRequestOptions };
   /** Alternative to route. */
   redirect?: string | { url: string; options?: PanelRequestOptions };
-  /** Whether to reload the view. */
+  /**
+   * Options for the view reload that follows when neither `route` nor
+   * `redirect` is set. The view reloads either way; a boolean has no effect.
+   */
   reload?: boolean | PanelRequestOptions;
   [key: string]: any;
 }
@@ -445,6 +449,7 @@ export interface PanelModal<
 
   /**
    * Updates the form value and emits the `"input"` event.
+   * Ignored while the modal is closed.
    *
    * @param value - New form value
    */
@@ -487,7 +492,8 @@ export interface PanelModal<
 
   /**
    * Submits the modal form.
-   * Checks for submit listener first, then sends POST if path exists.
+   * Does nothing while loading since 5.0.0. Checks for a submit listener
+   * first, then sends a POST request if a path exists.
    *
    * @param value - Form value (defaults to `props.value`)
    * @param options - Request options
@@ -564,6 +570,8 @@ export interface PanelHistory {
 
   /**
    * Adds a state to history.
+   * A state whose `id` is already stored is ignored, unless `replace` is
+   * `true` (since 5.1.0).
    * The state must have an `id` property.
    *
    * @param state - State object with required `id`
@@ -667,25 +675,36 @@ export interface PanelRequestOptions extends Omit<
   "body" | "headers" | "referrer"
 > {
   headers?: Record<string, string>;
-  /** Request body for POST/PATCH. */
+  /**
+   * Request body. Forms, `FormData`, and objects are sent as JSON;
+   * strings are sent as-is.
+   */
   body?: any;
   /** Query parameters; `null` values are skipped. */
   query?: Record<string, string | number | boolean | null>;
   signal?: AbortSignal;
   /**
-   * If `true`, skips setting `isLoading` state.
+   * If `true`, `load()` skips setting the feature's `isLoading` state.
    * Useful for background requests.
    */
   silent?: boolean;
   on?: PanelEventListenerMap;
-  /** CSRF token sent as the `x-csrf` header. */
+  /**
+   * CSRF token sent as the `x-csrf` header.
+   * Defaults to the system token. Since 5.5.0, `false` omits the header;
+   * before, it is sent as the value `false`.
+   */
   csrf?: string | false;
   /**
    * Globals sent as the `x-fiber-globals` header.
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
-  /** Referrer path sent as the `x-fiber-referrer` header. */
+  /**
+   * Referrer path sent as the `x-fiber-referrer` header.
+   * Defaults to the current view path. Since 5.5.0, `false` omits the
+   * header; before, it is sent as the value `false`.
+   */
   referrer?: string | false;
 }
 
