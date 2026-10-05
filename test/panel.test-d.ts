@@ -174,6 +174,7 @@ expectType<PanelHistoryMilestone | undefined>(history.goto("id"));
 declare const modal: PanelModal<PanelDialogDefaults>;
 
 expectType<Promise<void>>(modal.cancel());
+expectType<Promise<false | void>>(modal.reload());
 expectType<Promise<PanelDialogDefaults | void>>(modal.close());
 expectType<Promise<any>>(modal.submit({}));
 expectType<void>(modal.goTo("milestone-id"));
@@ -221,6 +222,7 @@ expectType<Promise<PanelSearchResult | undefined>>(
 expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
+expectType<ReturnType<typeof setInterval> | null>({} as PanelApi["ping"]);
 expectAssignable<PanelApi["auth"]>({
   login: async () => ({}),
   logout: async () => {},
