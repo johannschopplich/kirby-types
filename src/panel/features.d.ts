@@ -730,9 +730,12 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  * @source panel/src/panel/modal.js
  */
 export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
-  /** Whether using legacy Vue component for the Vue-2 bridge. */
+  /**
+   * Whether the dialog is a component instance from a template, opened via
+   * the deprecated `openComponent()`, that renders itself.
+   */
   legacy: boolean;
-  /** Reference to legacy component for the Vue-2 bridge. */
+  /** The component instance `openComponent()` opened. */
   ref: any;
 
   /**
