@@ -68,7 +68,10 @@ export interface WriterEditor {
   extensions: WriterExtensions;
   focused: boolean;
   inputRules: InputRule[];
-  /** Check if a mark or node is active. */
+  /**
+   * Keyed by array index rather than by mark or node name, and every entry
+   * throws when called – read `activeMarks` and `activeNodes` instead.
+   */
   isActive: Record<string, (attrs?: Record<string, any>) => boolean>;
   keymaps: Plugin[];
   /**
