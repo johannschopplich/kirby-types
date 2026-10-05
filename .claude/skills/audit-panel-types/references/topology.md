@@ -98,8 +98,8 @@ JS/TS source is the runtime contract. Anchors are short property names (`array:`
 
 ### `helpers-data`
 
-- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut)
-- **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index}`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
+- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), **(K6 line)** `items`
+- **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index}`, **(K6 line)** `panel/src/helpers/items`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 
 ### `helpers-string`
 
@@ -118,7 +118,7 @@ JS/TS source is the runtime contract. Anchors are short property names (`array:`
 ### `libraries`
 
 - **Symbols**: PanelLibrary, PanelLibraryColors, PanelLibraryDayjs, PanelDayjsExtensions, PanelDayjsStaticExtensions, PanelDayjsPattern, PanelLibraryAutosize
-- **Modules**: `panel/src/libraries/{index,colors,colors-checks,colors-func,dayjs,dayjs-interpret,dayjs-iso,dayjs-merge,dayjs-pattern,dayjs-round,dayjs-validate}` (+ `@types/autosize`)
+- **Modules**: `panel/src/libraries/{index,colors,colors-checks,colors-func,dayjs,dayjs-interpret,dayjs-iso,dayjs-merge,dayjs-pattern,dayjs-round,dayjs-validate}`, **(K6 line)** `panel/src/libraries/{dayjs-locale,dayjs-parse}` (+ `@types/autosize`)
 - **Watch**: the Panel uses `declare module 'dayjs'` to globally augment `Dayjs`; kirby-types intentionally keeps a `Dayjs & PanelDayjsExtensions` intersection on chainable returns – note it as intentional divergence.
 
 ## writer.d.ts (3 clusters)

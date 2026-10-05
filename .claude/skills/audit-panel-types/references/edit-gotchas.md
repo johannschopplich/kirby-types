@@ -26,4 +26,6 @@ Walk any nested object collecting `{old_string, new_string}` pairs from ACT entr
 
 **Anchor uniqueness.** Some property names legitimately appear twice (e.g. `clone:`, `pad:`, `slug:`, `uuid:` on both a sub-interface and as parent shortcuts). Verify uniqueness before applying. Disambiguate by widening the anchor to include the surrounding declaration or the trailing `{`.
 
+**Checks run on the branch's own install.** `main` builds against Vue 2.7, `feat/kirby-6` against Vue 3. A worktree that borrows the other branch's `node_modules` passes or fails for the wrong Vue.
+
 **Narrowing a base type cascades to derived overrides.** Narrowing a member on a parent interface can make a wider override on a child interface an illegal override – `tsc` then fails on the child, not the patched line. When a patch narrows a member, grep for interfaces that `extends` the patched one and narrow their overrides in the same pass – or, where the child legitimately differs, omit the member from the parent in the child's `extends`, as `PanelModal` does with `Omit<PanelFeature<TDefaults>, "reload">`.

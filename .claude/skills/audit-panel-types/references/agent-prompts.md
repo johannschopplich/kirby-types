@@ -6,7 +6,7 @@ One template per pass. Both passes are read-only on every file – never use the
 
 One Agent call per cluster, `run_in_background: true`. Launch in batches of ~8 so notifications stay manageable. Subagents inherit the orchestrator's model – don't pass an explicit `model:` override.
 
-````
+```
 ROLE: You review TypeScript augmentation types that describe Kirby Panel's runtime `window.panel`. READ-ONLY on every file – including the kirby-types `.d.ts` under review. DO NOT use the Edit tool. Write only to the JSON output path before returning.
 
 OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<CLUSTER>.json
@@ -34,7 +34,7 @@ JOB:
 2. Diff PHP → Panel source, then sweep TYPES → SOURCES.
 3. Apply the rubric, including its phantom `@source` rule.
 
-OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
+OUTPUT (written to OUTPUT PATH; the reply carries only the summary and the count per category):
 {
   "annotations": [{ "symbol": "...", "anchor": "export interface ... {", "sources": ["panel/src/..."] }],
   "tighten": [{ "symbol": "...", "sourceShape": "...", "kirbyTypesCurrent": "...", "rationale": "...", "phpAuthority": "..." }],
@@ -51,7 +51,7 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
 }
 
 `anchor` must uniquely identify the declaration line. `old_string` must be unique within the .d.ts. Source paths file-only, no `:line` suffix. Renames go to `renameCandidates` for the user gate – never auto-applied.
-````
+```
 
 ## Pass 2
 
@@ -59,7 +59,7 @@ One Agent call per `.d.ts`, `run_in_background: true`. Same model-inheritance ru
 
 Time-box: pass 1 already cited PHP and Panel paths. Re-read a source only when the finding is unclear. If still ambiguous after one quick check, DEFER.
 
-````
+```
 ROLE: Pass-2 verifier for kirby-types Panel types. Re-verify pass-1 findings and emit `{old_string, new_string}` patches for confirmed issues. READ-ONLY on every file – DO NOT use the Edit tool. Write only to the JSON output path before returning.
 
 OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<TS_FILE>.pass2.json
@@ -92,15 +92,15 @@ JOB – for every pass-1 finding:
 3. Renames: ACT only if approved at the gate. Otherwise DEFER with `user did not approve rename`.
 4. Several clusters may report the same member – dedupe into ONE patch.
 5. For each ACT, emit `{old_string, new_string}`:
-   - `old_string` is a unique exact substring within the TS file; patches never overlap – merge neighbours.
+   - `old_string` is a unique exact substring of the current TS file – a pass-1 `old_string` goes stale once the file changed; patches never overlap – merge neighbours.
    - Preserve indentation and existing JSDoc – a phantom `@source` is the one existing line you rewrite.
    - When adding a new property/method, follow the rubric's JSDoc style.
    - Minimal – no surrounding refactor.
-   - A broken `test/*.test-d.ts` assertion gets its own patch with `"file": "test/<name>.test-d.ts"`.
+   - A broken `test/*.test-d.ts` assertion or a companion edit in another `.d.ts` (a re-export) gets its own patch with `"file"` set to that path.
 
 Soft items: tighten if statically known and won't cascade. Otherwise DEFER.
 
-OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
+OUTPUT (written to OUTPUT PATH; the reply carries only the summary and every DEFER that needs a user decision):
 {
   "verifications": [
     {
@@ -116,7 +116,7 @@ OUTPUT (single fenced ```json at end of response, also written to OUTPUT PATH):
   ],
   "summary": "X ACT (verifications) + Y ACT (annotations) + Z DEFER + W DISMISS"
 }
-````
+```
 
 ### ACT vs DEFER cheat sheet
 
