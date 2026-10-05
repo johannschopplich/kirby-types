@@ -173,7 +173,7 @@ export interface PanelFeatureDefaults {
    * @since 5.1.0
    * @deprecated Not part of the defaults since 5.5.0 – read `abortController` on the feature itself.
    */
-  abortController: AbortController | undefined;
+  abortController: AbortController | null | undefined;
   component: string | null;
   isLoading: boolean;
   on: PanelEventListenerMap;
@@ -210,10 +210,11 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   extends PanelState<TDefaults>, PanelEventListeners {
   /**
    * AbortController for canceling pending requests.
-   * Created on each `load()` call to enable request cancellation.
+   * Created on each `load()` call to enable request cancellation; `null`
+   * instead of `undefined` before 5.5.0.
    * @since 5.1.0
    */
-  abortController: AbortController | undefined;
+  abortController: AbortController | null | undefined;
 
   /**
    * Current Vue component name to render.
