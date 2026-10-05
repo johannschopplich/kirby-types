@@ -44,6 +44,11 @@ expectAssignable<WriterToolbarButton>({
 expectAssignable<WriterExtension>({
   name: "history",
   type: "extension",
+  bindEditor() {},
+  init() {},
+  commands() {
+    return {};
+  },
 });
 
 // With commands
@@ -53,6 +58,8 @@ expectAssignable<WriterExtension>({
     depth: 100,
     newGroupDelay: 500,
   },
+  bindEditor() {},
+  init() {},
   commands() {
     return {
       undo: () => true,
@@ -73,6 +80,11 @@ expectAssignable<WriterExtension>({
 // Generic extension with custom keyboard shortcuts (like Keys)
 expectAssignable<WriterExtension>({
   name: "customKeys",
+  bindEditor() {},
+  init() {},
+  commands() {
+    return {};
+  },
   keys() {
     return {
       "Ctrl-s": () => {
@@ -154,6 +166,10 @@ expectAssignable<WriterMarkExtension>({
     { id: "h1", icon: "h1", label: "Heading 1" },
     { id: "h2", icon: "h2", label: "Heading 2" },
   ],
+  schema: {
+    parseDOM: [{ tag: "mark" }],
+    toDOM: () => ["mark", 0],
+  },
 });
 // #endregion
 

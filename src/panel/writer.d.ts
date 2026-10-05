@@ -95,6 +95,16 @@ export interface WriterEditorEvents {
 export interface WriterEditor {
   // #region Properties
 
+  /**
+   * Reactive store behind `activeMarks`, `activeNodes`, `activeMarkAttrs`,
+   * and `activeNodeAttrs`, refreshed after every transaction.
+   */
+  active: {
+    marks: string[];
+    nodes: string[];
+    markAttrs: Record<string, Record<string, any>>;
+    nodeAttrs: Record<string, Record<string, any>>;
+  };
   /** Currently active mark names. */
   activeMarks: string[];
   /** Currently active mark attributes by mark name. */
@@ -144,10 +154,13 @@ export interface WriterEditor {
   selectionIsAtEnd: boolean;
   /** Whether the cursor is at the start of the document. */
   selectionIsAtStart: boolean;
-  /** Current editor state, `undefined` until the view exists. */
-  state: EditorState;
-  /** ProseMirror view, `undefined` until it exists. */
-  view: EditorView;
+  /** Current editor state, `undefined` while no view exists. */
+  state: EditorState | undefined;
+  /**
+   * ProseMirror view, `null` until the editor creates it – which includes
+   * every extension's `init()` – and again after `destroy()`.
+   */
+  view: EditorView | null;
   // #endregion
 
   // #region Methods
@@ -211,7 +224,7 @@ export interface WriterEditor {
   /** Checks if the editor is editable. */
   isEditable: () => boolean;
   /** Checks if the editor is empty. */
-  isEmpty: () => boolean | undefined;
+  isEmpty: () => boolean;
   /**
    * Unsubscribes from events.
    *
@@ -325,6 +338,7 @@ export interface WriterExtensions {
  *
  * Buttons appear in the Writer toolbar and trigger commands when clicked.
  *
+ * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
@@ -602,6 +616,7 @@ export interface WriterUtils {
  * }
  * ```
  *
+ * @source panel/src/components/Forms/Writer/Mark.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterMarkContext {
@@ -625,6 +640,7 @@ export interface WriterMarkContext {
  * }
  * ```
  *
+ * @source panel/src/components/Forms/Writer/Node.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterNodeContext {
@@ -642,6 +658,7 @@ export interface WriterNodeContext {
  * Generic extensions don't have a specific type, so only schema and utils
  * are provided.
  *
+ * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensionContext {
@@ -669,7 +686,7 @@ export interface WriterExtensionContext {
  */
 export interface WriterExtension {
   /** Unique name of the extension. */
-  name?: string;
+  name: string;
 
   /**
    * Discriminator value. Among plain extensions, the editor collects
@@ -689,22 +706,22 @@ export interface WriterExtension {
   defaults?: Record<string, any>;
 
   /**
-   * Stores the editor on `editor`. The editor calls it and then `init()` on
-   * every extension, so a plain object passed to the `extensions` prop of
-   * `k-writer-input` needs both.
+   * Stores the editor on `editor`. The editor calls it on every extension
+   * before `init()`.
    */
-  bindEditor?: (editor: WriterEditor) => void;
+  bindEditor: (editor: WriterEditor) => void;
 
   /** Runs after the editor is bound to the extension. */
-  init?: () => null | void;
+  init: () => void;
 
   /**
-   * Returns the commands this extension provides.
+   * Returns the commands this extension provides. The editor calls it on
+   * every extension, so an extension without commands returns `{}`.
    *
    * @param context - Context with schema and utils (no type for generic extensions)
    * @returns A command function, or an object mapping command names to functions
    */
-  commands?: (
+  commands: (
     context: WriterExtensionContext,
   ) => ((attrs?: any) => any) | Record<string, (attrs?: any) => any>;
 
@@ -832,9 +849,10 @@ export interface WriterMarkExtension {
   /**
    * ProseMirror mark schema definition.
    *
-   * Defines how the mark is parsed from and serialized to DOM.
+   * Defines how the mark is parsed from and serialized to DOM. The editor
+   * fails to build its schema when a mark has none.
    */
-  schema?: MarkSpec;
+  schema: MarkSpec;
 
   /**
    * Returns the commands this extension provides.
@@ -951,7 +969,7 @@ export interface WriterMarkExtension {
    *
    * Use this for initialization logic that requires access to `this.editor`.
    */
-  init?: () => null | void;
+  init?: () => void;
   // #endregion
 
   // #region Mark Helper Methods (inherited from Mark base class)
@@ -959,9 +977,9 @@ export interface WriterMarkExtension {
   /**
    * Toggles this mark on the current selection.
    *
-   * Shorthand for `this.editor.toggleMark(this.name)`.
+   * Shorthand for `this.editor.toggleMark(this.name)`, without its result.
    */
-  toggle?: () => boolean | undefined;
+  toggle?: () => void;
 
   /**
    * Removes this mark from the current selection.
@@ -1026,8 +1044,8 @@ export interface WriterNodeExtension {
   /**
    * Unique name of the node extension.
    *
-   * When using object literals with `window.panel.plugin()`, this is
-   * typically derived from the object key in `writerNodes`.
+   * Defaults to the node's key in `writerNodes`; a `name` in the definition
+   * overrides it.
    */
   name?: string;
 
@@ -1068,7 +1086,7 @@ export interface WriterNodeExtension {
   defaults?: Record<string, any>;
 
   /** ProseMirror node schema definition. */
-  schema?: NodeSpec;
+  schema: NodeSpec;
 
   /**
    * Returns the commands this extension provides.
@@ -1129,7 +1147,7 @@ export interface WriterNodeExtension {
    *
    * Use this for initialization logic that requires access to `this.editor`.
    */
-  init?: () => null | void;
+  init?: () => void;
   // #endregion
 }
 // #endregion
