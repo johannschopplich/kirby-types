@@ -340,15 +340,20 @@ export interface PanelModalListeners {
   close: (id?: string | true) => Promise<void>;
   input: (value: any) => void;
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
-  success: (response: PanelSuccessResponse | string) => any;
+  success: (response: PanelModalSubmitResponse | string) => any;
   [key: string]: ((...args: any[]) => any) | undefined;
 }
+
+/**
+ * @deprecated Use `PanelModalSubmitResponse` instead.
+ */
+export type PanelSuccessResponse = PanelModalSubmitResponse;
 
 /**
  * Success response from modal submission.
  * @source panel/src/panel/modal.js
  */
-export interface PanelSuccessResponse {
+export interface PanelModalSubmitResponse {
   /** Text of the success notification. */
   message?: string;
   /** Events to emit (string or array of strings). */
@@ -497,7 +502,7 @@ export interface PanelModal<
    * @param success - Success response object or message string
    * @returns The `success` listener's result if one is registered, otherwise the given response
    */
-  success: (success: PanelSuccessResponse | string) => any;
+  success: (success: PanelModalSubmitResponse | string) => any;
 
   /**
    * Emits events specified in the success response.
@@ -505,14 +510,14 @@ export interface PanelModal<
    *
    * @param state - Success response with event data
    */
-  successEvents: (state: PanelSuccessResponse) => void;
+  successEvents: (state: PanelModalSubmitResponse) => void;
 
   /**
    * Shows a success notification if response contains a message.
    *
    * @param state - Success response with optional message
    */
-  successNotification: (state: PanelSuccessResponse) => void;
+  successNotification: (state: PanelModalSubmitResponse) => void;
 
   /**
    * Handles redirects from success response.
@@ -520,7 +525,7 @@ export interface PanelModal<
    * @param state - Success response with route/redirect
    * @returns `false` if no redirect, otherwise navigates
    */
-  successRedirect: (state: PanelSuccessResponse) => false | Promise<any>;
+  successRedirect: (state: PanelModalSubmitResponse) => false | Promise<any>;
 }
 // #endregion
 

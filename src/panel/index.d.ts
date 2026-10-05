@@ -66,6 +66,7 @@ export type {
   PanelFeature,
   PanelModalEvent,
   PanelModalListeners,
+  PanelModalSubmitResponse,
   PanelSuccessResponse,
   PanelModal,
   PanelHistoryMilestone,
