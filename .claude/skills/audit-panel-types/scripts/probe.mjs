@@ -2,13 +2,14 @@
 // Probe the live Kirby checkout and write a fresh source map to
 // <KIRBY_TYPES_ROOT>/.review/source-map.json (creating .review/.raw/ for pass 1).
 // Volatile facts – .js vs .ts per module, $helper/panel registrations, the Kirby
-// version, history reach, flags – are DISCOVERED here, never hard-coded in
-// topology.md. Agents read the map; they never guess file status.
+// version, history reach, dead @source paths, flags – are DISCOVERED here, never
+// hard-coded in topology.md. Agents read the map; they never guess file status.
 //
 // Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { LINES } from "./lines.mjs";
 
 const [KIRBY, TYPES, LINE_ARG] = process.argv.slice(2);
 if (!KIRBY || !TYPES) {
@@ -19,7 +20,6 @@ if (!KIRBY || !TYPES) {
 }
 
 // The line is the kirby-types branch unless LINE names one; the Kirby root must match it.
-const LINE_MAJORS = { main: "5", "feat/kirby-6": "6" };
 
 // Directories whose file-extension status drifts between releases. Discovered by
 // listing, so no per-module list rots. Relative to <root>/panel/src.
@@ -33,6 +33,7 @@ const SCAN_DIRS = [
   "components/Forms/Writer/Nodes",
   "components/Forms/Writer/Utils",
   "components/Forms/Toolbar",
+  "types",
 ];
 
 const run = (cmd) =>
@@ -48,7 +49,7 @@ function moduleMap() {
       continue;
     }
     for (const f of entries) {
-      const m = f.match(/^(.*)\.(ts|js)$/);
+      const m = f.match(/^(.+?)\.(d\.ts|ts|js)$/);
       if (!m || /\.(test|spec|test-d)$/.test(m[1])) continue;
       (map[`panel/src/${dir}/${m[1]}`] ??= []).push(m[2]);
     }
@@ -131,6 +132,29 @@ function panelSingletons() {
   return [];
 }
 
+// Every `@source` path in the kirby-types declarations that the Kirby root lacks.
+function deadSources() {
+  const files = [
+    ...fs.readdirSync(TYPES).filter((f) => f.endsWith(".d.ts")),
+    ...fs
+      .readdirSync(path.join(TYPES, "src"), { recursive: true })
+      .filter((f) => f.endsWith(".d.ts"))
+      .map((f) => path.join("src", f)),
+  ];
+  const dead = [];
+  for (const file of files.sort()) {
+    const text = fs.readFileSync(path.join(TYPES, file), "utf8");
+    for (const [, source] of text.matchAll(/@source\s+(\S+)/g)) {
+      // A package path (`@types/…`) is not Kirby's to check.
+      const topDir = source.split("/")[0];
+      if (!fs.existsSync(path.join(KIRBY, topDir))) continue;
+      if (!fs.existsSync(path.join(KIRBY, source)))
+        dead.push(`${file}: ${source}`);
+    }
+  }
+  return [...new Set(dead)];
+}
+
 const kirbyVersion = version();
 const flags = [];
 
@@ -141,10 +165,10 @@ if (!line) {
   } catch {}
 }
 const lineLabel = line ? `\`${line}\`` : "a detached HEAD";
-const expectedMajor = LINE_MAJORS[line];
+const expectedMajor = LINES[line]?.majors.at(-1);
 if (!expectedMajor) {
   flags.push(
-    `LINE-UNKNOWN: the line is ${lineLabel}, not \`main\` or \`feat/kirby-6\` -> ask which line this audit targets.`,
+    `LINE-UNKNOWN: the line is ${lineLabel}, none of ${Object.keys(LINES).join(", ")} -> ask which line this audit targets.`,
   );
 } else if (!kirbyVersion.startsWith(`${expectedMajor}.`)) {
   flags.push(
@@ -167,6 +191,13 @@ if (reach.unreadable) {
   );
 }
 
+const dead = deadSources();
+if (dead.length > 0) {
+  flags.push(
+    `DEAD-SOURCE: ${dead.length} @source path(s) the Kirby root lacks, listed under deadSources -> pass 2 re-points or drops them.`,
+  );
+}
+
 fs.mkdirSync(path.join(TYPES, ".review", ".raw"), { recursive: true });
 fs.writeFileSync(
   path.join(TYPES, ".review", "source-map.json"),
@@ -178,6 +209,7 @@ fs.writeFileSync(
       flags,
       helperRegistrations: helperRegistrations(),
       panelSingletons: panelSingletons(),
+      deadSources: dead,
       modules: moduleMap(),
     },
     null,

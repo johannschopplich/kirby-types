@@ -30,7 +30,7 @@ Then branch on `flags`:
 - **`LINE-UNKNOWN`** → ask which Lines-table branch the work targets, then re-probe with it as `LINE`.
 - **`LINE-MISMATCH` or `NOT-GIT`** → surface it and get a matching, full-history root from the user.
 - **`SHALLOW-HISTORY`** → run the command the flag names, then re-probe.
-- **Otherwise** → launch. Routine runs ask nothing.
+- **Any other flag, or none** → launch. Routine runs ask nothing.
 
 [topology.md](references/topology.md) gives the **stable** map only: symbol → cluster → module + PHP authority.
 
