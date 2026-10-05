@@ -2,12 +2,12 @@
 
 ## Lines
 
-Each kirby-types branch types one Kirby release line.
+Each kirby-types branch types one Kirby release line. Its Kirby majors and `@since` baseline live in `scripts/lines.mjs`, and the probe copies them into the source map.
 
-| Branch         | Package | Kirby                               | Plugin shape | `@since` baseline |
-| -------------- | ------- | ----------------------------------- | ------------ | ----------------- |
-| `main`         | v1.x    | 4 and 5, audited against a 5.x root | Vue 2.7      | 4.0.0             |
-| `feat/kirby-6` | v2      | 6                                   | Vue 3        | 6.0.0             |
+| Branch         | Package | Plugin shape |
+| -------------- | ------- | ------------ |
+| `main`         | v1.x    | Vue 2.7      |
+| `feat/kirby-6` | v2      | Vue 3        |
 
 Types describe the line's runtime and nothing beyond it: a member another line adds, removes, or reshapes belongs to that line's branch. A member the line itself removed or ignores in a later release keeps `@deprecated` with a one-line note naming the release.
 
@@ -24,16 +24,16 @@ Panel TS is **evidence-strength, not absolute**. PHP overrules it when they disa
 
 ## Anti-pattern: defaults-as-runtime fallacy
 
-For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for its nullability and never widen it to `T | null` on JS evidence alone: `PanelView.path`, `PanelSystem.csrf`, `PanelTranslation.code` stay non-nullable. A browser-only property takes its nullability from the Panel source, release by release.
+For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for its nullability and never widen it to `T | null` on JS evidence alone: `PanelView.path` and `PanelTranslation.code` stay non-nullable. A browser-only property takes its nullability from the Panel source, release by release. Without PHP evidence for a nullability, DEFER the widening and file it as `soft`.
 
 ## Finding categories
 
-- **tighten** – the Panel's own TS type is stricter or clearer than ours AND PHP confirms the shape. Adopt it.
-- **renameCandidate** – the source uses a different name that better reflects intent. Surface for the user gate; never auto-applied.
-- **missing** – public Kirby member not represented in TS.
-- **redundant** – TS member without runtime backing.
-- **signatureMismatch** – wrong arity, param types, or return type.
-- **soft** – JSDoc shape narrower than `any` / `Record<string, any>` widening allows; lower severity.
+- **tighten**: the Panel's own TS type is stricter or clearer than ours AND PHP confirms the shape. Adopt it.
+- **renameCandidate**: the source uses a different name that better reflects intent. Surface for the user gate; never auto-applied.
+- **missing**: public Kirby member not represented in TS.
+- **redundant**: TS member without runtime backing.
+- **signatureMismatch**: wrong arity, param types, or return type.
+- **soft**: JSDoc shape narrower than `any` / `Record<string, any>` widening allows; lower severity.
 
 ## Skip – never report
 
@@ -50,27 +50,23 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 
 ## Panel TS evidence
 
-- Drop `Prettify<T>` wrappers. IDE hover aid only, no runtime constraint.
+- Drop `Prettify<T>` wrappers.
 - `type TODO = any` means "Kirby has no opinion". Skip it.
 - Keep `Record<string, any>` unless the source narrows to `Record<string, unknown>` with shape evidence, not stylistic.
 
 ## `@since`
 
-- **Git from a full-history root.** Never assign a version from a topology hint. `git log -S <symbol>` for the introducing commit, then `git tag --contains <commit> | grep -E '^[0-9]' | sort -V | head -1` for the earliest release. A shallow clone mis-dates every earlier member to its oldest tag – the probe's `SHALLOW-HISTORY` flag catches it. Git-verified anchors: `removeEventListener(s)` (5.5.0), `hasPrevious` (5.5.0 – absent at 5.4.x), `string.sanitizeHTML` (5.5.0), `helper.writer` (5.5.0).
+- **Git from a full-history root.** Never assign a version from a topology hint. `git log -S <symbol>` for the introducing commit, then `git tag --contains <commit> | grep -E '^[0-9]' | sort -V | head -1` for the earliest release. A prerelease tag dates to its release: a member first tagged `6.0.0-alpha.2` is present at the 6.0.0 baseline.
 - **A member present at the line's baseline carries no property-level `@since`.** Baseline tags live only on module/interface docblocks.
 - **`@since` dates a member's introduction.** A later behavior change goes in the body: "Resolves to a boolean since 5.6.0, `void` before."
-
-## Escape hatch
-
-If you cannot locate PHP source confirming runtime nullability, DEFER any nullable widening and emit a `soft` finding.
 
 ## JSDoc style
 
 - **Body describes runtime behavior.** What a plugin author observes. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths – none belong in JSDoc prose.
-- **A doc that repeats the name and the type is not written.** `/** Icon name */` above `icon?: string` earns nothing, and neither does `/** Files API */` above `files: PanelApiFiles`. Add the member bare. That an editor shows the doc on hover is a reason to write one worth reading, not a reason to write one at all.
-- **Prose ends with a period**, one line or twenty: `/** Text shown after the input. */`. A block-tag description that continues the signature ends at its last word and takes none – `@param event - Event name to listen for`, `@since 5.5.0`, `@source panel/src/panel/state.ts`. Once a tag's text runs to a sentence it is prose and is punctuated as prose, which is why `@deprecated` notes take the period.
+- **A doc that repeats the name and the type is not written.** `/** Icon name */` above `icon?: string` earns nothing, and neither does `/** Files API */` above `files: PanelApiFiles`. Add the member bare.
+- **Prose ends with a period**, one line or twenty: `/** Text shown after the input. */`. A block-tag description that continues the signature ends at its last word and takes none – `@param event - Event name to listen for`, `@since 5.5.0`, `@source panel/src/panel/state.ts`. Once a tag's text runs to a sentence it is prose and is punctuated as prose.
 - **Values take backticks wherever a doc names them** – body, `@param`, `@returns`: ``@returns `true` if empty``.
 - **Callables open with a third-person verb, everything else takes a noun phrase.** `key: () => string` gets "Returns the state key identifier."; `timestamp: number | null` gets "Timestamp from the backend for cache invalidation." A function-typed property is a callable and takes the verb.
 - **Bulleted lists** completing a colon lead-in are punctuated once, on the last item. Items keyed by a label are independent descriptions and each take a period. A list of literal values under a label is verbatim and takes none.
 - **Sections are `// #region Name` … `// #endregion`,** never a rule-line banner and never a bare label. Regions nest – `WriterUtils` and `PanelEvents` group members inside an interface that way.
-- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see` – source URLs rot. A **phantom `@source`** cites a `panel/src` file the source map doesn't list, in a directory the map covers, or a PHP `src/` or `config/` file the Kirby root lacks: re-point it to the file that now holds the code, or drop it when the code is gone.
+- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see`. A **phantom `@source`** is one the source map lists under `deadSources`: re-point it to the file that now holds the code, or drop it when the code is gone.

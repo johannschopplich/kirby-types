@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 // Probe the live Kirby checkout and write a fresh source map to
 // <KIRBY_TYPES_ROOT>/.review/source-map.json (creating .review/.raw/ for pass 1).
-// Volatile facts – .js vs .ts per module, $helper/panel registrations, the Kirby
-// version, history reach, flags – are DISCOVERED here, never hard-coded in
-// topology.md. Agents read the map; they never guess file status.
+// Volatile facts – the module file types, $helper/panel registrations, the Kirby
+// version, history reach, dead @source paths, flags – are DISCOVERED here, never
+// hard-coded in topology.md. Agents read the map; they never guess file status.
 //
 // Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { LINES } from "./lines.mjs";
 
 const [KIRBY, TYPES, LINE_ARG] = process.argv.slice(2);
 if (!KIRBY || !TYPES) {
@@ -18,12 +19,10 @@ if (!KIRBY || !TYPES) {
   process.exit(1);
 }
 
-// The line is the kirby-types branch unless LINE names one; the Kirby root must match it.
-const LINE_MAJORS = { main: "5", "feat/kirby-6": "6" };
-
 // Directories whose file-extension status drifts between releases. Discovered by
 // listing, so no per-module list rots. Relative to <root>/panel/src.
 const SCAN_DIRS = [
+  "",
   "panel",
   "api",
   "helpers",
@@ -32,7 +31,9 @@ const SCAN_DIRS = [
   "components/Forms/Writer/Marks",
   "components/Forms/Writer/Nodes",
   "components/Forms/Writer/Utils",
+  "components/Forms/Input",
   "components/Forms/Toolbar",
+  "types",
 ];
 
 const run = (cmd) =>
@@ -48,9 +49,9 @@ function moduleMap() {
       continue;
     }
     for (const f of entries) {
-      const m = f.match(/^(.*)\.(ts|js)$/);
+      const m = f.match(/^(.+?)\.(d\.ts|ts|js|vue)$/);
       if (!m || /\.(test|spec|test-d)$/.test(m[1])) continue;
-      (map[`panel/src/${dir}/${m[1]}`] ??= []).push(m[2]);
+      (map[path.posix.join("panel/src", dir, m[1])] ??= []).push(m[2]);
     }
   }
   return Object.fromEntries(
@@ -131,6 +132,68 @@ function panelSingletons() {
   return [];
 }
 
+// Every `@source` path in the kirby-types declarations that the Kirby root lacks.
+function deadSources() {
+  const files = [
+    ...fs.readdirSync(TYPES).filter((f) => f.endsWith(".d.ts")),
+    ...fs
+      .readdirSync(path.join(TYPES, "src"), { recursive: true })
+      .filter((f) => f.endsWith(".d.ts"))
+      .map((f) => path.join("src", f)),
+  ];
+  const dead = [];
+  for (const file of files.sort()) {
+    const text = fs.readFileSync(path.join(TYPES, file), "utf8");
+    for (const [, source] of text.matchAll(/@source\s+(\S+)/g)) {
+      // A package path (`@types/…`) is not Kirby's to check.
+      const topDir = source.split("/")[0];
+      if (!fs.existsSync(path.join(KIRBY, topDir))) continue;
+      if (!fs.existsSync(path.join(KIRBY, source)))
+        dead.push(`${file}: ${source}`);
+    }
+  }
+  return [...new Set(dead)];
+}
+
+// Every type exported from src/panel that no topology cluster lists under **Symbols**.
+function unownedTypes() {
+  const topology = fs.readFileSync(
+    new URL("../references/topology.md", import.meta.url),
+    "utf8",
+  );
+  const owners = topology
+    .split("\n")
+    .filter((l) => l.includes("**Symbols**:"))
+    .map((l) =>
+      l.replace(/(\w+)\{([^}]+)\}/g, (_, stem, rest) =>
+        rest
+          .split(",")
+          .map((s) => stem + s.trim())
+          .join(", "),
+      ),
+    )
+    .flatMap((l) => l.match(/\b[A-Z]\w*\*?/g) ?? []);
+  const isOwned = (name) =>
+    owners.some((o) =>
+      o.endsWith("*") ? name.startsWith(o.slice(0, -1)) : name === o,
+    );
+  const dir = path.join(TYPES, "src/panel");
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".d.ts"))
+    .sort()
+    .flatMap((f) =>
+      [
+        ...fs
+          .readFileSync(path.join(dir, f), "utf8")
+          .matchAll(/^export (?:interface|type) (\w+)/gm),
+      ]
+        .map((m) => m[1])
+        .filter((name) => !isOwned(name))
+        .map((name) => `${f}: ${name}`),
+    );
+}
+
 const kirbyVersion = version();
 const flags = [];
 
@@ -141,10 +204,10 @@ if (!line) {
   } catch {}
 }
 const lineLabel = line ? `\`${line}\`` : "a detached HEAD";
-const expectedMajor = LINE_MAJORS[line];
+const expectedMajor = LINES[line]?.majors.at(-1);
 if (!expectedMajor) {
   flags.push(
-    `LINE-UNKNOWN: the line is ${lineLabel}, not \`main\` or \`feat/kirby-6\` -> ask which line this audit targets.`,
+    `LINE-UNKNOWN: the line is ${lineLabel}, none of ${Object.keys(LINES).join(", ")} -> ask which line this audit targets.`,
   );
 } else if (!kirbyVersion.startsWith(`${expectedMajor}.`)) {
   flags.push(
@@ -167,17 +230,35 @@ if (reach.unreadable) {
   );
 }
 
+const dead = deadSources();
+if (dead.length > 0) {
+  flags.push(
+    `DEAD-SOURCE: ${dead.length} @source path(s) the Kirby root lacks, listed under deadSources -> pass 2 re-points or drops them.`,
+  );
+}
+
+const unowned = unownedTypes();
+if (unowned.length > 0) {
+  flags.push(
+    `UNOWNED-TYPES: ${unowned.length} exported type(s) no topology cluster owns, listed under unownedTypes -> add each to the cluster whose symbols reference it.`,
+  );
+}
+
 fs.mkdirSync(path.join(TYPES, ".review", ".raw"), { recursive: true });
 fs.writeFileSync(
   path.join(TYPES, ".review", "source-map.json"),
   JSON.stringify(
     {
       line,
+      ...LINES[line],
+      base: run(`git -C "${TYPES}" rev-parse HEAD`).trim(),
       kirbyVersion,
       historyReach: reach,
       flags,
       helperRegistrations: helperRegistrations(),
       panelSingletons: panelSingletons(),
+      deadSources: dead,
+      unownedTypes: unowned,
       modules: moduleMap(),
     },
     null,
