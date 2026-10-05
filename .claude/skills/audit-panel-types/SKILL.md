@@ -24,14 +24,15 @@ Kirby migrates modules between `.js` and `.ts` every release. Never trust hard-c
 node scripts/probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
 ```
 
-`probe.mjs` creates `<KIRBY_TYPES_ROOT>/.review/.raw/` and writes `source-map.json` beside it: the line, the Kirby version, per-module `.js`/`.ts` status, and the `$helper` and panel-singleton registrations. **Completion criterion**: `source-map.json` exists and its `modules` map is non-empty.
+`probe.mjs` creates `<KIRBY_TYPES_ROOT>/.review/.raw/` and writes `source-map.json` beside it: the line with its majors and `@since` baseline, the audit's `base` commit, the Kirby version, each module's file types, the `$helper` and panel-singleton registrations, dead `@source` paths, and exported types no cluster owns. **Completion criterion**: `source-map.json` exists and its `modules` map is non-empty.
 
 Then branch on `flags`:
 
 - **`LINE-UNKNOWN`** → ask which Lines-table branch the work targets, then re-probe with it as `LINE`.
 - **`LINE-MISMATCH` or `NOT-GIT`** → surface it and get a matching, full-history root from the user.
 - **`SHALLOW-HISTORY`** → run the command the flag names, then re-probe.
-- **Any other flag, or none** → launch. Routine runs ask nothing.
+- **`UNOWNED-TYPES`** → add each listed type to the topology cluster whose symbols reference it, then re-probe.
+- **`DEAD-SOURCE`, or no flag** → launch. Routine runs ask nothing.
 
 [topology.md](references/topology.md) gives the **stable** map only: symbol → cluster → module + PHP authority.
 

@@ -18,7 +18,7 @@ Clusters, modules, and watchpoints hold for both lines; an entry tagged **(K6 li
 
 ### `base`
 
-- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelSuccessResponse, PanelHistory, PanelHistoryMilestone, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
+- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelSuccessResponse, PanelHistory, PanelHistoryMilestone, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
 - **PHP**: `src/Panel/{View,Dialog,Drawer}.php`, `src/Panel/Json.php` (Fiber response keys)
 - **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer` (K6 line; Kirby 5 emits `x-fiber*`). `NotificationType`: only `"error"`/`"fatal"` are ever assigned to `state.type`; the wider `success`/`info` union is unreachable – note, don't flag.
@@ -49,7 +49,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 ### `features-upload`
 
-- **Symbols**: PanelUploadFile, PanelUploadDefaults, PanelUpload
+- **Symbols**: PanelUploadFile, PanelUploadReplaceFile, PanelUploadDefaults, PanelUpload
 - **Modules**: `panel/src/panel/upload` (+ `panel/src/helpers/upload` for context)
 - **PHP**: `src/Panel/File.php` (server file model for `replacing` / `completed`)
 - **Watch**: **(K6 line)** the Panel TS reuses its queued-upload type for `replacing`, which is WRONG against PHP – PHP is authority for the `replacing` shape.
@@ -79,12 +79,12 @@ JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulte
 
 ### `api-content`
 
-- **Symbols**: PanelApiPages*, PanelApiSite, PanelApiFiles
+- **Symbols**: PanelApiPage*, PanelApiSite, PanelApiFiles
 - **Modules**: `panel/src/api/{pages,site,files}`
 
 ### `api-users`
 
-- **Symbols**: PanelApiUsers*, PanelApiRoles, PanelApiLanguages*
+- **Symbols**: PanelApiUser*, PanelApiRoles, PanelApiLanguage*
 - **Modules**: `panel/src/api/{users,roles,languages}`
 
 ### `api-system`
@@ -94,21 +94,24 @@ JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulte
 
 ## helpers.d.ts (3 clusters)
 
-JS/TS source is the runtime contract. Anchors are short property names (`array:`, `slug:`) – disambiguate against the wrapping interface when a name appears both as a sub-interface member and a top-level shortcut.
+JS/TS source is the runtime contract. Every `helperRegistrations` entry of the source map is a `PanelHelpers` member, else a `missing` finding. Anchors are short property names (`array:`, `slug:`) – disambiguate against the wrapping interface when a name appears both as a sub-interface member and a top-level shortcut.
 
 ### `helpers-data`
 
+- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps
 - **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), **(K6 line)** `items`
 - **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index}`, **(K6 line)** `panel/src/helpers/items`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 
 ### `helpers-string`
 
+- **Symbols**: PanelHelpers{String,Url,Clipboard,Keyboard,Link}, PanelSlugRules, PanelLink*
 - **Sub-properties on `PanelHelpers`**: `string`, `url`, `link`, `keyboard`, `focus`, `clipboard`, `color`, `pad`, `slug`, `uuid` (shortcuts)
 - **Modules**: `panel/src/helpers/{string,url,link,keyboard,focus,clipboard,color,index}`
 - **Watch**: transformers keep `string` on their subject param (intentional DX / autocomplete), even though source widened to `unknown`; predicates take `unknown`. Do not widen transformers – see rubric.
 
 ### `helpers-util`
 
+- **Symbols**: PanelUpload{Params,ProgressCallback,ResultCallback}, PanelDebounce*, PanelThrottle*
 - **Sub-properties on `PanelHelpers`**: `debounce`, `throttle`, `isComponent`, `isUploadEvent`, `upload`
 - **Modules**: `panel/src/helpers/{debounce,throttle,isComponent,isUploadEvent,upload}`
 - **Watch**: `queue` and `regex` are NOT on `$helper` (regex is a side-effect augment of `RegExp.escape`) – don't flag as missing. **(K6 line)** `isComponent` takes the Vue `app`.
@@ -117,7 +120,7 @@ JS/TS source is the runtime contract. Anchors are short property names (`array:`
 
 ### `libraries`
 
-- **Symbols**: PanelLibrary, PanelLibraryColors, PanelLibraryDayjs, PanelDayjsExtensions, PanelDayjsStaticExtensions, PanelDayjsPattern, PanelLibraryAutosize
+- **Symbols**: PanelLibrary*, PanelColor*, PanelDayjs*
 - **Modules**: `panel/src/libraries/{index,colors,colors-checks,colors-func,dayjs,dayjs-interpret,dayjs-iso,dayjs-merge,dayjs-pattern,dayjs-round,dayjs-validate}`, **(K6 line)** `panel/src/libraries/{dayjs-locale,dayjs-parse}` (+ `@types/autosize`)
 - **Watch**: the Panel uses `declare module 'dayjs'` to globally augment `Dayjs`; kirby-types intentionally keeps a `Dayjs & PanelDayjsExtensions` intersection on chainable returns – note it as intentional divergence.
 
@@ -127,7 +130,7 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 
 ### `writer-editor`
 
-- **Symbols**: WriterEditor, WriterToolbarButton, WriterUtils, WriterMarkContext, WriterNodeContext, WriterExtensionContext, WriterExtension
+- **Symbols**: WriterEditor*, WriterToolbarButton, WriterUtils, WriterMarkContext, WriterNodeContext, WriterExtensionContext, WriterExtension, WriterExtensions
 - **Modules**: `panel/src/components/Forms/Writer/{Editor,Extension,Extensions,Emitter}`, `panel/src/components/Forms/Writer/Utils/*`
 
 ### `writer-marks`
@@ -144,7 +147,7 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 
 ### `textarea`
 
-- **Symbols**: TextareaButton, TextareaToolbarContext
+- **Symbols**: TextareaButton, TextareaToolbarContext, TextareaDropdownItem
 - **Modules**: `panel/src/components/Forms/Toolbar/{TextareaToolbar,Toolbar,index,EmailDialog,LinkDialog}` (Vue components + index), `panel/src/components/Forms/Input/TextareaInput`
 - **Watch**: the Toolbar is Vue, not migrated to TS – the `.vue` source is the contract. `plugins` only widens `textareaButtons` to `Record<string, unknown>` (no button-shape opinion).
 
@@ -152,10 +155,10 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 
 ### `index-panel`
 
-- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls (+ **(K6 line)** PanelGlobalProperties, `panel.html`)
+- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls (+ **(K6 line)** PanelGlobalProperties, PanelHtml, HtmlString)
 - **Modules**: `panel/src/panel/{panel,app,legacy,plugins,request,search}`, `panel/src/types/{vue,global}`, `panel/src/index`, **(K6 line)** `panel/src/panel/{html,observers}`
 - **PHP**: `src/Panel/{Panel,View}.php` (urls/globals/searches)
-- **Watch**: `PanelApp`/`PanelComponentExtension`/`PanelPlugins`/`PanelPluginExtensions`/`created` follow the line's Vue version – Vue 2 on `main`; **(K6 line)** Vue 3 `App`/`Plugin`/`ComponentPublicInstance`, plus `panel.html` and `panel.observers` (see Modeling notes). The component globals – `PanelApp`'s shortcuts on `main`, **(K6 line)** `PanelGlobalProperties`, which `panel-globals.d.ts` augments onto every component – mirror Kirby's own `ComponentCustomProperties` in `panel/src/types/vue`: a shortcut Kirby adds, drops, or deprecates there moves the same way here. **(K6 line)** `PanelComponentExtension` follows the `Component` type in `plugins`.
+- **Watch**: `PanelApp`/`PanelComponentExtension`/`PanelPlugins`/`PanelPluginExtensions`/`created` follow the line's Vue version – Vue 2 on `main`; **(K6 line)** Vue 3 `App`/`Plugin`/`ComponentPublicInstance`, plus `panel.html` and `panel.observers` (see Modeling notes). Every `panelSingletons` entry of the source map is a `Panel` member, else a `missing` finding. The component globals – `PanelApp`'s shortcuts on `main`, **(K6 line)** `PanelGlobalProperties`, which `panel-globals.d.ts` augments onto every component – mirror Kirby's own `ComponentCustomProperties` in `panel/src/types/vue`: a shortcut Kirby adds, drops, or deprecates there moves the same way here. **(K6 line)** `PanelComponentExtension` follows the `Component` type in `plugins`.
 
 ### `index-config`
 
