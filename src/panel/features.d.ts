@@ -16,7 +16,6 @@ import type {
   PanelEventListeners,
   PanelFeature,
   PanelFeatureDefaults,
-  PanelHistory,
   PanelModal,
   PanelModalListeners,
   PanelRequestOptions,
@@ -148,8 +147,11 @@ export interface PanelTheme
   extends
     Omit<PanelState<PanelThemeDefaults>, "reset" | "set">,
     PanelThemeDefaults {
-  /** Theme from Panel config (`panel.theme` option). May be `null` when unset. */
-  readonly config: string | null;
+  /**
+   * Default theme from the `panel.theme` option; `"system"` unless configured.
+   * @since 5.1.0
+   */
+  readonly config: string;
 
   /**
    * Resolved current theme.
@@ -234,19 +236,22 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
 export interface PanelMenuEntry {
   /** Whether this entry is currently active. */
   current?: boolean;
-  /** Optional dialog URL – when set, the entry opens a dialog instead of navigating. */
-  dialog?: string;
+  /**
+   * Dialog URL or options – when set, the entry opens a dialog instead of
+   * navigating. Options objects since 5.2.0, URL strings only before.
+   */
+  dialog?: string | Record<string, any>;
   /** Whether the entry is rendered as visually disabled. */
   disabled?: boolean;
-  /** Optional drawer URL – when set, the entry opens a drawer instead of navigating. */
-  drawer?: string;
-  /** Icon name. */
+  /**
+   * Drawer URL or options – when set, the entry opens a drawer instead of
+   * navigating. Options objects since 5.2.0, URL strings only before.
+   */
+  drawer?: string | Record<string, any>;
   icon?: string;
-  /** Link URL. */
   link?: string;
   /** Anchor target attribute (e.g. `"_blank"`). */
   target?: string;
-  /** Display text. */
   text?: string;
   /** Tooltip text. */
   title?: string;
@@ -327,7 +332,6 @@ export interface PanelNotificationDefaults {
   context: PanelContext | null;
   /** Additional details (for error dialogs); defaults to an empty object. */
   details: Record<string, any>;
-  /** Icon name. */
   icon: string | null;
   /** Whether notification is visible. */
   isOpen: boolean;
@@ -336,7 +340,7 @@ export interface PanelNotificationDefaults {
   theme: NotificationTheme | null;
   /** Auto-close timeout in ms; `0` disables auto-close. Default `0`. */
   timeout: number;
-  /** Notification type stored in state (only set by `error()` / `fatal()`). */
+  /** Error severity; `null` for success and info notifications. */
   type: "error" | "fatal" | null;
 }
 
@@ -347,9 +351,7 @@ export interface PanelNotificationDefaults {
 export interface PanelNotificationOptions {
   /** Context where notification appears. */
   context?: PanelContext;
-  /** Additional details. */
   details?: Record<string, any>;
-  /** Icon name. */
   icon?: string;
   message?: string;
   /** Visual theme. */
@@ -366,12 +368,14 @@ export interface PanelNotificationOptions {
 }
 
 /**
- * Error object for notifications.
+ * Plain error object that `error()` and `fatal()` accept. `fatal()` shows its
+ * `message`. Before 5.5.0, `error()` showed its `message` too; since 5.5.0 it
+ * reads `Something went wrong` instead.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelErrorObject {
   message: string;
-  /** Additional error details. */
+  /** Details the error dialog lists in view context, read by `error()` before 5.5.0. */
   details?: Record<string, any>;
   /** @deprecated The notification never reads this field. */
   key?: string;
@@ -421,8 +425,9 @@ export interface PanelNotification
 
   /**
    * Creates a fatal error notification, displayed in an isolated iframe.
-   * A plain object contributes its `message`; without one the notification
-   * reads `Something went wrong`.
+   * A response that cannot be parsed shows its raw text. A plain object
+   * contributes its `message`; without one the notification reads
+   * `Something went wrong`.
    *
    * @param error - Error object, string, or plain `{ message }` object
    */
@@ -471,9 +476,9 @@ export interface PanelSystemDefaults {
   csrf: string;
   /** Whether running on localhost. */
   isLocal: boolean;
-  /** Locale names by code. */
+  /** Locale of each interface translation, keyed by translation code (e.g. `{ de: "de_DE" }`). */
   locales: Record<string, string>;
-  /** Slug rules by language. */
+  /** Slug character replacements of the current language. */
   slugs: Record<string, string>;
   /** Site title. */
   title: string;
@@ -576,10 +581,17 @@ export interface PanelUser
  * @source panel/src/panel/view.ts
  */
 export interface PanelBreadcrumbItem {
-  /** Display label. */
   label: string;
-  /** Navigation link. */
-  link: string;
+  /**
+   * Panel path the crumb links to. Absent for a crumb without a target,
+   * which renders disabled.
+   */
+  link?: string;
+  /**
+   * Tooltip text, e.g. why a page's crumb is redacted. Falls back to `label`.
+   * @since 5.6.0
+   */
+  title?: string;
   /** Icon for plugin-supplied breadcrumbs; core views never set it. */
   icon?: string;
 }
@@ -675,8 +687,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   close: () => void;
 
   /**
-   * Opens a dropdown by URL or state object.
-   * URLs are prefixed with `/dropdowns/`.
+   * Opens a dropdown by path, `URL`, or state object.
+   * A string path loads from `/dropdowns/`; a `URL` object loads as-is.
    */
   open: (
     dropdown: string | URL | Partial<PanelFeatureDefaults>,
@@ -685,9 +697,10 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 
   /**
    * Opens a dropdown asynchronously and returns a closure that invokes
-   * `ready(items)` with the resolved option list.
+   * `ready(items)` with the resolved option list. The closure rejects when
+   * the dropdown has no options.
    *
-   * @deprecated Use `open()` and read `options()` instead.
+   * @deprecated Since 4.0.0; use `open()` and read `options()` instead.
    */
   openAsync: (
     dropdown: string | URL | Partial<PanelFeatureDefaults>,
@@ -700,7 +713,10 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
    */
   options: () => (PanelDropdownOption | "-")[];
 
-  /** Sets dropdown state, handling deprecated responses. */
+  /**
+   * Sets the dropdown state. A top-level `options` array, the shape dropdown
+   * routes respond with, replaces `props` as `props.options`.
+   */
   set: (state: Partial<PanelFeatureDefaults>) => PanelFeatureDefaults;
 }
 // #endregion
@@ -713,11 +729,19 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
  * @source panel/src/panel/modal.js
  */
 export interface PanelDialogDefaults extends PanelFeatureDefaults {
-  /** Unique dialog ID. */
+  /**
+   * ID that tells nested dialogs apart, generated when the state brings none.
+   *
+   * @since 5.1.0
+   */
   id: string | null;
-  /** Whether using legacy Vue component. */
+  /**
+   * Whether using legacy Vue component.
+   */
   legacy: boolean;
-  /** Reference to legacy component. */
+  /**
+   * Reference to legacy component.
+   */
   ref: any;
 }
 
@@ -746,9 +770,12 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   close: () => Promise<void>;
 
   /**
-   * Opens a dialog by URL, state object, or legacy Vue component instance.
-   * Object form supports a `url` shorthand that is hoisted into options, plus
-   * `component`/`props` for inline component dialogs.
+   * Opens a dialog by path, `URL`, state object, or legacy Vue component
+   * instance. A string path loads from `/dialogs/`; an object with
+   * `component` and `props` opens inline. Since 5.2.0, an object with `url`
+   * loads that path and passes its other keys as options. Since 5.1.0,
+   * `replace: true` on a state object swaps the current dialog in the history
+   * instead of stacking on top of it.
    */
   open: (
     dialog:
@@ -776,7 +803,7 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
  * @source panel/src/panel/modal.js
  */
 export interface PanelDrawerDefaults extends PanelFeatureDefaults {
-  /** Unique drawer ID. */
+  /** ID that tells nested drawers apart, generated when the state brings none. */
   id: string | null;
 }
 
@@ -790,13 +817,19 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  * @source panel/src/panel/modal.js
  */
 export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
-  /** Breadcrumb from history milestones. */
-  readonly breadcrumb: PanelHistory["milestones"];
+  /** Drawer states stacked in the history, oldest first. */
+  readonly breadcrumb: (PanelDrawerDefaults & { id: string })[];
 
   /** Drawer icon, defaults to `"box"`. */
   readonly icon: string;
 
-  /** Opens a drawer by URL or state object. */
+  /**
+   * Opens a drawer by path, `URL`, or state object, switches to `tab` of a
+   * state object, the first tab otherwise, and focuses the drawer. A string path loads from
+   * `/drawers/`. Since 5.2.0, an object with `url` loads that path and passes
+   * its other keys as options. `replace: true` on a state object swaps the
+   * current drawer in the history instead of stacking on top of it.
+   */
   open: (
     drawer:
       | string
@@ -1131,9 +1164,11 @@ export interface PanelSearchOptions {
  * @source src/Panel/Controller/Search.php
  */
 export interface PanelSearchResult {
-  /** Result list (null if query too short). */
+  /**
+   * Result items. Since 4.4.0, `null` for a query shorter than two
+   * characters and empty when the request fails.
+   */
   results: any[] | null;
-  /** Pagination info. */
   pagination: PanelSearchPagination;
 }
 
@@ -1163,7 +1198,7 @@ export interface PanelSearcher {
   open: (type: string) => void;
 
   /**
-   * Queries the search API. For queries shorter than 2 characters returns `{ results: null, pagination: {} }` without hitting the server. Resolves to `undefined` when the request was aborted by a subsequent search.
+   * Queries the search API. For queries shorter than 2 characters returns `{ results: null, pagination: {} }` without hitting the server. Resolves to `undefined` when the request was aborted by a subsequent search, and to `{ results: [], pagination: {} }` when it fails for any other reason.
    *
    * @param type - Search type
    * @param query - Search query
@@ -1192,8 +1227,12 @@ export interface PanelUploadReplaceFile {
   link: string;
   /** File extension without dot, used for the picker `accept` filter. */
   extension: string;
-  /** MIME type, used for the picker `accept` filter. */
-  mime: string;
+  /** MIME type, used for the picker `accept` filter. `null` when undetectable. */
+  mime: string | null;
+  /** Filename with extension, shown in the replace dialog. */
+  filename: string;
+  /** Public URL of the current file, previewed in the replace dialog. */
+  url: string;
   /** Additional server-side fields. */
   [key: string]: any;
 }
@@ -1229,6 +1268,11 @@ export interface PanelUploadFile {
   error: string | null;
   /** Response model after successful upload. */
   model: any | null;
+  /**
+   * Preview settings spread in from `preview`, such as `icon` or `color`.
+   * @since 4.4.0
+   */
+  [key: string]: any;
 }
 
 /**
@@ -1385,6 +1429,8 @@ export interface PanelUpload
 
   /**
    * Uploads a single file with chunking support.
+   * Since 5.0.0, fails the file when called before `submit()` has set
+   * `abort`: its `error` is set and `file.upload.error` fires.
    *
    * @param file - File to upload
    * @param attributes - Additional attributes
