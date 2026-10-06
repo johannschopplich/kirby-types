@@ -10,6 +10,7 @@
 import type {
   ConfigType,
   Dayjs,
+  OptionType,
   PluginFunc,
   UnitType,
   UnitTypeLong,
@@ -17,10 +18,16 @@ import type {
 
 // #region Color Types
 
-/** Color format identifiers. */
+/**
+ * Color format identifiers.
+ *
+ * @source panel/src/libraries/colors.ts
+ */
 export type PanelColorFormat = "hex" | "rgb" | "hsl" | "hsv";
 
-/** RGB color object. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export interface PanelColorRGB {
   /** Red channel (0-255). */
   r: number;
@@ -32,7 +39,9 @@ export interface PanelColorRGB {
   a?: number;
 }
 
-/** HSL color object. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export interface PanelColorHSL {
   /** Hue (0-360). */
   h: number;
@@ -44,7 +53,9 @@ export interface PanelColorHSL {
   a?: number;
 }
 
-/** HSV color object. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export interface PanelColorHSV {
   /** Hue (0-360). */
   h: number;
@@ -56,10 +67,16 @@ export interface PanelColorHSV {
   a?: number;
 }
 
-/** Any color object type. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
 
-/** Any color, as a CSS string or an object. */
+/**
+ * Any color, as a CSS string or an object.
+ *
+ * @source panel/src/libraries/colors.ts
+ */
 export type PanelColor = string | PanelColorObject;
 
 /**
@@ -75,6 +92,7 @@ export type PanelColor = string | PanelColorObject;
  * @since 4.0.0
  * @source panel/src/libraries/colors.ts
  * @source panel/src/libraries/colors-checks.ts
+ * @source panel/src/libraries/colors-func.ts
  */
 export interface PanelLibraryColors {
   /**
@@ -155,7 +173,9 @@ export interface PanelLibraryColors {
 
 // #region Dayjs Types
 
-/** Pattern part information. */
+/**
+ * @source panel/src/libraries/dayjs-pattern.ts
+ */
 export interface PanelDayjsPatternPart {
   index: number;
   /** Unit the part refers to, `undefined` for a letter sequence that is not a supported token, e.g. `Do`. */
@@ -171,9 +191,7 @@ export interface PanelDayjsPatternPart {
  * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsPattern {
-  /** Original pattern string. */
   pattern: string;
-  /** Parsed pattern parts. */
   parts: PanelDayjsPatternPart[];
   /**
    * Gets part information at cursor position/selection range.
@@ -211,8 +229,11 @@ export interface PanelDayjsExtensions {
   /**
    * Validates datetime against an upper or lower (min/max) boundary.
    *
+   * Defaults `type` to `min` since 5.5.0; before, omitting it throws unless
+   * the dates match.
+   *
    * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
-   * @param type - `"min"` or `"max"` (default: `"min"`)
+   * @param type - `"min"` or `"max"` (default: `"min"` since 5.5.0)
    * @param unit - Comparison unit (default: `"day"`)
    * @returns Whether the date is valid against the boundary
    */
@@ -226,7 +247,7 @@ export interface PanelDayjsExtensions {
    * Merges date or time parts from another dayjs instance.
    *
    * @param dt - Dayjs instance to merge from
-   * @param units - `"date"`, `"time"`, or array of specific units (`"year"`, `"month"`, `"date"`, `"hour"`, `"minute"`, `"second"`)
+   * @param units - `"date"`, `"time"`, or array of specific units (`"year"`, `"month"`, `"date"`, `"hour"`, `"minute"`, `"second"`) (default: `"date"`)
    * @returns New dayjs instance (returns `this` if `dt` is invalid)
    */
   merge: (
@@ -249,7 +270,6 @@ export interface PanelDayjsExtensions {
   round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
 }
 
-/** Kirby-extended dayjs instance type. */
 export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
@@ -275,9 +295,10 @@ export interface PanelDayjsStaticExtensions {
   /**
    * Parses ISO formatted string.
    *
+   * Tries all three formats when `format` is omitted.
+   *
    * @param value - ISO string
-   * @param format - ISO format type. If omitted, tries all three formats
-   *   since 4.2.0 – before, only `datetime`.
+   * @param format - ISO format type
    * @returns Dayjs instance or `null` if invalid
    */
   iso: (
@@ -314,18 +335,20 @@ export interface PanelDayjsStaticExtensions {
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   (date?: ConfigType): PanelDayjsInstance;
-  (date?: ConfigType, format?: string, strict?: boolean): PanelDayjsInstance;
   (
     date?: ConfigType,
-    format?: string,
+    format?: OptionType,
+    strict?: boolean,
+  ): PanelDayjsInstance;
+  (
+    date?: ConfigType,
+    format?: OptionType,
     locale?: string,
     strict?: boolean,
   ): PanelDayjsInstance;
 
-  extend: <T = unknown>(
-    plugin: PluginFunc<T>,
-    option?: T,
-  ) => typeof import("dayjs");
+  /** Registers a plugin once and returns the dayjs function for chaining. */
+  extend: <T = unknown>(plugin: PluginFunc<T>, option?: T) => PanelLibraryDayjs;
 
   /**
    * Activates or registers a locale and returns the active locale name.
@@ -339,6 +362,9 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
     object?: Partial<ILocale>,
     isLocal?: boolean,
   ) => string;
+
+  /** Loaded locales, keyed by locale name. */
+  Ls: Record<string, ILocale>;
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
 
