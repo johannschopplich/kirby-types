@@ -59,8 +59,8 @@ export interface PanelColorHSV {
 /** Any color object type. */
 export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
 
-/** Color input (string or object). */
-export type PanelColorInput = string | PanelColorObject;
+/** Any color, as a CSS string or an object. */
+export type PanelColor = string | PanelColorObject;
 
 /**
  * Parses CSS color strings and converts between HEX, RGB, HSL, and HSV color spaces.
@@ -102,10 +102,7 @@ export interface PanelLibraryColors {
     (color: PanelColorHSV, format: "rgb"): PanelColorRGB;
     (color: PanelColorHSV, format: "hsl"): PanelColorHSL;
     (color: PanelColorHSV, format: "hsv"): PanelColorHSV;
-    (
-      color: PanelColorInput,
-      format: PanelColorFormat,
-    ): string | PanelColorObject;
+    (color: PanelColor, format: PanelColorFormat): string | PanelColorObject;
   };
 
   /**
@@ -149,7 +146,7 @@ export interface PanelLibraryColors {
    * @throws Error if unsupported color or format (HSV cannot be output as CSS)
    */
   toString: (
-    color: PanelColorInput,
+    color: PanelColor,
     format?: PanelColorFormat,
     alpha?: boolean,
   ) => string;
