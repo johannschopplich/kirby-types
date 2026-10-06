@@ -1159,11 +1159,11 @@ export interface PanelSearchOptions {
 }
 
 /**
- * Search result from API.
+ * Search response from the API.
  * @source panel/src/panel/search.ts
  * @source src/Panel/Controller/Search.php
  */
-export interface PanelSearchResult {
+export interface PanelSearchResponse {
   /**
    * Result items. Since 4.4.0, `null` for a query shorter than two
    * characters and empty when the request fails.
@@ -1208,7 +1208,7 @@ export interface PanelSearcher {
     type: string,
     query: string,
     options?: PanelSearchOptions,
-  ) => Promise<PanelSearchResult | undefined>;
+  ) => Promise<PanelSearchResponse | undefined>;
 }
 // #endregion
 

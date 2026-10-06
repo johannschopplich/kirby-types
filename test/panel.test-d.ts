@@ -22,7 +22,7 @@ import type {
   PanelDrawer,
   PanelNotification,
   PanelNotificationDefaults,
-  PanelSearchResult,
+  PanelSearchResponse,
   PanelUpload,
   PanelUploadDefaults,
   PanelUploadFile,
@@ -216,7 +216,7 @@ expectType<Promise<void>>(content.discard());
 declare const panel: Panel;
 
 expectType<Promise<void>>(panel.search("pages"));
-expectType<Promise<PanelSearchResult | undefined>>(
+expectType<Promise<PanelSearchResponse | undefined>>(
   panel.search("pages", "test"),
 );
 expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);

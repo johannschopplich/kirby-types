@@ -109,7 +109,7 @@ export type {
   PanelContent,
   PanelSearchPagination,
   PanelSearchOptions,
-  PanelSearchResult,
+  PanelSearchResponse,
   PanelSearcher,
   PanelUploadFile,
   PanelUpload,
@@ -1124,7 +1124,7 @@ export interface Panel {
       type: string,
       query: string,
       options?: PanelFeatures.PanelSearchOptions,
-    ): Promise<PanelFeatures.PanelSearchResult | undefined>;
+    ): Promise<PanelFeatures.PanelSearchResponse | undefined>;
   };
 
   /**

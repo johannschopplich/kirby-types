@@ -32,7 +32,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 ### `features-view`
 
-- **Symbols**: PanelBreadcrumbItem, PanelViewDefaults, PanelView, PanelSearchPagination, PanelSearchOptions, PanelSearchResult, PanelSearcher
+- **Symbols**: PanelBreadcrumbItem, PanelViewDefaults, PanelView, PanelSearchPagination, PanelSearchOptions, PanelSearchResponse, PanelSearcher
 - **Modules**: `panel/src/panel/{view,search,feature}`
 - **PHP**: `src/Panel/{View,Page,File,User,Site}.php` (`$view` resolver + per-model props)
 - **Watch**: PanelView extends PanelFeature – never re-flag inherited members; focus on what view ADDS/OVERRIDES. `PanelView.path` non-nullable (PHP always sets it) even though JS `defaults()` returns null.
