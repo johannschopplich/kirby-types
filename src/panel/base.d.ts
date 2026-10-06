@@ -66,7 +66,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    * @throws Error if state is not an object
    * @deprecated Removed in 5.5.0; `set()` checks for a plain object itself.
    */
-  validateState: (state: unknown) => boolean;
+  validateState?: (state: unknown) => boolean;
 }
 // #endregion
 

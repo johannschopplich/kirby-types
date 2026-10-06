@@ -133,7 +133,7 @@ expectType<void>(userState.reset());
 expectType<PanelUserDefaults>(userState.set({ email: "new@test.com" }));
 expectType<PanelUserDefaults>(userState.state());
 expectType<string>(userState.key());
-expectType<boolean>(userState.validateState({}));
+expectType<boolean | undefined>(userState.validateState?.({}));
 expectType<string | null>({} as PanelUser["email"]);
 expectType<string | null>({} as PanelUser["id"]);
 expectType<string | null>({} as PanelUser["language"]);
