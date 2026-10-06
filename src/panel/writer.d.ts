@@ -64,17 +64,24 @@ export interface WriterEditorSelectPayload extends WriterEditorTransactionPayloa
 }
 
 /**
- * Payloads of the core editor events, keyed by event name. Each listener
- * receives its payload as the only argument. `drop` is left out: it passes the view,
+ * Payloads of the editor events and of the events the built-in `link` and
+ * `email` marks send, keyed by event name. Each listener receives its payload
+ * as the only argument. `drop` is left out: it passes the view,
  * the event, the slice, and the `moved` flag as separate arguments.
  *
  * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Marks/Link.js
+ * @source panel/src/components/Forms/Writer/Marks/Email.js
  */
 export interface WriterEditorEvents {
   blur: { event: FocusEvent; state: EditorState; view: EditorView };
   deselect: WriterEditorSelectPayload;
+  /** The editor, sent when the email toolbar button is clicked without Alt or Meta held. */
+  email: WriterEditor;
   focus: { event: FocusEvent; state: EditorState; view: EditorView };
   init: { state: EditorState; view: EditorView };
+  /** The editor, sent when the link toolbar button is clicked without Alt or Meta held. */
+  link: WriterEditor;
   select: WriterEditorSelectPayload;
   transaction: WriterEditorTransactionPayload;
   /**
@@ -109,6 +116,8 @@ export interface WriterEditor {
    * view before it runs and returns `false` while the editor is not editable.
    */
   commands: Record<string, (attrs?: any) => any>;
+  /** Default options that `options` is merged over. */
+  defaults: Required<WriterEditorOptions>;
   /** The DOM element the editor is mounted to. */
   element: HTMLElement | null;
   /** Event handlers passed via `options.events`. */
@@ -160,8 +169,8 @@ export interface WriterEditor {
 
   /** Removes focus from the editor. */
   blur: () => void;
-  /** Returns available toolbar buttons for the given type. */
-  buttons: (type: "mark" | "node") => Record<string, WriterToolbarButton>;
+  /** Returns toolbar buttons for the given type, `mark` by default. */
+  buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
   /** Clears the editor content. */
   clearContent: (emitUpdate?: boolean) => void;
   /** Executes a command by name. */
@@ -246,7 +255,7 @@ export interface WriterEditor {
   ) => this) &
     ((event: string, fn: (...args: any[]) => any) => this);
   /** Removes a mark from the current selection. */
-  removeMark: (mark: string) => boolean | undefined;
+  removeMark: (mark: string) => void;
   /**
    * Returns selection at the given position.
    *
@@ -266,7 +275,7 @@ export interface WriterEditor {
   /** Toggles a mark on the current selection. */
   toggleMark: (mark: string) => boolean | undefined;
   /** Updates a mark's attributes. */
-  updateMark: (mark: string, attrs: Record<string, any>) => boolean | undefined;
+  updateMark: (mark: string, attrs: Record<string, any>) => void;
   // #endregion
 }
 
@@ -278,13 +287,27 @@ export interface WriterEditor {
 export interface WriterEditorOptions {
   autofocus?: boolean | "start" | "end" | number;
   content?: string | Record<string, any> | null;
+  /** `true` skips every input rule; an array names the extensions whose input rules are skipped. */
   disableInputRules?: boolean | string[];
+  /** `true` skips every paste rule; an array names the extensions whose paste rules are skipped. */
   disablePasteRules?: boolean | string[];
   editable?: boolean;
   element?: HTMLElement | null;
-  extensions?: any[];
+  extensions?: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
   emptyDocument?: Record<string, any>;
-  events?: Record<string, (...args: any[]) => any>;
+  /**
+   * Listeners registered with `on()` at init, keyed by event name. `paste` is
+   * never emitted: the view calls it with the clipboard event and its HTML and
+   * plain text, and a return of `true` marks the paste as handled.
+   */
+  events?: {
+    paste?: (
+      event: ClipboardEvent,
+      html: string,
+      text: string,
+    ) => boolean | void;
+    [event: string]: ((...args: any[]) => any) | undefined;
+  };
   inline?: boolean;
   parseOptions?: ParseOptions;
   topNode?: string;
@@ -341,12 +364,11 @@ export interface WriterExtensions {
  * @source panel/src/components/Forms/Writer/Extensions.js
  * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/components/Forms/Writer/Nodes/Heading.js
- * @source panel/src/components/Forms/Writer/Marks/Link.js
  */
 export interface WriterToolbarButton {
   /** Key of a button in an extension's button array, `name` when omitted. */
   id?: string;
-  /** Command name to execute. */
+  /** Command name to execute, the button's key when omitted. */
   command?: string;
   /** Icon name from Kirby's icon set. */
   icon: string;
@@ -354,9 +376,15 @@ export interface WriterToolbarButton {
   label: string;
   /** Extension name this button belongs to. */
   name?: string;
-  /** Attributes to pass to the command. */
+  /**
+   * Node attributes that mark this button as current when they match the
+   * active node's, for nodes with several buttons such as headings.
+   */
   attrs?: Record<string, any>;
-  /** Show separator line after this button. */
+  /**
+   * Whether a separator line follows this button in the block dropdown.
+   * Ignored for inline buttons and after the last entry.
+   */
   separator?: boolean;
   /**
    * Whether a node button shows inline in the toolbar instead of in the block dropdown.
@@ -364,7 +392,7 @@ export interface WriterToolbarButton {
    * @since 5.0.0
    */
   inline?: boolean;
-  /** Names of active node types under which this dropdown button stays enabled. */
+  /** Node names whose dropdown buttons stay enabled while this button's node is active. */
   when?: string[];
 }
 // #endregion
@@ -494,14 +522,14 @@ export interface WriterUtils {
   ) => Plugin;
 
   /**
-   * Clamps a value between a minimum and maximum.
+   * Parses a value as an integer and clamps it between a minimum and maximum.
    *
-   * @param value - The value to clamp
-   * @param min - The minimum allowed value
-   * @param max - The maximum allowed value
-   * @returns The clamped value
+   * @param value - The number or numeric string to clamp, `0` when omitted
+   * @param min - The minimum allowed value, `0` when omitted
+   * @param max - The maximum allowed value, `0` when omitted
+   * @returns The clamped integer
    */
-  minMax: (value: number, min: number, max: number) => number;
+  minMax: (value?: number | string, min?: number, max?: number) => number;
 
   /**
    * Creates an input rule that inserts a node when the pattern matches.
@@ -528,7 +556,7 @@ export interface WriterUtils {
   nodeIsActive: (state: EditorState, type: NodeType, attrs?: Attrs) => boolean;
 
   /**
-   * Creates a paste rule that applies a mark to pasted text matching the pattern.
+   * Creates a paste rule that applies a mark to each whole match in pasted text.
    *
    * @param regexp - The pattern to match
    * @param type - The mark type to apply
@@ -683,8 +711,8 @@ export interface WriterExtensionContext {
  * @source panel/src/components/Forms/Input/WriterInput.vue
  */
 export interface WriterExtension {
-  /** Unique name of the extension. */
-  name?: string;
+  /** Unique name of the extension, `null` on built-ins that define none. */
+  name?: string | null;
 
   /**
    * Discriminator value. Among plain extensions, the editor collects
@@ -748,7 +776,8 @@ export interface WriterExtension {
   pasteRules?: (context: WriterExtensionContext) => Plugin[];
 
   /**
-   * Returns keyboard shortcuts.
+   * Returns keyboard shortcuts. A handler that returns nothing or `false`
+   * lets the key fall through to the next binding.
    *
    * @param context - Context with schema and utils
    * @returns Object mapping key combinations to command functions
@@ -898,7 +927,8 @@ export interface WriterMarkExtension {
   inputRules?: (context: WriterMarkContext) => InputRule[];
 
   /**
-   * Returns keyboard shortcuts.
+   * Returns keyboard shortcuts. A handler that returns nothing or `false`
+   * lets the key fall through to the next binding.
    *
    * @param context - Context with schema, type, and utils
    * @returns Object mapping key combinations to command functions
@@ -962,6 +992,12 @@ export interface WriterMarkExtension {
   // #endregion
 
   // #region Lifecycle
+
+  /**
+   * Stores the editor on `editor`. Inherited from the base extension; the
+   * editor calls it before `init()`, so an override must keep that assignment.
+   */
+  bindEditor?: (editor: WriterEditor) => void;
 
   /**
    * Runs after the editor is bound to the extension.
@@ -1043,8 +1079,8 @@ export interface WriterNodeExtension {
   /**
    * Unique name of the node extension.
    *
-   * When using object literals with `window.panel.plugin()`, this is
-   * typically derived from the object key in `writerNodes`.
+   * Defaults to the node's key in `writerNodes`; a `name` in the definition
+   * overrides it.
    */
   name?: string;
 
@@ -1084,7 +1120,11 @@ export interface WriterNodeExtension {
    */
   defaults?: Record<string, any>;
 
-  /** ProseMirror node schema definition. */
+  /**
+   * ProseMirror node schema definition, registered under the node's `name`.
+   *
+   * An inline writer installs only nodes whose spec sets `inline: true`.
+   */
   schema?: NodeSpec;
 
   /**
@@ -1109,7 +1149,8 @@ export interface WriterNodeExtension {
   inputRules?: (context: WriterNodeContext) => InputRule[];
 
   /**
-   * Returns keyboard shortcuts.
+   * Returns keyboard shortcuts. A handler that returns nothing or `false`
+   * lets the key fall through to the next binding.
    *
    * @param context - Context with schema, type, and utils
    * @returns Object mapping key combinations to command functions
@@ -1142,6 +1183,12 @@ export interface WriterNodeExtension {
   // #endregion
 
   // #region Lifecycle
+
+  /**
+   * Stores the editor on `editor`. Inherited from the base extension; the
+   * editor calls it before `init()`, so an override must keep that assignment.
+   */
+  bindEditor?: (editor: WriterEditor) => void;
 
   /**
    * Runs after the editor is bound to the extension.
