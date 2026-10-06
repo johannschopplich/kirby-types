@@ -20,7 +20,7 @@ import type { PanelApp } from "./index";
  */
 export interface TextareaToolbarContext extends Pick<
   PanelApp,
-  "$panel" | "$library" | "$helper" | "$esc"
+  "$panel" | "$library" | "$helper" | "$esc" | "$t"
 > {
   /**
    * Emits a command to the textarea input component.
@@ -28,7 +28,7 @@ export interface TextareaToolbarContext extends Pick<
    * Available commands:
    * - `"dialog"` - Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
    * - `"insert"` - Inserts the given text at the current selection.
-   * - `"prepend"` - Prepends the given text to the current selection.
+   * - `"prepend"` - Prepends the given text and a space to the current selection.
    * - `"toggle"` - Toggles wrapping of current selection (accepts `before`, `after` texts).
    * - `"upload"` - Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
    * - `"wrap"` - Wraps the current selection with the given text.
@@ -40,7 +40,7 @@ export interface TextareaToolbarContext extends Pick<
    * @example
    * ```js
    * this.command("toggle", "**"); // Toggle bold
-   * this.command("prepend", "# "); // Add heading
+   * this.command("prepend", "#"); // Add heading
    * this.command("dialog", "link"); // Open link dialog
    * this.command("insert", (input, selection) => selection.toUpperCase());
    * ```
@@ -54,8 +54,18 @@ export interface TextareaToolbarContext extends Pick<
   /** Closes all dropdowns. */
   close: () => void;
 
-  /** Translates a Kirby translation key, with optional placeholder values. */
-  $t: (key: string, ...args: any[]) => string;
+  /**
+   * Button names from the field's `buttons` option, or `true` for the
+   * default toolbar.
+   */
+  buttons: string[] | true;
+
+  /**
+   * Upload options from the field's `uploads` option, or `false` when
+   * uploads are disabled. The built-in file button offers its select and
+   * upload dropdown only when set.
+   */
+  uploads?: false | Record<string, any>;
 }
 // #endregion
 
@@ -147,7 +157,7 @@ export interface TextareaButton {
   /**
    * Dropdown menu items. A `"-"` entry renders a separator.
    *
-   * If provided, clicking the button opens the dropdown instead of running
+   * If non-empty, clicking the button opens the dropdown instead of running
    * `click`. The `shortcut` still runs `click`.
    */
   dropdown?: (TextareaDropdownItem | "-")[];
@@ -205,6 +215,8 @@ export interface TextareaButton {
  * ```
  *
  * @source panel/src/components/Dropdowns/DropdownContent.vue
+ * @source panel/src/components/Navigation/Button.vue
+ * @source panel/src/components/Navigation/Link.vue
  */
 export interface TextareaDropdownItem {
   /** Item label. Falls back to `text` when unset. */
@@ -233,5 +245,40 @@ export interface TextareaDropdownItem {
 
   /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
+  /** URL or Panel path the item links to. */
+  link?: string;
+
+  /** Link target, such as `"_blank"`. Applies only with `link`. */
+  target?: string;
+
+  /**
+   * Dialog to open on click instead of running `click`, as a Panel path or
+   * a dialog state object.
+   *
+   * @since 5.2.0
+   */
+  dialog?: string | Record<string, any>;
+
+  /**
+   * Drawer to open on click instead of running `click`, as a Panel path or
+   * a drawer state object.
+   *
+   * @since 5.2.0
+   */
+  drawer?: string | Record<string, any>;
+
+  /**
+   * Design theme, such as `"negative"` for a destructive entry.
+   *
+   * Ignored before 5.2.0.
+   */
+  theme?: string;
+
+  /**
+   * Colored badge on the item. Its `theme` falls back to the item's `theme`.
+   *
+   * @since 5.2.0
+   */
+  badge?: { text: string | number; theme?: string };
 }
 // #endregion

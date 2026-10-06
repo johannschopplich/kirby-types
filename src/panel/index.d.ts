@@ -128,7 +128,11 @@ export type { PanelLibrary } from "./libraries";
 
 // #region Re-exports from textarea.d.ts
 
-export type { TextareaButton, TextareaToolbarContext } from "./textarea";
+export type {
+  TextareaButton,
+  TextareaDropdownItem,
+  TextareaToolbarContext,
+} from "./textarea";
 // #endregion
 
 // #region Re-exports from writer.d.ts

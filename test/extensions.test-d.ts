@@ -274,6 +274,7 @@ expectType<void>(
 );
 expectType<void>(context.close());
 expectType<string>(context.$t("toolbar.button.bold"));
+expectType<string>(context.$t("key", { n: 1 }));
 // #endregion
 
 // #region Panel Plugin Extensions
