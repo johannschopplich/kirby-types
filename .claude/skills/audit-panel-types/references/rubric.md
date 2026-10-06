@@ -9,6 +9,8 @@ Each kirby-types branch types one Kirby release line. Its Kirby majors and `@sin
 | `main`         | v1.x    | Vue 2.7      |
 | `feat/kirby-6` | v2      | Vue 3        |
 
+`main` follows Kirby 5 and covers Kirby 4 only at its last minor, 4.9: a Kirby 4 difference is one prose sentence ("before 5.0.0, …"), never a type widened for its shape.
+
 Types describe the line's runtime and nothing beyond it: a member another line adds, removes, or reshapes belongs to that line's branch. A member the line itself removed or ignores in a later release keeps `@deprecated` with a one-line note naming the release.
 
 ## Authority order

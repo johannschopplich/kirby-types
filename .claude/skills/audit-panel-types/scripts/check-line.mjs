@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Check the kirby-types declarations for traces of the other release line: a
-// `@since` outside the line's majors, a baseline `@since` on a member, and doc
-// prose naming another line's Kirby version. Exits 1 with one `file:line` per hit.
+// Check the kirby-types declarations for versions outside the line: a
+// `@since` outside the line's majors, a baseline `@since` on a member, doc
+// prose naming another line's Kirby version, and a version older than the
+// baseline. Exits 1 with one `file:line` per hit.
 //
 // Usage: node check-line.mjs <KIRBY_TYPES_ROOT> [LINE]
 import fs from "node:fs";
@@ -36,6 +37,19 @@ const foreign = new RegExp(
   `\\bKirby [${foreignMajors}]\\b|\\b[${foreignMajors}]\\.\\d+\\.\\d+\\b`,
 );
 
+// A missing or `x` patch, as in `4.8` or `5.3.x`, counts as 0.
+const compare = (a, b) => {
+  const [x, y] = [a, b].map((v) =>
+    v.split(".").map((part) => Number(part) || 0),
+  );
+  return x[0] - y[0] || x[1] - y[1] || (x[2] ?? 0) - (y[2] ?? 0);
+};
+const predating = (text) =>
+  (text.match(/\b\d+\.\d+(?:\.(?:\d+|x))?\b/g) ?? []).find(
+    (v) =>
+      rules.majors.includes(v.split(".")[0]) && compare(v, rules.baseline) < 0,
+  );
+
 const files = [
   ...fs.readdirSync(TYPES).filter((f) => f.endsWith(".d.ts")),
   ...fs
@@ -50,6 +64,7 @@ for (const file of files) {
   lines.forEach((text, index) => {
     const at = `${file}:${index + 1}`;
     if (!/^\s*(\/\*\*|\*|\/\/)/.test(text)) return;
+    const older = predating(text);
 
     const since = text.match(/@since\s+(\d+)\.\S+/);
     if (since && !rules.majors.includes(since[1])) {
@@ -76,6 +91,10 @@ for (const file of files) {
         );
     } else if (foreign.test(text)) {
       hits.push(`${at}: names another line's Kirby version – ${text.trim()}`);
+    } else if (older) {
+      hits.push(
+        `${at}: \`${older}\` predates the line's baseline ${rules.baseline} – ${text.trim()}`,
+      );
     }
   });
 }
@@ -85,5 +104,5 @@ if (hits.length > 0) {
   process.exit(1);
 }
 process.stdout.write(
-  `No traces of another line in ${files.length} files (\`${line}\`).\n`,
+  `No versions outside the line in ${files.length} files (\`${line}\`).\n`,
 );
