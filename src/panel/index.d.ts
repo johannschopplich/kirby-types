@@ -22,9 +22,7 @@ import type {
   DefineComponent,
   PluginFunction,
   PluginObject,
-  VNode,
   VueConstructor,
-  h as VueH,
 } from "vue";
 import type { PanelApi } from "./api";
 import type {
@@ -172,6 +170,7 @@ export type {
  * @source panel/src/index.js
  * @source panel/src/helpers/index.ts
  * @source panel/src/libraries/index.ts
+ * @source panel/src/types/vue.d.ts
  */
 export type PanelApp = InstanceType<VueConstructor> & {
   $panel: Panel;
@@ -213,11 +212,12 @@ export type PanelApp = InstanceType<VueConstructor> & {
  */
 export type PanelComponentExtension =
   | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
-  | ComponentOptions<any>
-  | {
-      /** Extend another component by name (e.g., `"k-text-field"`). */
+  | (Omit<ComponentOptions<any>, "mixins" | "extends" | "render"> & {
+      /** Component to extend, by name (e.g., `"k-text-field"`) or by options. */
       extends?:
         | string
+        | ComponentOptions<any>
+        | VueConstructor
         | DefineComponent<
             any,
             any,
@@ -232,12 +232,15 @@ export type PanelComponentExtension =
             any
           >;
       /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects. */
-      mixins?: (string | ComponentOptions<any>)[];
-      template?: string;
-      /** Render function. */
-      render?: (h: typeof VueH) => VNode;
-      [key: string]: any;
-    };
+      mixins?: (
+        | string
+        | ComponentOptions<any>
+        | VueConstructor
+        | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
+      )[];
+      /** `null` clears an inherited render function so the component's own template applies. */
+      render?: ComponentOptions<any>["render"] | null;
+    });
 // #endregion
 
 // #region Panel Configuration
@@ -262,6 +265,8 @@ export interface PanelConfig {
      * @since 5.0.0
      */
     methodOverride: boolean;
+    /** @deprecated Renamed to `methodOverride` in 5.0.0. */
+    methodOverwrite?: boolean;
   };
   /** Whether debug mode is enabled. */
   debug: boolean;
@@ -296,7 +301,11 @@ export interface PanelConfig {
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsAccess {
-  /** Access to custom Panel areas registered by plugins, keyed by area id. */
+  /**
+   * Access to custom Panel areas registered by plugins, keyed by area id.
+   * Present for every registered area since 5.5.0; before, only when the
+   * role blueprint sets it.
+   */
   [area: string]: boolean;
   account: boolean;
   languages: boolean;
@@ -319,6 +328,7 @@ interface PanelPermissionsFiles {
   list: boolean;
   read: boolean;
   replace: boolean;
+  /** @since 5.0.0 */
   sort: boolean;
   update: boolean;
 }
@@ -359,7 +369,8 @@ interface PanelPermissionsPages {
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsSite {
-  access: boolean;
+  /** Absent from 5.0.0 through 5.3.x. */
+  access?: boolean;
   changeTitle: boolean;
   /**
    * Whether the user may open the site preview.
@@ -374,7 +385,8 @@ interface PanelPermissionsSite {
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsUsers {
-  access: boolean;
+  /** Absent from 5.0.0 through 5.3.x. */
+  access?: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
@@ -382,7 +394,8 @@ interface PanelPermissionsUsers {
   changeRole: boolean;
   create: boolean;
   delete: boolean;
-  list: boolean;
+  /** Absent from 5.0.0 through 5.3.x. */
+  list?: boolean;
   update: boolean;
 }
 
@@ -391,19 +404,22 @@ interface PanelPermissionsUsers {
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsUser {
-  access: boolean;
+  /** Absent from 5.0.0 through 5.3.x. */
+  access?: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
   changePassword: boolean;
   changeRole: boolean;
   delete: boolean;
-  list: boolean;
+  /** Absent from 5.0.0 through 5.3.x. */
+  list?: boolean;
   update: boolean;
 }
 
 /**
- * Complete permission set for the current user.
+ * Complete permission set for the current user. Empty when no user is
+ * logged in.
  *
  * @source src/Cms/Permissions.php
  * @source src/Panel/View.php
@@ -440,6 +456,8 @@ export interface PanelSearchType {
  * Available search types in the Panel.
  * @source panel/src/panel/panel.js
  * @source src/Panel/View.php
+ * @source config/areas/site/searches.php
+ * @source config/areas/users/searches.php
  */
 export interface PanelSearches {
   /** Omitted when the user has no access to the site area. */
@@ -476,8 +494,9 @@ export interface PanelRequestResponse {
   /** The original Request object. */
   request: Request;
   /**
-   * Parsed response wrapper. Not a native `Response`: a plain object that
-   * exposes the pre-resolved body (`json`, `text`) alongside status metadata.
+   * Parsed response wrapper. Since 5.5.0 a plain object that exposes the
+   * pre-resolved body (`json`, `text`) alongside status metadata; before, the
+   * native `Response` with `json` and `text` replaced by the parsed values.
    */
   response: {
     headers: Headers;
@@ -587,6 +606,8 @@ export interface PanelPluginExtensions {
    * View button components.
    *
    * Registered as `k-${name}-view-button` components.
+   *
+   * @since 5.0.0
    */
   viewButtons?: Record<string, PanelComponentExtension>;
 
@@ -595,7 +616,9 @@ export interface PanelPluginExtensions {
    *
    * Can be used to add global methods, directives, or mixins.
    */
-  use?: Record<string, PluginObject<any> | PluginFunction<any>>;
+  use?:
+    | Record<string, PluginObject<any> | PluginFunction<any>>
+    | (PluginObject<any> | PluginFunction<any>)[];
 
   /**
    * Callback executed after the Panel Vue app is created.
@@ -710,19 +733,7 @@ export interface PanelPlugins {
    * Custom login component. Until a plugin registers one, `null` before
    * 5.5.0 and `undefined` since.
    */
-  login?: DefineComponent<
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any,
-    any
-  > | null;
+  login?: PanelComponentExtension | null;
 
   /** Reserved bucket for plugin-registered routes (initialized empty; not currently written to by `panel.plugin()`). */
   routes: Record<string, any>[];
@@ -738,7 +749,11 @@ export interface PanelPlugins {
   /** Installed Vue plugins via `Vue.use()`. */
   use: (PluginObject<any> | PluginFunction<any>)[];
 
-  /** Reserved bucket for view-button plugins (initialized empty; entries are actually stored under `components` as `k-${name}-view-button`). */
+  /**
+   * Reserved bucket for view-button plugins (initialized empty; entries are actually stored under `components` as `k-${name}-view-button`).
+   *
+   * @since 5.0.0
+   */
   viewButtons: Record<
     string,
     | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
@@ -802,7 +817,7 @@ export interface PanelGlobalState {
   dropdown: PanelFeatureDefaults;
   language: PanelFeatures.PanelLanguageDefaults;
   languages: PanelLanguageInfo[];
-  license: string;
+  license: Panel["license"];
   menu: PanelFeatures.PanelMenuDefaults;
   multilang: boolean;
   notification: PanelFeatures.PanelNotificationDefaults;
@@ -814,6 +829,18 @@ export interface PanelGlobalState {
   user: PanelFeatures.PanelUserDefaults;
   view: PanelFeatures.PanelViewDefaults;
 }
+
+/**
+ * State accepted by `panel.set()` and `panel.open()`. `null` or `false` for
+ * a modal or the dropdown closes it.
+ */
+type PanelStateInput = Partial<
+  Omit<PanelGlobalState, "dialog" | "drawer" | "dropdown">
+> & {
+  dialog?: PanelGlobalState["dialog"] | null | false;
+  drawer?: PanelGlobalState["drawer"] | null | false;
+  dropdown?: PanelGlobalState["dropdown"] | null | false;
+};
 // #endregion
 
 // #region Main Panel Interface
@@ -840,13 +867,14 @@ export interface PanelGlobalState {
  * ```
  *
  * @source panel/src/panel/panel.js
+ * @source panel/src/panel/legacy.js
+ * @source panel/src/panel/request.ts
  * @source panel/src/index.js
  * @source panel/public/js/plugins.js
  */
 export interface Panel {
   // #region Core Properties
 
-  /** Vue application instance. */
   readonly app: PanelApp;
 
   /** Current editing context. */
@@ -855,7 +883,6 @@ export interface Panel {
   /** Whether debug mode is enabled. */
   readonly debug: boolean;
 
-  /** Text direction. */
   readonly direction: "ltr" | "rtl";
 
   /** Document title getter/setter; on set, the system title is appended as a suffix when present. */
@@ -873,7 +900,6 @@ export interface Panel {
   /** License activation state. */
   activation: PanelFeatures.PanelActivation;
 
-  /** Drag and drop state. */
   drag: PanelFeatures.PanelDrag;
 
   /** Global event handling. */
@@ -888,16 +914,13 @@ export interface Panel {
   /** Notification display. */
   notification: PanelFeatures.PanelNotification;
 
-  /** Search functionality. */
   searcher: PanelFeatures.PanelSearcher;
 
-  /** System information. */
   system: PanelFeatures.PanelSystem;
 
-  /** Theme settings. */
+  /** @since 5.0.0 */
   theme: PanelFeatures.PanelTheme;
 
-  /** Translation data. */
   translation: PanelFeatures.PanelTranslation;
 
   /** File upload handling. */
@@ -909,38 +932,42 @@ export interface Panel {
 
   // #region Features (extend Feature)
 
-  /** Content versioning and saving. */
+  /**
+   * Content versioning and saving.
+   *
+   * @since 5.0.0
+   */
   content: PanelFeatures.PanelContent;
 
-  /** Dropdown menus. */
   dropdown: PanelFeatures.PanelDropdown;
 
-  /** Main view. */
   view: PanelFeatures.PanelView;
   // #endregion
 
   // #region Modals (extend Modal)
 
-  /** Modal dialogs. */
   dialog: PanelFeatures.PanelDialog;
 
-  /** Slide-out drawers. */
   drawer: PanelFeatures.PanelDrawer;
   // #endregion
 
   // #region Configuration
 
-  /** API client. */
   api: PanelApi;
 
-  /** Panel configuration. */
   config: PanelConfig;
 
-  /** Available languages. */
   languages: PanelLanguageInfo[];
 
-  /** License status. */
-  license: string;
+  /** License status; `"unknown"` since 5.0.0, `"acknowledged"` since 5.3.2. */
+  license:
+    | "active"
+    | "acknowledged"
+    | "demo"
+    | "inactive"
+    | "legacy"
+    | "missing"
+    | "unknown";
 
   /** Whether multi-language is enabled. */
   multilang: boolean;
@@ -948,13 +975,10 @@ export interface Panel {
   /** User permissions. */
   permissions: PanelPermissions;
 
-  /** Plugin system. */
   plugins: PanelPlugins;
 
-  /** Available search types. */
   searches: PanelSearches;
 
-  /** Base URLs. */
   urls: PanelUrls;
   // #endregion
 
@@ -976,7 +1000,7 @@ export interface Panel {
   deprecated: (message: string) => void;
 
   /**
-   * Centralized error handler: ignores `AbortError`, marks the Panel offline on `OfflineError`, logs in debug mode, and optionally opens an error notification.
+   * Handles an error: ignores `AbortError`, marks the Panel offline on `OfflineError`, logs in debug mode, and optionally opens an error notification.
    *
    * @param error - Error, message, or any other thrown value
    * @param openNotification - Whether to show notification (default: `true`)
@@ -1007,24 +1031,21 @@ export interface Panel {
    * @returns The new Panel state, or on failure the error notification state or `undefined`
    */
   open: (
-    url: string | URL | Partial<PanelGlobalState>,
+    url: string | URL | PanelStateInput,
     options?: PanelRequestOptions,
   ) => Promise<
     PanelGlobalState | PanelFeatures.PanelNotificationDefaults | undefined
   >;
 
   /**
-   * Returns all open overlay types.
-   *
-   * Returns an array of currently open overlays in order.
-   * Only includes "drawer" and "dialog" - the view is not an overlay.
-   *
-   * @returns Array of open overlay types
+   * Returns the open overlays, `"drawer"` before `"dialog"`. The view is not
+   * an overlay.
    */
   overlays: () => ("drawer" | "dialog")[];
 
   /**
-   * Registers a Panel plugin with its extensions.
+   * Registers a Panel plugin with its extensions. Available only while
+   * plugin scripts load, before the Panel boots.
    *
    * @param name - Unique plugin identifier (typically vendor/plugin-name)
    * @param extensions - Plugin extensions to register
@@ -1090,17 +1111,17 @@ export interface Panel {
    * Sends a request through the Panel router.
    *
    * Returns an object with both the request and the parsed response.
-   * Cross-origin or non-JSON responses trigger a redirect and reject
-   * instead of resolving.
+   * Cross-origin or non-JSON responses trigger a redirect: since 5.5.0 the
+   * promise rejects, before it resolved `false`.
    *
    * @param url - URL to request
    * @param options - Request options including method
-   * @returns Request/response object
+   * @returns Request/response object, or `false` on a redirect before 5.5.0
    */
   request: (
     url: string | URL,
     options?: PanelRequestOptions,
-  ) => Promise<PanelRequestResponse>;
+  ) => Promise<PanelRequestResponse | false>;
 
   /**
    * Opens the search dialog or performs a search query.
@@ -1131,9 +1152,10 @@ export interface Panel {
   /**
    * Applies a new Panel state: updates globals, dispatches per-feature `set()` calls, opens/closes modals and the dropdown, and opens the view when present.
    *
-   * @param state - State to merge
+   * @param state - State to merge; `null` or `false` for `dialog`, `drawer` or `dropdown` closes it
+   * @returns `undefined`, or the `open()` promise when a modal state carries a `redirect`
    */
-  set: (state: Partial<PanelGlobalState>) => void;
+  set: (state?: PanelStateInput) => void | ReturnType<Panel["open"]>;
 
   /**
    * Returns the current global state.
@@ -1146,17 +1168,22 @@ export interface Panel {
    * Translates a key using the current translation.
    *
    * @param key - Translation key
-   * @param args - Replacement values
+   * @param data - Placeholder values
+   * @param fallback - Fallback if the key is not found
    * @returns Translated string
    */
-  t: (key: string, ...args: any[]) => string;
+  t: (
+    key: string,
+    data?: Record<string, any>,
+    fallback?: string | null,
+  ) => string;
 
   /**
    * Translates a key using the current translation.
    *
    * @deprecated Legacy alias of `t()`; use `t()` instead.
    */
-  $t: (key: string, ...args: any[]) => string;
+  $t: Panel["t"];
 
   /**
    * Creates a URL object for a Panel path.
@@ -1191,11 +1218,16 @@ interface PanelViewPropsLockUser {
  * Content lock state.
  * @source src/Content/Lock.php
  * @source src/Panel/Model.php
+ * @source panel/src/panel/content.js
  */
 interface PanelViewPropsLock {
   isLegacy: boolean;
   isLocked: boolean;
-  modified: string | null;
+  /**
+   * ISO 8601 timestamp of the last change. The Panel replaces it with a
+   * `Date` after each save of the current view.
+   */
+  modified: string | Date | null;
   user: PanelViewPropsLockUser;
 }
 
@@ -1209,7 +1241,8 @@ interface PanelViewPropsLock {
  * @source src/Panel/Site.php
  */
 interface PanelViewPropsPermissions {
-  access: boolean;
+  /** Absent on User and Site views from 5.0.0 through 5.3.x. */
+  access?: boolean;
   /** User permission. Present on User views. */
   changeEmail?: boolean;
   /** User permission. Present on User views. */
@@ -1234,17 +1267,24 @@ interface PanelViewPropsPermissions {
   delete?: boolean;
   /** Page permission. Present on Page views. */
   duplicate?: boolean;
-  /** Page / File / User permission. Present on Page, File and User views. */
+  /**
+   * Page / File / User permission. Present on Page, File and User views,
+   * except on User views from 5.0.0 through 5.3.x.
+   */
   list?: boolean;
   /** Page permission. Present on Page views. */
   move?: boolean;
-  /** Page / Site permission. Present on Page and Site views. */
+  /**
+   * Page / Site permission. Present on Page and Site views; on Site views
+   * since 5.0.0, where it also requires the site's own `preview` permission
+   * since 5.5.2.
+   */
   preview?: boolean;
   /** Page / File permission. Present on Page and File views. */
   read?: boolean;
   /** File permission. Present on File views. */
   replace?: boolean;
-  /** Page / File permission. Present on Page and File views. */
+  /** Page / File permission. Present on Page and File views; on File views since 5.0.0. */
   sort?: boolean;
   update: boolean;
 }
@@ -1266,9 +1306,12 @@ interface PanelViewPropsTab {
   label: string;
   /** Tab icon. May be `null` when the blueprint omits an icon. */
   icon: string | null;
-  columns: Record<string, any>[];
+  /** A list, or an object keyed by column name when the blueprint names its columns. */
+  columns: Record<string, any>[] | Record<string, Record<string, any>>;
   link: string;
   name: string;
+  /** Any other key the blueprint sets on the tab. */
+  [key: string]: any;
 }
 
 /**
@@ -1286,11 +1329,13 @@ interface PanelViewPropsNavigation {
 /**
  * Legacy nested model information.
  *
- * Emitted on Page, File, User and Site views with per-blueprint shape
- * variance. The fields below model the Page variant; File adds
- * `dimensions`/`extension`/`filename`/`mime`/`niceSize`/`template`/`type`/`url`;
- * User adds `account`/`avatar`/`email`/`language`/`name`/`role`/`username`;
- * Site has only `link`/`previewUrl`/`title`/`uuid`.
+ * Emitted on Page, File, User and Site views, each with its own key set.
+ * The fields below model the Page variant. File sends `dimensions`,
+ * `extension`, `filename`, `id`, `link`, `mime`, `niceSize`, `parent` (the
+ * parent's Panel path), `template`, `type`, `url` and `uuid`; User sends
+ * `account`, `avatar`, `email`, `id`, `language`, `link`, `name`, `role`,
+ * `username` and `uuid`; Site sends only `link`, `previewUrl`, `title` and
+ * `uuid`.
  *
  * @source src/Panel/Page.php
  * @source src/Panel/File.php
@@ -1298,13 +1343,21 @@ interface PanelViewPropsNavigation {
  * @source src/Panel/Site.php
  */
 interface PanelViewPropsModel {
+  /**
+   * Form values of the model.
+   *
+   * @deprecated Removed in 5.0.0; read `versions.changes` instead.
+   */
+  content?: Record<string, any>;
   id: string;
   link: string;
   parent: string;
-  previewUrl: string;
+  /** `null` when the user may not open a preview of the model. */
+  previewUrl: string | null;
   status: string;
   title: string;
-  uuid: string;
+  /** `null` when the `content.uuid` option is `false`. */
+  uuid: string | null;
 }
 
 /**
@@ -1313,6 +1366,7 @@ interface PanelViewPropsModel {
  * @source src/Panel/Ui/Button.php
  * @source src/Panel/Ui/Buttons/ViewButtons.php
  * @source src/Panel/Ui/Component.php
+ * @source src/Panel/Ui/Buttons/LanguagesDropdown.php
  */
 interface PanelViewPropsButton {
   component: string;
@@ -1325,16 +1379,18 @@ interface PanelViewPropsButton {
     current?: string | boolean;
     /** Dialog endpoint to open on click. */
     dialog?: string;
-    disabled?: boolean;
+    disabled: boolean;
     /** Drawer endpoint to open on click. */
     drawer?: string;
     /** Whether the button opens a dropdown. */
     dropdown?: boolean;
+    /** Whether another translation has unsaved changes. Sent by the languages dropdown. */
+    hasDiff?: boolean;
     icon?: string;
     link?: string;
     /** Inline dropdown options or query string. */
     options?: string | Record<string, any>[];
-    responsive?: boolean | string;
+    responsive: boolean | string;
     size?: string;
     /** Inline CSS style string. */
     style?: string;
@@ -1344,8 +1400,10 @@ interface PanelViewPropsButton {
     /** Visual theme variant (e.g., `"positive"`, `"negative"`). */
     theme?: string;
     title?: string;
-    type?: string;
+    type: string;
     variant?: string;
+    /** Extra props a plugin or config button passes through. */
+    [key: string]: any;
   };
 }
 
@@ -1358,20 +1416,29 @@ interface PanelViewPropsButton {
  * @source src/Panel/Site.php
  */
 export interface PanelViewProps {
+  /** @since 5.0.0 */
   api: string;
-  /** View buttons. May contain `'-'` string separators between groups. */
+  /**
+   * View buttons. May contain `'-'` string separators between groups.
+   *
+   * @since 5.0.0
+   */
   buttons: (PanelViewPropsButton | "-")[];
+  /** @since 5.0.0 */
   id: string;
+  /** @since 5.0.0 */
   link: string;
+  /** Shape since 5.0.0; before, `false` or a `{ state, data }` object. */
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
-  tabs: Record<string, any>[];
+  tabs: PanelViewPropsTab[];
   /**
    * UUID of the model. Is `null` when the `content.uuid` option is `false`.
    *
    * @since 5.0.0
    */
   uuid: string | null;
+  /** @since 5.0.0 */
   versions: PanelViewPropsVersions;
   /** Active blueprint tab. Only present when the blueprint defines tabs. */
   tab?: PanelViewPropsTab;
@@ -1398,6 +1465,8 @@ export interface PanelViewProps {
    * View title. Page and Site set it inside props, but File and User omit
    * it from the inner props payload (the title appears only on the view
    * envelope).
+   *
+   * @since 5.0.0
    */
   title?: string;
 }

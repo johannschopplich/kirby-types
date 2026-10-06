@@ -242,7 +242,9 @@ expectType<URL>(panel.url("/pages/home"));
 expectType<URL>(panel.url("/pages/home", { tab: "content" }));
 expectType<Promise<any>>(panel.get("/api/pages/home"));
 expectType<Promise<any>>(panel.post("/api/pages/home", { title: "Home" }));
-expectType<Promise<PanelRequestResponse>>(panel.request("/api/pages/home"));
+expectType<Promise<PanelRequestResponse | false>>(
+  panel.request("/api/pages/home"),
+);
 // #endregion
 
 // #region Model Data
