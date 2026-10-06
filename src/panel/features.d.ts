@@ -3,8 +3,6 @@
  *
  * This module provides typed interfaces for all Panel features,
  * including state objects, features, and modals.
- *
- * @since 4.0.0
  */
 
 import type {
@@ -27,7 +25,6 @@ import type {
 /**
  * Simple timer utility for auto-closing notifications.
  *
- * @since 4.0.0
  * @source panel/src/helpers/timer.ts
  */
 export interface PanelTimer {
@@ -77,7 +74,6 @@ export interface PanelActivationDefaults {
  * session storage state. A plain object without the state methods before
  * 5.0.0.
  *
- * @since 4.0.0
  * @source panel/src/panel/activation.ts
  */
 export interface PanelActivation
@@ -106,7 +102,6 @@ export interface PanelDragDefaults {
 /**
  * Drag state for tracking drag-and-drop operations.
  *
- * @since 4.0.0
  * @source panel/src/panel/drag.ts
  */
 export interface PanelDrag
@@ -219,7 +214,6 @@ export interface PanelLanguageDefaults {
  *
  * Represents the current content language for multilingual sites.
  *
- * @since 4.0.0
  * @source panel/src/panel/language.ts
  */
 export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
@@ -298,7 +292,6 @@ export interface PanelMenuDefaults {
  * Manages the Panel sidebar with responsive behavior
  * for mobile and desktop layouts.
  *
- * @since 4.0.0
  * @source panel/src/panel/menu.ts
  */
 export interface PanelMenu
@@ -378,8 +371,8 @@ export interface PanelNotificationOptions {
   theme?: NotificationTheme;
   /**
    * Auto-close delay in ms. For non-error notifications a missing value
-   * falls back to `4000` ms since 4.3.0, and any falsy one (including `0`)
-   * since 5.5.0, so auto-close cannot be disabled for them from then on.
+   * falls back to `4000` ms, and any falsy one (including `0`) since
+   * 5.5.0, so auto-close cannot be disabled for them from then on.
    * `error` and `fatal` notifications keep the passed value and otherwise
    * never auto-close.
    */
@@ -407,7 +400,6 @@ export interface PanelErrorObject {
  * Displays contextual notifications in view, dialog, or drawer.
  * Supports auto-close timers and different severity levels.
  *
- * @since 4.0.0
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotification
@@ -459,12 +451,11 @@ export interface PanelNotification
    * Creates an info notification.
    *
    * @param info - Message string or options object
-   * @since 4.3.0
    */
   info: (info?: string | PanelNotificationOptions) => PanelNotificationDefaults;
 
   /**
-   * Opens a notification. When passed a string, delegates to `success()`. Otherwise sets the Panel context, since 4.3.0 replaces a `null` or `undefined` `timeout` (any falsy one since 5.5.0) with `4000` ms for types other than `error` and `fatal`, opens the notification, and starts the auto-close timer.
+   * Opens a notification. When passed a string, delegates to `success()`. Otherwise sets the Panel context, replaces a `null` or `undefined` `timeout` (any falsy one since 5.5.0) with `4000` ms for types other than `error` and `fatal`, opens the notification, and starts the auto-close timer.
    *
    * @param notification - Message string or options object
    */
@@ -510,7 +501,6 @@ export interface PanelSystemDefaults {
  *
  * Contains static system information from the server.
  *
- * @since 4.0.0
  * @source panel/src/panel/system.ts
  */
 export interface PanelSystem
@@ -545,7 +535,6 @@ export interface PanelTranslationDefaults {
  * Manages UI translations for the current user.
  * Updates document language and direction on change.
  *
- * @since 4.0.0
  * @source panel/src/panel/translation.ts
  */
 export interface PanelTranslation
@@ -594,7 +583,6 @@ export interface PanelUserDefaults {
  *
  * Contains information about the logged-in user.
  *
- * @since 4.0.0
  * @source panel/src/panel/user.ts
  */
 export interface PanelUser
@@ -652,7 +640,6 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  * Manages the primary view state, document title,
  * and browser history.
  *
- * @since 4.0.0
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
  */
@@ -695,8 +682,8 @@ export interface PanelDropdownOption {
   icon?: string;
   /**
    * Click handler: a callback, an action name emitted to the parent
-   * component as `action`, or, since 4.3.0, an object that emits `name` on
-   * the parent and `global` on the global event bus, each with `payload`.
+   * component as `action`, or an object that emits `name` on the parent and
+   * `global` on the global event bus, each with `payload`.
    */
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
@@ -710,7 +697,6 @@ export interface PanelDropdownOption {
  * Manages dropdown menus loaded from the server
  * or created programmatically.
  *
- * @since 4.0.0
  * @source panel/src/panel/dropdown.ts
  * @source panel/src/panel/feature.ts
  * @source src/Panel/Dropdown.php
@@ -733,7 +719,7 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
    * `ready(items)` with the resolved option list. The closure rejects when
    * the dropdown has no options.
    *
-   * @deprecated Since 4.0.0; use `open()` and read `options()` instead.
+   * @deprecated Use `open()` and read `options()` instead.
    */
   openAsync: (
     dropdown: string | URL | Partial<PanelFeatureDefaults>,
@@ -788,7 +774,6 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  *
  * Supports both server-loaded dialogs and legacy Vue component dialogs.
  *
- * @since 4.0.0
  * @source panel/src/panel/dialog.js
  * @source panel/src/panel/modal.js
  */
@@ -853,7 +838,6 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  *
  * Supports nested drawers with breadcrumb navigation.
  *
- * @since 4.0.0
  * @source panel/src/panel/drawer.js
  * @source panel/src/panel/modal.js
  */
@@ -1221,8 +1205,8 @@ export interface PanelSearchOptions {
  */
 export interface PanelSearchResponse {
   /**
-   * Result items. Since 4.4.0, `null` for a query shorter than two
-   * characters and empty when the request fails.
+   * Result items; `null` for a query shorter than two characters and empty
+   * when the request fails.
    */
   results: any[] | null;
   pagination: PanelSearchPagination;
@@ -1241,7 +1225,6 @@ export interface PanelSearchResponse {
  *
  * Manages search dialog and query requests.
  *
- * @since 4.4.0
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearcher {
@@ -1343,10 +1326,7 @@ export interface PanelUploadFile {
   error: string | null;
   /** Response model after successful upload. */
   model: any | null;
-  /**
-   * Preview settings spread in from `preview`, such as `icon` or `color`.
-   * @since 4.4.0
-   */
+  /** Preview settings spread in from `preview`, such as `icon` or `color`. */
   [key: string]: any;
 }
 
@@ -1372,7 +1352,6 @@ export interface PanelUploadDefaults {
   /**
    * Preview settings (`back`, `color`, `cover`, `icon`) spread into every
    * queued file.
-   * @since 4.4.0
    */
   preview: Record<string, any>;
   /** Server file model being replaced (carries `link`, `extension`, `mime`). */
@@ -1392,7 +1371,6 @@ type PanelUploadOptions = Partial<PanelUploadDefaults> & {
  * Manages file selection, upload progress, and completion.
  * Supports chunked uploads for large files.
  *
- * @since 4.0.0
  * @source panel/src/panel/upload.js
  */
 export interface PanelUpload
@@ -1543,7 +1521,6 @@ export interface PanelEventEmitter {
  * Provides global event subscriptions and keyboard shortcut handling.
  * Uses mitt for the internal event bus.
  *
- * @since 4.0.0
  * @source panel/src/panel/events.ts
  */
 export interface PanelEvents extends PanelEventEmitter {

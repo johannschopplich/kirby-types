@@ -2,8 +2,6 @@
  * API type definitions for Kirby Panel.
  *
  * Provides types for the Panel API client and its resource modules.
- *
- * @since 4.0.0
  */
 
 // #region Request Types
@@ -30,7 +28,7 @@ export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
   /**
    * HTTP method. The verb helpers set their own; without one, the request
    * goes out as `POST` while method override is on, its default
-   * (`api.methodOverride`, `api.methodOverwrite` before 5.0.0).
+   * (`api.methodOverride`).
    */
   method?: string;
   /**

@@ -13,8 +13,6 @@
  * - `api.d.ts` - API client methods
  * - `writer.d.ts` - Writer (ProseMirror) editor and extensions
  * - `textarea.d.ts` - Textarea toolbar buttons
- *
- * @since 4.0.0
  */
 
 import type {
@@ -256,15 +254,10 @@ export type PanelComponentExtension =
  * @source src/Panel/View.php
  */
 export interface PanelConfig {
-  /**
-   * API configuration.
-   *
-   * @since 4.5.0
-   */
   api: {
     /**
      * Whether requests other than `GET` and `POST` are sent as `POST` with an
-     * `X-HTTP-Method-Override` header. Named `methodOverwrite` before 5.0.0.
+     * `X-HTTP-Method-Override` header.
      *
      * @since 5.0.0
      */
@@ -1136,8 +1129,6 @@ export interface Panel {
    * When called with a query, performs the search and returns results.
    *
    * Without a type, the dialog preselects the current view's search type.
-   * Before 4.1.0, passing a type without a query ran a search instead of
-   * opening the dialog.
    *
    * @param type - Search type (`"pages"`, `"files"`, `"users"`)
    * @param query - Search query string

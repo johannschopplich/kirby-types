@@ -3,8 +3,6 @@
  *
  * This module provides the foundational types for the Panel's
  * state management hierarchy: State → Feature → Modal.
- *
- * @since 4.0.0
  */
 
 // #region State Management

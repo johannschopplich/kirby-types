@@ -2,8 +2,6 @@
  * Helper type definitions for Kirby Panel.
  *
  * Provides types for the `$helper` utilities available on the Vue prototype.
- *
- * @since 4.0.0
  */
 
 // #region Array Helpers

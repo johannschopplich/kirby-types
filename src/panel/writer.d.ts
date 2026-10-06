@@ -5,8 +5,6 @@
  * - Editor instance and options
  * - Mark and node extensions for plugins
  * - Utility functions and contexts.
- *
- * @since 4.0.0
  */
 
 import type { InputRule } from "prosemirror-inputrules";
@@ -331,19 +329,11 @@ export interface WriterExtensions {
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
   /** Raw mark schema definitions from all mark extensions. */
   marks: Record<string, MarkSpec>;
-  /**
-   * Views of the mark extensions that define one, keyed by mark name.
-   *
-   * @since 4.2.0
-   */
+  /** Views of the mark extensions that define one, keyed by mark name. */
   markViews: Record<string, MarkViewConstructor>;
   /** Raw node schema definitions from all node extensions. */
   nodes: Record<string, NodeSpec>;
-  /**
-   * Views of the node extensions that define one, keyed by node name.
-   *
-   * @since 4.2.0
-   */
+  /** Views of the node extensions that define one, keyed by node name. */
   nodeViews: Record<string, NodeViewConstructor>;
   /**
    * Options of each extension, keyed by extension name. Assigning a changed
@@ -475,7 +465,6 @@ export interface WriterUtils {
    * @param content - Optional initial content for the node
    * @param marks - Optional marks to apply to the node
    * @returns A ProseMirror command
-   * @since 4.3.0
    */
   insertNode: (
     type: NodeType,
@@ -985,8 +974,6 @@ export interface WriterMarkExtension {
   /**
    * Creates the mark view that renders this mark in the editor instead of
    * the schema's `toDOM` output.
-   *
-   * @since 4.2.0
    */
   view?: MarkViewConstructor;
   // #endregion
@@ -1176,8 +1163,6 @@ export interface WriterNodeExtension {
   /**
    * Creates the node view that renders this node in the editor instead of
    * the schema's `toDOM` output.
-   *
-   * @since 4.2.0
    */
   view?: NodeViewConstructor;
   // #endregion

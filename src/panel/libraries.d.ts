@@ -3,8 +3,6 @@
  *
  * Provides types for the `$library` utilities available on the Vue prototype.
  * Includes color manipulation, date handling (dayjs), and textarea autosize.
- *
- * @since 4.0.0
  */
 
 import type {
@@ -89,7 +87,6 @@ export type PanelColor = string | PanelColorObject;
  * const css = this.$library.colors.toString(hex, "rgb");
  * ```
  *
- * @since 4.0.0
  * @source panel/src/libraries/colors.ts
  * @source panel/src/libraries/colors-checks.ts
  * @source panel/src/libraries/colors-func.ts
@@ -330,7 +327,6 @@ export interface PanelDayjsStaticExtensions {
  * const parsed = this.$library.dayjs.interpret("Jan 15 2024", "date");
  * ```
  *
- * @since 4.0.0
  * @source panel/src/libraries/dayjs.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
