@@ -6,17 +6,27 @@
  * @since 4.0.0
  */
 
-import type { PanelRequestOptions } from "./base";
-
 // #region Request Types
 
 /**
  * API request options.
  * @source panel/src/api/request.js
  * @source panel/src/api/index.js
- * @source panel/src/panel/request.ts
+ * @source panel/src/api/get.js
+ * @source panel/src/api/post.js
  */
-export interface PanelApiRequestOptions extends PanelRequestOptions {
+export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
+  /**
+   * Request body, sent as-is by `request()`. The verb helpers replace it
+   * with their JSON-encoded `data`.
+   */
+  body?: BodyInit | null;
+  /**
+   * Headers merged over the default `content-type`, `x-csrf`, and
+   * `x-language` headers. Since 5.0.0, a `null` value drops a default
+   * header; before, the option replaces the default headers wholesale.
+   */
+  headers?: Record<string, string | null>;
   /**
    * HTTP method. The verb helpers set their own; without one, the request
    * goes out as `POST` while method override is on, its default
@@ -47,6 +57,7 @@ export interface PanelApiPagination {
  * @source config/api/routes/users.php
  * @source config/api/routes/files.php
  * @source src/Cms/Collection.php
+ * @source src/Toolkit/Collection.php
  */
 export interface PanelApiSearchQuery {
   /** Search term, or a term with search options. */
@@ -63,7 +74,7 @@ export interface PanelApiSearchQuery {
   query?: string;
   /** @deprecated Ignored in the request body – Kirby reads `select` from the URL query only. */
   select?: string;
-  /** @deprecated Ignored by the search routes. */
+  /** @deprecated Ignored since 4.9.1 and 5.4.1; before, sorted the results. */
   sort?: string;
 }
 // #endregion
@@ -108,10 +119,15 @@ export interface PanelModelData<TContent = Record<string, any>> {
 /**
  * User authentication data.
  * @source panel/src/api/auth.js
+ * @source config/api/routes/auth.php
  */
 export interface PanelApiLoginData {
   email: string;
-  password: string;
+  /**
+   * Password for a password login. An empty, `null`, or missing password
+   * starts a login code or password-reset challenge instead.
+   */
+  password?: string | null;
   /** Whether to keep the user logged in for an extended session. */
   remember?: boolean;
 }
@@ -126,7 +142,7 @@ export interface PanelApiAuth {
    * Logs in a user.
    *
    * @param data - Login credentials
-   * @returns User data
+   * @returns `{ code: 200, status: "ok", user }` after a password login, or `{ code: 200, status: "ok", challenge }` once a code challenge starts
    */
   login: (data: PanelApiLoginData) => Promise<any>;
 
@@ -148,7 +164,7 @@ export interface PanelApiAuth {
    * Verifies a 2FA code.
    *
    * @param code - Verification code
-   * @returns Verification result
+   * @returns `{ code: 200, status: "ok", user }` with the logged-in user
    */
   verifyCode: (code: string) => Promise<any>;
 }
@@ -246,7 +262,10 @@ export interface PanelApiFiles {
 
 // #region Languages API
 
-/** Language data for create/update. */
+/**
+ * Language data for create/update.
+ * @source src/Cms/Language.php
+ */
 export interface PanelApiLanguageData {
   code: string;
   name?: string;
@@ -331,6 +350,12 @@ export interface PanelApiPageCreateData {
   template?: string;
   /** Initial content. */
   content?: Record<string, any>;
+  /**
+   * Content per language on a multi-language site, written since 5.0.0 and
+   * ignored before. Since 5.6.0, each translation's content runs through the
+   * fields' save handlers.
+   */
+  translations?: { code: string; content?: Record<string, any> }[];
   /** Whether the page starts as a draft, `true` by default – `false` creates an unlisted page. */
   draft?: boolean;
   /** @deprecated Ignored by Kirby – new pages are drafts unless `draft` is `false`. */
@@ -465,7 +490,11 @@ export interface PanelApiPages {
   /**
    * Converts page ID/UUID to API format.
    *
-   * @param id - Page ID or UUID
+   * Also accepts a `page://` UUID, resolved to `@<uuid>`, and since 5.5.3 a
+   * `/@/page/` permalink with or without a language prefix; before, a
+   * permalink is treated as a plain ID.
+   *
+   * @param id - Page ID, UUID, or permalink
    * @returns API-formatted ID
    */
   id: (id: string) => string;
@@ -599,6 +628,9 @@ export interface PanelApiSite {
   /**
    * Updates the site content.
    *
+   * Sends a `POST` request, which no `site` route accepts, so the call fails –
+   * send `panel.api.patch("site", data)` instead.
+   *
    * @param data - Content data
    * @returns Updated site
    */
@@ -608,20 +640,27 @@ export interface PanelApiSite {
 
 // #region System API
 
-/** System installation data. */
+/**
+ * System installation data.
+ * @source panel/src/components/Views/Installation/InstallationView.vue
+ * @source config/api/routes/system.php
+ */
 export interface PanelApiSystemInstallData {
-  /** Admin email. */
+  /** Email of the first user. */
   email: string;
-  /** Admin password. */
+  /** Password of the first user. */
   password: string;
-  /** Admin language. */
+  /** Interface language of the first user. */
   language?: string;
   name?: string;
   /** Role of the first user, `default` when omitted – the Panel's installer sends `admin`. */
   role?: string;
 }
 
-/** License registration data. */
+/**
+ * License registration data.
+ * @source config/api/routes/system.php
+ */
 export interface PanelApiSystemRegisterData {
   /** License key. */
   license: string;
@@ -633,6 +672,7 @@ export interface PanelApiSystemRegisterData {
  * System API methods.
  *
  * @source panel/src/api/system.js
+ * @source config/api/routes/system.php
  */
 export interface PanelApiSystem {
   /**
@@ -667,6 +707,7 @@ export interface PanelApiSystem {
  * Translations API methods.
  *
  * @source panel/src/api/translations.js
+ * @source config/api/routes/translations.php
  */
 export interface PanelApiTranslations {
   /**
@@ -688,7 +729,10 @@ export interface PanelApiTranslations {
 
 // #region Users API
 
-/** User creation data. */
+/**
+ * User creation data.
+ * @source src/Cms/UserActions.php
+ */
 export interface PanelApiUserCreateData {
   /** User ID, generated when omitted. */
   id?: string;
@@ -698,6 +742,12 @@ export interface PanelApiUserCreateData {
   role?: string;
   language?: string;
   content?: Record<string, any>;
+  /**
+   * Content per language on a multi-language site, written since 5.0.0 and
+   * ignored before. Since 5.6.0, each translation's content runs through the
+   * fields' save handlers.
+   */
+  translations?: { code: string; content?: Record<string, any> }[];
 }
 
 /**
@@ -755,13 +805,13 @@ export interface PanelApiUsers {
    *
    * @param id - User ID
    * @param password - New password
-   * @param currentPassword - Current password for verification
+   * @param currentPassword - Password of the acting user. Required since 5.0.0 unless they reset their own password after a password-reset login; ignored before.
    * @returns Updated user
    */
   changePassword: (
     id: string,
     password: string,
-    currentPassword: string,
+    currentPassword?: string,
   ) => Promise<any>;
 
   /**
@@ -816,10 +866,10 @@ export interface PanelApiUsers {
   /**
    * Queries users via the users/search endpoint.
    *
-   * @param query - Query parameters
+   * @param query - Search query
    * @returns Paginated users response
    */
-  list: (query?: Record<string, any>) => Promise<any>;
+  list: (query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Gets roles available to a user.
@@ -888,16 +938,30 @@ export interface PanelApiUsers {
  * @source panel/src/panel/request.ts
  */
 export interface PanelApi {
-  /** CSRF token for requests. */
+  /**
+   * CSRF token for requests. Read live from the system since 5.6.1 –
+   * before, a copy taken at setup that goes stale when the token changes.
+   */
   csrf: string;
 
   /** API base endpoint. */
   endpoint: string;
 
-  /** Whether to use method override. */
+  /**
+   * Whether to use method override.
+   *
+   * @since 5.0.0
+   */
   methodOverride: boolean;
 
-  /** Interval ID of the auth heartbeat that pings every 5 minutes; scheduled on setup and restarted after each request. */
+  /** @deprecated Renamed to `methodOverride` in 5.0.0. */
+  methodOverwrite?: boolean;
+
+  /**
+   * Interval ID of the auth heartbeat that pings every 5 minutes; scheduled
+   * on setup and restarted after each request. Since 5.0.3, the heartbeat
+   * skips the ping while the Panel is offline.
+   */
   ping: ReturnType<typeof setInterval> | null;
 
   /** Active request IDs. */
