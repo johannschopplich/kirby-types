@@ -168,6 +168,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
 /**
  * @source panel/src/panel/feature.ts
+ * @source src/Panel/Json.php
  */
 export interface PanelFeatureDefaults {
   /**
@@ -266,7 +267,8 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 
   /**
    * Loads a feature from the server and opens it.
-   * Creates an AbortController and routes through `panel.open()`.
+   * Routes through `panel.open()`. Since 5.1.0, creates an `AbortController`
+   * for the request first.
    *
    * @param url - Feature URL to load
    * @param options - Request options
@@ -314,9 +316,10 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Reloads the feature by re-opening its current URL.
    *
    * @param options - Request options
-   * @returns `false` if no path exists; otherwise the feature's state after re-opening.
+   * @returns `false` if no path exists; otherwise the feature's state after
+   *   re-opening since 5.5.0, `undefined` before.
    */
-  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false | void>;
 
   /** Creates a full URL object for the current path and query. */
   url: () => URL;
@@ -326,8 +329,10 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 // #region Modal
 
 /**
- * Modal event types for dialogs and drawers.
+ * Modal event types for dialogs and drawers. The `closed` listener runs
+ * since 5.1.0.
  * @source panel/src/panel/modal.js
+ * @source panel/src/panel/feature.ts
  */
 export type PanelModalEvent =
   "cancel" | "close" | "closed" | "input" | "open" | "submit" | "success";
@@ -338,7 +343,7 @@ export type PanelModalEvent =
  */
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
-  close: (id?: string | true) => Promise<void>;
+  close: (id?: string | true) => Promise<Record<string, any> | void>;
   input: (value: any) => void;
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
   success: (response: PanelModalSubmitResponse | string) => any;
@@ -370,6 +375,11 @@ export interface PanelModalSubmitResponse {
    * `redirect` is set. The view reloads either way; a boolean has no effect.
    */
   reload?: boolean | PanelRequestOptions;
+  /**
+   * Store actions to dispatch, keyed by action name, with the payload as value.
+   * @deprecated Removed in 5.0.0 along with the Vuex store.
+   */
+  dispatch?: Record<string, any>;
   [key: string]: any;
 }
 
@@ -404,7 +414,8 @@ export interface PanelModal<
 > extends Omit<PanelFeature<TDefaults>, "reload"> {
   /**
    * Unique ID for identifying nested modals.
-   * Auto-generated via UUID if not provided.
+   * Auto-generated via UUID if not provided. On drawers, and on dialogs
+   * since 5.1.0.
    */
   id: string | null;
 
@@ -412,7 +423,8 @@ export interface PanelModal<
 
   /**
    * Navigation history for nested modals.
-   * Stores state snapshots for back navigation.
+   * Stores state snapshots for back navigation. On drawers, and on dialogs
+   * since 5.1.0.
    */
   history: PanelHistory;
 
@@ -441,7 +453,8 @@ export interface PanelModal<
   focus: (input?: string) => void;
 
   /**
-   * Navigates to a specific modal in history by ID.
+   * Navigates to a specific modal in history by ID. On drawers, and on dialogs
+   * since 5.1.0.
    *
    * @param id - Milestone ID to navigate to
    */
@@ -475,7 +488,8 @@ export interface PanelModal<
   ) => Promise<TDefaults>;
 
   /**
-   * Reloads the modal by closing and reopening at the same URL.
+   * Reloads the modal by re-opening its current URL, closing it first since
+   * 5.1.2.
    *
    * @param options - Request options
    * @returns `false` if no path exists, otherwise `void` (the re-open is not awaited).
@@ -483,7 +497,8 @@ export interface PanelModal<
   reload: (options?: PanelRequestOptions) => Promise<false | void>;
 
   /**
-   * Sets modal state, auto-generating an ID if not provided.
+   * Sets modal state, auto-generating an ID if not provided (on drawers,
+   * and on dialogs since 5.1.0).
    *
    * @param state - State to set
    * @returns The complete state
@@ -509,6 +524,15 @@ export interface PanelModal<
    * @returns The `success` listener's result if one is registered, otherwise the given response
    */
   success: (success: PanelModalSubmitResponse | string) => any;
+
+  /**
+   * Dispatches each entry of the response's `dispatch` object as a Vuex
+   * store action, with the entry's value as payload.
+   *
+   * @param state - Success response with store actions
+   * @deprecated Removed in 5.0.0 along with the Vuex store.
+   */
+  successDispatch?: (state: PanelModalSubmitResponse) => void;
 
   /**
    * Emits events specified in the success response.
@@ -589,7 +613,6 @@ export interface PanelHistory {
    */
   at: (index: number) => PanelHistoryMilestone | undefined;
 
-  /** Clears all milestones from history. */
   clear: () => void;
 
   /**
@@ -669,6 +692,7 @@ export interface PanelHistory {
  * Options for Panel API requests.
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/feature.ts
+ * @source panel/src/panel/panel.js
  */
 export interface PanelRequestOptions extends Omit<
   RequestInit,
@@ -679,7 +703,7 @@ export interface PanelRequestOptions extends Omit<
    * Request body. Forms, `FormData`, and objects are sent as JSON;
    * strings are sent as-is.
    */
-  body?: any;
+  body?: string | FormData | HTMLFormElement | Record<string, any> | null;
   /** Query parameters; `null` values are skipped. */
   query?: Record<string, string | number | boolean | null>;
   signal?: AbortSignal;
@@ -700,6 +724,13 @@ export interface PanelRequestOptions extends Omit<
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
+  /**
+   * Content language code sent as the `x-language` header. Defaults to the
+   * current content language, so each browser tab keeps its own; an empty
+   * value omits the header.
+   * @since 5.6.1
+   */
+  language?: string | null;
   /**
    * Referrer path sent as the `x-fiber-referrer` header.
    * Defaults to the current view path. Since 5.5.0, `false` omits the

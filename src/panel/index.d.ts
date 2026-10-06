@@ -1079,11 +1079,12 @@ export interface Panel {
    * Reloads the current view.
    *
    * @param options - Request options
-   * @returns The new view state, or `false` if the view has no path
+   * @returns The new view state since 5.5.0, `undefined` before, or `false`
+   *   if the view has no path
    */
   reload: (
     options?: PanelRequestOptions,
-  ) => Promise<PanelFeatures.PanelViewDefaults | false>;
+  ) => Promise<PanelFeatures.PanelViewDefaults | false | void>;
 
   /**
    * Sends a request through the Panel router.

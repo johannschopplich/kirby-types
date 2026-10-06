@@ -149,7 +149,7 @@ expectType<Promise<any | false>>(feature.get("/api/test"));
 expectType<Promise<any | false>>(feature.post({}));
 expectType<Promise<PanelFeatureDefaults>>(feature.load("/pages/home"));
 expectType<Promise<PanelFeatureDefaults>>(feature.open("/pages/home"));
-expectType<Promise<PanelFeatureDefaults | false>>(feature.reload());
+expectType<Promise<PanelFeatureDefaults | false | void>>(feature.reload());
 expectType<Promise<PanelFeatureDefaults | undefined>>(feature.refresh());
 expectType<URL>(feature.url());
 expectType<void>(feature.addEventListener("load", () => {}));
