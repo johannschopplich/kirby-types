@@ -192,7 +192,7 @@ expectType<Promise<PanelDialogDefaults>>(
   dialog.open({ component: "k-remove-dialog", props: { text: "Delete?" } }),
 );
 
-expectType<void>(undefined as ReturnType<PanelDrawer["tab"]>);
+expectType<false | void>(undefined as ReturnType<PanelDrawer["tab"]>);
 // #endregion
 
 // #region Notification & Content
