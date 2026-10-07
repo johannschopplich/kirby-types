@@ -65,8 +65,8 @@ export interface PanelHelpersArray {
 // #region String Helpers
 
 /**
- * Ordered character maps applied before slugging; each key is replaced
- * literally by its value.
+ * Ordered character maps applied before slugging; a key lists `|`-separated
+ * strings, each replaced literally by the key's value.
  *
  * @source panel/src/helpers/string.ts
  */
@@ -104,8 +104,9 @@ export interface PanelHelpersString {
   lcfirst: (string: string) => string;
 
   /**
-   * Strips every leading repeat of `replace`, matched literally; without
-   * `replace` the string comes back unchanged.
+   * Strips every leading repeat of `replace`, matched literally except that
+   * `|` separates alternatives; without `replace` the string comes back
+   * unchanged.
    */
   ltrim: (string: string, replace?: string) => string;
 
@@ -120,8 +121,9 @@ export interface PanelHelpersString {
   random: (length: number) => string;
 
   /**
-   * Strips every trailing repeat of `replace`, matched literally; without
-   * `replace` the string comes back unchanged.
+   * Strips every trailing repeat of `replace`, matched literally except that
+   * `|` separates alternatives; without `replace` the string comes back
+   * unchanged.
    */
   rtrim: (string: string, replace?: string) => string;
 
@@ -215,8 +217,8 @@ export interface PanelHelpersObject {
   ) => Partial<T>;
 
   /**
-   * Checks if the value is `null`, `undefined`, `""`, or an empty plain object
-   * or array.
+   * Checks if the value is `null`, `undefined`, `""`, an empty array, or a
+   * plain object without keys or with a `length` of `0`.
    */
   isEmpty: (value: unknown) => boolean;
 
