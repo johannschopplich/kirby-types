@@ -86,7 +86,7 @@ export type {
   PanelThemeValue,
   PanelTheme,
   PanelLanguage,
-  PanelMenuEntry,
+  PanelMenuButtonProps,
   PanelMenuItem,
   PanelMenu,
   PanelNotificationOptions,
