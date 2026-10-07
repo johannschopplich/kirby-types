@@ -19,7 +19,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 ### `features-stateonly`
 
-- **Symbols**: PanelTimer, PanelActivation*, PanelDrag*, PanelTheme*, PanelThemeValue, PanelLanguage*, PanelMenu*, PanelMenuEntry, PanelSystem*, PanelTranslation*, PanelUser*
+- **Symbols**: PanelTimer, PanelActivation*, PanelDrag*, PanelTheme*, PanelThemeValue, PanelLanguage*, PanelMenu*, PanelSystem*, PanelTranslation*, PanelUser*
 - **Modules**: `panel/src/panel/{activation,drag,theme,language,menu,system,translation,user}`, `panel/src/helpers/timer`
 - **PHP**: `src/Panel/View.php` (`$translation`, `$system`, `$language`, `$user`, `$menu` resolvers)
 - **Watch**: `PanelSystem.title` stays `string` (PHP overrules Panel TS). **(main)** Menu state is `entries`; **(K6 line)** `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` re-lists fields manually (no Defaults intersection); `locale`/`url` are stripped by `state.set()` before reaching `panel.language` – they belong on `PanelLanguageInfo`, not here.
@@ -136,7 +136,7 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 
 ### `textarea`
 
-- **Symbols**: TextareaButton, TextareaToolbarContext, TextareaDropdownItem
+- **Symbols**: TextareaButton, TextareaToolbarContext
 - **Modules**: `panel/src/components/Forms/Toolbar/{TextareaToolbar,Toolbar,index,EmailDialog,LinkDialog}` (Vue components + index), `panel/src/components/Forms/Input/TextareaInput`, `panel/src/components/Dropdowns/DropdownContent` (**(K6 line)** `panel/src/components/Dropdowns/Dropdown` instead; renders the dropdown items), `panel/src/components/Navigation/{Button,Link}` (render the buttons and their links)
 - **Watch**: the Toolbar is Vue, not migrated to TS – the `.vue` source is the contract. `plugins` only widens `textareaButtons` to `Record<string, unknown>` (no button-shape opinion).
 
@@ -167,6 +167,6 @@ PHP-rooted. PHP `toArray()` is the shape; JS only consumes the JSON.
 
 PHP-rooted. PHP `props()` / `toArray()` is the response shape.
 
-- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,Navigation,Model,Button}
+- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,Navigation,Model,Button} (+ **(K6 line)** PanelFileViewProps, PanelUserViewProps)
 - **PHP**: `src/Panel/{Model,View,Page,File,User,Site}.php`, `src/Cms/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Buttons/ViewButton{,s}.php`, `src/Content/Lock.php`
 - **Watch**: **(K6 line)** `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. The Panel's `ViewState` in `view` is JS-side state; the props type follows the server payload.
