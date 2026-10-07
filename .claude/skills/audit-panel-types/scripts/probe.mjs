@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 // Probe the live Kirby checkout and write a fresh source map to
 // <KIRBY_TYPES_ROOT>/.review/source-map.json (creating .review/.raw/ for pass 1).
-// Volatile facts – the module file types, $helper/panel registrations, the Kirby
-// version, history reach, dead @source paths, flags – are DISCOVERED here, never
-// hard-coded in topology.md. Agents read the map; they never guess file status.
+// Volatile facts are discovered here, so topology.md holds only stable ones.
 //
 // Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
 import fs from "node:fs";
@@ -19,8 +17,9 @@ if (!KIRBY || !TYPES) {
   process.exit(1);
 }
 
-// Directories whose file-extension status drifts between releases. Discovered by
-// listing, so no per-module list rots. Relative to <root>/panel/src.
+// Every directory a topology.md **Modules** path sits in, scanned whole rather
+// than named per module since file extensions drift between releases: a module
+// missing from the map reads as renamed or gone. Relative to <root>/panel/src.
 const SCAN_DIRS = [
   "",
   "panel",
@@ -33,6 +32,8 @@ const SCAN_DIRS = [
   "components/Forms/Writer/Utils",
   "components/Forms/Input",
   "components/Forms/Toolbar",
+  "components/Dropdowns",
+  "components/Navigation",
   "types",
 ];
 
@@ -227,6 +228,15 @@ if (reach.unreadable) {
 } else if (reach.minorTagLines < 3) {
   flags.push(
     `SHALLOW-HISTORY: ${KIRBY} holds ${reach.minorTagLines} minor-tag line(s) and cannot date @since -> run \`git -C ${KIRBY} fetch --tags\`, then re-probe.`,
+  );
+}
+
+const dirty = run(
+  `git -C "${TYPES}" status --porcelain -- src test '*.d.ts'`,
+).trim();
+if (dirty) {
+  flags.push(
+    `DIRTY-TREE: ${TYPES} has uncommitted declaration or test changes -> commit or stash them, then re-probe.`,
   );
 }
 
