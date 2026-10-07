@@ -104,7 +104,7 @@ export interface PanelDrag
    * Starts a drag operation with type and data.
    *
    * @param type - Drag item type (e.g., `"text"`, `"data"`)
-   * @param data - Associated data (string or object)
+   * @param data - Payload, the drag text for `"text"`
    */
   start: (type: string, data: string | Record<string, any>) => void;
 
@@ -127,7 +127,7 @@ export interface PanelThemeDefaults {
 }
 
 /**
- * Theme type values.
+ * Theme preference accepted by `set()`.
  * @source panel/src/panel/theme.ts
  */
 export type PanelThemeValue = "light" | "dark" | "system";
@@ -185,31 +185,6 @@ export interface PanelTheme
  * @source src/Cms/Language.php
  */
 export interface PanelLanguageDefaults {
-  /** Language code (e.g., `"en"`, `"de"`). */
-  code: string | null;
-  default: boolean;
-  /** Text direction. */
-  direction: "ltr" | "rtl";
-  /**
-   * Whether the language uses a custom domain.
-   * @since 5.2.3
-   */
-  hasCustomDomain: boolean;
-  name: string | null;
-  /** Slug conversion rules; empty on single-language sites. */
-  rules: Record<string, string>;
-}
-
-/**
- * Content language state.
- *
- * Represents the current content language for multilingual sites.
- *
- * @source panel/src/panel/language.ts
- * @source src/Panel/View.php
- * @source src/Cms/Language.php
- */
-export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   /** Language code (e.g., `"en"`, `"de"`); `null` on single-language sites. */
   code: string | null;
   default: boolean;
@@ -224,7 +199,19 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   name: string | null;
   /** Slug conversion rules; empty on single-language sites. */
   rules: Record<string, string>;
+}
 
+/**
+ * Content language state.
+ *
+ * Represents the current content language for multilingual sites.
+ *
+ * @source panel/src/panel/language.ts
+ * @source src/Panel/View.php
+ * @source src/Cms/Language.php
+ */
+export interface PanelLanguage
+  extends PanelState<PanelLanguageDefaults>, PanelLanguageDefaults {
   /** Alias for `default` property. */
   readonly isDefault: boolean;
 }
@@ -233,7 +220,7 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
 // #region Menu
 
 /**
- * Menu entry types.
+ * Sidebar menu entry, bound as props onto a `k-button`.
  *
  * All fields are optional; the backend filters out any falsy values before
  * emitting the entry, so consumers may receive a sparse object.
@@ -341,7 +328,10 @@ export interface PanelNotificationDefaults {
   /** Details passed to `open()`, unread by the Panel; an empty object by default. */
   details: Record<string, any>;
   icon: string | null;
-  /** Whether notification is visible. */
+  /**
+   * Whether the notification is open. In view context an error shows as a
+   * dialog instead of the notification bar.
+   */
   isOpen: boolean;
   message: string | null;
   theme: NotificationTheme | null;
@@ -380,8 +370,6 @@ export interface PanelNotificationOptions {
  */
 export interface PanelErrorObject {
   message?: string;
-  /** Details from the backend exception response; the notification ignores them. */
-  details?: Record<string, any>;
 }
 
 /**
@@ -403,11 +391,7 @@ export interface PanelNotification
   /** Closes the notification and resets state. */
   close: () => PanelNotificationDefaults;
 
-  /**
-   * Logs a deprecation warning to console.
-   *
-   * @param message - Deprecation message
-   */
+  /** Logs the message to the console, prefixed with `Deprecated: `. */
   deprecated: (message: string) => void;
 
   /**
@@ -444,9 +428,10 @@ export interface PanelNotification
 
   /**
    * Opens a notification. When passed a string, delegates to `success()`.
-   * Otherwise sets the Panel context, replaces a falsy `timeout` with `4000`
-   * ms for types other than `error` and `fatal`, opens the notification, and
-   * starts the auto-close timer.
+   * Otherwise fills in the Panel's current context unless the options pass
+   * one, replaces a falsy `timeout` with `4000` ms for types other than
+   * `error` and `fatal`, opens the notification, and starts the auto-close
+   * timer.
    *
    * @param notification - Message string or options object
    */
@@ -483,7 +468,7 @@ export interface PanelSystemDefaults {
   locales: Record<string, string>;
   /** Slug character replacements of the current language. */
   slugs: Record<string, string>;
-  /** Site title. */
+  /** Site title, or `"Kirby Panel"` when the site has none. */
   title: string;
 }
 
@@ -515,7 +500,8 @@ export interface PanelTranslationDefaults {
   direction: "ltr" | "rtl";
   name: string;
   /**
-   * First day of week (`0`=Sunday, `1`=Monday).
+   * First day of the week, `0` (Sunday) to `6` (Saturday), from the
+   * `date.weekday` option or the translation's locale.
    * @since 5.0.0
    */
   weekday: number;
@@ -539,7 +525,6 @@ export interface PanelTranslation
 
   /**
    * Fetches a translation string with optional placeholder replacement.
-   * Non-string keys return `undefined` (runtime guard).
    *
    * @param key - Translation key (non-strings return `undefined`)
    * @param data - Placeholder values
@@ -612,9 +597,10 @@ export interface PanelBreadcrumbItem {
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
  * @source src/Panel/View.php
+ * @source src/Panel/Panel.php
  */
 export interface PanelViewDefaults extends PanelFeatureDefaults {
-  /** Breadcrumb navigation items. */
+  /** Crumbs after the area crumb; model views end with the current model. */
   breadcrumb: PanelBreadcrumbItem[];
   /** Label of the area crumb shown before `breadcrumb`. */
   breadcrumbLabel: string | null;
@@ -639,7 +625,7 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  */
 export interface PanelView
   extends
-    Omit<PanelFeature<PanelViewDefaults>, "set" | keyof PanelViewDefaults>,
+    Omit<PanelFeature<PanelViewDefaults>, "set" | "path">,
     PanelViewDefaults {
   /** Loads a view, canceling any previous request first. */
   load: (
@@ -653,10 +639,7 @@ export interface PanelView
    */
   set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
-  /**
-   * Submits the view form.
-   * @throws Error - Not yet implemented
-   */
+  /** Rejects with an error; submitting a view is not implemented. */
   submit: () => Promise<never>;
 }
 // #endregion
@@ -664,35 +647,97 @@ export interface PanelView
 // #region Dropdown
 
 /**
- * Dropdown option item.
- * @source panel/src/panel/dropdown.ts
+ * Dropdown menu option. In an option list, a `"-"` entry renders a
+ * separator instead.
+ *
  * @source panel/src/components/Dropdowns/DropdownContent.vue
+ * @source panel/src/components/Navigation/Button.vue
+ * @source panel/src/components/Navigation/Link.vue
  */
 export interface PanelDropdownOption {
-  text: string;
+  /** Text shown in place of `text`. */
+  label?: string;
+
+  text?: string | number;
+
   icon?: string;
+
   /**
-   * Whether the option is marked as current; a string sets that
-   * `aria-current` value.
-   */
-  current?: boolean | string;
-  /** Dialog path or state object to open on click. */
-  dialog?: string | Record<string, any>;
-  /** Drawer path or state object to open on click. */
-  drawer?: string | Record<string, any>;
-  link?: string;
-  /** Anchor target attribute, e.g. `"_blank"`. */
-  target?: string;
-  /**
-   * Click handler: a callback, an action name emitted to the parent
-   * component as `action`, or an object that emits `name` on the parent and
-   * `global` on the global event bus, each with `payload`.
+   * Click action. The dropdown closes first, then:
+   * - a callback runs with `this` bound to the dropdown component
+   * - a string is emitted as an `action` event on the dropdown
+   * - an object emits `name` on the dropdown and `global` on the global
+   *   event bus, each with `payload`.
    */
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
-  disabled?: boolean;
-  /** Whether the option is shown; `false` hides it. */
+
+  /** Visibility condition – the option is hidden when `false`. */
   when?: boolean;
+
+  disabled?: boolean;
+
+  /** Value of the `aria-current` attribute, for active-state styling. */
+  current?: boolean | string;
+
+  /** URL or Panel path the option links to. */
+  link?: string;
+
+  /** Link target, such as `"_blank"`. Applies only with `link`. */
+  target?: string;
+
+  /**
+   * Value of the link's `rel` attribute. Applies only with `link`. A
+   * `"_blank"` target replaces it with `"noreferrer noopener"`.
+   *
+   * @since 5.2.0
+   */
+  rel?: string;
+
+  /**
+   * Downloads the linked file instead of opening it. Applies only with
+   * `link`.
+   *
+   * @since 5.0.0
+   */
+  download?: boolean;
+
+  /**
+   * Tooltip text. Also the option's accessible label when `text` is unset.
+   *
+   * @since 5.2.0
+   */
+  title?: string;
+
+  /**
+   * Dialog to open on click instead of running `click`: a Panel path, or an
+   * object `panel.dialog.open()` accepts.
+   */
+  dialog?: string | Record<string, any>;
+
+  /**
+   * Drawer to open on click instead of running `click`: a Panel path, or an
+   * object `panel.drawer.open()` accepts.
+   *
+   * @since 5.2.0
+   */
+  drawer?: string | Record<string, any>;
+
+  /**
+   * Design theme, such as `"negative"` for a destructive entry.
+   *
+   * @since 5.2.0
+   */
+  theme?: string;
+
+  /**
+   * Colored badge on the option. Its `theme` falls back to the option's
+   * `theme`.
+   *
+   * @since 5.2.0
+   */
+  badge?: { text: string | number; theme?: string };
+
   [key: string]: any;
 }
 
@@ -720,9 +765,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   ) => Promise<PanelFeatureDefaults>;
 
   /**
-   * Opens a dropdown asynchronously and returns a closure that invokes
-   * `ready(items)` with the resolved option list. The closure rejects when
-   * the dropdown has no options.
+   * Returns a closure that opens the dropdown and invokes `ready(items)` with
+   * its options. The closure rejects when the dropdown has no options.
    *
    * @deprecated Use `open()` and read `options()` instead.
    */
@@ -764,12 +808,11 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
    */
   id: string | null;
   /**
-   * Whether using legacy Vue component.
+   * Whether the dialog is a component instance from a template, opened via
+   * the deprecated `openComponent()`, that renders itself.
    */
   legacy: boolean;
-  /**
-   * Reference to legacy component.
-   */
+  /** The component instance `openComponent()` opened. */
   ref: any;
 }
 
@@ -781,15 +824,10 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  * @source panel/src/panel/dialog.js
  * @source panel/src/panel/modal.js
  */
-export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
-  /**
-   * Whether the dialog is a component instance from a template, opened via
-   * the deprecated `openComponent()`, that renders itself.
-   */
-  legacy: boolean;
-  /** The component instance `openComponent()` opened. */
-  ref: any;
-
+export interface PanelDialog
+  extends
+    PanelModal<PanelDialogDefaults>,
+    Pick<PanelDialogDefaults, "legacy" | "ref"> {
   /**
    * Closes the current dialog and hides a legacy component referenced via
    * `ref`. Reopens the previous dialog when one is stacked in the history.
@@ -799,18 +837,22 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   close: () => Promise<void>;
 
   /**
-   * Opens a dialog by path, `URL`, or state object; a legacy Vue component
-   * instance is handed to the deprecated `openComponent()`. A string path
-   * loads from `/dialogs/`; an object with `component` and `props` opens
-   * inline. An object with `url` loads that path and passes its other keys
-   * as options in place of `options`. `replace: true` on a state object
-   * swaps the current dialog in the history instead of stacking on top of it.
+   * Opens a dialog by path, `URL`, or state object. A string path loads from
+   * `/dialogs/`; an object with `component` and `props` opens inline. An
+   * object with `url` loads that path and passes its other keys as options
+   * in place of `options`. `replace: true` on a state object swaps the
+   * current dialog in the history instead of stacking on top of it.
    */
   open: (
     dialog:
       | string
       | URL
-      | (Partial<PanelDialogDefaults> & { url?: string; replace?: boolean }),
+      | (Partial<PanelDialogDefaults> & {
+          /** @since 5.2.0 */
+          url?: string;
+          /** @since 5.1.0 */
+          replace?: boolean;
+        }),
     options?: PanelRequestOptions | PanelEventCallback,
   ) => Promise<PanelDialogDefaults>;
 
@@ -864,6 +906,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
       | string
       | URL
       | (Partial<PanelDrawerDefaults> & {
+          /** @since 5.2.0 */
           url?: string;
           replace?: boolean;
           tab?: string;
@@ -893,7 +936,9 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 
 /**
  * Content version representing saved or changed state.
+ * @since 5.0.0
  * @source panel/src/panel/content.js
+ * @source src/Panel/Model.php
  */
 export interface PanelContentVersion {
   [field: string]: any;
@@ -901,6 +946,7 @@ export interface PanelContentVersion {
 
 /**
  * Content versions container.
+ * @since 5.0.0
  * @source panel/src/panel/content.js
  * @source src/Panel/Model.php
  */
@@ -915,11 +961,8 @@ export interface PanelContentVersions {
 }
 
 /**
- * Lock state for content editing.
- *
- * Always emitted as `{ isLegacy, isLocked, modified, user }`. After a
- * successful save, `modified` is replaced in place with a fresh `Date`.
- *
+ * Content lock state of a view.
+ * @since 5.0.0
  * @source panel/src/panel/content.js
  * @source src/Content/Lock.php
  */
@@ -933,18 +976,23 @@ export interface PanelContentLock {
    * server; after a successful save the Panel replaces it with a `Date`.
    */
   modified: string | Date | null;
-  /** User who holds the lock; both fields are nullable when no user is set. */
+  /**
+   * User holding the lock. Both fields are `null` when nobody holds the lock
+   * or the holder is not listable.
+   */
   user: { id: string | null; email: string | null };
 }
 
 /**
- * Environment context for content operations.
+ * Environment of a content operation. Each key it omits falls back to the
+ * current view.
+ * @since 5.0.0
  * @source panel/src/panel/content.js
  * @source src/Panel/View.php
  * @source src/Panel/Model.php
  */
 export interface PanelContentEnv {
-  /** API endpoint path. */
+  /** Panel path of the model, such as `/pages/blog+post`. */
   api?: string;
   /** Content language code; `null` on single-language sites. */
   language?: string | null;
@@ -958,6 +1006,7 @@ export interface PanelContentEnv {
  *
  * @since 5.0.0
  * @source panel/src/panel/content.js
+ * @source panel/src/helpers/throttle.ts
  */
 export interface PanelContent {
   /** Panel dialog while the lock dialog is open. */
@@ -981,25 +1030,25 @@ export interface PanelContent {
    * Returns all changed fields; a field removed from the changes maps to
    * `null`.
    *
-   * @param env - Environment context
    * @throws Error if called for another view
    */
   diff: (env?: PanelContentEnv) => Record<string, any>;
 
   /**
-   * Discards all unpublished changes.
+   * Discards all unpublished changes. Resolves without doing anything while
+   * `isProcessing` is `true`, and opens the lock dialog instead of rejecting
+   * when the server reports a lock.
    *
-   * @param env - Environment context
    * @throws Error if locked or another view
    */
   discard: (env?: PanelContentEnv) => Promise<void>;
 
   /**
-   * Emits a content event with environment context.
+   * Emits a content event with the environment's `api` and `language`
+   * merged over `options`.
    *
-   * @param event - Event name (prefixed with `"content."`)
+   * @param event - Event name, emitted as `content.<event>`
    * @param options - Additional event data
-   * @param env - Environment context
    */
   emit: (
     event: string,
@@ -1017,21 +1066,19 @@ export interface PanelContent {
   /**
    * Returns whether the content has unpublished changes.
    *
-   * @param env - Environment context
+   * @throws Error if called for another view
    */
   hasDiff: (env?: PanelContentEnv) => boolean;
 
   /**
-   * Returns whether the given env's `api` and `language` both match the current view.
-   *
-   * @param env - Environment context
+   * Returns whether the given env's `api` and `language` both match the
+   * current view.
    */
   isCurrent: (env?: PanelContentEnv) => boolean;
 
   /**
    * Returns whether the current view is locked.
    *
-   * @param env - Environment context
    * @throws Error if called for another view
    */
   isLocked: (env?: PanelContentEnv) => boolean;
@@ -1039,23 +1086,17 @@ export interface PanelContent {
   /**
    * Gets the lock state for the current view.
    *
-   * @param env - Environment context
    * @throws Error if called for another view
    */
   lock: (env?: PanelContentEnv) => PanelContentLock;
 
-  /**
-   * Opens the lock dialog to inform about other edits.
-   *
-   * @param lock - Lock information
-   */
+  /** Opens the lock dialog to inform about other edits. */
   lockDialog: (lock: PanelContentLock) => void;
 
   /**
    * Merges new values with current changes.
    *
    * @param values - Values to merge
-   * @param env - Environment context
    * @throws Error if called for another view
    */
   merge: (
@@ -1064,10 +1105,11 @@ export interface PanelContent {
   ) => Record<string, any>;
 
   /**
-   * Publishes current changes.
+   * Publishes current changes. Resolves without doing anything while
+   * `isProcessing` is `true`, and opens the lock dialog instead of rejecting
+   * when the server reports a lock.
    *
    * @param values - Additional values to merge first
-   * @param env - Environment context
    * @throws Error if called for another view
    */
   publish: (
@@ -1076,23 +1118,19 @@ export interface PanelContent {
   ) => Promise<void>;
 
   /**
-   * Sends a content API request.
-   *
-   * @param method - API method: `save`, `publish`, or `discard`
-   * @param values - Request payload
-   * @param env - Environment context
+   * Sends a content API request. A `"save"` request rejects until `save()`
+   * has run once.
    */
   request: (
-    method?: "save" | "publish" | "discard",
+    method?: "save" | "publish" | "discard" | "unlock",
     values?: Record<string, any>,
     env?: PanelContentEnv,
   ) => Promise<any>;
 
   /**
-   * Saves current changes.
+   * Saves the given values to the changes version without merging them into
+   * the view.
    *
-   * @param values - Values to save
-   * @param env - Environment context
    * @returns `true` if saved, `false` if locked or replaced by a newer save
    */
   save: (
@@ -1109,7 +1147,6 @@ export interface PanelContent {
    * `<api>/changes/unlock` (failures are ignored, the lock expires on its
    * own) and resolves to `true`.
    *
-   * @param env - Environment context
    * @since 5.5.0
    */
   unlock: (env?: PanelContentEnv) => Promise<boolean>;
@@ -1119,7 +1156,6 @@ export interface PanelContent {
    * deliver even while the page unloads, and falls back to a regular POST
    * when the beacon cannot be queued. Cancels pending saves first.
    *
-   * @param env - Environment context
    * @since 5.6.0
    */
   unlockBeaconRequest: (env?: PanelContentEnv) => void;
@@ -1128,7 +1164,6 @@ export interface PanelContent {
    * Sends the unlock request as a silent POST to `<api>/changes/unlock`.
    * Cancels pending saves first.
    *
-   * @param env - Environment context
    * @since 5.6.0
    */
   unlockPostRequest: (env?: PanelContentEnv) => Promise<any>;
@@ -1137,8 +1172,8 @@ export interface PanelContent {
    * Updates form values and saves.
    *
    * @param values - Values to update
-   * @param env - Environment context
    * @returns `true` if saved, `false` if locked or replaced by a newer save
+   * @throws Error if called for another view
    */
   update: (
     values?: Record<string, any>,
@@ -1146,18 +1181,15 @@ export interface PanelContent {
   ) => Promise<boolean>;
 
   /**
-   * Updates form values with delay (throttled).
+   * Merges the values into the current changes at once and saves them
+   * throttled like `saveLazy`.
    *
    * @param values - Values to update
-   * @param env - Environment context
+   * @throws Error if called for another view
    */
   updateLazy: (values?: Record<string, any>, env?: PanelContentEnv) => void;
 
-  /**
-   * Returns a specific version of content.
-   *
-   * @param versionId - Version identifier
-   */
+  /** Returns a specific version of content. */
   version: (versionId: "latest" | "changes") => PanelContentVersion;
 
   /** Returns all content versions. */
@@ -1189,6 +1221,7 @@ export interface PanelSearchPagination {
 /**
  * Search query options.
  * @source panel/src/panel/search.ts
+ * @source src/Panel/Panel.php
  */
 export interface PanelSearchOptions {
   page?: number;
@@ -1232,7 +1265,10 @@ export interface PanelSearchResponse {
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearcher {
-  /** AbortController for current request. */
+  /**
+   * Controller for aborting the pending query, replaced on every `query()`
+   * call; `undefined` until the first one.
+   */
   controller: AbortController | undefined;
 
   /** Number of active requests. */
@@ -1249,7 +1285,11 @@ export interface PanelSearcher {
   open: (type: string) => void;
 
   /**
-   * Queries the search API. For queries shorter than 2 characters returns `{ results: null, pagination: {} }` without hitting the server. Resolves to `undefined` when the request was aborted by a subsequent search, and to `{ results: [], pagination: {} }` when it fails for any other reason.
+   * Queries a Panel search type, aborting the previous query first. For
+   * queries shorter than 2 characters returns
+   * `{ results: null, pagination: {} }` without hitting the server. Resolves
+   * to `undefined` when the request was aborted by a subsequent search, and
+   * to `{ results: [], pagination: {} }` when it fails for any other reason.
    *
    * @param type - Search type
    * @param query - Search query
@@ -1317,7 +1357,7 @@ export interface PanelUploadFile {
   filename: string;
   /** File size in bytes. */
   size: number;
-  /** Formatted file size (e.g., `"1.2 MB"`). */
+  /** Formatted file size (e.g., `"1.2MB"`). */
   niceSize: string;
   /** MIME type. */
   type: string;
@@ -1326,7 +1366,10 @@ export interface PanelUploadFile {
   /** Upload progress (`0`-`100`). */
   progress: number;
   completed: boolean;
-  /** Error message of the last failed attempt, cleared before each new attempt. */
+  /**
+   * Error message of the last failed attempt, or of a name another queued
+   * file shares; cleared before each new attempt.
+   */
   error: string | null;
   /** Server file model, set once the upload completes. */
   model: any | null;
@@ -1358,9 +1401,10 @@ export interface PanelUploadDefaults {
   multiple: boolean;
   /**
    * Preview settings (`back`, `color`, `cover`, `icon`) spread into every
-   * queued file, or `false` when the section disables images.
+   * queued file. A boolean, `false` when the section disables images,
+   * spreads nothing.
    */
-  preview: Record<string, any> | false;
+  preview: Record<string, any> | boolean;
   /** Server file model being replaced (carries `link`, `extension`, `mime`). */
   replacing: PanelUploadReplaceFile | null;
   /** Upload endpoint URL. */
@@ -1404,9 +1448,9 @@ export interface PanelUpload
   cancel: () => Promise<void>;
 
   /**
-   * Closes the upload dialog after all remaining files have uploaded; if any
-   * files completed, emits `complete` and `done`, announces success, and
-   * resets state.
+   * Closes the upload dialog; if any files completed, emits `complete` and
+   * `done` with their server file models, announces success, and resets
+   * state. `submit()` calls it once every file has uploaded.
    */
   done: () => Promise<void>;
 
@@ -1419,8 +1463,8 @@ export interface PanelUpload
   findDuplicate: (file: PanelUploadFile) => number;
 
   /**
-   * Checks if file has a unique name.
-   * Compares `file.name` and `file.extension` against the upload queue.
+   * Returns `true` unless two or more queued files share the file's `name`
+   * and `extension`.
    *
    * @param file - Enriched upload file to check
    */
@@ -1477,7 +1521,7 @@ export interface PanelUpload
    * Also accepts an `Event` whose `target.files` is unwrapped to a `FileList`.
    * Throws if the resolved value is not a `FileList`.
    *
-   * @param files - Files to add (or input change Event, or `null`)
+   * @param files - Files to add, or an input `change` event
    * @param options - Upload options
    */
   select: (
@@ -1492,7 +1536,12 @@ export interface PanelUpload
    */
   set: (state?: PanelUploadOptions) => PanelUploadDefaults | undefined;
 
-  /** Submits and uploads all remaining files. */
+  /**
+   * Uploads every file not yet completed, incrementing `attributes.sort`
+   * per file, and calls `done()` once all have completed. A file whose name
+   * another queued file shares gets an `error` instead. Throws when `url` is
+   * unset.
+   */
   submit: () => Promise<void>;
 
   /**
@@ -1622,10 +1671,16 @@ export interface PanelEvents extends PanelEventEmitter {
   prevent: (event: Event) => void;
   // #endregion
 
-  /** Subscribes all global event listeners. */
+  /**
+   * Adds the document and window listeners that re-emit their events on the
+   * bus.
+   */
   subscribe: () => void;
 
-  /** Unsubscribes all global event listeners. */
+  /**
+   * Meant to remove the listeners `subscribe()` added, but leaves them
+   * attached: it passes the unbound handlers.
+   */
   unsubscribe: () => void;
 }
 // #endregion
