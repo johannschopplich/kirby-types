@@ -5,8 +5,6 @@
  * - Editor instance and options
  * - Mark and node extensions for plugins
  * - Utility functions and contexts.
- *
- * @since 6.0.0
  */
 
 import type { InputRule } from "prosemirror-inputrules";

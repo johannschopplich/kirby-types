@@ -3,8 +3,6 @@
  *
  * Provides types for the `$helper` utilities registered as a global property
  * on the Panel app.
- *
- * @since 6.0.0
  */
 
 import type { App } from "vue";

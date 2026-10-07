@@ -3,8 +3,6 @@
  *
  * Provides types for the `$library` utilities available to every component.
  * Includes color manipulation, date handling (dayjs), and textarea autosize.
- *
- * @since 6.0.0
  */
 
 import type { ConfigType, Dayjs, PluginFunc, UnitTypeLong } from "dayjs";

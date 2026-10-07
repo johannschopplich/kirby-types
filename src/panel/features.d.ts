@@ -3,8 +3,6 @@
  *
  * This module provides typed interfaces for all Panel features,
  * including state objects, features, and modals.
- *
- * @since 6.0.0
  */
 
 import type {

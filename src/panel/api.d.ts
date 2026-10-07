@@ -2,8 +2,6 @@
  * API type definitions for Kirby Panel.
  *
  * Provides types for the Panel API client and its resource modules.
- *
- * @since 6.0.0
  */
 
 import type { PanelRequestOptions } from "./base";

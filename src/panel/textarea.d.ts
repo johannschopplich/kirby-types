@@ -3,8 +3,6 @@
  *
  * This module provides types for custom textarea toolbar buttons
  * that can be registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
- *
- * @since 6.0.0
  */
 
 import type { PanelGlobalProperties } from "./index";

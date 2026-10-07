@@ -6,7 +6,6 @@
  * ```ts
  * import "kirby-types/panel-globals";
  * ```
- * @since 6.0.0
  * @source panel/src/types/vue.d.ts
  * @source panel/src/types/global.d.ts
  */

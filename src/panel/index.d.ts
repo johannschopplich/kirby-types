@@ -13,8 +13,6 @@
  * - `api.d.ts` - API client methods
  * - `writer.d.ts` - Writer (ProseMirror) editor and extensions
  * - `textarea.d.ts` - Textarea toolbar buttons
- *
- * @since 6.0.0
  */
 
 import type {
