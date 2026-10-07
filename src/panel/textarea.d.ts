@@ -5,8 +5,7 @@
  * that can be registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
  */
 
-import type { PanelDropdownOption } from "./features";
-import type { PanelApp } from "./index";
+import type { PanelApp, PanelDropdownOption } from "./index";
 
 // #region Textarea Toolbar Context
 
@@ -23,7 +22,7 @@ export interface TextareaToolbarContext extends PanelApp {
    *
    * Available commands:
    * - `"dialog"` - Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
-   * - `"insert"` - Inserts the given text at the current selection.
+   * - `"insert"` - Replaces the current selection with the given text, or with the return value of an `(input, selection)` callback.
    * - `"prepend"` - Prepends the given text and a space to the current selection.
    * - `"toggle"` - Toggles wrapping of current selection (accepts `before`, `after` texts).
    * - `"upload"` - Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
@@ -155,17 +154,13 @@ export interface TextareaButton {
    * If non-empty, clicking the button opens the dropdown instead of running
    * `click`. The `shortcut` still runs `click`.
    *
-   * **Important:** Unlike the button's `click` handler, an item's `click`
-   * callback is NOT called with the toolbar context as `this`. The `this`
-   * context is the surrounding dropdown component, which does not expose
-   * `command()`, and a string `click` emits an `action` event the toolbar
-   * does not listen to.
-   *
-   * The built-in buttons reach the toolbar because their items are arrow
-   * functions defined inside the toolbar component. A plugin's
-   * `textareaButtons` entry is a static object with no toolbar reference to
-   * close over. To react to an item elsewhere, use the `{ global, payload }`
-   * click form, which emits an event on the global event bus.
+   * An item's `click` callback gets the dropdown component as `this`, not
+   * the toolbar, so `command()` is out of reach. The built-in buttons reach
+   * the toolbar because their items are arrow functions defined inside the
+   * toolbar component; a plugin's `textareaButtons` entry is a static object
+   * with no toolbar reference to close over. To react to an item elsewhere,
+   * use the `{ global, payload }` click form, which emits an event on the
+   * global event bus.
    *
    * @example
    * ```js
@@ -197,7 +192,6 @@ export interface TextareaButton {
   /** Tooltip text used as a fallback when `label` is not set. */
   title?: string;
 
-  /** Custom CSS class for the button. */
   class?: string;
 }
 // #endregion
