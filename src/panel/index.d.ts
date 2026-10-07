@@ -203,6 +203,11 @@ export interface PanelGlobalProperties {
   // #endregion
 }
 
+/**
+ * @source panel/src/panel/panel.ts
+ * @source panel/src/index.ts
+ * @source panel/src/types/vue.d.ts
+ */
 export type PanelApp = Omit<App, "config"> & {
   config: Omit<AppConfig, "globalProperties"> & {
     globalProperties: ComponentCustomProperties & PanelGlobalProperties;
@@ -215,9 +220,14 @@ export type PanelApp = Omit<App, "config"> & {
 /**
  * Vue component options for Panel plugin extensions.
  *
- * Components can be defined as:
- * - Vue component options object with template or render function
- * - Component that extends another component by name.
+ * Components can be an options object or a `defineComponent()` result that
+ * provides at least one of:
+ * - a template
+ * - a render function
+ * - a `setup()` function
+ * - an `extends` component.
+ *
+ * Without any of them, the component is skipped with a console warning.
  * @source panel/src/panel/plugins.ts
  */
 export type PanelComponentExtension =
@@ -250,7 +260,10 @@ export interface PanelConfig {
   };
   /** Whether debug mode is enabled. */
   debug: boolean;
-  /** Whether KirbyText is enabled. */
+  /**
+   * Whether the textarea toolbar writes links and emails as KirbyText tags
+   * instead of Markdown, from the `panel.kirbytext` option.
+   */
   kirbytext: boolean;
   /**
    * Default color theme from the `panel.theme` option (`"system"` unless
@@ -386,8 +399,8 @@ interface PanelPermissionsUser {
 }
 
 /**
- * Complete permission set for the current user. Empty when no user is
- * logged in.
+ * Permission set of the logged-in user. On views without one, such as the
+ * login view, the Panel holds an empty array instead.
  *
  * @source panel/src/panel/panel.ts
  * @source src/Cms/Permissions.php
@@ -414,6 +427,7 @@ export interface PanelPermissions {
 /**
  * Search type definition.
  * @source src/Panel/State.php
+ * @source panel/src/panel/search.ts
  */
 export interface PanelSearchType {
   icon: string;
@@ -425,15 +439,25 @@ export interface PanelSearchType {
  * Available search types in the Panel.
  * @source panel/src/panel/panel.ts
  * @source src/Panel/State.php
+ * @source src/Panel/Area.php
  * @source config/areas/site/searches.php
  * @source config/areas/users/searches.php
  */
 export interface PanelSearches {
-  /** Omitted when the user has no access to the site area. */
+  /**
+   * Omitted when the user has no access to the site area or a plugin
+   * disables the search.
+   */
   pages?: PanelSearchType;
-  /** Omitted when the user has no access to the site area. */
+  /**
+   * Omitted when the user has no access to the site area or a plugin
+   * disables the search.
+   */
   files?: PanelSearchType;
-  /** Omitted when the user has no access to the users area. */
+  /**
+   * Omitted when the user has no access to the users area or a plugin
+   * disables the search.
+   */
   users?: PanelSearchType;
   [key: string]: PanelSearchType | undefined;
 }
@@ -461,6 +485,7 @@ export interface PanelUrls {
  * Response object from Panel requests.
  *
  * @source panel/src/panel/request.ts
+ * @source panel/src/panel/html.ts
  */
 export interface PanelRequestResponse {
   /** The original Request object. */
@@ -539,8 +564,8 @@ export interface PanelPluginExtensions {
    * Custom block types for the blocks field.
    *
    * Can be either a template string (shorthand) or a component options object.
-   * Registered as `k-block-type-${name}` components that automatically
-   * extend `k-block-type-default`.
+   * Registered as `k-block-type-${name}` components that extend
+   * `k-block-type-default` unless they set their own `extends`.
    */
   blocks?: Record<string, string | PanelComponentExtension>;
 
@@ -625,6 +650,7 @@ export interface PanelPluginExtensions {
  *
  * @source panel/src/panel/plugins.ts
  * @source panel/public/js/plugins.js
+ * @source panel/src/panel/app.ts
  */
 export interface PanelPlugins {
   // #region Helper Functions
@@ -743,6 +769,7 @@ export interface PanelLanguageInfo {
 /**
  * Global Panel state for `panel.state()`.
  * @source panel/src/panel/panel.ts
+ * @source src/Panel/State.php
  */
 export interface PanelGlobalState {
   config: PanelConfig;
@@ -811,10 +838,11 @@ type PanelStateInput = Partial<
 
 /**
  * Trusted, pre-escaped HTML string wrapper. Extends the native `String`, so it
- * interpolates, concatenates and serializes like a plain string, but is
- * recognizable via `instanceof` and can be rendered (`v-html`/`v-safe-html`)
- * without further escaping.
+ * interpolates, concatenates and serializes like a plain string. Where
+ * `v-safe-html` escapes a plain string, it writes an `HtmlString` through as
+ * HTML, and `th()` fills it into a placeholder unescaped.
  * @source panel/src/panel/html.ts
+ * @source panel/src/config/safeHtml.ts
  */
 // eslint-disable-next-line ts/no-wrapper-object-types -- Mirrors the Panel's `class HtmlString extends String`.
 export interface HtmlString extends String {}
@@ -859,6 +887,8 @@ export interface PanelHtml {
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/translation.ts
  * @source panel/public/js/plugins.js
+ * @source src/Panel/State.php
+ * @source src/Cms/LicenseStatus.php
  */
 export interface Panel {
   // #region Core Properties
@@ -884,19 +914,15 @@ export interface Panel {
   isOffline: boolean;
 
   /**
-   * Shared singleton observers, currently exposing a `ResizeObserver` that
-   * dispatches a `resize` `CustomEvent` on each observed target.
+   * Shared singleton observers. `resize` dispatches a `resize` `CustomEvent`
+   * on each observed target, its `detail` holding the target's content
+   * `width` and `height`.
    */
   observers: {
     resize: ResizeObserver;
   };
 
-  /**
-   * Wraps a value as trusted, pre-escaped HTML.
-   *
-   * The returned `HtmlString` behaves like a string but can be rendered via
-   * `v-html`/`v-safe-html` without re-escaping.
-   */
+  /** Wraps a value as trusted, pre-escaped HTML. */
   html: PanelHtml;
   // #endregion
 
@@ -930,7 +956,6 @@ export interface Panel {
   /** File upload handling. */
   upload: PanelFeatures.PanelUpload;
 
-  /** Current user data. */
   user: PanelFeatures.PanelUser;
   // #endregion
 
@@ -971,7 +996,6 @@ export interface Panel {
   /** Whether multi-language is enabled. */
   multilang: boolean;
 
-  /** User permissions. */
   permissions: PanelPermissions;
 
   plugins: PanelPlugins;
@@ -1374,6 +1398,8 @@ interface PanelViewPropsButton {
  * @source src/Panel/Controller/View/FileViewController.php
  * @source src/Panel/Controller/View/UserViewController.php
  * @source src/Panel/Ui/View.php
+ * @source src/Panel/Ui/Component.php
+ * @source src/Blueprint/Tab.php
  */
 export interface PanelViewProps {
   api: string;
@@ -1394,7 +1420,11 @@ export interface PanelViewProps {
   /** UUID of the model. Absent when the `content.uuid` option is `false`. */
   uuid?: string;
   versions: PanelViewPropsVersions;
-  /** Active blueprint tab. Only present when the blueprint defines tabs. */
+  /**
+   * Active blueprint tab: the one the `tab` query parameter names, else the
+   * first. Blueprint-level fields, sections or columns form a single tab, so
+   * it is absent only for an empty blueprint.
+   */
   tab?: PanelViewPropsTab;
   /** Sibling navigation link to the next model, `null` without one. */
   next: PanelViewPropsNavigation | null;
@@ -1402,5 +1432,42 @@ export interface PanelViewProps {
   prev: PanelViewPropsNavigation | null;
   blueprint: string;
   title: string;
+}
+
+/**
+ * Props of a file view.
+ *
+ * @source src/Panel/Controller/View/FileViewController.php
+ * @source src/Panel/Ui/FilePreview.php
+ */
+export interface PanelFileViewProps extends PanelViewProps {
+  extension: string;
+  filename: string;
+  mime?: string;
+  /** Preview component the view renders above its tabs. */
+  preview: { component: string; key: string; props: Record<string, any> };
+  type?: string;
+  url: string;
+}
+
+/**
+ * Props of a user view.
+ *
+ * @source src/Panel/Controller/View/UserViewController.php
+ */
+export interface PanelUserViewProps extends PanelViewProps {
+  avatar?: string;
+  canChangeEmail: boolean;
+  canChangeLanguage: boolean;
+  canChangeName: boolean;
+  /** Whether the logged-in user may move this user to another role. */
+  canChangeRole: boolean;
+  email?: string;
+  /** Name of the user's Panel language. */
+  language: string;
+  name: string;
+  /** Title of the user's role. */
+  role: string;
+  username?: string;
 }
 // #endregion
