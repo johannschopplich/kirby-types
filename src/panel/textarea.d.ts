@@ -263,8 +263,6 @@ export interface TextareaDropdownItem {
 
   /**
    * Design theme, such as `"negative"` for a destructive entry.
-   *
-   * Ignored before 5.2.0.
    */
   theme?: string;
 

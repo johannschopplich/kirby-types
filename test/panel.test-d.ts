@@ -133,7 +133,6 @@ expectType<void>(userState.reset());
 expectType<PanelUserDefaults>(userState.set({ email: "new@test.com" }));
 expectType<PanelUserDefaults>(userState.state());
 expectType<string>(userState.key());
-expectType<boolean | undefined>(userState.validateState?.({}));
 expectType<string | null>({} as PanelUser["email"]);
 expectType<string | null>({} as PanelUser["id"]);
 expectType<string | null>({} as PanelUser["language"]);
@@ -149,7 +148,7 @@ expectType<Promise<any | false>>(feature.get("/api/test"));
 expectType<Promise<any | false>>(feature.post({}));
 expectType<Promise<PanelFeatureDefaults>>(feature.load("/pages/home"));
 expectType<Promise<PanelFeatureDefaults>>(feature.open("/pages/home"));
-expectType<Promise<PanelFeatureDefaults | false | void>>(feature.reload());
+expectType<Promise<PanelFeatureDefaults | false>>(feature.reload());
 expectType<Promise<PanelFeatureDefaults | undefined>>(feature.refresh());
 expectType<URL>(feature.url());
 expectType<void>(feature.addEventListener("load", () => {}));
@@ -198,7 +197,7 @@ expectType<false | void>(undefined as ReturnType<PanelDrawer["tab"]>);
 // #region Notification & Content
 
 expectType<() => PanelNotificationDefaults>({} as PanelNotification["close"]);
-expectType<PanelNotificationDefaults | false>(
+expectType<PanelNotificationDefaults>(
   {} as ReturnType<PanelNotification["error"]>,
 );
 
@@ -206,7 +205,7 @@ declare const content: PanelContent;
 expectType<boolean>(content.hasDiff());
 expectType<boolean>(content.isCurrent());
 expectType<boolean>(content.isLocked());
-expectType<Promise<boolean | void>>(content.save());
+expectType<Promise<boolean>>(content.save());
 expectType<Promise<void>>(content.publish());
 expectType<Promise<void>>(content.discard());
 // #endregion
@@ -242,9 +241,7 @@ expectType<URL>(panel.url("/pages/home"));
 expectType<URL>(panel.url("/pages/home", { tab: "content" }));
 expectType<Promise<any>>(panel.get("/api/pages/home"));
 expectType<Promise<any>>(panel.post("/api/pages/home", { title: "Home" }));
-expectType<Promise<PanelRequestResponse | false>>(
-  panel.request("/api/pages/home"),
-);
+expectType<Promise<PanelRequestResponse>>(panel.request("/api/pages/home"));
 // #endregion
 
 // #region Model Data

@@ -21,8 +21,7 @@ export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
   body?: BodyInit | null;
   /**
    * Headers merged over the default `content-type`, `x-csrf`, and
-   * `x-language` headers. Since 5.0.0, a `null` value drops a default
-   * header; before, the option replaces the default headers wholesale.
+   * `x-language` headers. A `null` value drops a default header.
    */
   headers?: Record<string, string | null>;
   /**
@@ -32,8 +31,8 @@ export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
    */
   method?: string;
   /**
-   * Whether to skip the loading indicator. Read since 5.0.0 – before,
-   * only the `silent` argument of `request()` and the verb helpers counts.
+   * Whether to skip the loading indicator, like the `silent` argument of
+   * `request()` and the verb helpers.
    */
   silent?: boolean;
 }
@@ -66,14 +65,6 @@ export interface PanelApiSearchQuery {
   offset?: number;
   /** Page size, or page and page size, to paginate the results by. */
   paginate?: number | PanelApiPagination;
-  /** @deprecated Ignored by the search routes – pass `paginate` instead. */
-  page?: number;
-  /** @deprecated Ignored by the search routes – pass the term as `search` instead. */
-  query?: string;
-  /** @deprecated Ignored in the request body – Kirby reads `select` from the URL query only. */
-  select?: string;
-  /** @deprecated Ignored since 4.9.1 and 5.4.1; before, sorted the results. */
-  sort?: string;
 }
 // #endregion
 
@@ -272,11 +263,6 @@ export interface PanelApiLanguageData {
   default?: boolean;
   /** Locale code. */
   locale?: string;
-  /**
-   * Slug conversion rules.
-   * @deprecated Ignored on create and update – pass `slugs` instead.
-   */
-  rules?: Record<string, string>;
   /** Custom slug conversion rules, merged over the locale's default rules. */
   slugs?: Record<string, string>;
   /** SmartyPants options for this language. */
@@ -343,21 +329,16 @@ export interface PanelApiLanguages {
 export interface PanelApiPageCreateData {
   /** Page slug, derived from `content.title` when omitted. */
   slug?: string;
-  /** @deprecated Ignored by Kirby – set the title as `content.title` instead. */
-  title?: string;
   template?: string;
   /** Initial content. */
   content?: Record<string, any>;
   /**
-   * Content per language on a multi-language site, written since 5.0.0 and
-   * ignored before. Since 5.6.0, each translation's content runs through the
-   * fields' save handlers.
+   * Content per language on a multi-language site. Each translation's
+   * content runs through the fields' save handlers.
    */
   translations?: { code: string; content?: Record<string, any> }[];
   /** Whether the page starts as a draft, `true` by default – `false` creates an unlisted page. */
   draft?: boolean;
-  /** @deprecated Ignored by Kirby – new pages are drafts unless `draft` is `false`. */
-  status?: "draft" | "unlisted" | "listed";
 }
 
 /**
@@ -488,9 +469,8 @@ export interface PanelApiPages {
   /**
    * Converts page ID/UUID to API format.
    *
-   * Also accepts a `page://` UUID, resolved to `@<uuid>`, and since 5.5.3 a
-   * `/@/page/` permalink with or without a language prefix; before, a
-   * permalink is treated as a plain ID.
+   * Also accepts a `page://` UUID or a `/@/page/` permalink with or without
+   * a language prefix, both resolved to `@<uuid>`.
    *
    * @param id - Page ID, UUID, or permalink
    * @returns API-formatted ID
@@ -741,9 +721,8 @@ export interface PanelApiUserCreateData {
   language?: string;
   content?: Record<string, any>;
   /**
-   * Content per language on a multi-language site, written since 5.0.0 and
-   * ignored before. Since 5.6.0, each translation's content runs through the
-   * fields' save handlers.
+   * Content per language on a multi-language site. Each translation's
+   * content runs through the fields' save handlers.
    */
   translations?: { code: string; content?: Record<string, any> }[];
 }
@@ -803,7 +782,7 @@ export interface PanelApiUsers {
    *
    * @param id - User ID
    * @param password - New password
-   * @param currentPassword - Password of the acting user. Required since 5.0.0 unless they reset their own password after a password-reset login; ignored before.
+   * @param currentPassword - Password of the acting user, required unless they reset their own password after a password-reset login
    * @returns Updated user
    */
   changePassword: (
@@ -936,11 +915,8 @@ export interface PanelApiUsers {
  * @source panel/src/panel/request.ts
  */
 export interface PanelApi {
-  /**
-   * CSRF token for requests. Read live from the system since 5.6.1 –
-   * before, a copy taken at setup that goes stale when the token changes.
-   */
-  csrf: string;
+  /** CSRF token for requests, read live from the system. */
+  readonly csrf: string;
 
   /** API base endpoint. */
   endpoint: string;
@@ -952,13 +928,10 @@ export interface PanelApi {
    */
   methodOverride: boolean;
 
-  /** @deprecated Renamed to `methodOverride` in 5.0.0. */
-  methodOverwrite?: boolean;
-
   /**
    * Interval ID of the auth heartbeat that pings every 5 minutes; scheduled
-   * on setup and restarted after each request. Since 5.0.3, the heartbeat
-   * skips the ping while the Panel is offline.
+   * on setup and restarted after each request. The heartbeat skips the ping
+   * while the Panel is offline.
    */
   ping: ReturnType<typeof setInterval> | null;
 

@@ -29,13 +29,6 @@ import type {
  */
 export interface PanelTimer {
   /**
-   * Handle of the running interval; `null` when stopped, `undefined` since
-   * 5.5.0.
-   * @deprecated Private since 5.5.0; use `isRunning` instead.
-   */
-  interval?: ReturnType<typeof setInterval> | null;
-
-  /**
    * Whether the timer is currently running.
    * @since 5.5.0
    */
@@ -43,8 +36,7 @@ export interface PanelTimer {
 
   /**
    * Starts the timer with a callback.
-   * Stops any previous timer first. Does nothing if `timeout <= 0` since
-   * 5.5.0, if `timeout` is falsy before.
+   * Stops any previous timer first. Does nothing if `timeout <= 0`.
    *
    * @param timeout - Delay in milliseconds
    * @param callback - Function to call after timeout
@@ -71,8 +63,7 @@ export interface PanelActivationDefaults {
  * Activation state for license registration prompts.
  *
  * Controls visibility of the license activation card based on
- * session storage state. A plain object without the state methods before
- * 5.0.0.
+ * session storage state.
  *
  * @source panel/src/panel/activation.ts
  */
@@ -205,8 +196,8 @@ export interface PanelLanguageDefaults {
    */
   hasCustomDomain: boolean;
   name: string | null;
-  /** Slug conversion rules; `null` on single-language sites before 5.5.0. */
-  rules: Record<string, string> | null;
+  /** Slug conversion rules; empty on single-language sites. */
+  rules: Record<string, string>;
 }
 
 /**
@@ -215,6 +206,8 @@ export interface PanelLanguageDefaults {
  * Represents the current content language for multilingual sites.
  *
  * @source panel/src/panel/language.ts
+ * @source src/Panel/View.php
+ * @source src/Cms/Language.php
  */
 export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   /** Language code (e.g., `"en"`, `"de"`); `null` on single-language sites. */
@@ -229,8 +222,8 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   hasCustomDomain: boolean;
   /** Language name; `null` on single-language sites. */
   name: string | null;
-  /** Slug conversion rules; `null` on single-language sites before 5.5.0. */
-  rules: Record<string, string> | null;
+  /** Slug conversion rules; empty on single-language sites. */
+  rules: Record<string, string>;
 
   /** Alias for `default` property. */
   readonly isDefault: boolean;
@@ -253,14 +246,14 @@ export interface PanelMenuEntry {
   current?: boolean;
   /**
    * Dialog URL or options – when set, the entry opens a dialog instead of
-   * navigating. Options objects since 5.2.0, URL strings only before.
+   * navigating.
    */
   dialog?: string | Record<string, any>;
   /** Whether the entry is rendered as visually disabled. */
   disabled?: boolean;
   /**
    * Drawer URL or options – when set, the entry opens a drawer instead of
-   * navigating. Options objects since 5.2.0, URL strings only before.
+   * navigating.
    */
   drawer?: string | Record<string, any>;
   icon?: string;
@@ -297,11 +290,10 @@ export interface PanelMenuDefaults {
 export interface PanelMenu
   extends Omit<PanelState<PanelMenuDefaults>, "set">, PanelMenuDefaults {
   /**
-   * Handles outside clicks to close mobile menu.
-   * Returns `false` if not mobile/open, `void` otherwise.
+   * Closes the mobile menu on a click outside of it.
    * @internal
    */
-  blur: (event: Event) => false | void;
+  blur: (event: Event) => void;
 
   /**
    * Collapses the sidebar menu.
@@ -310,11 +302,10 @@ export interface PanelMenu
   close: () => void;
 
   /**
-   * Handles escape key to close mobile menu.
-   * Returns `false` if not mobile/open, `void` otherwise.
+   * Closes the mobile menu on the escape key.
    * @internal
    */
-  escape: () => false | void;
+  escape: () => void;
 
   /**
    * Expands the sidebar menu.
@@ -328,7 +319,9 @@ export interface PanelMenu
    */
   resize: () => void;
 
-  /** Sets menu entries and handles initial resize. */
+  /**
+   * Sets the menu entries and restores the open or closed state.
+   */
   set: (entries: (PanelMenuEntry | "-")[]) => PanelMenuDefaults;
 
   /** Toggles the sidebar menu state. */
@@ -345,15 +338,15 @@ export interface PanelMenu
 export interface PanelNotificationDefaults {
   /** Context where notification appears. */
   context: PanelContext | null;
-  /** Additional details for error dialogs; an empty object since 5.5.0, `null` before. */
-  details: Record<string, any> | null;
+  /** Details passed to `open()`, unread by the Panel; an empty object by default. */
+  details: Record<string, any>;
   icon: string | null;
   /** Whether notification is visible. */
   isOpen: boolean;
   message: string | null;
   theme: NotificationTheme | null;
-  /** Auto-close timeout in ms; `0` disables auto-close. Default `0` since 5.5.0, `null` before. */
-  timeout: number | null;
+  /** Auto-close timeout in ms; `0`, the default, disables auto-close. */
+  timeout: number;
   /** Error severity; `null` for success and info notifications. */
   type: "error" | "fatal" | null;
 }
@@ -370,11 +363,10 @@ export interface PanelNotificationOptions {
   message?: string;
   theme?: NotificationTheme;
   /**
-   * Auto-close delay in ms. For non-error notifications a missing value
-   * falls back to `4000` ms, and any falsy one (including `0`) since
-   * 5.5.0, so auto-close cannot be disabled for them from then on.
-   * `error` and `fatal` notifications keep the passed value and otherwise
-   * never auto-close.
+   * Auto-close delay in ms. For non-error notifications a missing or falsy
+   * value (including `0`) falls back to `4000` ms; a negative one disables
+   * auto-close. `error` and `fatal` notifications keep the passed value and
+   * otherwise never auto-close.
    */
   timeout?: number;
   type?: NotificationType;
@@ -382,16 +374,13 @@ export interface PanelNotificationOptions {
 
 /**
  * Plain error object that `error()` and `fatal()` accept. `fatal()` shows its
- * `message`. Before 5.5.0, `error()` showed its `message` too; since 5.5.0 it
- * reads `Something went wrong` instead.
+ * `message`; `error()` reads `Something went wrong` instead.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelErrorObject {
   message: string;
-  /** Details the error dialog lists in view context, read by `error()` before 5.5.0. */
+  /** Details from the backend exception response; the notification ignores them. */
   details?: Record<string, any>;
-  /** Error key from the backend exception response; the notification ignores it. */
-  key?: string;
 }
 
 /**
@@ -423,17 +412,14 @@ export interface PanelNotification
   /**
    * Shows the error notification bar; in view context also opens an error
    * dialog. A response that cannot be parsed becomes a fatal notification,
-   * and an authentication error sends a logged-in user to the logout. The
-   * redirect throws since 5.5.0 and returned `false` before.
+   * and an authentication error sends a logged-in user to the logout, which
+   * throws a redirect error.
    *
-   * @param error - Error instance, message string, or plain
-   *   `{ message, details }` object; since 5.5.0 a plain object shows
-   *   `Something went wrong` instead.
-   * @returns Notification state, or `false` from a logout redirect before 5.5.0
+   * @param error - Error instance, message string, or plain object
    */
   error: (
     error: Error | string | PanelErrorObject,
-  ) => PanelNotificationDefaults | false;
+  ) => PanelNotificationDefaults;
 
   /**
    * Creates a fatal error notification, displayed in an isolated iframe.
@@ -455,7 +441,10 @@ export interface PanelNotification
   info: (info?: string | PanelNotificationOptions) => PanelNotificationDefaults;
 
   /**
-   * Opens a notification. When passed a string, delegates to `success()`. Otherwise sets the Panel context, replaces a `null` or `undefined` `timeout` (any falsy one since 5.5.0) with `4000` ms for types other than `error` and `fatal`, opens the notification, and starts the auto-close timer.
+   * Opens a notification. When passed a string, delegates to `success()`.
+   * Otherwise sets the Panel context, replaces a falsy `timeout` with `4000`
+   * ms for types other than `error` and `fatal`, opens the notification, and
+   * starts the auto-close timer.
    *
    * @param notification - Message string or options object
    */
@@ -502,6 +491,7 @@ export interface PanelSystemDefaults {
  * Contains static system information from the server.
  *
  * @source panel/src/panel/system.ts
+ * @source src/Panel/View.php
  */
 export interface PanelSystem
   extends PanelState<PanelSystemDefaults>, PanelSystemDefaults {}
@@ -536,6 +526,7 @@ export interface PanelTranslationDefaults {
  * Updates document language and direction on change.
  *
  * @source panel/src/panel/translation.ts
+ * @source src/Panel/View.php
  */
 export interface PanelTranslation
   extends
@@ -551,8 +542,8 @@ export interface PanelTranslation
    * @param key - Translation key (non-strings return `undefined`)
    * @param data - Placeholder values
    * @param fallback - Fallback if key not found
-   * @returns Translated string, or the fallback for a missing key: `null`
-   *   without one before 5.5.0, `undefined` since
+   * @returns Translated string, or the fallback for a missing key (`undefined`
+   *   without one)
    */
   translate: (
     key: unknown,
@@ -584,6 +575,7 @@ export interface PanelUserDefaults {
  * Contains information about the logged-in user.
  *
  * @source panel/src/panel/user.ts
+ * @source src/Panel/View.php
  */
 export interface PanelUser
   extends PanelState<PanelUserDefaults>, PanelUserDefaults {}
@@ -594,8 +586,8 @@ export interface PanelUser
 /**
  * Breadcrumb item for view navigation.
  * @source panel/src/panel/view.ts
- * @source src/Panel/Page.php
  * @source panel/src/components/Navigation/Breadcrumb.vue
+ * @source src/Panel/Page.php
  */
 export interface PanelBreadcrumbItem {
   label: string;
@@ -645,22 +637,19 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  */
 export interface PanelView
   extends
-    Omit<
-      PanelFeature<PanelViewDefaults>,
-      "set" | Exclude<keyof PanelViewDefaults, "abortController">
-    >,
-    Omit<PanelViewDefaults, "abortController"> {
-  /** Loads a view. Since 5.1.0, cancels any previous request first. */
+    Omit<PanelFeature<PanelViewDefaults>, "set" | keyof PanelViewDefaults>,
+    PanelViewDefaults {
+  /** Loads a view, canceling any previous request first. */
   load: (
     url: string | URL,
     options?: PanelRequestOptions,
   ) => Promise<PanelViewDefaults>;
 
   /**
-   * Sets view state and updates document title and browser URL.
-   * Returns the merged state since 5.5.0, `void` before.
+   * Sets view state, updates document title and browser URL, and returns the
+   * merged state.
    */
-  set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults | void;
+  set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
   /**
    * Submits the view form.
@@ -728,8 +717,7 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 
   /**
    * Returns the options from props, or an empty array if they are missing.
-   * A `"-"` entry renders a separator. Before 5.2.0, replaces the `click` of
-   * each option with a `dialog` by a handler that opens that dialog.
+   * A `"-"` entry renders a separator.
    */
   options: () => (PanelDropdownOption | "-")[];
 
@@ -788,9 +776,9 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
 
   /**
    * Closes the current dialog and hides a legacy component referenced via
-   * `ref`. Since 5.1.0, reopens the previous dialog when one is stacked in
-   * the history. Ignores a modal ID and resolves to `undefined` without
-   * waiting for that reopen.
+   * `ref`. Reopens the previous dialog when one is stacked in the history.
+   * Ignores a modal ID and resolves to `undefined` without waiting for that
+   * reopen.
    */
   close: () => Promise<void>;
 
@@ -798,10 +786,9 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
    * Opens a dialog by path, `URL`, or state object; a legacy Vue component
    * instance is handed to the deprecated `openComponent()`. A string path
    * loads from `/dialogs/`; an object with `component` and `props` opens
-   * inline. Since 5.2.0, an object with `url` loads that path and passes its
-   * other keys as options in place of `options`. Since 5.1.0,
-   * `replace: true` on a state object swaps the current dialog in the history
-   * instead of stacking on top of it.
+   * inline. An object with `url` loads that path and passes its other keys
+   * as options in place of `options`. `replace: true` on a state object
+   * swaps the current dialog in the history instead of stacking on top of it.
    */
   open: (
     dialog:
@@ -850,10 +837,10 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 
   /**
    * Opens a drawer by path, `URL`, or state object, switches to `tab` of a
-   * state object, the first tab otherwise, and focuses the drawer. A string path loads from
-   * `/drawers/`. Since 5.2.0, an object with `url` loads that path and passes
-   * its other keys as options. `replace: true` on a state object swaps the
-   * current drawer in the history instead of stacking on top of it.
+   * state object, the first tab otherwise, and focuses the drawer. A string
+   * path loads from `/drawers/`. An object with `url` loads that path and
+   * passes its other keys as options. `replace: true` on a state object swaps
+   * the current drawer in the history instead of stacking on top of it.
    */
   open: (
     drawer:
@@ -890,7 +877,6 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 /**
  * Content version representing saved or changed state.
  * @source panel/src/panel/content.js
- * @source src/Panel/Model.php
  */
 export interface PanelContentVersion {
   [field: string]: any;
@@ -954,7 +940,7 @@ export interface PanelContentEnv {
  * @source panel/src/panel/content.js
  */
 export interface PanelContent {
-  /** Reference to lock dialog if open. */
+  /** Panel dialog while the lock dialog is open. */
   dialog: PanelDialog | null;
 
   /** Whether content is being saved/published/discarded. */
@@ -1082,7 +1068,6 @@ export interface PanelContent {
 
   /**
    * Saves current changes.
-   * Resolves to a boolean since 5.6.0, `void` before.
    *
    * @param values - Values to save
    * @param env - Environment context
@@ -1091,23 +1076,21 @@ export interface PanelContent {
   save: (
     values?: Record<string, any>,
     env?: PanelContentEnv,
-  ) => Promise<boolean | void>;
+  ) => Promise<boolean>;
 
   /**
    * Releases the content lock without discarding changes.
    *
-   * Since 5.6.0, first saves any pending changes of the current view and
-   * resolves to `false` without unlocking when the view got locked or a
-   * newer save took over (other save errors reject); otherwise
-   * posts to `<api>/changes/unlock` (failures are ignored, the lock expires
-   * on its own) and resolves to `true`. Before 5.6.0, sent the request via
-   * `navigator.sendBeacon` and returned nothing.
+   * First saves any pending changes of the current view and resolves to
+   * `false` without unlocking when the view got locked or a newer save took
+   * over (other save errors reject); otherwise posts to
+   * `<api>/changes/unlock` (failures are ignored, the lock expires on its
+   * own) and resolves to `true`.
    *
    * @param env - Environment context
-   * @returns `false` if the view got locked or a newer save took over, otherwise `true`
    * @since 5.5.0
    */
-  unlock: (env?: PanelContentEnv) => Promise<boolean> | void;
+  unlock: (env?: PanelContentEnv) => Promise<boolean>;
 
   /**
    * Sends the unlock request via `navigator.sendBeacon`, which browsers
@@ -1130,7 +1113,6 @@ export interface PanelContent {
 
   /**
    * Updates form values and saves.
-   * Resolves to a boolean since 5.6.0, `void` before.
    *
    * @param values - Values to update
    * @param env - Environment context
@@ -1139,7 +1121,7 @@ export interface PanelContent {
   update: (
     values?: Record<string, any>,
     env?: PanelContentEnv,
-  ) => Promise<boolean | void>;
+  ) => Promise<boolean>;
 
   /**
    * Updates form values with delay (throttled).
@@ -1275,7 +1257,7 @@ export interface PanelSearcher {
 export interface PanelUploadReplaceFile {
   /**
    * Relative Panel path of the file, appended to the API URL for the upload
-   * and, since 5.4.1, sent as `path` with the `model.update` event.
+   * and sent as `path` with the `model.update` event.
    */
   link: string;
   /** File extension without dot, used for the picker `accept` filter. */
@@ -1322,17 +1304,20 @@ export interface PanelUploadFile {
   /** Upload progress (`0`-`100`). */
   progress: number;
   completed: boolean;
-  /** Error message if failed. */
+  /** Error message of the last failed attempt, cleared before each new attempt. */
   error: string | null;
-  /** Response model after successful upload. */
+  /** Server file model, set once the upload completes. */
   model: any | null;
-  /** Preview settings spread in from `preview`, such as `icon` or `color`. */
+  /**
+   * Preview settings spread in from `preview`, such as `icon` or `color`.
+   */
   [key: string]: any;
 }
 
 /**
  * Default state for upload feature.
  * @source panel/src/panel/upload.js
+ * @source src/Panel/Ui/Upload.php
  */
 export interface PanelUploadDefaults {
   /**
@@ -1351,9 +1336,9 @@ export interface PanelUploadDefaults {
   multiple: boolean;
   /**
    * Preview settings (`back`, `color`, `cover`, `icon`) spread into every
-   * queued file.
+   * queued file, or `false` when the section disables images.
    */
-  preview: Record<string, any>;
+  preview: Record<string, any> | false;
   /** Server file model being replaced (carries `link`, `extension`, `mime`). */
   replacing: PanelUploadReplaceFile | null;
   /** Upload endpoint URL. */
@@ -1393,14 +1378,13 @@ export interface PanelUpload
   /**
    * Emits `cancel`, aborts any ongoing upload, and if some files already
    * finished emits `complete` and announces success before resetting state.
-   * Synchronous before 5.0.0.
    */
   cancel: () => Promise<void>;
 
   /**
    * Closes the upload dialog after all remaining files have uploaded; if any
    * files completed, emits `complete` and `done`, announces success, and
-   * resets state. Synchronous before 5.0.0.
+   * resets state.
    */
   done: () => Promise<void>;
 
@@ -1491,7 +1475,7 @@ export interface PanelUpload
   /**
    * Uploads a single file in chunks and fails it when called before
    * `submit()` has set `abort`: its `error` is set and `file.upload.error`
-   * fires. Before 5.0.0, uploads in one request without that check.
+   * fires.
    *
    * @param file - File to upload
    */
@@ -1516,79 +1500,99 @@ export interface PanelEventEmitter {
 }
 
 /**
- * Events feature for global event handling.
+ * Global event bus and delegated DOM events.
  *
- * Provides global event subscriptions and keyboard shortcut handling.
- * Uses mitt for the internal event bus.
+ * Once `subscribe()` runs, document and window events are re-emitted on the
+ * bus under their own name. The bus ships with built-in handlers:
+ * - `online` and `offline` toggle `panel.isOffline`
+ * - `keydown.cmd.s` emits `<context>.save`, e.g. `dialog.save`
+ * - `keydown.cmd.shift.f` and `keydown.cmd./` open the search dialog
+ * - `clipboard.write` copies its payload and shows a success notification.
  *
  * @source panel/src/panel/events.ts
  */
 export interface PanelEvents extends PanelEventEmitter {
-  /** Element that was entered during drag. */
+  /** Element the current drag last entered, `null` after a drop or once the drag leaves it. */
   entered: EventTarget | null;
 
   // #region Global event handlers
 
   /**
-   * Handles window beforeunload event.
+   * Re-emits the window `beforeunload` event on the bus.
    * @since 5.0.0
    */
   beforeunload: (event: BeforeUnloadEvent) => void;
 
-  /** Handles document blur event. */
+  /** Re-emits the document `blur` event on the bus, listening in the capture phase. */
   blur: (event: FocusEvent) => void;
 
-  /** Handles document click event. */
+  /** Re-emits the document `click` event on the bus. */
   click: (event: MouseEvent) => void;
 
-  /** Handles clipboard copy event. */
+  /** Re-emits the document `copy` event on the bus, listening in the capture phase. */
   copy: (event: ClipboardEvent) => void;
 
-  /** Handles window dragenter event. */
+  /**
+   * Remembers the target as `entered`, stops the browser default and
+   * propagation, and re-emits `dragenter` on the bus.
+   */
   dragenter: (event: DragEvent) => void;
 
-  /** Handles window dragexit event. */
+  /** Stops the browser default and propagation, clears `entered`, and re-emits `dragexit` on the bus. */
   dragexit: (event: DragEvent) => void;
 
-  /** Handles window dragleave event. */
+  /**
+   * Stops the browser default and propagation. Re-emits `dragleave` on the
+   * bus and clears `entered` only when the drag leaves the element it last
+   * entered.
+   */
   dragleave: (event: DragEvent) => void;
 
-  /** Handles window dragover event. */
+  /** Stops the browser default and propagation, and re-emits `dragover` on the bus. */
   dragover: (event: DragEvent) => void;
 
-  /** Handles window drop event. */
+  /** Stops the browser default and propagation, clears `entered`, and re-emits `drop` on the bus. */
   drop: (event: DragEvent) => void;
 
-  /** Handles document focus event. */
+  /** Re-emits the document `focus` event on the bus, listening in the capture phase. */
   focus: (event: FocusEvent) => void;
 
   /**
-   * Creates keychain modifier string (e.g., `"keydown.cmd.shift.s"`).
+   * Builds the shortcut event name for a keyboard event, e.g.
+   * `keydown.cmd.shift.s`: the type, then `cmd` for Meta or Control, `alt`,
+   * `shift`, and the key with its first letter lowercased. `Escape` and the
+   * arrow keys become `esc`, `up`, `down`, `left`, and `right`; a lone
+   * modifier key adds no key part.
    *
-   * @param type - Prefix of the keychain; core passes `keydown` or `keyup`
-   * @returns Keychain string
+   * @param type - Event name to prefix, e.g. `keydown`
    */
   keychain: (type: string, event: KeyboardEvent) => string;
 
-  /** Handles window keydown event. */
+  /**
+   * Emits the shortcut event for the key, e.g. `keydown.esc` or
+   * `keydown.cmd.s`, then plain `keydown`, on the bus.
+   */
   keydown: (event: KeyboardEvent) => void;
 
-  /** Handles window keyup event. */
+  /**
+   * Emits the shortcut event for the key, e.g. `keyup.esc`, then plain
+   * `keyup`, on the bus.
+   */
   keyup: (event: KeyboardEvent) => void;
 
-  /** Handles offline event. */
+  /** Re-emits `offline` on the bus, whose built-in handler sets `panel.isOffline`. */
   offline: (event: Event) => void;
 
-  /** Handles online event. */
+  /** Re-emits `online` on the bus, whose built-in handler clears `panel.isOffline`. */
   online: (event: Event) => void;
 
-  /** Handles clipboard paste event. */
+  /** Re-emits the document `paste` event on the bus, listening in the capture phase. */
   paste: (event: ClipboardEvent) => void;
 
-  /** Handles window popstate event (browser back). */
+  /** Re-emits the window `popstate` event, fired on browser back and forward, on the bus. */
   popstate: (event: PopStateEvent) => void;
 
-  /** Prevents event default and propagation. */
+  /** Stops the event's propagation and its browser default. */
   prevent: (event: Event) => void;
   // #endregion
 

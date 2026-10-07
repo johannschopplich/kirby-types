@@ -226,11 +226,8 @@ export interface PanelDayjsExtensions {
   /**
    * Validates datetime against an upper or lower (min/max) boundary.
    *
-   * Defaults `type` to `min` since 5.5.0; before, omitting it throws unless
-   * the dates match.
-   *
    * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
-   * @param type - `"min"` or `"max"` (default: `"min"` since 5.5.0)
+   * @param type - `"min"` or `"max"` (default: `"min"`)
    * @param unit - Comparison unit (default: `"day"`)
    * @returns Whether the date is valid against the boundary
    */

@@ -18,7 +18,6 @@
  *
  * @example
  * ```ts
- * // State is used by: activation (since 5.0.0), drag, language, menu, notification, system, theme (since 5.0.0), translation, upload, user
  * const notification: PanelState<PanelNotificationDefaults> = panel.notification;
  * notification.set({ message: "Saved!" });
  * ```
@@ -57,14 +56,6 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    * Properties not in defaults are excluded.
    */
   state: () => TDefaults;
-
-  /**
-   * Validates that the state is a plain object.
-   *
-   * @throws Error if state is not an object
-   * @deprecated Removed in 5.5.0; `set()` checks for a plain object itself.
-   */
-  validateState?: (state: unknown) => boolean;
 }
 // #endregion
 
@@ -108,8 +99,8 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
   /**
    * Registers a single event listener, replacing an existing one for the
-   * event (with a console warning since 5.5.0). Only functions are
-   * registered; other values are ignored.
+   * event with a console warning. Only functions are registered; other
+   * values are ignored.
    *
    * @param event - Event name to listen for
    * @param callback - Function to call when event fires
@@ -130,7 +121,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
    * @param event - Event name to emit
    * @param args - Arguments to pass to the listener
    * @returns Listener result, or `undefined` when no listener is registered.
-   *   Before 5.5.0, a noop function in that case.
    */
   emit: <TReturn = any>(event: TEvents, ...args: any[]) => TReturn | undefined;
 
@@ -169,11 +159,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
  * @source src/Panel/Json.php
  */
 export interface PanelFeatureDefaults {
-  /**
-   * @since 5.1.0
-   * @deprecated Not part of the defaults since 5.5.0 – read `abortController` on the feature itself.
-   */
-  abortController: AbortController | null | undefined;
   component: string | null;
   isLoading: boolean;
   on: PanelEventListenerMap;
@@ -209,12 +194,11 @@ export interface PanelFeatureDefaults {
 export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   extends PanelState<TDefaults>, PanelEventListeners {
   /**
-   * AbortController for canceling pending requests.
-   * Created on each `load()` call to enable request cancellation; `null`
-   * instead of `undefined` before 5.5.0.
+   * Controller for canceling the pending request, created anew on each
+   * `load()` call; `undefined` until the first load.
    * @since 5.1.0
    */
-  abortController: AbortController | null | undefined;
+  abortController: AbortController | undefined;
 
   /**
    * Current Vue component name to render.
@@ -265,8 +249,8 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 
   /**
    * Loads a feature from the server and opens it.
-   * Routes through `panel.open()`. Since 5.1.0, creates an `AbortController`
-   * for the request first.
+   * Creates an `AbortController` for the request, then routes through
+   * `panel.open()`.
    *
    * @param url - Feature URL to load
    * @param options - Request options
@@ -314,10 +298,10 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Reloads the feature by re-opening its current URL.
    *
    * @param options - Request options
-   * @returns `false` if no path exists; otherwise the feature's state after
-   *   re-opening since 5.5.0, `undefined` before.
+   * @returns `false` if no path exists, otherwise the feature's state after
+   *   re-opening
    */
-  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false | void>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
   /** Creates a full URL object for the current path and query. */
   url: () => URL;
@@ -327,8 +311,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 // #region Modal
 
 /**
- * Modal event types for dialogs and drawers. The `closed` listener runs
- * since 5.1.0.
  * @source panel/src/panel/modal.js
  * @source panel/src/panel/feature.ts
  */
@@ -373,11 +355,6 @@ export interface PanelModalSubmitResponse {
    * `redirect` is set. The view reloads either way; a boolean has no effect.
    */
   reload?: boolean | PanelRequestOptions;
-  /**
-   * Store actions to dispatch, keyed by action name, with the payload as value.
-   * @deprecated Removed in 5.0.0 along with the Vuex store.
-   */
-  dispatch?: Record<string, any>;
   [key: string]: any;
 }
 
@@ -412,8 +389,7 @@ export interface PanelModal<
 > extends Omit<PanelFeature<TDefaults>, "reload"> {
   /**
    * Unique ID for identifying nested modals.
-   * Auto-generated via UUID if not provided. On drawers, and on dialogs
-   * since 5.1.0.
+   * Auto-generated via UUID if not provided.
    */
   id: string | null;
 
@@ -421,8 +397,7 @@ export interface PanelModal<
 
   /**
    * Navigation history for nested modals.
-   * Stores state snapshots for back navigation. On drawers, and on dialogs
-   * since 5.1.0.
+   * Stores state snapshots for back navigation.
    */
   history: PanelHistory;
 
@@ -451,8 +426,7 @@ export interface PanelModal<
   focus: (input?: string) => void;
 
   /**
-   * Navigates to a specific modal in history by ID. On drawers, and on dialogs
-   * since 5.1.0.
+   * Navigates to a specific modal in history by ID.
    *
    * @param id - Milestone ID to navigate to
    */
@@ -486,8 +460,7 @@ export interface PanelModal<
   ) => Promise<TDefaults>;
 
   /**
-   * Reloads the modal by re-opening its current URL, closing it first since
-   * 5.1.2.
+   * Reloads the modal by closing it and re-opening its current URL.
    *
    * @param options - Request options
    * @returns `false` if no path exists, otherwise `void` (the re-open is not awaited).
@@ -495,8 +468,7 @@ export interface PanelModal<
   reload: (options?: PanelRequestOptions) => Promise<false | void>;
 
   /**
-   * Sets modal state, auto-generating an ID if not provided (on drawers,
-   * and on dialogs since 5.1.0).
+   * Sets modal state, auto-generating an ID if not provided.
    *
    * @param state - State to set
    * @returns The complete state
@@ -505,7 +477,7 @@ export interface PanelModal<
 
   /**
    * Submits the modal form.
-   * Does nothing while loading since 5.0.0. Checks for a submit listener
+   * Does nothing while loading. Checks for a submit listener
    * first, then sends a POST request if a path exists.
    *
    * @param value - Form value (defaults to `props.value`)
@@ -522,15 +494,6 @@ export interface PanelModal<
    * @returns The `success` listener's result if one is registered, otherwise the given response
    */
   success: (success: PanelModalSubmitResponse | string) => any;
-
-  /**
-   * Dispatches each entry of the response's `dispatch` object as a Vuex
-   * store action, with the entry's value as payload.
-   *
-   * @param state - Success response with store actions
-   * @deprecated Removed in 5.0.0 along with the Vuex store.
-   */
-  successDispatch?: (state: PanelModalSubmitResponse) => void;
 
   /**
    * Emits events specified in the success response.
@@ -592,8 +555,7 @@ export interface PanelHistory {
 
   /**
    * Adds a state to history.
-   * A state whose `id` is already stored is ignored, unless `replace` is
-   * `true` (since 5.1.0).
+   * A state whose `id` is already stored is ignored, unless `replace` is `true`.
    * The state must have an `id` property.
    *
    * @param state - State object with required `id`
@@ -713,8 +675,7 @@ export interface PanelRequestOptions extends Omit<
   on?: PanelEventListenerMap;
   /**
    * CSRF token sent as the `x-csrf` header.
-   * Defaults to the system token. Since 5.5.0, `false` omits the header;
-   * before, it is sent as the value `false`.
+   * Defaults to the system token; `false` omits the header.
    */
   csrf?: string | false;
   /**
@@ -731,8 +692,7 @@ export interface PanelRequestOptions extends Omit<
   language?: string | null;
   /**
    * Referrer path sent as the `x-fiber-referrer` header.
-   * Defaults to the current view path. Since 5.5.0, `false` omits the
-   * header; before, it is sent as the value `false`.
+   * Defaults to the current view path; `false` omits the header.
    */
   referrer?: string | false;
 }

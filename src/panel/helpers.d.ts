@@ -38,8 +38,8 @@ export interface PanelHelpersArray {
    * Searches through an array by query string.
    *
    * @param array - Array to search
-   * @param query - Search query; `null` and `undefined` return the array
-   *   unfiltered before 5.5.0 and throw since.
+   * @param query - Search query; `null` and `undefined` throw unless
+   *   `options.min` reaches the length of their string form.
    * @param options - Search options
    * @returns Filtered array
    */
@@ -459,8 +459,7 @@ export interface PanelHelpersClipboard {
    *
    * @param event - Event (narrowed to ClipboardEvent at runtime) or string
    * @param plain - Read as plain text only
-   * @returns Clipboard content, or `null` when nothing could be read; `""`
-   *   for a plain read of an empty clipboard before 5.5.0
+   * @returns Clipboard content, or `null` when nothing could be read
    */
   read: (event?: Event | string | null, plain?: boolean) => string | null;
 
@@ -759,12 +758,6 @@ export interface PanelHelpersLink {
  * @source panel/src/helpers/page.ts
  */
 export interface PanelPageStatusProps {
-  /**
-   * Always `"k-status-icon"`.
-   *
-   * @deprecated Removed in 5.0.0.
-   */
-  class?: string;
   title: string;
   icon: string;
   theme: "negative-icon" | "info-icon" | "positive-icon";
@@ -968,12 +961,7 @@ export interface PanelHelpers {
   color: (value: unknown) => string | undefined;
 
   /**
-   * Creates a debounced function. Accepts `options` since 5.0.0.
-   *
-   * @param fn - Function to debounce
    * @param delay - Delay in milliseconds
-   * @param options - Debounce options
-   * @returns Debounced function
    * @source panel/src/helpers/debounce.ts
    * @source panel/src/helpers/index.ts
    */
@@ -1251,8 +1239,8 @@ export interface PanelHelpersWriter {
 
   /**
    * Filters a map of available extensions down to those listed in `allowed`.
-   * Keeps the order of `allowed` since 5.6.0, the order of `available` before;
-   * for marks, that order sets the nesting priority.
+   * Keeps the order of `allowed`; for marks, that order sets the nesting
+   * priority.
    *
    * @param available - Map of available extensions keyed by name
    * @param allowed - Allowed extension configuration

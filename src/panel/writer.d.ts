@@ -82,10 +82,7 @@ export interface WriterEditorEvents {
   link: WriterEditor;
   select: WriterEditorSelectPayload;
   transaction: WriterEditorTransactionPayload;
-  /**
-   * Payload of a document change that was not silenced. Before 5.0.0, sent
-   * for every document change and every transaction that was not silenced.
-   */
+  /** Payload of a document change that was not silenced. */
   update: WriterEditorTransactionPayload;
 }
 
@@ -159,7 +156,10 @@ export interface WriterEditor {
   selectionIsAtStart: boolean;
   /** Current editor state, `undefined` until the view exists. */
   state: EditorState;
-  /** ProseMirror view, `undefined` until it exists. */
+  /**
+   * ProseMirror view, `undefined` until the editor creates it – which
+   * includes every extension's `init()`.
+   */
   view: EditorView;
   // #endregion
 
@@ -721,14 +721,13 @@ export interface WriterExtension {
   defaults?: Record<string, any>;
 
   /**
-   * Stores the editor on `editor`. The editor calls it and then `init()` on
-   * every extension, so a plain object passed to the `extensions` prop of
-   * `k-writer-input` needs both.
+   * Stores the editor on `editor`. The editor calls it on every extension
+   * before `init()`.
    */
-  bindEditor?: (editor: WriterEditor) => void;
+  bindEditor: (editor: WriterEditor) => void;
 
   /** Runs after the editor is bound to the extension. */
-  init?: () => null | void;
+  init: () => null | void;
 
   /**
    * Returns the commands this extension provides.

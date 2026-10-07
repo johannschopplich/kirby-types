@@ -262,8 +262,6 @@ export interface PanelConfig {
      * @since 5.0.0
      */
     methodOverride: boolean;
-    /** @deprecated Renamed to `methodOverride` in 5.0.0. */
-    methodOverwrite?: boolean;
   };
   /** Whether debug mode is enabled. */
   debug: boolean;
@@ -299,9 +297,8 @@ export interface PanelConfig {
  */
 interface PanelPermissionsAccess {
   /**
-   * Access to custom Panel areas registered by plugins, keyed by area id.
-   * Present for every registered area since 5.5.0; before, only when the
-   * role blueprint sets it.
+   * Access to custom Panel areas registered by plugins, keyed by area id;
+   * present for every registered area.
    */
   [area: string]: boolean;
   account: boolean;
@@ -366,8 +363,7 @@ interface PanelPermissionsPages {
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsSite {
-  /** Absent from 5.0.0 through 5.3.x. */
-  access?: boolean;
+  access: boolean;
   changeTitle: boolean;
   /**
    * Whether the user may open the site preview.
@@ -382,8 +378,7 @@ interface PanelPermissionsSite {
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsUsers {
-  /** Absent from 5.0.0 through 5.3.x. */
-  access?: boolean;
+  access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
@@ -391,8 +386,7 @@ interface PanelPermissionsUsers {
   changeRole: boolean;
   create: boolean;
   delete: boolean;
-  /** Absent from 5.0.0 through 5.3.x. */
-  list?: boolean;
+  list: boolean;
   update: boolean;
 }
 
@@ -401,16 +395,14 @@ interface PanelPermissionsUsers {
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsUser {
-  /** Absent from 5.0.0 through 5.3.x. */
-  access?: boolean;
+  access: boolean;
   changeEmail: boolean;
   changeLanguage: boolean;
   changeName: boolean;
   changePassword: boolean;
   changeRole: boolean;
   delete: boolean;
-  /** Absent from 5.0.0 through 5.3.x. */
-  list?: boolean;
+  list: boolean;
   update: boolean;
 }
 
@@ -491,9 +483,8 @@ export interface PanelRequestResponse {
   /** The original Request object. */
   request: Request;
   /**
-   * Parsed response wrapper. Since 5.5.0 a plain object that exposes the
-   * pre-resolved body (`json`, `text`) alongside status metadata; before, the
-   * native `Response` with `json` and `text` replaced by the parsed values.
+   * Parsed response: a plain object that exposes the pre-resolved body
+   * (`json`, `text`) alongside status metadata.
    */
   response: {
     headers: Headers;
@@ -726,11 +717,8 @@ export interface PanelPlugins {
   /** Registered SVG icons. */
   icons: Record<string, string>;
 
-  /**
-   * Custom login component. Until a plugin registers one, `null` before
-   * 5.5.0 and `undefined` since.
-   */
-  login?: PanelComponentExtension | null;
+  /** Custom login component, `undefined` until a plugin registers one. */
+  login?: PanelComponentExtension;
 
   /** Reserved bucket for plugin-registered routes (initialized empty; not currently written to by `panel.plugin()`). */
   routes: Record<string, any>[];
@@ -956,7 +944,6 @@ export interface Panel {
 
   languages: PanelLanguageInfo[];
 
-  /** License status; `"unknown"` since 5.0.0, `"acknowledged"` since 5.3.2. */
   license:
     | "active"
     | "acknowledged"
@@ -1085,40 +1072,37 @@ export interface Panel {
   ) => Promise<any>;
 
   /**
-   * Navigates the browser to the absolute URL. Since 5.5.0, throws a
-   * redirect error that the Panel's error handler catches; before, navigated
-   * directly and returned `false`.
+   * Navigates the browser to the absolute URL by throwing a redirect error
+   * that the Panel's error handler catches.
    *
    * @param path - Path or URL to navigate to
    */
-  redirect: (path: string | URL) => false;
+  redirect: (path: string | URL) => never;
 
   /**
    * Reloads the current view.
    *
    * @param options - Request options
-   * @returns The new view state since 5.5.0, `undefined` before, or `false`
-   *   if the view has no path
+   * @returns The new view state, or `false` if the view has no path
    */
   reload: (
     options?: PanelRequestOptions,
-  ) => Promise<PanelFeatures.PanelViewDefaults | false | void>;
+  ) => Promise<PanelFeatures.PanelViewDefaults | false>;
 
   /**
    * Sends a request through the Panel router.
    *
    * Returns an object with both the request and the parsed response.
-   * Cross-origin or non-JSON responses trigger a redirect: since 5.5.0 the
-   * promise rejects, before it resolved `false`.
+   * Cross-origin or non-JSON responses trigger a redirect and the promise
+   * rejects.
    *
    * @param url - URL to request
    * @param options - Request options including method
-   * @returns Request/response object, or `false` on a redirect before 5.5.0
    */
   request: (
     url: string | URL,
     options?: PanelRequestOptions,
-  ) => Promise<PanelRequestResponse | false>;
+  ) => Promise<PanelRequestResponse>;
 
   /**
    * Opens the search dialog or performs a search query.
@@ -1201,7 +1185,7 @@ export interface Panel {
 
 /**
  * User holding the content lock. Both fields are `null` when nobody holds
- * the lock or, since 5.4.1, the holder is not listable.
+ * the lock or the holder is not listable.
  * @source src/Content/Lock.php
  */
 interface PanelViewPropsLockUser {
@@ -1236,8 +1220,7 @@ interface PanelViewPropsLock {
  * @source src/Panel/Site.php
  */
 interface PanelViewPropsPermissions {
-  /** Absent on User and Site views from 5.0.0 through 5.3.x. */
-  access?: boolean;
+  access: boolean;
   /** User permission. Present on User views. */
   changeEmail?: boolean;
   /** User permission. Present on User views. */
@@ -1262,24 +1245,20 @@ interface PanelViewPropsPermissions {
   delete?: boolean;
   /** Page permission. Present on Page views. */
   duplicate?: boolean;
-  /**
-   * Page / File / User permission. Present on Page, File and User views,
-   * except on User views from 5.0.0 through 5.3.x.
-   */
+  /** Page / File / User permission. Present on Page, File and User views. */
   list?: boolean;
   /** Page permission. Present on Page views. */
   move?: boolean;
   /**
    * Page / Site permission. Present on Page and Site views; on Site views
-   * since 5.0.0, where it also requires the site's own `preview` permission
-   * since 5.5.2.
+   * `true` only when both the site and its home page allow the preview.
    */
   preview?: boolean;
   /** Page / File permission. Present on Page and File views. */
   read?: boolean;
   /** File permission. Present on File views. */
   replace?: boolean;
-  /** Page / File permission. Present on Page and File views; on File views since 5.0.0. */
+  /** Page / File permission. Present on Page and File views. */
   sort?: boolean;
   update: boolean;
 }
@@ -1338,12 +1317,6 @@ interface PanelViewPropsNavigation {
  * @source src/Panel/Site.php
  */
 interface PanelViewPropsModel {
-  /**
-   * Form values of the model.
-   *
-   * @deprecated Removed in 5.0.0; read `versions.changes` instead.
-   */
-  content?: Record<string, any>;
   id: string;
   link: string;
   parent: string;
@@ -1423,7 +1396,6 @@ export interface PanelViewProps {
   id: string;
   /** @since 5.0.0 */
   link: string;
-  /** Shape since 5.0.0; before, `false` or a `{ state, data }` object. */
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
   tabs: PanelViewPropsTab[];
@@ -1453,7 +1425,7 @@ export interface PanelViewProps {
   /**
    * Legacy nested model information.
    *
-   * @deprecated Since 5.0.0; use the top-level view props instead.
+   * @deprecated Use the top-level view props instead.
    */
   model: PanelViewPropsModel;
   /**

@@ -42,6 +42,8 @@ expectAssignable<WriterToolbarButton>({
 expectAssignable<WriterExtension>({
   name: "history",
   type: "extension",
+  bindEditor() {},
+  init() {},
 });
 
 // With commands
@@ -51,6 +53,8 @@ expectAssignable<WriterExtension>({
     depth: 100,
     newGroupDelay: 500,
   },
+  bindEditor() {},
+  init() {},
   commands() {
     return {
       undo: () => true,
@@ -71,6 +75,8 @@ expectAssignable<WriterExtension>({
 // Generic extension with custom keyboard shortcuts (like Keys)
 expectAssignable<WriterExtension>({
   name: "customKeys",
+  bindEditor() {},
+  init() {},
   keys() {
     return {
       "Ctrl-s": () => {
