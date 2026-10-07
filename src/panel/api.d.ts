@@ -279,6 +279,7 @@ export interface PanelApiLanguageData {
  *
  * @source panel/src/api/languages.js
  * @source config/api/routes.php
+ * @source config/api/routes/languages.php
  */
 export interface PanelApiLanguages {
   /**
@@ -557,7 +558,7 @@ export interface PanelApiRoles {
   /**
    * Lists available roles.
    *
-   * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role
+   * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role.
    * @returns Wrapped Kirby collection response (`{ data, pagination }`)
    */
   list: (params?: Record<string, any>) => Promise<any>;
@@ -706,6 +707,7 @@ export interface PanelApiTranslations {
 /**
  * @source src/Cms/UserActions.php
  * @source src/Cms/User.php
+ * @source src/Cms/ModelWithContent.php
  */
 export interface PanelApiUserCreateData {
   /** User ID, generated when omitted. */
@@ -926,7 +928,7 @@ export interface PanelApi {
    * on setup and restarted after each request. The heartbeat skips the ping
    * while the Panel is offline.
    */
-  ping: ReturnType<typeof setInterval> | null;
+  ping: ReturnType<typeof setInterval>;
 
   /** Active request IDs. */
   requests: string[];
