@@ -30,7 +30,8 @@ export interface PanelArraySearchOptions {
  */
 export interface PanelHelpersArray {
   /**
-   * Creates an array from an object or returns input if already array.
+   * Returns an array as is, the values of an object, or `[]` for `null` and
+   * `undefined`.
    *
    * @param object - Object or array to convert
    * @returns Array of values
@@ -183,10 +184,13 @@ export interface PanelHelpersString {
   rtrim: (string: string, replace?: string) => string;
 
   /**
-   * Sanitizes HTML by only keeping allowed marks and nodes.
+   * Sanitizes HTML by only keeping allowed marks and nodes. When `marks` is
+   * `null` or omitted, keeps bold, code, italic, link, strike, sub, sup, and
+   * underline; when `nodes` is, keeps inline content only. The doc, text, and
+   * paragraph nodes are always kept. A falsy `html` resolves to `""`.
    *
    * @param html - HTML string to sanitize
-   * @param options - Allowed marks/nodes (defaults to common writer marks)
+   * @param options - Allowed marks and nodes
    * @param options.marks - Allowed marks: `true` for all, `false` for none, an array of mark names and extension instances, or a map of mark name to `true`, `false`, or mark options
    * @param options.nodes - Allowed nodes, in the same forms as `marks`
    * @returns Promise resolving to the sanitized HTML string
@@ -384,7 +388,7 @@ export interface PanelHelpersUrl {
    * `undefined` leaves it untouched.
    *
    * @param query - Query parameters
-   * @param origin - Existing URL or query string
+   * @param origin - URL, query string, or params object whose query the result extends
    * @returns URLSearchParams object
    */
   buildQuery: (
@@ -393,7 +397,8 @@ export interface PanelHelpersUrl {
   ) => URLSearchParams;
 
   /**
-   * Builds a full URL object with query parameters.
+   * Builds a full URL object with query parameters. A `URL` passed as `url`
+   * is updated in place and returned.
    *
    * @param url - URL path or object
    * @param query - Query parameters
@@ -408,7 +413,8 @@ export interface PanelHelpersUrl {
 
   /**
    * Checks if a URL begins with a dangerous URI scheme (e.g. `javascript:`,
-   * `vbscript:`, `data:`) after stripping ignorable characters.
+   * `vbscript:`, `data:`) after removing every character other than letters
+   * and colons.
    *
    * @param url - URL to check
    * @returns `true` if the URL uses a dangerous scheme
@@ -433,6 +439,8 @@ export interface PanelHelpersUrl {
 
   /**
    * Checks if the value is a string, `URL`, or `Location` that parses as a URL.
+   * Without `strict`, a relative string passes too, since it resolves against
+   * the current location.
    *
    * @param url - URL to validate
    * @param strict - Use Kirby's URL regex for validation
@@ -469,16 +477,20 @@ export interface PanelHelpersUrl {
  */
 export interface PanelHelpersClipboard {
   /**
-   * Reads from clipboard event or string.
+   * Reads the content of a clipboard event, preferring HTML over plain text,
+   * and cancels the event's default. Without `plain`, non-breaking spaces
+   * become spaces. A string comes back unchanged.
    *
-   * @param event - Event (narrowed to ClipboardEvent at runtime) or string
+   * @param event - Clipboard event or string; any other event yields `null`
    * @param plain - Read as plain text only
    * @returns Clipboard content, or `null` when nothing could be read
    */
   read: (event?: Event | string | null, plain?: boolean) => string | null;
 
   /**
-   * Writes to clipboard. Objects are auto-JSONified.
+   * Writes the value to the clipboard, through the clipboard event when one
+   * is passed, otherwise through the copy command. Non-string values are
+   * written as indented JSON.
    *
    * @param value - Value to write (non-strings are JSON-stringified)
    * @param event - Event for event-based writing (narrowed to ClipboardEvent at runtime)
@@ -553,15 +565,18 @@ export interface PanelFieldDefinition {
  */
 export interface PanelHelpersField {
   /**
-   * Gets default value for a field definition.
+   * Returns a copy of the field's `default`, otherwise the default of the
+   * field component's `value` prop, called when it is a function.
    *
    * @param field - Field definition
-   * @returns Default value
+   * @returns Default value; `null` when the `value` prop has no default,
+   *   `undefined` when the field component has no `value` prop
    */
   defaultValue: (field: PanelFieldDefinition) => any;
 
   /**
-   * Creates form values object from field definitions.
+   * Creates form values object from field definitions, skipping fields
+   * whose default value is `undefined`.
    *
    * @param fields - Field definitions
    * @returns Form values object
@@ -608,7 +623,7 @@ export interface PanelHelpersFile {
    * Extracts file extension from filename.
    *
    * @param filename - Filename
-   * @returns Extension without dot
+   * @returns Extension without dot; the whole filename when it has no dot
    */
   extension: (filename: string) => string;
 
@@ -616,7 +631,7 @@ export interface PanelHelpersFile {
    * Extracts filename without extension.
    *
    * @param filename - Filename
-   * @returns Name without extension
+   * @returns Name without extension; `""` when the filename has no dot
    */
   name: (filename: string) => string;
 
@@ -778,7 +793,8 @@ export interface PanelHelpersPage {
 // #region Upload Helpers
 
 /**
- * Upload progress callback.
+ * Receives the upload progress as a percentage from `0` to `100`; called
+ * with `100` once the upload succeeds.
  *
  * @source panel/src/helpers/upload.ts
  */
@@ -800,8 +816,6 @@ export type PanelUploadResultCallback = (
 ) => void;
 
 /**
- * Upload parameters.
- *
  * @source panel/src/helpers/upload.ts
  */
 export interface PanelUploadParams {
@@ -813,14 +827,21 @@ export interface PanelUploadParams {
   field?: string;
   /** Filename sent with the file (default: the file's name). */
   filename?: string;
-  /** Request headers. */
   headers?: Record<string, string>;
   /** Additional form attributes (values are coerced to strings). */
   attributes?: Record<string, string | number>;
-  /** AbortSignal for cancellation. */
+  /**
+   * Signal that aborts the request; the returned promise then stays pending
+   * and no callback fires.
+   */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
+  /** Receives the parsed response once the upload succeeds. */
   success?: PanelUploadResultCallback;
+  /**
+   * Receives the error response when the server reports an error or returns
+   * a body that is not JSON.
+   */
   error?: PanelUploadResultCallback;
 }
 // #endregion
@@ -854,8 +875,6 @@ export interface PanelThrottleOptions {
 }
 
 /**
- * Debounced function (without cancel method).
- *
  * @source panel/src/helpers/debounce.ts
  */
 export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
@@ -863,8 +882,6 @@ export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
 }
 
 /**
- * Throttled function with cancel method.
- *
  * @source panel/src/helpers/throttle.ts
  */
 export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
@@ -903,8 +920,6 @@ export type PanelComparator = (
 
 /**
  * Panel helpers registered as the `$helper` global property of the Panel app.
- *
- * Provides utility functions for common operations.
  *
  * @example
  * ```ts
@@ -963,11 +978,14 @@ export interface PanelHelpers {
   file: PanelHelpersFile;
 
   /**
-   * Sets focus to element or first focusable child.
+   * Focuses the first focusable child – the `field` input, an autofocus
+   * element, an input, a submit button, then any button – or else the
+   * element itself. Without `field`, leaves the focus alone when it already
+   * sits inside the element.
    *
    * @param element - Selector, element, or `null` (returns `false`)
    * @param field - Specific input name to focus
-   * @returns The focused element, or `false` if nothing could be focused
+   * @returns The focused element, or `false` if nothing was focused
    */
   focus: (
     element: string | HTMLElement | null,
@@ -977,25 +995,24 @@ export interface PanelHelpers {
   /**
    * Checks if component is registered globally.
    *
-   * @param name - Component name
    * @param app - Vue app instance (default: `window.panel?.app`)
    * @returns `true` if registered
    */
   isComponent: (name: string, app?: App) => boolean;
 
   /**
-   * Checks if event is a file drag/drop event.
+   * Checks if a drag event carries files and no plain text.
    *
-   * @param event - Event to check
    * @returns `true` if file upload event
    */
   isUploadEvent: (event: DragEvent) => boolean;
 
   /**
-   * Requests item props by model ID. Calls from the same tick share one
-   * request per endpoint and query, and an ID already in flight joins the
-   * pending request. A blank ID, an unknown ID, or a failed request resolves
-   * to `undefined` – the promise never rejects. A failed request still
+   * Requests item props by model ID. Calls from the same tick share requests
+   * of up to 100 IDs per endpoint and query, and an ID already in flight
+   * joins the pending request. A blank ID, an unknown ID, a model the user
+   * may not list, or a failed request resolves to `undefined` – the promise
+   * never rejects. A failed request still
    * reaches the Panel's error handling, so an expired session or a lost
    * connection surfaces to the user.
    *
@@ -1053,22 +1070,20 @@ export interface PanelHelpers {
   ) => string;
 
   /**
-   * Creates a sort comparator function.
+   * Creates a natural-order comparator: numeric runs compare as numbers, hex
+   * numbers and dates are detected, and empty values sort first, or last with
+   * `desc`.
    *
    * @param options - Sort options
-   * @returns Comparator function
    */
   sort: (options?: PanelSortOptions) => PanelComparator;
 
   string: PanelHelpersString;
 
   /**
-   * Creates a throttled function.
+   * Throttles `callback` to at most one call per `delay` milliseconds.
    *
-   * @param callback - Function to throttle
    * @param delay - Delay in milliseconds
-   * @param options - Throttle options
-   * @returns Throttled function with cancel method
    */
   throttle: <T extends (...args: any[]) => any>(
     callback: T,
@@ -1079,8 +1094,6 @@ export interface PanelHelpers {
   /**
    * Uploads a file via XMLHttpRequest.
    *
-   * @param file - File to upload
-   * @param params - Upload parameters
    * @returns Promise resolving to the parsed JSON response; rejects with the
    *   server's error response, or a generic `{ status: "error", message }`
    *   object when the body is not JSON; stays pending on a network error or abort.
@@ -1095,10 +1108,6 @@ export interface PanelHelpers {
    */
   uuid: () => string;
 
-  /**
-   * Writer (ProseMirror) extension helpers for resolving allowed marks/nodes
-   * and building extension instances.
-   */
   writer: PanelHelpersWriter;
 }
 // #endregion
@@ -1117,12 +1126,12 @@ export interface PanelHelpers {
 export interface PanelHelpersWriter {
   /**
    * Resolves the list of allowed extensions from a permissive `allowed`
-   * argument (boolean, array, object map, or `undefined`).
+   * argument (boolean, array, object map, `null`, or `undefined`).
    *
    * @param available - Map of all available extensions keyed by name
-   * @param allowed - `true` to allow all, `false` to allow none, an array of
-   *   names and extension instances, or an object map (keys set to `false`
-   *   are filtered out)
+   * @param allowed - `true`, `null`, or `undefined` to allow all, `false` to
+   *   allow none, an array of names and extension instances, or an object map
+   *   (keys set to `false` are filtered out)
    * @returns Allowed extension names, plus any instances passed in the array
    */
   allowedExtensions: <T = never>(
