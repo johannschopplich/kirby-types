@@ -34,10 +34,7 @@ import type { KirbyQuery } from "./query";
  * ```
  */
 export interface KirbyQuerySchema {
-  /**
-   * Query to resolve. Defaults to `site` at the top level, and in a nested
-   * selection to the parent's method named by the key.
-   */
+  /** Query whose result the selection applies to. Defaults to `site`. */
   query?: KirbyQuery;
   /**
    * Field names as an array or a comma-separated string, `"?"` for help on the
@@ -45,7 +42,47 @@ export interface KirbyQuerySchema {
    * string, or a nested query.
    */
   select?:
-    string | string[] | Record<string, string | boolean | KirbyQueryRequest>;
+    | string
+    | string[]
+    | Record<string, string | boolean | KirbyQueryNestedRequest>;
+}
+
+/**
+ * KQL alias of an object that a nested query can start at, besides the core
+ * query roots.
+ * @internal
+ */
+type KirbyQueryObjectAlias =
+  | "blocks"
+  | "blueprint"
+  | "content"
+  | "field"
+  | "files"
+  | "layout"
+  | "layoutColumn"
+  | "layoutColumns"
+  | "layouts"
+  | "lock"
+  | "obj"
+  | "pages"
+  | "panel"
+  | "role"
+  | "structure"
+  | "translation"
+  | "version"
+  | "versionId";
+
+/** @internal */
+interface KirbyQueryNestedRequest extends Omit<KirbyQueryRequest, "query"> {
+  /**
+   * Query whose result the selection applies to. Can also start at the parent
+   * object's KQL alias, such as `layout` or `field`, used without a call.
+   * Defaults to the field or method of the same key on the parent object.
+   */
+  query?: Exclude<
+    KirbyQuery<KirbyQueryObjectAlias>,
+    `${KirbyQueryObjectAlias}(${string}`
+  >;
 }
 
 /**
