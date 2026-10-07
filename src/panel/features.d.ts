@@ -1,8 +1,6 @@
 /**
- * Feature type definitions for Kirby Panel.
- *
- * This module provides typed interfaces for all Panel features,
- * including state objects, features, and modals.
+ * Feature type definitions for Kirby Panel: state objects, features, and
+ * modals.
  */
 
 import type {
@@ -23,27 +21,21 @@ import type {
 // #region Timer
 
 /**
- * Simple timer utility for auto-closing notifications.
+ * Interval timer behind the notification auto-close.
  *
  * @source panel/src/helpers/timer.ts
  */
 export interface PanelTimer {
-  /**
-   * Whether the timer is currently running.
-   * @since 5.5.0
-   */
+  /** @since 5.5.0 */
   readonly isRunning: boolean;
 
   /**
-   * Starts the timer with a callback.
-   * Stops any previous timer first. Does nothing if `timeout <= 0`.
-   *
-   * @param timeout - Interval in milliseconds
-   * @param callback - Function to call every `timeout` ms
+   * Starts calling `callback` every `timeout` milliseconds, stopping any
+   * previous timer first. A `timeout <= 0` only stops the previous timer.
    */
   start: (timeout: number, callback: () => void) => void;
 
-  /** Stops the timer and clears the interval. */
+  /** Stops the timer; safe to call when it is not running. */
   stop: () => void;
 }
 // #endregion
@@ -51,7 +43,6 @@ export interface PanelTimer {
 // #region Activation
 
 /**
- * Default state for the activation feature.
  * @source panel/src/panel/activation.ts
  */
 export interface PanelActivationDefaults {
@@ -60,10 +51,8 @@ export interface PanelActivationDefaults {
 }
 
 /**
- * Activation state for license registration prompts.
- *
- * Controls visibility of the license activation card based on
- * session storage state.
+ * License activation card; once closed, it stays hidden for the browser
+ * session.
  *
  * @source panel/src/panel/activation.ts
  */
@@ -80,24 +69,21 @@ export interface PanelActivation
 // #region Drag
 
 /**
- * Default state for drag operations.
  * @source panel/src/panel/drag.ts
  */
 export interface PanelDragDefaults {
-  /** Type of item being dragged. */
+  /** Type of the dragged item; `null` when no drag is in progress. */
   type: string | null;
-  /** Data associated with the dragged item. */
   data: string | Record<string, any>;
 }
 
 /**
- * Drag state for tracking drag-and-drop operations.
+ * Type and payload of the drag in progress.
  *
  * @source panel/src/panel/drag.ts
  */
 export interface PanelDrag
   extends PanelState<PanelDragDefaults>, PanelDragDefaults {
-  /** Whether a drag operation is in progress. */
   readonly isDragging: boolean;
 
   /**
@@ -116,13 +102,12 @@ export interface PanelDrag
 // #region Theme
 
 /**
- * Default state for theme management.
  * @source panel/src/panel/theme.ts
  */
 export interface PanelThemeDefaults {
   /** User's theme preference from localStorage. */
   setting: string | null;
-  /** System preference from media query. */
+  /** Color scheme the system prefers, updated when it changes. */
   system: "light" | "dark";
 }
 
@@ -133,10 +118,8 @@ export interface PanelThemeDefaults {
 export type PanelThemeValue = "light" | "dark" | "system";
 
 /**
- * Theme state for managing Panel color scheme.
- *
- * Supports user preference, system preference, and config-based themes.
- * Watches system media query for dark mode changes.
+ * Panel color theme from the user's setting, the `panel.theme` option, or
+ * the system preference.
  *
  * @since 5.0.0
  * @source panel/src/panel/theme.ts
@@ -161,17 +144,12 @@ export interface PanelTheme
   readonly current: string;
 
   /**
-   * Resets theme to config/system default.
-   * Removes localStorage preference.
+   * Clears the user's stored preference, so `current` falls back to
+   * `config` or the system.
    */
   reset: () => void;
 
-  /**
-   * Sets user theme preference.
-   * Persists to localStorage.
-   *
-   * @param theme - Theme value
-   */
+  /** Sets the user's theme preference and stores it in localStorage. */
   set: (theme: PanelThemeValue) => void;
 }
 // #endregion
@@ -179,7 +157,6 @@ export interface PanelTheme
 // #region Language (Content Language)
 
 /**
- * Default state for content language.
  * @source panel/src/panel/language.ts
  * @source src/Panel/View.php
  * @source src/Cms/Language.php
@@ -188,12 +165,8 @@ export interface PanelLanguageDefaults {
   /** Language code (e.g., `"en"`, `"de"`); `null` on single-language sites. */
   code: string | null;
   default: boolean;
-  /** Text direction. */
   direction: "ltr" | "rtl";
-  /**
-   * Whether the language uses a custom domain.
-   * @since 5.2.3
-   */
+  /** @since 5.2.3 */
   hasCustomDomain: boolean;
   /** Language name; `null` on single-language sites. */
   name: string | null;
@@ -202,9 +175,7 @@ export interface PanelLanguageDefaults {
 }
 
 /**
- * Content language state.
- *
- * Represents the current content language for multilingual sites.
+ * Content language currently edited in the Panel.
  *
  * @source panel/src/panel/language.ts
  * @source src/Panel/View.php
@@ -212,7 +183,7 @@ export interface PanelLanguageDefaults {
  */
 export interface PanelLanguage
   extends PanelState<PanelLanguageDefaults>, PanelLanguageDefaults {
-  /** Alias for `default` property. */
+  /** Alias of `default`. */
   readonly isDefault: boolean;
 }
 // #endregion
@@ -222,8 +193,7 @@ export interface PanelLanguage
 /**
  * Sidebar menu entry, bound as props onto a `k-button`.
  *
- * All fields are optional; the backend filters out any falsy values before
- * emitting the entry, so consumers may receive a sparse object.
+ * The backend drops falsy fields, so an entry may arrive sparse.
  *
  * @source panel/src/panel/menu.ts
  * @source src/Panel/Menu.php
@@ -253,12 +223,11 @@ export interface PanelMenuEntry {
 }
 
 /**
- * Default state for the sidebar menu.
  * @source panel/src/panel/menu.ts
  * @source src/Panel/View.php
  */
 export interface PanelMenuDefaults {
-  /** Menu entries (items or separator strings). */
+  /** Menu entries; a `"-"` entry renders a separator. */
   entries: (PanelMenuEntry | "-")[];
   /** Whether menu is being hovered. */
   hover: boolean;
@@ -267,10 +236,8 @@ export interface PanelMenuDefaults {
 }
 
 /**
- * Sidebar menu state.
- *
- * Manages the Panel sidebar with responsive behavior
- * for mobile and desktop layouts.
+ * Panel sidebar menu. It starts closed on mobile and restores its last state
+ * on desktop.
  *
  * @source panel/src/panel/menu.ts
  */
@@ -319,13 +286,15 @@ export interface PanelMenu
 // #region Notification
 
 /**
- * Default state for notifications.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotificationDefaults {
   /** Context where notification appears. */
   context: PanelContext | null;
-  /** Details passed to `open()`, unread by the Panel; an empty object by default. */
+  /**
+   * Details passed to `open()`, unread by the Panel; an empty object by
+   * default.
+   */
   details: Record<string, any>;
   icon: string | null;
   /**
@@ -342,7 +311,6 @@ export interface PanelNotificationDefaults {
 }
 
 /**
- * Options for opening a notification.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotificationOptions {
@@ -373,19 +341,16 @@ export interface PanelErrorObject {
 }
 
 /**
- * Notification state for user feedback.
- *
- * Displays contextual notifications in view, dialog, or drawer.
- * Supports auto-close timers and different severity levels.
+ * Notification in the current view, dialog, or drawer, with an optional
+ * auto-close timer.
  *
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotification
   extends PanelState<PanelNotificationDefaults>, PanelNotificationDefaults {
-  /** Timer for auto-close functionality. */
+  /** Auto-close timer. */
   timer: PanelTimer;
 
-  /** Whether this is a fatal error notification. */
   readonly isFatal: boolean;
 
   /** Closes the notification and resets state. */
@@ -453,7 +418,6 @@ export interface PanelNotification
 // #region System
 
 /**
- * Default state for system information.
  * @source panel/src/panel/system.ts
  * @source src/Panel/View.php
  */
@@ -464,7 +428,10 @@ export interface PanelSystemDefaults {
   csrf: string;
   /** Whether running on localhost. */
   isLocal: boolean;
-  /** Locale of each interface translation, keyed by translation code (e.g. `{ de: "de_DE" }`). */
+  /**
+   * Locale of each interface translation, keyed by translation code
+   * (e.g. `{ de: "de_DE" }`).
+   */
   locales: Record<string, string>;
   /** Slug character replacements of the current language. */
   slugs: Record<string, string>;
@@ -473,9 +440,7 @@ export interface PanelSystemDefaults {
 }
 
 /**
- * System state with server configuration.
- *
- * Contains static system information from the server.
+ * System information from the backend.
  *
  * @source panel/src/panel/system.ts
  * @source src/Panel/View.php
@@ -487,7 +452,6 @@ export interface PanelSystem
 // #region Translation (Interface Language)
 
 /**
- * Default state for interface translation.
  * @source panel/src/panel/translation.ts
  * @source src/Panel/View.php
  */
@@ -496,7 +460,6 @@ export interface PanelTranslationDefaults {
   code: string;
   /** Translation strings by key. */
   data: Record<string, string>;
-  /** Text direction. */
   direction: "ltr" | "rtl";
   name: string;
   /**
@@ -508,10 +471,7 @@ export interface PanelTranslationDefaults {
 }
 
 /**
- * Interface translation state.
- *
- * Manages UI translations for the current user.
- * Updates document language and direction on change.
+ * Interface translation of the current user.
  *
  * @source panel/src/panel/translation.ts
  * @source src/Panel/View.php
@@ -520,7 +480,7 @@ export interface PanelTranslation
   extends
     Omit<PanelState<PanelTranslationDefaults>, "set">,
     PanelTranslationDefaults {
-  /** Sets translation state and updates document language/direction. */
+  /** Sets the state and syncs the document `lang` and the body `dir`. */
   set: (state: Partial<PanelTranslationDefaults>) => PanelTranslationDefaults;
 
   /**
@@ -543,7 +503,6 @@ export interface PanelTranslation
 // #region User
 
 /**
- * Default state for the current user.
  * @source panel/src/panel/user.ts
  * @source src/Panel/View.php
  */
@@ -557,9 +516,7 @@ export interface PanelUserDefaults {
 }
 
 /**
- * Current user state.
- *
- * Contains information about the logged-in user.
+ * Logged-in user.
  *
  * @source panel/src/panel/user.ts
  * @source src/Panel/View.php
@@ -571,7 +528,6 @@ export interface PanelUser
 // #region View
 
 /**
- * Breadcrumb item for view navigation.
  * @source panel/src/panel/view.ts
  * @source panel/src/components/Navigation/Breadcrumb.vue
  * @source src/Panel/Page.php
@@ -593,7 +549,6 @@ export interface PanelBreadcrumbItem {
 }
 
 /**
- * Default state for the view feature.
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
  * @source src/Panel/View.php
@@ -618,10 +573,7 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
 }
 
 /**
- * View feature for main Panel content.
- *
- * Manages the primary view state, document title,
- * and browser history.
+ * Main Panel view, which owns the document title and the browser history.
  *
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
@@ -744,10 +696,7 @@ export interface PanelDropdownOption {
 }
 
 /**
- * Dropdown feature for context menus.
- *
- * Manages dropdown menus loaded from the server
- * or created programmatically.
+ * Dropdown menu, loaded from the backend or opened from a state object.
  *
  * @source panel/src/panel/dropdown.ts
  * @source panel/src/panel/feature.ts
@@ -798,7 +747,6 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 // #region Dialog
 
 /**
- * Default state for the dialog modal.
  * @source panel/src/panel/dialog.js
  * @source panel/src/panel/modal.js
  */
@@ -814,14 +762,12 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
    * the deprecated `openComponent()`, that renders itself.
    */
   legacy: boolean;
-  /** The component instance `openComponent()` opened. */
+  /** Component instance that `openComponent()` opened. */
   ref: any;
 }
 
 /**
- * Dialog modal for overlays.
- *
- * Supports both server-loaded dialogs and legacy Vue component dialogs.
+ * Panel dialog, loaded from the backend or opened from a component object.
  *
  * @source panel/src/panel/dialog.js
  * @source panel/src/panel/modal.js
@@ -871,7 +817,6 @@ export interface PanelDialog
 // #region Drawer
 
 /**
- * Default state for the drawer modal.
  * @source panel/src/panel/drawer.js
  * @source panel/src/panel/modal.js
  */
@@ -881,9 +826,7 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
 }
 
 /**
- * Drawer modal for side panels.
- *
- * Supports nested drawers with breadcrumb navigation.
+ * Panel drawer. Nested drawers stack up with breadcrumb navigation.
  *
  * @source panel/src/panel/drawer.js
  * @source panel/src/panel/modal.js
@@ -926,7 +869,10 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
    */
   tab: (tab?: string) => false | void;
 
-  /** Returns the modal listeners extended with drawer-specific `crumb` (history navigation) and `tab` handlers. */
+  /**
+   * Returns the modal listeners plus the drawer's `crumb` handler, which
+   * navigates the history, and its `tab` handler.
+   */
   listeners: () => PanelModalListeners & {
     crumb: (id: string) => void;
     tab: (tab?: string) => false | void;
@@ -937,7 +883,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 // #region Content
 
 /**
- * Content version representing saved or changed state.
+ * Field values of one content version, keyed by field name.
  * @since 5.0.0
  * @source panel/src/panel/content.js
  * @source src/Panel/Model.php
@@ -969,7 +915,7 @@ export interface PanelContentVersions {
  * @source src/Content/Lock.php
  */
 export interface PanelContentLock {
-  /** Whether using the legacy `.lock` file system. */
+  /** Whether the lock comes from a legacy `.lock` file. */
   isLegacy: boolean;
   /** Whether content is locked by another user. */
   isLocked: boolean;
@@ -1010,7 +956,7 @@ export interface PanelContentEnv {
  * @source panel/src/helpers/throttle.ts
  */
 export interface PanelContent {
-  /** Panel dialog while the lock dialog is open. */
+  /** `panel.dialog` while the lock dialog is open, `null` otherwise. */
   dialog: PanelDialog | null;
 
   /** Whether content is being discarded or published. */
@@ -1058,9 +1004,8 @@ export interface PanelContent {
   ) => void;
 
   /**
-   * Returns consistent environment with `api` and `language`.
-   *
-   * @param env - Override values
+   * Returns `env` with its missing `api` and `language` taken from the
+   * current view.
    */
   env: (env?: PanelContentEnv) => Required<PanelContentEnv>;
 
@@ -1097,7 +1042,6 @@ export interface PanelContent {
   /**
    * Merges new values with current changes.
    *
-   * @param values - Values to merge
    * @throws Error if called for another view
    */
   merge: (
@@ -1172,7 +1116,6 @@ export interface PanelContent {
   /**
    * Updates form values and saves.
    *
-   * @param values - Values to update
    * @returns `true` if saved, `false` if locked or replaced by a newer save
    * @throws Error if called for another view
    */
@@ -1200,7 +1143,6 @@ export interface PanelContent {
 // #region Searcher
 
 /**
- * Search pagination info.
  * @source panel/src/panel/search.ts
  * @source src/Panel/Controller/Search.php
  * @source src/Panel/Search.php
@@ -1219,7 +1161,6 @@ export interface PanelSearchPagination {
 }
 
 /**
- * Search query options.
  * @source panel/src/panel/search.ts
  * @source src/Panel/Panel.php
  */
@@ -1258,9 +1199,7 @@ export interface PanelSearchResponse {
 }
 
 /**
- * Searcher feature for Panel search.
- *
- * Manages search dialog and query requests.
+ * Search dialog and the queries behind it.
  *
  * @source panel/src/panel/search.ts
  */
@@ -1291,8 +1230,6 @@ export interface PanelSearcher {
    * to `undefined` when the request was aborted by a subsequent search, and
    * to `{ results: [], pagination: {} }` when it fails for any other reason.
    *
-   * @param type - Search type
-   * @param query - Search query
    * @param options - Pagination options
    */
   query: (
@@ -1325,7 +1262,9 @@ export interface PanelUploadReplaceFile {
   link: string;
   /** File extension without dot, used for the picker `accept` filter. */
   extension: string;
-  /** MIME type, used for the picker `accept` filter. `null` when undetectable. */
+  /**
+   * MIME type, used for the picker `accept` filter; `null` when undetectable.
+   */
   mime: string | null;
   /** Filename with extension, shown in the replace dialog. */
   filename: string;
@@ -1341,7 +1280,7 @@ export interface PanelUploadReplaceFile {
 }
 
 /**
- * Upload file state representing a file in the upload queue.
+ * File in the upload queue.
  *
  * @source panel/src/panel/upload.js
  */
@@ -1381,15 +1320,11 @@ export interface PanelUploadFile {
 }
 
 /**
- * Default state for upload feature.
  * @source panel/src/panel/upload.js
  * @source src/Panel/Ui/Upload.php
  */
 export interface PanelUploadDefaults {
-  /**
-   * AbortController for current upload.
-   * @since 5.0.0
-   */
+  /** @since 5.0.0 */
   abort: AbortController | null;
   /** Accepted file types. */
   accept: string;
@@ -1421,10 +1356,8 @@ type PanelUploadOptions = Partial<PanelUploadDefaults> & {
 };
 
 /**
- * Upload feature for file handling.
- *
- * Manages file selection, upload progress, and completion.
- * Supports chunked uploads for large files.
+ * File upload with selection, progress, and completion. Large files upload in
+ * chunks.
  *
  * @source panel/src/panel/upload.js
  */
@@ -1458,7 +1391,8 @@ export interface PanelUpload
   done: () => Promise<void>;
 
   /**
-   * Finds the index of the last file in the queue with the same `src.name`, `src.type`, `src.size`, and `src.lastModified`, so the newest duplicate wins. Returns `-1` if no duplicate is found.
+   * Finds the last queued file with the same `src.name`, `src.type`,
+   * `src.size`, and `src.lastModified`, so the newest duplicate wins.
    *
    * @param file - Enriched upload file to check
    * @returns Index of the last duplicate file, or `-1` if none
@@ -1473,11 +1407,7 @@ export interface PanelUpload
    */
   hasUniqueName: (file: PanelUploadFile) => boolean;
 
-  /**
-   * Converts File to enriched upload file object.
-   *
-   * @param file - File to convert
-   */
+  /** Converts a `File` into an enriched upload file. */
   file: (file: File) => PanelUploadFile;
 
   /**
@@ -1509,14 +1439,7 @@ export interface PanelUpload
    */
   remove: (id: string) => void;
 
-  /**
-   * Opens picker to replace an existing file.
-   * The `file` argument is a server file model (reads `file.link`,
-   * `file.extension`, `file.mime`), not a queued `PanelUploadFile`.
-   *
-   * @param file - Server file model being replaced
-   * @param options - Upload options
-   */
+  /** Opens the file picker to replace an existing file. */
   replace: (file: PanelUploadReplaceFile, options?: PanelUploadOptions) => void;
 
   /**
@@ -1567,7 +1490,7 @@ export interface PanelUpload
 // #region Events
 
 /**
- * Event emitter interface (mitt-compatible).
+ * Mitt-compatible event emitter.
  * @source panel/src/panel/events.ts
  */
 export interface PanelEventEmitter {
@@ -1591,7 +1514,10 @@ export interface PanelEventEmitter {
  * @source panel/src/panel/events.ts
  */
 export interface PanelEvents extends PanelEventEmitter {
-  /** Element the current drag last entered, `null` after a drop or once the drag leaves it. */
+  /**
+   * Element the current drag last entered, `null` after a drop or once the
+   * drag leaves it.
+   */
   entered: EventTarget | null;
 
   // #region Global event handlers
@@ -1602,13 +1528,19 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   beforeunload: (event: BeforeUnloadEvent) => void;
 
-  /** Re-emits the document `blur` event on the bus, listening in the capture phase. */
+  /**
+   * Re-emits the document `blur` event on the bus, listening in the capture
+   * phase.
+   */
   blur: (event: FocusEvent) => void;
 
   /** Re-emits the document `click` event on the bus. */
   click: (event: MouseEvent) => void;
 
-  /** Re-emits the document `copy` event on the bus, listening in the capture phase. */
+  /**
+   * Re-emits the document `copy` event on the bus, listening in the capture
+   * phase.
+   */
   copy: (event: ClipboardEvent) => void;
 
   /**
@@ -1617,7 +1549,10 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   dragenter: (event: DragEvent) => void;
 
-  /** Stops the browser default and propagation, clears `entered`, and re-emits `dragexit` on the bus. */
+  /**
+   * Stops the browser default and propagation, clears `entered`, and
+   * re-emits `dragexit` on the bus.
+   */
   dragexit: (event: DragEvent) => void;
 
   /**
@@ -1627,13 +1562,22 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   dragleave: (event: DragEvent) => void;
 
-  /** Stops the browser default and propagation, and re-emits `dragover` on the bus. */
+  /**
+   * Stops the browser default and propagation, and re-emits `dragover` on
+   * the bus.
+   */
   dragover: (event: DragEvent) => void;
 
-  /** Stops the browser default and propagation, clears `entered`, and re-emits `drop` on the bus. */
+  /**
+   * Stops the browser default and propagation, clears `entered`, and
+   * re-emits `drop` on the bus.
+   */
   drop: (event: DragEvent) => void;
 
-  /** Re-emits the document `focus` event on the bus, listening in the capture phase. */
+  /**
+   * Re-emits the document `focus` event on the bus, listening in the capture
+   * phase.
+   */
   focus: (event: FocusEvent) => void;
 
   /**
@@ -1659,16 +1603,28 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   keyup: (event: KeyboardEvent) => void;
 
-  /** Re-emits `offline` on the bus, whose built-in handler sets `panel.isOffline`. */
+  /**
+   * Re-emits `offline` on the bus, whose built-in handler sets
+   * `panel.isOffline`.
+   */
   offline: (event: Event) => void;
 
-  /** Re-emits `online` on the bus, whose built-in handler clears `panel.isOffline`. */
+  /**
+   * Re-emits `online` on the bus, whose built-in handler clears
+   * `panel.isOffline`.
+   */
   online: (event: Event) => void;
 
-  /** Re-emits the document `paste` event on the bus, listening in the capture phase. */
+  /**
+   * Re-emits the document `paste` event on the bus, listening in the capture
+   * phase.
+   */
   paste: (event: ClipboardEvent) => void;
 
-  /** Re-emits the window `popstate` event, fired on browser back and forward, on the bus. */
+  /**
+   * Re-emits the window `popstate` event, fired on browser back and forward,
+   * on the bus.
+   */
   popstate: (event: PopStateEvent) => void;
 
   /** Stops the event's propagation and its browser default. */

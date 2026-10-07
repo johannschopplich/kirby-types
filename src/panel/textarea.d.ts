@@ -1,8 +1,5 @@
 /**
- * Type definitions for Kirby Textarea toolbar buttons.
- *
- * This module provides types for custom textarea toolbar buttons
- * that can be registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
+ * Types for custom textarea toolbar buttons.
  */
 
 import type { PanelApp, PanelDropdownOption } from "./index";
@@ -18,16 +15,14 @@ import type { PanelApp, PanelDropdownOption } from "./index";
  */
 export interface TextareaToolbarContext extends PanelApp {
   /**
-   * Emits a command to the textarea input component.
-   *
-   * Available commands:
-   * - `"dialog"` - Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
-   * - `"insert"` - Replaces the current selection with the given text, or with the return value of an `(input, selection)` callback.
-   * - `"prepend"` - Prepends the given text and a space to the current selection.
-   * - `"toggle"` - Toggles wrapping of current selection (accepts `before`, `after` texts).
-   * - `"upload"` - Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
-   * - `"wrap"` - Wraps the current selection with the given text.
-   * - `"file"` - Opens a dialog to select an existing file and inserts its tag.
+   * Emits a command to the textarea input component:
+   * - `"dialog"`: Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
+   * - `"insert"`: Replaces the current selection with the given text, or with the return value of an `(input, selection)` callback.
+   * - `"prepend"`: Prepends the given text and a space to the current selection.
+   * - `"toggle"`: Toggles wrapping of the current selection in the given `before` text and the optional `after` text, which defaults to `before`.
+   * - `"upload"`: Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
+   * - `"wrap"`: Wraps the current selection with the given text.
+   * - `"file"`: Opens a dialog to select an existing file and inserts its tag.
    *
    * @example
    * ```js
@@ -64,12 +59,11 @@ export interface TextareaToolbarContext extends PanelApp {
 // #region Textarea Button
 
 /**
- * A custom textarea toolbar button.
- *
- * These buttons are registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
- * A button appears only in textarea fields whose `buttons` option lists its
- * name – the default toolbar shows the built-in buttons alone. A registered
- * name that matches a built-in button replaces it.
+ * Custom textarea toolbar button, registered under `textareaButtons` in
+ * `window.panel.plugin()`. A button appears only in textarea fields whose
+ * `buttons` option lists its name – the default toolbar shows the built-in
+ * buttons alone. A registered name that matches a built-in button replaces
+ * it.
  *
  * @example
  * ```js
@@ -140,11 +134,8 @@ export interface TextareaButton {
   shortcut?: string;
 
   /**
-   * Handles `keydown` events while the button itself has focus.
-   *
-   * This differs from `shortcut`, which fires while the textarea has focus.
-   *
-   * @param event - The native keyboard event
+   * Handles `keydown` events while the button itself has focus, unlike
+   * `shortcut`, which fires while the textarea has focus.
    */
   key?: (event: KeyboardEvent) => void;
 
@@ -155,12 +146,10 @@ export interface TextareaButton {
    * `click`. The `shortcut` still runs `click`.
    *
    * An item's `click` callback gets the dropdown component as `this`, not
-   * the toolbar, so `command()` is out of reach. The built-in buttons reach
-   * the toolbar because their items are arrow functions defined inside the
-   * toolbar component; a plugin's `textareaButtons` entry is a static object
-   * with no toolbar reference to close over. To react to an item elsewhere,
-   * use the `{ global, payload }` click form, which emits an event on the
-   * global event bus.
+   * the toolbar, and a `textareaButtons` entry is a static object with no
+   * toolbar to close over, so `command()` is out of reach. To react to an
+   * item elsewhere, use the `{ global, payload }` click form, which emits an
+   * event on the global event bus.
    *
    * @example
    * ```js

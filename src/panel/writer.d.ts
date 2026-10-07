@@ -82,15 +82,16 @@ export interface WriterEditorEvents {
   link: WriterEditor;
   select: WriterEditorSelectPayload;
   transaction: WriterEditorTransactionPayload;
-  /** Payload of a document change that was not silenced. */
+  /**
+   * Payload of a document change. `setContent()` and `clearContent()` skip it
+   * unless `emitUpdate` is `true`.
+   */
   update: WriterEditorTransactionPayload;
 }
 
 /**
- * The Kirby Writer editor instance.
- *
- * Reached as `this.editor` inside extension methods and as `this` inside
- * event listeners.
+ * The Writer editor instance, reached as `this.editor` inside extension
+ * methods and as `this` inside event listeners.
  *
  * @source panel/src/components/Forms/Writer/Editor.js
  * @source panel/src/components/Forms/Writer/Emitter.js
@@ -98,11 +99,9 @@ export interface WriterEditorEvents {
 export interface WriterEditor {
   // #region Properties
 
-  /** Currently active mark names. */
   activeMarks: string[];
   /** Currently active mark attributes by mark name. */
   activeMarkAttrs: Record<string, Record<string, any>>;
-  /** Currently active node names. */
   activeNodes: string[];
   /** Currently active node attributes by node name. */
   activeNodeAttrs: Record<string, Record<string, any>>;
@@ -126,17 +125,9 @@ export interface WriterEditor {
    */
   isActive: Record<string, (attrs?: Record<string, any>) => boolean>;
   keymaps: Plugin[];
-  /**
-   * Raw mark schema definitions.
-   *
-   * For ProseMirror MarkType instances, use `schema.marks` instead.
-   */
+  /** Raw mark specs; `schema.marks` holds the `MarkType` instances. */
   marks: Record<string, MarkSpec>;
-  /**
-   * Raw node schema definitions.
-   *
-   * For ProseMirror NodeType instances, use `schema.nodes` instead.
-   */
+  /** Raw node specs; `schema.nodes` holds the `NodeType` instances. */
   nodes: Record<string, NodeSpec>;
   /** Options merged over the defaults, so every key is set. */
   options: Required<WriterEditorOptions>;
@@ -144,40 +135,31 @@ export interface WriterEditor {
   /** ProseMirror plugins contributed by the extensions. */
   plugins: Plugin[];
   schema: Schema;
-  /** Current editor selection. */
   selection: ProseMirrorSelection;
-  /** Selection at the end of the document. */
   selectionAtEnd: ProseMirrorSelection;
-  /** Selection at the start of the document. */
   selectionAtStart: ProseMirrorSelection;
-  /** Whether the cursor is at the end of the document. */
   selectionIsAtEnd: boolean;
-  /** Whether the cursor is at the start of the document. */
   selectionIsAtStart: boolean;
   /** Current editor state, `undefined` until the view exists. */
   state: EditorState | undefined;
   /**
-   * ProseMirror view, `undefined` until the editor creates it – which
-   * includes every extension's `init()`.
+   * ProseMirror view, `undefined` until the editor creates it, so also inside
+   * every extension's `init()`.
    */
   view: EditorView | undefined;
   // #endregion
 
   // #region Methods
 
-  /** Removes focus from the editor. */
   blur: () => void;
   /** Returns toolbar buttons for the given type, `mark` by default. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
-  /** Clears the editor content. */
   clearContent: (emitUpdate?: boolean) => void;
-  /** Executes a command by name. */
   command: (command: string, ...args: any[]) => void;
   /**
    * Creates a ProseMirror document from content.
    *
-   * @param content - HTML string, JSON object, or `null` for empty document
-   * @param parseOptions - Optional ProseMirror parse options
+   * @param content - HTML string, JSON object, or `null` for an empty document
    * @returns The created document node, or `false` for any other content type
    */
   createDocument: ((
@@ -188,30 +170,24 @@ export interface WriterEditor {
       content: unknown,
       parseOptions?: ParseOptions,
     ) => ProseMirrorNode | false);
-  /** Destroys the editor instance. */
   destroy: () => void;
-  /** Emits an event to all registered listeners. */
   emit: (<K extends keyof WriterEditorEvents>(
     event: K,
     payload: WriterEditorEvents[K],
   ) => this) &
     ((event: string, ...args: any[]) => this);
-  /** Focuses the editor at the given position. */
   focus: (position?: "start" | "end" | number | boolean | null) => void;
   /**
    * Returns content as HTML. An inline editor returns only the first
    * paragraph's inner HTML.
    *
-   * @param fragment - Optional fragment to serialize (defaults to full document)
+   * @param fragment - Fragment to serialize, the whole document when omitted
    */
   getHTML: (fragment?: Fragment) => string;
-  /** Returns HTML content from start to current selection. */
   getHTMLStartToSelection: () => string;
-  /** Returns HTML content from current selection to end. */
   getHTMLSelectionToEnd: () => string;
-  /** Returns tuple of [HTML before selection, HTML after selection]. */
+  /** Returns the HTML before and after the selection, in that order. */
   getHTMLStartToSelectionToEnd: () => [string, string];
-  /** Returns the current content as JSON. */
   getJSON: () => Record<string, any>;
   /**
    * Returns attributes for a mark type: `{}` when no text in the selection
@@ -220,22 +196,19 @@ export interface WriterEditor {
   getMarkAttrs: <T extends object = Record<string, any>>(
     type?: string | null,
   ) => T | undefined;
-  /** Returns the schema as JSON. */
   getSchemaJSON: () => {
     nodes: Record<string, any>;
     marks: Record<string, any>;
   };
   /** Inserts text at the current selection. */
   insertText: (text: string, selected?: boolean) => void;
-  /** Checks if the editor is editable. */
   isEditable: () => boolean;
-  /** Checks if the editor is empty. */
   isEmpty: () => boolean | undefined;
   /**
    * Unsubscribes from events.
    *
-   * @param event - Event name (omit to remove all listeners)
-   * @param fn - Specific handler to remove (omit to remove all for event)
+   * @param event - Event name, every event when omitted
+   * @param fn - Handler to remove, every handler of `event` when omitted
    */
   off: (<K extends keyof WriterEditorEvents>(
     event: K,
@@ -246,7 +219,6 @@ export interface WriterEditor {
    * Subscribes to an event.
    *
    * @param event - Event name; a key of `WriterEditorEvents` types the payload
-   * @param fn - Event handler function
    */
   on: (<K extends keyof WriterEditorEvents>(
     event: K,
@@ -255,32 +227,22 @@ export interface WriterEditor {
     ((event: string, fn: (...args: any[]) => any) => this);
   /** Removes a mark from the current selection. */
   removeMark: (mark: string) => void;
-  /**
-   * Returns selection at the given position.
-   *
-   * @param position - Position indicator or numeric position
-   */
   selectionAtPosition: (
     position?: "start" | "end" | number | true | null,
   ) => ProseMirrorSelection | { from: number; to: number };
-  /** Sets the editor content. */
   setContent: (
     content?: string | Record<string, any> | null,
     emitUpdate?: boolean,
     parseOptions?: ParseOptions,
   ) => void;
-  /** Sets the selection range. */
   setSelection: (from?: number, to?: number) => void;
   /** Toggles a mark on the current selection. */
   toggleMark: (mark: string) => boolean | undefined;
-  /** Updates a mark's attributes. */
   updateMark: (mark: string, attrs: Record<string, any>) => void;
   // #endregion
 }
 
 /**
- * Editor initialization options.
- *
  * @source panel/src/components/Forms/Writer/Editor.js
  */
 export interface WriterEditorOptions {
@@ -314,16 +276,13 @@ export interface WriterEditorOptions {
 }
 
 /**
- * The extensions manager for the Writer editor.
- *
- * Manages all registered mark, node, and generic extensions.
+ * Extensions manager holding the editor's mark, node, and generic extensions.
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
  */
 export interface WriterExtensions {
-  /** All registered extension instances. */
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /** ProseMirror EditorView assigned by the editor after initialization. */
+  /** ProseMirror view, assigned by the editor after initialization. */
   view: EditorView;
 
   /** Returns toolbar buttons for the given type, `mark` by default. */
@@ -348,10 +307,6 @@ export interface WriterExtensions {
 // #region Writer Toolbar
 
 /**
- * A toolbar button configuration for the Writer.
- *
- * Buttons appear in the Writer toolbar and trigger commands when clicked.
- *
  * @source panel/src/components/Forms/Writer/Extensions.js
  * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/components/Forms/Writer/Nodes/Heading.js
@@ -395,11 +350,8 @@ export interface WriterToolbarButton {
 // #region Writer Utilities
 
 /**
- * Kirby Writer utility functions.
- *
- * A collection of ProseMirror commands and custom helpers for working
- * with marks, nodes, and editor state. These utilities are passed to
- * extension methods via the context object.
+ * ProseMirror commands and custom helpers for marks, nodes, and editor state,
+ * passed to extension methods as the context's `utils`.
  *
  * @source panel/src/components/Forms/Writer/Utils/index.js
  */
@@ -444,31 +396,15 @@ export interface WriterUtils {
 
   // #region Custom Utilities
 
-  /**
-   * Gets the attributes of the active mark of the given type.
-   *
-   * @param state - The current editor state
-   * @param type - The mark type to get attributes for
-   * @returns The mark attributes or an empty object
-   */
+  /** Returns the attributes of the active mark of the given type, or `{}`. */
   getMarkAttrs: (state: EditorState, type: MarkType) => Attrs;
 
-  /**
-   * Gets the attributes of the active node of the given type.
-   *
-   * @param state - The current editor state
-   * @param type - The node type to get attributes for
-   * @returns The node attributes or an empty object
-   */
+  /** Returns the attributes of the active node of the given type, or `{}`. */
   getNodeAttrs: (state: EditorState, type: NodeType) => Attrs;
 
   /**
    * Creates a command that inserts a node of the given type.
    *
-   * @param type - The node type to insert
-   * @param attrs - Optional attributes for the node
-   * @param content - Optional initial content for the node
-   * @param marks - Optional marks to apply to the node
    * @returns A ProseMirror command. It needs `dispatch` and returns nothing
    *          even when it applies, so `chainCommands` and key bindings move on
    *          to the next command.
@@ -485,10 +421,8 @@ export interface WriterUtils {
    * deletes the rest of the group before it, or of the whole match when the
    * pattern has a single group.
    *
-   * @param regexp - Pattern with at least one capture group; the rule throws without one.
-   * @param type - The mark type to apply
-   * @param getAttrs - Optional mark attributes, or a function computing them from the match
-   * @returns An input rule
+   * @param regexp - Pattern with at least one capture group; the rule throws
+   *                 without one.
    */
   markInputRule: (
     regexp: RegExp,
@@ -496,13 +430,7 @@ export interface WriterUtils {
     getAttrs?: Attrs | ((match: RegExpMatchArray) => Attrs),
   ) => InputRule;
 
-  /**
-   * Checks if a mark of the given type is active in the current selection.
-   *
-   * @param state - The current editor state
-   * @param type - The mark type to check
-   * @returns `true` if the mark is active
-   */
+  /** Checks if a mark of the given type is active in the current selection. */
   markIsActive: (state: EditorState, type: MarkType) => boolean;
 
   /**
@@ -511,10 +439,8 @@ export interface WriterUtils {
    * `link` mark, and text whose parent node disallows the mark, stays
    * unmarked.
    *
-   * @param regexp - Pattern with a capture group and the `g` flag; without the flag a match hangs the paste.
-   * @param type - The mark type to apply
-   * @param getAttrs - Optional mark attributes, or a function computing them from the match
-   * @returns A ProseMirror plugin
+   * @param regexp - Pattern with a capture group and the `g` flag; without the
+   *                 flag a match hangs the paste.
    */
   markPasteRule: (
     regexp: RegExp,
@@ -532,14 +458,7 @@ export interface WriterUtils {
    */
   minMax: (value?: number | string, min?: number, max?: number) => number;
 
-  /**
-   * Creates an input rule that inserts a node when the pattern matches.
-   *
-   * @param regexp - The pattern to match
-   * @param type - The node type to insert
-   * @param getAttrs - Optional node attributes, or a function computing them from the match
-   * @returns An input rule
-   */
+  /** Creates an input rule that inserts a node when the pattern matches. */
   nodeInputRule: (
     regexp: RegExp,
     type: NodeType,
@@ -547,22 +466,16 @@ export interface WriterUtils {
   ) => InputRule;
 
   /**
-   * Checks if a node of the given type is active in the current selection.
-   *
-   * @param state - The current editor state
-   * @param type - The node type to check
-   * @param attrs - Optional attributes to match
-   * @returns `true` if the node is active
+   * Checks if a node of the given type, carrying `attrs` when given, is active
+   * in the current selection.
    */
   nodeIsActive: (state: EditorState, type: NodeType, attrs?: Attrs) => boolean;
 
   /**
-   * Creates a paste rule that applies a mark to each whole match in pasted text.
+   * Creates a paste rule that marks each whole match in pasted text.
    *
-   * @param regexp - Pattern with the `g` flag; without it a match hangs the paste.
-   * @param type - The mark type to apply
-   * @param getAttrs - Optional mark attributes, or a function computing them from the matched string
-   * @returns A ProseMirror plugin
+   * @param regexp - Pattern with the `g` flag; without it a match hangs the
+   *                 paste.
    */
   pasteRule: (
     regexp: RegExp,
@@ -573,7 +486,6 @@ export interface WriterUtils {
   /**
    * Creates a command that removes a mark from the current selection.
    *
-   * @param type - The mark type to remove
    * @returns A ProseMirror command. It needs `dispatch` and returns nothing
    *          even when it applies, so `chainCommands` and key bindings move on
    *          to the next command.
@@ -584,9 +496,7 @@ export interface WriterUtils {
    * Creates a command that toggles between two block types.
    *
    * @param type - The block type to toggle to
-   * @param toggleType - The block type to toggle back to (usually paragraph)
-   * @param attrs - Optional attributes for the node
-   * @returns A ProseMirror command
+   * @param toggleType - The block type to toggle back to, usually `paragraph`
    */
   toggleBlockType: (
     type: NodeType,
@@ -594,29 +504,15 @@ export interface WriterUtils {
     attrs?: Attrs,
   ) => Command;
 
-  /**
-   * Creates a command that toggles a list.
-   *
-   * @param type - The list type to toggle
-   * @param itemType - The list item type
-   * @returns A ProseMirror command
-   */
+  /** Creates a command that toggles a list. */
   toggleList: (type: NodeType, itemType: NodeType) => Command;
 
-  /**
-   * Creates a command that toggles wrapping the selection in a node.
-   *
-   * @param type - The node type to wrap in
-   * @param attrs - Optional attributes for the wrapping node
-   * @returns A ProseMirror command
-   */
+  /** Creates a command that toggles wrapping the selection in a node. */
   toggleWrap: (type: NodeType, attrs?: Attrs) => Command;
 
   /**
    * Creates a command that updates the attributes of the active mark.
    *
-   * @param type - The mark type to update
-   * @param attrs - The new attributes
    * @returns A ProseMirror command. It needs `dispatch` and returns nothing
    *          even when it applies, so `chainCommands` and key bindings move on
    *          to the next command.
@@ -629,11 +525,8 @@ export interface WriterUtils {
 // #region Writer Contexts
 
 /**
- * Context passed to mark extension methods.
- *
- * The context provides access to the ProseMirror schema, the current mark's
- * type, and utility functions for working with the editor. This is passed
- * to methods like `commands`, `keys`, `inputRules`, `pasteRules`, and `plugins`.
+ * Context passed to the `commands`, `keys`, `inputRules`, `pasteRules`, and
+ * `plugins` methods of a mark extension.
  *
  * @example
  * ```js
@@ -655,7 +548,7 @@ export interface WriterUtils {
 export interface WriterMarkContext {
   /** The ProseMirror schema with all registered nodes and marks. */
   schema: Schema;
-  /** The MarkType instance for this mark extension. */
+  /** Type of the mark this extension defines. */
   type: MarkType;
   utils: WriterUtils;
 }
@@ -677,16 +570,14 @@ export interface WriterMarkContext {
 export interface WriterNodeContext {
   /** The ProseMirror schema with all registered nodes and marks. */
   schema: Schema;
-  /** The NodeType instance for this node extension. */
+  /** Type of the node this extension defines. */
   type: NodeType;
   utils: WriterUtils;
 }
 
 /**
- * Context passed to generic extension methods (non-mark, non-node).
- *
- * Generic extensions don't have a specific type, so only schema and utils
- * are provided.
+ * Context passed to the methods of a generic extension, one that is neither a
+ * mark nor a node.
  *
  * @source panel/src/components/Forms/Writer/Extensions.js
  */
@@ -718,9 +609,9 @@ export interface WriterExtension {
 
   /**
    * Discriminator value. Among plain extensions, the editor collects
-   * `inputRules`, `keys`, `pasteRules`, and `plugins` only from one typed
-   * `"extension"`;
-   * built-ins such as the toolbar extension use their own value (`"toolbar"`).
+   * `inputRules`, `keys`, `pasteRules`, and `plugins` only from those typed
+   * `"extension"`; built-ins such as the toolbar extension use their own
+   * value, `"toolbar"`.
    */
   type?: string;
 
@@ -745,45 +636,24 @@ export interface WriterExtension {
   /** Runs after the editor is bound to the extension. */
   init: () => null | void;
 
-  /**
-   * Returns the commands this extension provides.
-   *
-   * @param context - Context with schema and utils (no type for generic extensions)
-   * @returns A command function, or an object mapping command names to functions
-   */
+  /** Returns the commands this extension provides. */
   commands?: (
     context: WriterExtensionContext,
   ) => ((attrs?: any) => any) | Record<string, (attrs?: any) => any>;
 
-  /**
-   * Returns additional ProseMirror plugins.
-   *
-   * @param context - Context with schema and utils
-   * @returns Array of ProseMirror plugins or plugin specs
-   */
+  /** Returns additional ProseMirror plugins. */
   plugins?: (context: WriterExtensionContext) => (Plugin | PluginSpec<any>)[];
 
-  /**
-   * Returns input rules for automatic formatting.
-   *
-   * @param context - Context with schema and utils
-   * @returns Array of ProseMirror input rules
-   */
+  /** Returns input rules for automatic formatting. */
   inputRules?: (context: WriterExtensionContext) => InputRule[];
 
-  /**
-   * Returns paste rules that process pasted content.
-   *
-   * @param context - Context with schema and utils
-   * @returns Array of ProseMirror plugins
-   */
+  /** Returns paste rules that process pasted content. */
   pasteRules?: (context: WriterExtensionContext) => Plugin[];
 
   /**
    * Returns keyboard shortcuts. A handler that returns nothing or `false`
    * lets the key fall through to the next binding.
    *
-   * @param context - Context with schema and utils
    * @returns Object mapping key combinations to command functions
    */
   keys?: (
@@ -797,8 +667,8 @@ export interface WriterExtension {
 /**
  * A custom Writer mark extension.
  *
- * Marks are inline formatting like bold, italic, links, etc.
- * They are registered via `window.panel.plugin("name", { writerMarks: { ... } })`.
+ * Marks are inline formatting such as bold, italic, or links, registered
+ * through `window.panel.plugin("name", { writerMarks: { ... } })`.
  *
  * @example
  * ```js
@@ -843,11 +713,7 @@ export interface WriterMarkExtension {
 
   type?: "mark";
 
-  /**
-   * The editor instance, available after the extension is bound to an editor.
-   *
-   * Use this to access editor methods like `emit()`, `toggleMark()`, etc.
-   */
+  /** The editor, set by `bindEditor()` before `init()` runs. */
   editor?: WriterEditor;
 
   /**
@@ -864,18 +730,12 @@ export interface WriterMarkExtension {
   // #region Configuration
 
   /**
-   * Toolbar button configuration.
-   *
-   * A single button is keyed by the mark's `name`; each button in an array is
+   * Toolbar button, keyed by the mark's `name`; each button in an array is
    * keyed by its own `id` or `name`.
    */
   button?: WriterToolbarButton | WriterToolbarButton[];
 
-  /**
-   * Default options for the extension.
-   *
-   * Merged into `options` only for built-in marks.
-   */
+  /** Default options, merged into `options` only for built-in marks. */
   defaults?: Record<string, any>;
 
   /**
@@ -887,7 +747,6 @@ export interface WriterMarkExtension {
   /**
    * Returns the commands this extension provides.
    *
-   * @param context - Context with schema, type, and utils
    * @returns A command function, registered under the mark's `name`, or an
    *          object mapping command names to functions. A command that returns
    *          a ProseMirror command has it run against the editor view; any
@@ -917,9 +776,6 @@ export interface WriterMarkExtension {
   /**
    * Returns input rules for automatic formatting.
    *
-   * @param context - Context with schema, type, and utils
-   * @returns Array of ProseMirror input rules
-   *
    * @example
    * ```js
    * inputRules({ type, utils }) {
@@ -935,7 +791,6 @@ export interface WriterMarkExtension {
    * Returns keyboard shortcuts. A handler that returns nothing or `false`
    * lets the key fall through to the next binding.
    *
-   * @param context - Context with schema, type, and utils
    * @returns Object mapping key combinations to command functions
    *
    * @example
@@ -952,9 +807,6 @@ export interface WriterMarkExtension {
   /**
    * Returns paste rules that process pasted content.
    *
-   * @param context - Context with schema, type, and utils
-   * @returns Array of ProseMirror plugins that handle paste
-   *
    * @example
    * ```js
    * pasteRules({ type, utils }) {
@@ -968,9 +820,6 @@ export interface WriterMarkExtension {
 
   /**
    * Returns additional ProseMirror plugins.
-   *
-   * @param context - Context with schema, type, and utils
-   * @returns Array of ProseMirror plugins or plugin specs
    *
    * @example
    * ```js
@@ -1009,7 +858,7 @@ export interface WriterMarkExtension {
   init?: () => null | void;
   // #endregion
 
-  // #region Mark Helper Methods (inherited from Mark base class)
+  // #region Mark Helper Methods (inherited by every mark)
 
   /**
    * Toggles this mark on the current selection.
@@ -1040,8 +889,8 @@ export interface WriterMarkExtension {
 /**
  * A custom Writer node extension.
  *
- * Nodes are block-level or inline elements like headings, lists, images, etc.
- * They are registered via `window.panel.plugin("name", { writerNodes: { ... } })`.
+ * Nodes are block-level or inline elements such as headings, lists, or images,
+ * registered through `window.panel.plugin("name", { writerNodes: { ... } })`.
  *
  * @example
  * ```js
@@ -1089,11 +938,7 @@ export interface WriterNodeExtension {
 
   type?: "node";
 
-  /**
-   * The editor instance, available after the extension is bound to an editor.
-   *
-   * Use this to access editor methods like `emit()`, `command()`, etc.
-   */
+  /** The editor, set by `bindEditor()` before `init()` runs. */
   editor?: WriterEditor;
 
   /**
@@ -1109,18 +954,12 @@ export interface WriterNodeExtension {
   // #region Configuration
 
   /**
-   * Toolbar button configuration.
-   *
-   * A single button is keyed by the node's `name`; each button in an array is
+   * Toolbar button, keyed by the node's `name`; each button in an array is
    * keyed by its own `id` or `name`.
    */
   button?: WriterToolbarButton | WriterToolbarButton[];
 
-  /**
-   * Default options for the extension.
-   *
-   * Merged into `options` only for built-in nodes.
-   */
+  /** Default options, merged into `options` only for built-in nodes. */
   defaults?: Record<string, any>;
 
   /**
@@ -1136,44 +975,26 @@ export interface WriterNodeExtension {
    * A single function registers under the node's `name`, an object under its
    * keys. A command that returns a function has it run as a ProseMirror
    * command against the view; any other return value passes through.
-   *
-   * @param context - Context with schema, type, and utils
    */
   commands?: (
     context: WriterNodeContext,
   ) => ((attrs?: any) => any) | Record<string, (attrs?: any) => any>;
 
-  /**
-   * Returns input rules for automatic formatting.
-   *
-   * @param context - Context with schema, type, and utils
-   * @returns Array of ProseMirror input rules
-   */
+  /** Returns input rules for automatic formatting. */
   inputRules?: (context: WriterNodeContext) => InputRule[];
 
   /**
    * Returns keyboard shortcuts. A handler that returns nothing or `false`
    * lets the key fall through to the next binding.
    *
-   * @param context - Context with schema, type, and utils
    * @returns Object mapping key combinations to command functions
    */
   keys?: (context: WriterNodeContext) => Record<string, Command | (() => void)>;
 
-  /**
-   * Returns paste rules that process pasted content.
-   *
-   * @param context - Context with schema, type, and utils
-   * @returns Array of ProseMirror plugins
-   */
+  /** Returns paste rules that process pasted content. */
   pasteRules?: (context: WriterNodeContext) => Plugin[];
 
-  /**
-   * Returns additional ProseMirror plugins.
-   *
-   * @param context - Context with schema, type, and utils
-   * @returns Array of ProseMirror plugins or plugin specs
-   */
+  /** Returns additional ProseMirror plugins. */
   plugins?: (context: WriterNodeContext) => (Plugin | PluginSpec<any>)[];
 
   /**

@@ -57,7 +57,7 @@ export interface PanelColorHSV {
   h: number;
   /** Saturation (0-1). */
   s: number;
-  /** Value/Brightness (0-1). */
+  /** Value, or brightness (0-1). */
   v: number;
   /** Alpha channel (0-1). */
   a?: number;
@@ -76,7 +76,7 @@ export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
 export type PanelColor = string | PanelColorObject;
 
 /**
- * Parses CSS color strings and converts between HEX, RGB, HSL, and HSV color spaces.
+ * CSS color parsing and conversion between HEX, RGB, HSL, and HSV.
  *
  * @example
  * ```ts
@@ -95,10 +95,8 @@ export interface PanelLibraryColors {
   /**
    * Converts a color to another color space.
    *
-   * @param color - Color to convert (hex string or color object)
-   * @param format - Target format
-   * @returns Converted color
-   * @throws Error if invalid color or conversion
+   * @param color - Hex string or color object
+   * @throws If the color is invalid
    */
   convert: {
     (color: string, format: "hex"): string;
@@ -121,14 +119,13 @@ export interface PanelLibraryColors {
   };
 
   /**
-   * Parses a CSS color string to HEX string or color object.
+   * Parses a CSS color string into a HEX string or a color object.
    *
    * Supports:
    * - HEX: `#fff`, `#ffff`, `#ffffff`, `#ffffffff`, also without `#`
    * - RGB: `rgb(255 255 255)`, `rgb(255, 255, 255)`, `rgba(255 255 255 / 0.5)`, `rgb(100% 100% 100% / 50%)`
    * - HSL: `hsl(180 50% 50%)`, `hsl(180deg 50% 50% / 0.5)`, `hsla(0.5turn, 50%, 50%, 0.5)`
    *
-   * @param string - CSS color string
    * @returns Parsed color, `null` if unparsable, or `false` for empty input
    */
   parse: (
@@ -136,10 +133,8 @@ export interface PanelLibraryColors {
   ) => string | PanelColorRGB | PanelColorHSL | null | false;
 
   /**
-   * Parses a color string and converts to target format.
+   * Parses a CSS color string and converts it to `format`, if given.
    *
-   * @param string - CSS color string
-   * @param format - Target format
    * @returns Converted color, `null` if unparsable, or `false` for empty input
    */
   parseAs: {
@@ -177,7 +172,10 @@ export interface PanelLibraryColors {
  */
 export interface PanelDayjsPatternPart {
   index: number;
-  /** Unit the part refers to, `undefined` for a segment that is no supported token, e.g. `Do` or the empty segment between two separators. */
+  /**
+   * Unit the part refers to; `undefined` for a segment that is not a
+   * supported token, e.g. `Do` or the empty segment between two separators.
+   */
   unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
   /** Start position in the pattern. */
   start: number;
@@ -186,18 +184,16 @@ export interface PanelDayjsPatternPart {
 }
 
 /**
- * Pattern analyzer object returned by `dayjs.pattern()`.
+ * Pattern analyzer returned by `dayjs.pattern()`.
  * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsPattern {
   pattern: string;
   parts: PanelDayjsPatternPart[];
   /**
-   * Returns the part at a cursor position or selection range.
+   * Returns the part spanning a cursor position or selection range, falling
+   * back to the part the selection starts in.
    *
-   * Falls back to the part the selection starts in.
-   *
-   * @param start - Start position
    * @param end - End position (default: `start`)
    * @returns Matching part, or `undefined` if no part starts at or before `start`
    */
@@ -206,7 +202,6 @@ export interface PanelDayjsPattern {
   /**
    * Formats a datetime with this pattern.
    *
-   * @param dt - Dayjs instance
    * @returns Formatted string, or `null` for a missing or invalid datetime
    */
   format: (dt?: Dayjs | null) => string | null;
@@ -221,18 +216,18 @@ export interface PanelDayjsPattern {
  */
 export interface PanelDayjsExtensions {
   /**
-   * Formats as ISO string (Kirby format).
+   * Formats the datetime as an ISO string.
    *
    * @param type - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"` (default: `"datetime"`)
-   * @returns ISO formatted string
    */
   toISO: (type?: "date" | "time" | "datetime") => string;
 
   /**
-   * Validates the datetime against a lower or upper (min/max) boundary,
-   * compared at the precision of `unit`.
+   * Validates the datetime against a lower or upper boundary, compared at
+   * the precision of `unit`.
    *
-   * Returns `false` for an invalid datetime or a boundary that is no ISO string.
+   * Returns `false` for an invalid datetime or a boundary that is not an ISO
+   * string.
    *
    * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
    * @param type - `"min"` or `"max"` (default: `"min"`)
@@ -262,16 +257,14 @@ export interface PanelDayjsExtensions {
    *
    * `day` is read as `date`. All sub-units of the step unit are cleared,
    * except milliseconds when rounding to `second`.
-   * `millisecond` throws.
    *
-   * Only the next smaller unit is rounded, and it can carry over: 13:45
-   * rounded to a 4-hour step carries over to 14:00 first and lands on
-   * 16:00, not on the nearer 12:00.
+   * Only the next smaller unit is rounded, and it can carry over: `13:45`
+   * rounded to a 4-hour step carries over to `14:00` first and lands on
+   * `16:00`, not on the nearer `12:00`.
    *
    * @param unit - Unit to round to (default: `"date"`)
    * @param size - Step size (default: `1`). Has to divide the unit evenly, e.g. `15` of 60 minutes; `date`, `month`, and `year` only take `1`.
-   * @returns Rounded dayjs instance
-   * @throws If the unit or the step size is not supported
+   * @throws If the unit is `millisecond` or the step size is not supported
    */
   round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
 }
@@ -289,12 +282,10 @@ export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
  */
 export interface PanelDayjsStaticExtensions {
   /**
-   * Interprets date/time from various human-readable formats.
-   * Tries multiple format variations automatically.
+   * Interprets a date or time typed in one of many human-readable formats.
    *
-   * @param input - Input string to parse
-   * @param format - Expected format type (default: `"date"`)
-   * @returns Dayjs instance or `null` if no format matched
+   * @param format - Whether to read a date or a time (default: `"date"`)
+   * @returns Dayjs instance, or `null` if no format matched
    */
   interpret: (
     input: string,
@@ -302,13 +293,10 @@ export interface PanelDayjsStaticExtensions {
   ) => PanelDayjsInstance | null;
 
   /**
-   * Parses ISO formatted string.
+   * Parses an ISO string in one of the formats `toISO()` writes.
    *
-   * Tries all three formats when `type` is omitted.
-   *
-   * @param value - ISO string
-   * @param type - ISO format type
-   * @returns Dayjs instance or `null` if invalid
+   * @param type - Format to expect, else all three are tried
+   * @returns Dayjs instance, or `null` if invalid
    */
   iso: (
     value: string,
@@ -319,17 +307,12 @@ export interface PanelDayjsStaticExtensions {
    * Creates a pattern analyzer for date/time formatting.
    *
    * @param pattern - Display pattern, e.g. `DD.MM.YYYY`
-   * @returns Pattern analyzer object
    */
   pattern: (pattern: string) => PanelDayjsPattern;
 }
 
 /**
- * Extended dayjs library with Kirby plugins.
- *
- * Provides date manipulation with additional methods
- * for Panel-specific date handling. Extends the official
- * dayjs types with Kirby's custom plugins.
+ * Creates dayjs instances, with Kirby's plugins loaded.
  *
  * @example
  * ```ts
@@ -361,7 +344,6 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   /**
    * Activates or registers a locale and returns the active locale name.
    *
-   * @param preset - Locale name or locale object
    * @param object - Locale data to register under `preset`
    * @param isLocal - Whether to return the locale without activating it
    */
@@ -376,7 +358,7 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
 
-  /** Creates a dayjs instance from Unix timestamp (seconds). */
+  /** Creates a dayjs instance from a Unix timestamp in seconds. */
   unix: (t: number) => PanelDayjsInstance;
 }
 // #endregion
@@ -384,9 +366,7 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
 // #region Autosize Types
 
 /**
- * Autosize library for textarea auto-resizing.
- *
- * Automatically adjusts textarea height based on content.
+ * Fits textarea heights to their content.
  *
  * @source @types/autosize/index.d.ts
  */
@@ -394,15 +374,13 @@ export interface PanelLibraryAutosize {
   /**
    * Enables autosize on textarea element(s).
    *
-   * @param element - Element(s) to autosize
    * @returns The input element(s)
    */
   <T extends ArrayLike<Element> | Element>(element: T): T;
 
   /**
-   * Triggers a resize update.
+   * Recomputes the height, e.g. after a script changed the value.
    *
-   * @param element - Element(s) to update
    * @returns The input element(s)
    */
   update: <T extends ArrayLike<Element> | Element>(element: T) => T;
@@ -410,7 +388,6 @@ export interface PanelLibraryAutosize {
   /**
    * Removes autosize behavior and restores the original textarea styling.
    *
-   * @param element - Element(s) to destroy
    * @returns The input element(s)
    */
   destroy: <T extends ArrayLike<Element> | Element>(element: T) => T;
