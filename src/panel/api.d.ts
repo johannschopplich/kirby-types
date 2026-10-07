@@ -262,7 +262,8 @@ export interface PanelApiLanguageData {
   name?: string;
   direction?: "ltr" | "rtl";
   default?: boolean;
-  locale?: string;
+  /** Locale, or a locale per category keyed by `LC_*` constant name. */
+  locale?: string | Record<string, string>;
   /** Custom slug conversion rules, merged over the locale's default rules. */
   slugs?: Record<string, string>;
   /** SmartyPants options for this language. */
@@ -345,7 +346,8 @@ export interface PanelApiPageCreateData {
    * @since 5.0.0
    */
   translations?: {
-    code: string;
+    /** Language code, the default language when omitted. */
+    code?: string;
     content?: Record<string, any>;
     /** Slug of the page in this language. */
     slug?: string;
@@ -715,7 +717,10 @@ export interface PanelApiUserCreateData {
   email: string;
   password?: string;
   name?: string;
-  /** Role ID, `default` when omitted. */
+  /**
+   * Role ID, `default` when omitted, or `nobody` if no `default` role
+   * exists.
+   */
   role?: string;
   /** Panel interface language code. */
   language?: string;
@@ -725,7 +730,11 @@ export interface PanelApiUserCreateData {
    * content runs through the fields' save handlers.
    * @since 5.0.0
    */
-  translations?: { code: string; content?: Record<string, any> }[];
+  translations?: {
+    /** Language code, the default language when omitted. */
+    code?: string;
+    content?: Record<string, any>;
+  }[];
 }
 
 /**
