@@ -16,8 +16,6 @@ import type {
 // #region Color Types
 
 /**
- * Color format identifiers.
- *
  * @source panel/src/libraries/colors.ts
  */
 export type PanelColorFormat = "hex" | "rgb" | "hsl" | "hsv";
@@ -81,9 +79,11 @@ export type PanelColor = string | PanelColorObject;
  *
  * @example
  * ```ts
- * const rgb = this.$library.colors.parse("hsl(180 50% 50%)");
- * const hex = this.$library.colors.convert(rgb, "hex");
- * const css = this.$library.colors.toString(hex, "rgb");
+ * const color = this.$library.colors.parse("hsl(180 50% 50%)");
+ * if (color) {
+ *   const hex = this.$library.colors.convert(color, "hex");
+ *   const css = this.$library.colors.toString(hex, "rgb");
+ * }
  * ```
  *
  * @source panel/src/libraries/colors.ts
@@ -123,9 +123,9 @@ export interface PanelLibraryColors {
    * Parses a CSS color string to HEX string or color object.
    *
    * Supports:
-   * - HEX: `#fff`, `#ffff`, `#ffffff`, `#ffffffff`
-   * - RGB: `rgb(255 255 255)`, `rgb(255, 255, 255)`, `rgba(255 255 255 / 0.5)`
-   * - HSL: `hsl(180 50% 50%)`, `hsl(180deg 50% 50% / 0.5)`
+   * - HEX: `#fff`, `#ffff`, `#ffffff`, `#ffffffff`, also without `#`
+   * - RGB: `rgb(255 255 255)`, `rgb(255, 255, 255)`, `rgba(255 255 255 / 0.5)`, `rgb(100% 100% 100% / 50%)`
+   * - HSL: `hsl(180 50% 50%)`, `hsl(180deg 50% 50% / 0.5)`, `hsla(0.5turn, 50%, 50%, 0.5)`
    *
    * @param string - CSS color string
    * @returns Parsed color, `null` if unparsable, or `false` for empty input
@@ -199,8 +199,9 @@ export interface PanelDayjsPattern {
   readonly literals: string[];
 
   /**
-   * Whether the pattern describes a date or a time: `time` when it shows
-   * no calendar unit, `date` otherwise, including for an empty pattern.
+   * Whether the pattern describes a date or a time: `time` when every unit
+   * it shows is a time unit, `date` otherwise, including for a pattern
+   * without any unit.
    */
   readonly type: "date" | "time";
 
