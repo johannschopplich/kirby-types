@@ -641,7 +641,6 @@ export interface WriterMarkContext {
   schema: Schema;
   /** The MarkType instance for this mark extension. */
   type: MarkType;
-  /** Writer utility functions. */
   utils: WriterUtils;
 }
 
@@ -664,7 +663,6 @@ export interface WriterNodeContext {
   schema: Schema;
   /** The NodeType instance for this node extension. */
   type: NodeType;
-  /** Writer utility functions. */
   utils: WriterUtils;
 }
 
@@ -679,7 +677,6 @@ export interface WriterNodeContext {
 export interface WriterExtensionContext {
   /** The ProseMirror schema with all registered nodes and marks. */
   schema: Schema;
-  /** Writer utility functions. */
   utils: WriterUtils;
 }
 // #endregion
@@ -942,7 +939,7 @@ export interface WriterMarkExtension {
    * ```js
    * pasteRules({ type, utils }) {
    *   return [
-   *     utils.markPasteRule(/\*\*([^*]+)\*\*\/g, type)
+   *     utils.markPasteRule(/~([^~]+)~/g, type)
    *   ];
    * }
    * ```
@@ -1058,6 +1055,7 @@ export interface WriterMarkExtension {
  * @source panel/src/components/Forms/Writer/Extension.js
  * @source panel/src/components/Forms/Writer/Extensions.js
  * @source panel/src/helpers/writer.js
+ * @source panel/src/components/Forms/Input/WriterInput.vue
  */
 export interface WriterNodeExtension {
   // #region Instance Properties (available via `this` in extension methods)
