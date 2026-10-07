@@ -210,7 +210,7 @@ export interface PanelMenuButtonProps {
    * navigating.
    */
   dialog?: string | Record<string, any>;
-  /** Whether the entry is rendered as visually disabled. */
+  /** Whether the entry is shown disabled and ignores clicks. */
   disabled: boolean;
   /**
    * Drawer URL or options – when set, the entry opens a drawer instead of
