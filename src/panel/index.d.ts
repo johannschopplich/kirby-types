@@ -815,15 +815,45 @@ export interface PanelGlobalState {
 }
 
 /**
- * State accepted by `panel.set()` and `panel.open()`. `null` or `false` for
- * a modal or the dropdown closes it.
+ * State accepted by `panel.set()` and `panel.open()`. A global replaces its
+ * current value whole; a feature state and the view merge into theirs.
+ * `null` or `false` for a modal or the dropdown closes it; a modal's
+ * `redirect` opens that path and skips the rest of the state.
+ *
+ * @source panel/src/panel/panel.js
  */
 type PanelStateInput = Partial<
-  Omit<PanelGlobalState, "dialog" | "drawer" | "dropdown">
+  Pick<
+    PanelGlobalState,
+    | "config"
+    | "languages"
+    | "license"
+    | "multilang"
+    | "permissions"
+    | "searches"
+    | "urls"
+  >
 > & {
-  dialog?: PanelGlobalState["dialog"] | null | false;
-  drawer?: PanelGlobalState["drawer"] | null | false;
-  dropdown?: PanelGlobalState["dropdown"] | null | false;
+  [
+    K in
+      | "language"
+      | "menu"
+      | "notification"
+      | "system"
+      | "translation"
+      | "user"
+      | "view"
+  ]?: Partial<PanelGlobalState[K]>;
+} & {
+  dialog?:
+    | (Partial<PanelGlobalState["dialog"]> & { redirect?: string })
+    | null
+    | false;
+  drawer?:
+    | (Partial<PanelGlobalState["drawer"]> & { redirect?: string })
+    | null
+    | false;
+  dropdown?: Partial<PanelGlobalState["dropdown"]> | null | false;
 };
 // #endregion
 

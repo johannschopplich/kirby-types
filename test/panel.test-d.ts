@@ -29,7 +29,7 @@ import type {
   PanelUser,
   PanelUserDefaults,
 } from "../src/panel/features";
-import { expectAssignable, expectType } from "tsd";
+import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Configuration
 
@@ -218,6 +218,11 @@ expectType<Promise<void>>(panel.search("pages"));
 expectType<Promise<PanelSearchResponse | undefined>>(
   panel.search("pages", "test"),
 );
+expectAssignable<Parameters<Panel["set"]>[0]>({
+  dialog: null,
+  notification: { message: "Saved" },
+});
+expectNotAssignable<Parameters<Panel["set"]>[0]>({ config: { debug: true } });
 expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
