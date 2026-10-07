@@ -51,8 +51,8 @@ export interface PanelActivationDefaults {
 }
 
 /**
- * License activation card; once closed, it stays hidden for the browser
- * session.
+ * License activation card; once closed, it stays hidden in the same tab,
+ * across reloads.
  *
  * @source panel/src/panel/activation.ts
  */
@@ -461,7 +461,7 @@ export interface PanelSystemDefaults {
   ascii: Record<string, string>;
   /** CSRF token for API requests. */
   csrf: string;
-  /** Whether running on localhost. */
+  /** Whether the Panel runs in a local development environment. */
   isLocal: boolean;
   /**
    * Locale of each interface translation, keyed by translation code
@@ -1291,7 +1291,10 @@ export interface PanelUploadFile {
   /** Upload progress (`0`-`100`). */
   progress: number;
   completed: boolean;
-  /** Error message of the last failed attempt, cleared before each new attempt. */
+  /**
+   * Error message of a name clash or a thrown `Error`, cleared before each
+   * new attempt. A server-rejected upload leaves it unset.
+   */
   error?: string;
   /** Server file model, set once the upload completes. */
   model?: any;
@@ -1420,7 +1423,10 @@ export interface PanelUpload
   remove: (id: string) => void;
 
   /** Opens the file picker to replace an existing file. */
-  replace: (file: PanelUploadReplaceFile, options?: PanelUploadOptions) => void;
+  replace: (
+    file: PanelUploadReplaceFile,
+    options?: PanelUploadOptions & { immediate?: boolean },
+  ) => void;
 
   /**
    * Adds files to upload list with deduplication.
@@ -1454,8 +1460,9 @@ export interface PanelUpload
    * Uploads a single file in chunks with the given form `attributes`. On
    * success it marks the file `completed`, stores the server file model in
    * `model`, and emits `file.upload`. On failure, including a call before
-   * `submit()` has set `abort`, it stores `error`, resets `progress` to `0`,
-   * and emits `file.upload.error`.
+   * `submit()` has set `abort`, it resets `progress` to `0` and emits
+   * `file.upload.error`. A thrown `Error` also stores its message in
+   * `error`; a server-rejected upload leaves `error` unset.
    *
    * @param file - File to upload
    * @param attributes - Form data sent with the file
@@ -1608,7 +1615,11 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   subscribe: () => void;
 
-  /** Detaches the listeners that `subscribe()` attached. */
+  /**
+   * Detaches the listeners that `subscribe()` attached, except the
+   * capture-phase `blur`, `copy`, `focus`, and `paste` listeners on
+   * `document`, which stay attached.
+   */
   unsubscribe: () => void;
 }
 // #endregion
