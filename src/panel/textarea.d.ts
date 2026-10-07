@@ -5,7 +5,7 @@
  * that can be registered via `window.panel.plugin("name", { textareaButtons: { ... } })`.
  */
 
-import type { PanelGlobalProperties } from "./index";
+import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
 
 // #region Textarea Toolbar Context
 
@@ -22,12 +22,12 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    *
    * Available commands:
    * - `"dialog"` - Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
-   * - `"insert"` - Inserts the given text at the current selection.
+   * - `"insert"` - Replaces the current selection with the given text, or with the return value of an `(input, selection)` callback.
    * - `"prepend"` - Prepends the given text and a space to the current selection.
    * - `"toggle"` - Toggles wrapping of current selection (accepts `before`, `after` texts).
    * - `"upload"` - Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
    * - `"wrap"` - Wraps the current selection with the given text.
-   * - `"file"` - Opens a dialog to select an existing file and inserts its tag.
+   * - `"file"` - Opens a dialog to select existing files and inserts their tags.
    *
    * @param name - Command name
    * @param args - Command arguments
@@ -60,7 +60,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    * uploads are disabled. The built-in file button offers its select and
    * upload dropdown only when `uploads` is not `false`.
    */
-  uploads?: false | Record<string, any>;
+  uploads: false | Record<string, any>;
 }
 // #endregion
 
@@ -146,8 +146,33 @@ export interface TextareaButton {
    *
    * If non-empty, clicking the button opens the dropdown instead of running
    * `click`. The `shortcut` still runs `click`.
+   *
+   * An item's `click` callback gets the dropdown component as `this`, not
+   * the toolbar, so `command()` is out of reach. The built-in buttons reach
+   * the toolbar because their items are arrow functions defined inside the
+   * toolbar component; a plugin's `textareaButtons` entry is a static object
+   * with no toolbar reference to close over. To react to an item elsewhere,
+   * use the `{ global, payload }` click form, which emits an event on the
+   * global event bus.
+   *
+   * @example
+   * ```js
+   * dropdown: [
+   *   {
+   *     label: "Notify",
+   *     icon: "bell",
+   *     click: { global: "my-plugin:notify", payload: { level: 1 } }
+   *   },
+   *   "-",
+   *   {
+   *     label: "Log",
+   *     icon: "code",
+   *     click: () => console.log("clicked")
+   *   }
+   * ]
+   * ```
    */
-  dropdown?: (TextareaDropdownItem | "-")[];
+  dropdown?: (PanelDropdownOption | "-")[];
 
   /** Visibility condition – the button is hidden when `false`. */
   when?: boolean;
@@ -160,112 +185,6 @@ export interface TextareaButton {
   /** Tooltip text used as a fallback when `label` is not set. */
   title?: string;
 
-  /** Custom CSS class for the button. */
   class?: string;
-}
-// #endregion
-
-// #region Textarea Dropdown Item
-
-/**
- * A dropdown menu item for textarea toolbar buttons.
- *
- * **Important:** Unlike the main button's `click` handler, dropdown item clicks
- * are NOT called with the toolbar context as `this`. The `this` context is
- * the surrounding dropdown component, which does not expose `command()`.
- *
- * The built-in buttons reach the toolbar because their items are arrow
- * functions defined inside the toolbar component. A plugin's
- * `textareaButtons` entry is a static object with no toolbar reference to
- * close over. To react to an item elsewhere, use the `{ global, payload }`
- * click form, which emits an event on the global event bus.
- *
- * @example
- * ```js
- * dropdown: [
- *   {
- *     label: "Notify",
- *     icon: "bell",
- *     click: { global: "my-plugin:notify", payload: { level: 1 } }
- *   },
- *   "-",
- *   {
- *     label: "Log",
- *     icon: "code",
- *     click: () => console.log("clicked")
- *   }
- * ]
- * ```
- *
- * @source panel/src/components/Dropdowns/Dropdown.vue
- * @source panel/src/components/Navigation/Button.vue
- * @source panel/src/components/Navigation/Link.vue
- */
-export interface TextareaDropdownItem {
-  /** Item label. Falls back to `text` when unset. */
-  label?: string;
-
-  text?: string;
-
-  icon?: string;
-
-  /**
-   * Click action. The dropdown closes first, then:
-   * - a callback runs with `this` bound to the dropdown component, not the
-   *   toolbar
-   * - a string is emitted as an `action` event on the dropdown, which the
-   *   toolbar does not listen to
-   * - an object emits `name` on the dropdown and `global` on the global
-   *   event bus, each with `payload`.
-   */
-  click?:
-    (() => void) | string | { name?: string; payload?: any; global?: string };
-
-  /** Visibility condition – the item is hidden when `false`. */
-  when?: boolean;
-
-  disabled?: boolean;
-
-  /** Value of the `aria-current` attribute, for active-state styling. */
-  current?: boolean | string;
-
-  /** URL or Panel path the item links to. */
-  link?: string;
-
-  /** Link target, such as `"_blank"`. Applies only with `link`. */
-  target?: string;
-
-  /**
-   * Value of the link's `rel` attribute. Applies only with `link`. A
-   * `"_blank"` target replaces it with `"noreferrer noopener"`.
-   */
-  rel?: string;
-
-  /**
-   * Downloads the linked file instead of opening it. Applies only with
-   * `link`.
-   */
-  download?: boolean;
-
-  /** Tooltip text. Also the item's accessible label when `text` is unset. */
-  title?: string;
-
-  /**
-   * Dialog to open on click instead of running `click`, as a Panel path or
-   * a dialog state object.
-   */
-  dialog?: string | Record<string, any>;
-
-  /**
-   * Drawer to open on click instead of running `click`, as a Panel path or
-   * a drawer state object.
-   */
-  drawer?: string | Record<string, any>;
-
-  /** Design theme, such as `"negative"` for a destructive entry. */
-  theme?: string;
-
-  /** Colored badge on the item. Its `theme` falls back to the item's `theme`. */
-  badge?: { text: string | number; theme?: string };
 }
 // #endregion
