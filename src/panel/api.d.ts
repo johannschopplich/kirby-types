@@ -13,7 +13,10 @@ import type { Panel } from "./index";
  * API request options.
  * @source panel/src/api/index.ts
  */
-export interface PanelApiRequestOptions extends PanelRequestOptions {
+export interface PanelApiRequestOptions extends Omit<
+  PanelRequestOptions,
+  "csrf" | "on"
+> {
   /**
    * HTTP method, `GET` when omitted. The verb helpers set their own. While
    * method override is on – its default (`api.methodOverride`) – any method
