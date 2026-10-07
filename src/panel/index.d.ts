@@ -168,7 +168,10 @@ export type PanelApp = InstanceType<VueConstructor> & {
   $dialog: PanelFeatures.PanelDialog["open"];
   /** Opens a drawer; alias of `$panel.drawer.open()`. */
   $drawer: PanelFeatures.PanelDrawer["open"];
-  /** Opens a dropdown; alias of `$panel.dropdown.openAsync()`. */
+  /**
+   * Returns a closure that opens a dropdown; alias of
+   * `$panel.dropdown.openAsync()`.
+   */
   $dropdown: PanelFeatures.PanelDropdown["openAsync"];
   $events: PanelFeatures.PanelEvents;
   /** Opens a view; alias of `$panel.view.open()`. */
@@ -270,7 +273,8 @@ export interface PanelConfig {
   translation: string;
   /**
    * Chunk size in bytes for chunked file uploads – 95% of the smallest
-   * server upload limit.
+   * upload limit: the server's, or Cloudflare's 100 MB when the site is
+   * proxied through it.
    *
    * @since 5.0.0
    */
@@ -886,8 +890,8 @@ export interface Panel {
   readonly direction: "ltr" | "rtl";
 
   /**
-   * Returns the document title. Setting it appends `" | "` and the system
-   * title when the system has one.
+   * Document title. Setting it appends `" | "` and the system title when the
+   * system has one.
    */
   get title(): string;
   set title(title: string);
