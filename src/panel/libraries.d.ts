@@ -192,7 +192,7 @@ export interface PanelDayjsPattern {
   parts: PanelDayjsPatternPart[];
   /**
    * Returns the part spanning a cursor position or selection range, falling
-   * back to the part the selection starts in.
+   * back to the last part that starts at or before the selection.
    *
    * @param end - End position (default: `start`)
    * @returns Matching part, or `undefined` if no part starts at or before `start`
@@ -346,12 +346,13 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
    *
    * @param object - Locale data to register under `preset`
    * @param isLocal - Whether to return the locale without activating it
+   * @returns `false` if `isLocal` is set and `preset` names no loaded locale
    */
   locale: (
     preset?: string | ILocale,
     object?: Partial<ILocale>,
     isLocal?: boolean,
-  ) => string;
+  ) => string | false;
 
   /** Loaded locales, keyed by locale name. */
   Ls: Record<string, ILocale>;
