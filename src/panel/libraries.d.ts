@@ -176,7 +176,7 @@ export interface PanelLibraryColors {
  */
 export interface PanelDayjsPatternPart {
   index: number;
-  /** Unit the part refers to, `undefined` for a letter sequence that is not a supported token, e.g. `Do`. */
+  /** Unit the part refers to, `undefined` for a letter sequence that is no supported token, e.g. `Do`. */
   unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
   /** Start position in the pattern, or in the rendered string when the parts are positioned against a datetime. */
   start: number;

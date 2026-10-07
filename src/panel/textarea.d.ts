@@ -29,9 +29,6 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    * - `"wrap"` - Wraps the current selection with the given text.
    * - `"file"` - Opens a dialog to select existing files and inserts their tags.
    *
-   * @param name - Command name
-   * @param args - Command arguments
-   *
    * @example
    * ```js
    * this.command("toggle", "**"); // Toggle bold
@@ -93,6 +90,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
  *
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
+ * @source panel/src/components/Navigation/Button.vue
  */
 export interface TextareaButton {
   /** Button label, shown as its tooltip. Falls back to `title` when unset. */
@@ -179,7 +177,7 @@ export interface TextareaButton {
 
   disabled?: boolean;
 
-  /** Value of the `aria-current` attribute, for active-state styling. */
+  /** Value of the `aria-current` attribute; `true` marks the button as active. */
   current?: boolean | string;
 
   /** Tooltip text used as a fallback when `label` is not set. */

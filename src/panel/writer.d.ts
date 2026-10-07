@@ -89,8 +89,8 @@ export interface WriterEditorEvents {
 /**
  * The Kirby Writer editor instance.
  *
- * Extensions reach it as `this.editor` once bound, and the `transaction`,
- * `update`, `select`, `deselect`, `link`, and `email` events carry it.
+ * Reached as `this.editor` inside extension methods and as `this` inside
+ * event listeners.
  *
  * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/components/Forms/Writer/Emitter.ts
@@ -207,7 +207,8 @@ export interface WriterEditor {
    */
   focus: (position?: "start" | "end" | number | boolean | null) => void;
   /**
-   * Returns content as HTML.
+   * Returns content as HTML. An inline editor returns only the first
+   * paragraph's inner HTML.
    *
    * @param fragment - Optional fragment to serialize (defaults to full document)
    */
@@ -367,7 +368,11 @@ export interface WriterExtensions {
  * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
  */
 export interface WriterToolbarButton {
-  /** Key of a button in an extension's button array, `name` when omitted. */
+  /**
+   * Key of a button in an extension's button array, `name` when omitted. The
+   * block dropdown also marks an entry as current when its `id` matches the
+   * active node's entry, so node buttons there need a unique `id`.
+   */
   id?: string;
   /** Command name to execute, the button's key when omitted. */
   command?: string;
@@ -416,11 +421,11 @@ export interface WriterUtils {
   exitCode: typeof import("prosemirror-commands").exitCode;
   /** Lifts content out of its wrapping node. */
   lift: typeof import("prosemirror-commands").lift;
-  /** Sets the block type at the cursor position. */
+  /** Creates a command that sets the textblock type of the selection. */
   setBlockType: typeof import("prosemirror-commands").setBlockType;
-  /** Toggles a mark on the current selection. */
+  /** Creates a command that toggles a mark on the selection. */
   toggleMark: typeof import("prosemirror-commands").toggleMark;
-  /** Wraps the selection in a node type. */
+  /** Creates a command that wraps the selection in a node type. */
   wrapIn: typeof import("prosemirror-commands").wrapIn;
   // #endregion
 
@@ -434,15 +439,15 @@ export interface WriterUtils {
 
   // #region ProseMirror Schema List
 
-  /** Returns a copy of the node specs with `ordered_list`, `bullet_list`, and `list_item` appended. */
+  /** Returns the node map with list nodes appended. */
   addListNodes: typeof import("prosemirror-schema-list").addListNodes;
-  /** Wraps selection in a list. */
+  /** Creates a command that wraps the selection in a list. */
   wrapInList: typeof import("prosemirror-schema-list").wrapInList;
-  /** Splits a list item at the cursor. */
+  /** Creates a command that splits the list item at the cursor. */
   splitListItem: typeof import("prosemirror-schema-list").splitListItem;
-  /** Lifts a list item out of its parent list. */
+  /** Creates a command that lifts the selected list item out of its parent list. */
   liftListItem: typeof import("prosemirror-schema-list").liftListItem;
-  /** Sinks a list item into a nested list. */
+  /** Creates a command that sinks the selected list item into a nested list. */
   sinkListItem: typeof import("prosemirror-schema-list").sinkListItem;
   // #endregion
 
@@ -483,9 +488,11 @@ export interface WriterUtils {
   ) => Command;
 
   /**
-   * Creates an input rule that applies a mark when the pattern matches.
+   * Creates an input rule that marks the last capture group of a match and
+   * deletes the rest of the group before it, or of the whole match when the
+   * pattern has a single group.
    *
-   * @param regexp - The pattern to match
+   * @param regexp - Pattern with at least one capture group; the rule throws without one.
    * @param type - The mark type to apply
    * @param getAttrs - Optional mark attributes, or a function computing them from the match
    * @returns An input rule
@@ -508,9 +515,10 @@ export interface WriterUtils {
   /**
    * Creates a paste rule that marks the first capture group of each match in
    * pasted text and drops the rest of the match. Text that already carries a
-   * link, and text whose parent node disallows the mark, stays unmarked.
+   * `link` mark, and text whose parent node disallows the mark, stays
+   * unmarked.
    *
-   * @param regexp - Pattern with the `g` flag
+   * @param regexp - Pattern with a capture group and the `g` flag; without the flag a match hangs the paste.
    * @param type - The mark type to apply
    * @param getAttrs - Optional mark attributes, or a function computing them from the match
    * @returns A ProseMirror plugin
@@ -558,7 +566,7 @@ export interface WriterUtils {
   /**
    * Creates a paste rule that applies a mark to each whole match in pasted text.
    *
-   * @param regexp - Pattern with the `g` flag
+   * @param regexp - Pattern with the `g` flag; without it a match hangs the paste.
    * @param type - The mark type to apply
    * @param getAttrs - Optional mark attributes, or a function computing them from the matched string
    * @returns A ProseMirror plugin
@@ -616,7 +624,9 @@ export interface WriterUtils {
    *
    * @param type - The mark type to update
    * @param attrs - The new attributes
-   * @returns A ProseMirror command
+   * @returns A ProseMirror command. It needs `dispatch` and returns nothing
+   *          even when it applies, so `chainCommands` and key bindings move on
+   *          to the next command.
    */
   updateMark: (type: MarkType, attrs: Attrs) => Command;
   // #endregion
@@ -853,7 +863,8 @@ export interface WriterMarkExtension {
   editor?: WriterEditor;
 
   /**
-   * Merged extension options from `defaults` and constructor options.
+   * Options merged from `defaults` and the mark's object entry in the field's
+   * `marks` setting.
    *
    * Only built-in marks are constructed. A mark registered through
    * `writerMarks` is created without its constructor, so this stays unset
@@ -880,10 +891,9 @@ export interface WriterMarkExtension {
   defaults?: Record<string, any>;
 
   /**
-   * ProseMirror mark schema definition.
-   *
-   * Defines how the mark is parsed from and serialized to DOM. The editor
-   * fails to build its schema when a mark has none.
+   * Mark spec registered in the editor schema under the mark's `name` –
+   * attributes, DOM parsing and serialization, inclusivity, and exclusions.
+   * The editor fails to build its schema when a mark has none.
    */
   schema: MarkSpec;
 

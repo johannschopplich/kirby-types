@@ -268,8 +268,9 @@ export interface PanelConfig {
    */
   theme: string;
   /**
-   * Default interface language code from the `panel.language` option. The
-   * logged-in user's language lives on `panel.translation`.
+   * Interface language code from the `panel.language` option, `"en"` unless
+   * configured. The active interface translation lives on
+   * `panel.translation`.
    */
   translation: string;
   /**
@@ -306,7 +307,6 @@ interface PanelPermissionsAccess {
 }
 
 /**
- * File operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsFiles {
@@ -323,7 +323,6 @@ interface PanelPermissionsFiles {
 }
 
 /**
- * Language operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsLanguages {
@@ -333,7 +332,6 @@ interface PanelPermissionsLanguages {
 }
 
 /**
- * Page operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsPages {
@@ -354,7 +352,6 @@ interface PanelPermissionsPages {
 }
 
 /**
- * Site operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsSite {
@@ -427,7 +424,8 @@ export interface PanelPermissions {
 // #region Panel Search
 
 /**
- * Search type definition.
+ * Search type an accessible area registers. `icon` defaults to `"search"`,
+ * `label` to the id turned into a label.
  * @source src/Panel/State.php
  * @source panel/src/panel/search.ts
  */
@@ -490,6 +488,7 @@ export interface PanelUrls {
  * @source panel/src/panel/html.ts
  */
 export interface PanelRequestResponse {
+  /** Request built from the URL, the query, and the Panel's headers. */
   request: Request;
   /**
    * Parsed response: a plain object that exposes the pre-resolved body
@@ -759,10 +758,11 @@ export interface PanelLanguageInfo {
   /** PHP locale settings keyed by `LC_*` integer constants (e.g., `LC_ALL`, `LC_CTYPE`). */
   locale: Record<number, string>;
   name: string;
+  /** Slug transliteration rules, mapping a character to its replacement. */
   rules: Record<string, string>;
   /**
-   * URL of the language: a path prefix (`/<code>` unless configured)
-   * resolved against the site URL, or the configured custom domain as is.
+   * Language URL: the configured custom domain as is, else the language's
+   * path (`/<code>` unless configured) on the site URL.
    */
   url: string;
 }
@@ -797,7 +797,8 @@ export interface PanelGlobalState {
 
 /**
  * State accepted by `panel.set()` and `panel.open()`. A global replaces its
- * current value whole; a feature state and the view merge into theirs.
+ * current value whole when the new value has the same type; a feature state
+ * and the view replace theirs, with omitted keys reset to their defaults.
  * `null` or `false` for a modal or the dropdown closes it; a modal's
  * `redirect` opens that path and skips the rest of the state.
  *
@@ -817,15 +818,10 @@ type PanelStateInput = Partial<
 > & {
   [
     K in
-      | "language"
-      | "menu"
-      | "notification"
-      | "system"
-      | "translation"
-      | "user"
-      | "view"
+      "language" | "notification" | "system" | "translation" | "user" | "view"
   ]?: Partial<PanelGlobalState[K]>;
 } & {
+  menu?: PanelGlobalState["menu"]["items"];
   dialog?:
     | (Partial<PanelGlobalState["dialog"]> & { redirect?: string })
     | null
@@ -913,7 +909,10 @@ export interface Panel {
   /** Whether `open()` is loading a URL – a view, dialog, drawer, or dropdown. */
   isLoading: boolean;
 
-  /** Whether the browser is offline. */
+  /**
+   * Whether the Panel lost its connection, from the browser's `offline`
+   * event or a failed request.
+   */
   isOffline: boolean;
 
   /**
@@ -1060,7 +1059,7 @@ export interface Panel {
    * Registers a Panel plugin with its extensions. Available only while
    * plugin scripts load, before the Panel boots.
    *
-   * @param name - Unique plugin identifier (typically vendor/plugin-name)
+   * @param name - Plugin name, by convention `vendor/plugin`, unused by the runtime
    * @param extensions - Plugin extensions to register
    *
    * @example
@@ -1228,8 +1227,9 @@ export interface Panel {
 // #region View Props (commonly used)
 
 /**
- * User holding the content lock. Both fields are `null` when nobody holds
- * the lock or the holder is not listable.
+ * User who last edited the content, or the current user when there are no
+ * unsaved changes. Both fields are `null` when that user is unknown or not
+ * listable.
  * @source src/Content/Lock.php
  */
 interface PanelViewPropsLockUser {
@@ -1361,7 +1361,7 @@ interface PanelViewPropsButton {
     /** Badge on the button's top-right corner, like `{ text: 5, theme: "positive" }`. */
     badge?: Record<string, any>;
     class?: string;
-    /** Value of the button's `aria-current` attribute, like `true` or `"page"`. */
+    /** Value of the button's `aria-current` attribute. */
     current?: string | boolean;
     /** Dialog endpoint to open on click. */
     dialog?: string;
@@ -1374,8 +1374,11 @@ interface PanelViewPropsButton {
     hasDiff?: boolean;
     icon?: string;
     link?: string;
-    /** Dropdown options, or the path of a dropdown endpoint the Panel loads on click. */
-    options?: string | Record<string, any>[];
+    /**
+     * Dropdown options: an inline list, or the path of a dropdown endpoint
+     * that loads them.
+     */
+    options?: string | (Record<string, any> | "-")[];
     responsive: boolean | string;
     size?: string;
     /** Inline CSS style string. */

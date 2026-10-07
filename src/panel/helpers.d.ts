@@ -10,8 +10,6 @@ import type { App } from "vue";
 // #region Array Helpers
 
 /**
- * Search options for array filtering.
- *
  * @source panel/src/helpers/array.ts
  */
 export interface PanelArraySearchOptions {
@@ -24,28 +22,21 @@ export interface PanelArraySearchOptions {
 }
 
 /**
- * Array helper utilities.
- *
  * @source panel/src/helpers/array.ts
  */
 export interface PanelHelpersArray {
   /**
-   * Returns an array as is, the values of an object, or `[]` for `null` and
-   * `undefined`.
-   *
-   * @param object - Object or array to convert
-   * @returns Array of values
+   * Returns an array as-is, an object's values otherwise, and `[]` for `null`
+   * or `undefined`.
    */
   fromObject: <T>(object: T[] | Record<string, T> | null | undefined) => T[];
 
   /**
-   * Searches through an array by query string.
+   * Filters items whose `options.field` value contains the query,
+   * case-insensitively; items with an empty field are dropped.
    *
-   * @param array - Array to search
    * @param query - Search query; `null` and `undefined` throw unless
    *   `options.min` reaches the length of their string form.
-   * @param options - Search options
-   * @returns Filtered array
    */
   search: <T extends Record<string, any>>(
     array: T[],
@@ -56,9 +47,7 @@ export interface PanelHelpersArray {
   /**
    * Sorts the array in place by field and direction, case-insensitively.
    *
-   * @param array - Array to sort
    * @param sortBy - Sort specification (e.g., `"name asc"`, `"date desc"`)
-   * @returns Sorted array
    */
   sortBy: <T extends Record<string, any>>(array: T[], sortBy: string) => T[];
 
@@ -85,39 +74,31 @@ export interface PanelHelpersArray {
 // #region String Helpers
 
 /**
- * Slug conversion rules.
+ * Ordered character maps applied before slugging; each key is replaced
+ * literally by its value.
  *
  * @source panel/src/helpers/string.ts
  */
 export type PanelSlugRules = Record<string, string>[];
 
 /**
- * String helper utilities.
- *
  * @source panel/src/helpers/string.ts
  */
 export interface PanelHelpersString {
   /**
    * Converts camelCase to kebab-case.
-   *
-   * @param string - String to convert
-   * @returns Kebab-case string
    */
   camelToKebab: (string: string) => string;
 
   /**
    * Escapes HTML special characters.
-   *
-   * @param string - Value to escape
-   * @returns Escaped string
    */
   escapeHTML: (string: unknown) => string;
 
   /**
-   * Checks if string contains emoji characters.
-   *
-   * @param string - String to check
-   * @returns `true` if contains emoji
+   * Checks if the value is a string containing an emoji. Digits, `#`, and `*`
+   * count as emoji unless the string consists only of lowercase letters,
+   * digits, `_`, and `-`.
    */
   hasEmoji: (string: unknown) => boolean;
 
@@ -133,16 +114,12 @@ export interface PanelHelpersString {
   /**
    * Checks if string is empty or falsy.
    *
-   * @param string - String to check
    * @returns `true` if empty
    */
   isEmpty: (string: unknown) => boolean;
 
   /**
    * Converts first letter to lowercase.
-   *
-   * @param string - String to convert
-   * @returns Converted string
    */
   lcfirst: (string: string) => string;
 
@@ -150,18 +127,14 @@ export interface PanelHelpersString {
    * Strips every leading repeat of `replace`, matched literally; without
    * `replace` the string comes back unchanged.
    *
-   * @param string - String to trim
    * @param replace - Substring to strip repeatedly
-   * @returns Trimmed string
    */
   ltrim: (string: string, replace?: string) => string;
 
   /**
    * Prefixes string with zeros until length is reached.
    *
-   * @param value - Value to pad
-   * @param length - Target length (default: 2)
-   * @returns Padded string
+   * @param length - Target length (default: `2`)
    */
   pad: (value: string | number, length?: number) => string;
 
@@ -169,7 +142,6 @@ export interface PanelHelpersString {
    * Generates random alphanumeric string.
    *
    * @param length - String length
-   * @returns Random string
    */
   random: (length: number) => string;
 
@@ -177,23 +149,17 @@ export interface PanelHelpersString {
    * Strips every trailing repeat of `replace`, matched literally; without
    * `replace` the string comes back unchanged.
    *
-   * @param string - String to trim
    * @param replace - Substring to strip repeatedly
-   * @returns Trimmed string
    */
   rtrim: (string: string, replace?: string) => string;
 
   /**
-   * Sanitizes HTML by only keeping allowed marks and nodes. When `marks` is
-   * `null` or omitted, keeps bold, code, italic, link, strike, sub, sup, and
-   * underline; when `nodes` is, keeps inline content only. The doc, text, and
-   * paragraph nodes are always kept. A falsy `html` resolves to `""`.
+   * Sanitizes HTML by only keeping allowed marks and nodes.
    *
-   * @param html - HTML string to sanitize
+   * @param html - HTML to sanitize; a falsy value resolves to `""`
    * @param options - Allowed marks and nodes
-   * @param options.marks - Allowed marks: `true` for all, `false` for none, an array of mark names and extension instances, or a map of mark name to `true`, `false`, or mark options
-   * @param options.nodes - Allowed nodes, in the same forms as `marks`
-   * @returns Promise resolving to the sanitized HTML string
+   * @param options.marks - Allowed marks: `true` for all, `false` for none, an array of mark names and extension instances, or a map of mark name to `true`, `false`, or mark options (default: `bold`, `code`, `italic`, `link`, `strike`, `sub`, `sup`, `underline`)
+   * @param options.nodes - Allowed nodes, in the same forms as `marks`; `doc`, `text`, and `paragraph` are always installed (default: inline content only, which flattens block structure)
    */
   sanitizeHTML: (
     html: unknown,
@@ -214,11 +180,9 @@ export interface PanelHelpersString {
   /**
    * Converts string to ASCII slug.
    *
-   * @param string - String to convert
    * @param rules - Language/ASCII conversion rules
    * @param allowed - Allowed characters (default: `"a-z0-9"`)
    * @param separator - Separator character (default: `"-"`)
-   * @returns Slug string
    */
   slug: (
     string: string,
@@ -229,9 +193,6 @@ export interface PanelHelpersString {
 
   /**
    * Strips HTML tags from string.
-   *
-   * @param string - String to strip
-   * @returns Plain text string
    */
   stripHTML: (string: string) => string;
 
@@ -239,40 +200,27 @@ export interface PanelHelpersString {
    * Replaces `{name}`, `{{name}}`, and dotted-path placeholders (e.g. `{nested.prop}`) with values from the lookup object.
    * An unresolved placeholder renders as `…`.
    *
-   * @param string - Template string
    * @param values - Replacement values
-   * @returns Interpolated string
    */
   template: (string: string, values?: Record<string, any>) => string;
 
   /**
    * Converts first letter to uppercase.
-   *
-   * @param string - String to convert
-   * @returns Converted string
    */
   ucfirst: (string: string) => string;
 
   /**
    * Converts first letter of each word to uppercase.
-   *
-   * @param string - String to convert
-   * @returns Converted string
    */
   ucwords: (string: string) => string;
 
   /**
    * Converts HTML entities back to characters.
-   *
-   * @param string - String to unescape
-   * @returns Unescaped string
    */
   unescapeHTML: (string: string) => string;
 
   /**
    * Generates a UUID v4 string.
-   *
-   * @returns UUID string
    */
   uuid: () => string;
 }
@@ -281,8 +229,6 @@ export interface PanelHelpersString {
 // #region Object Helpers
 
 /**
- * Object helper utilities.
- *
  * @source panel/src/helpers/object.ts
  */
 export interface PanelHelpersObject {
@@ -294,14 +240,10 @@ export interface PanelHelpersObject {
    * @param value - Value to clone
    * @returns Cloned value
    */
-  clone: <T>(value: T) => T;
+  clone: { <T>(value: T): T; (): undefined };
 
   /**
    * Filters object entries by predicate.
-   *
-   * @param object - Object to filter
-   * @param predicate - Filter function
-   * @returns Filtered object
    */
   filter: <T extends Record<string, any>>(
     object: T,
@@ -311,7 +253,6 @@ export interface PanelHelpersObject {
   /**
    * Checks if value is empty (`null`, `undefined`, `""`, empty object/array).
    *
-   * @param value - Value to check
    * @returns `true` if empty
    */
   isEmpty: (value: unknown) => boolean;
@@ -319,7 +260,6 @@ export interface PanelHelpersObject {
   /**
    * Checks if input is a plain object (not array, `null`, etc.).
    *
-   * @param input - Value to check
    * @returns `true` if plain object
    */
   isObject: (input: unknown) => input is Record<string, unknown>;
@@ -327,7 +267,6 @@ export interface PanelHelpersObject {
   /**
    * Counts keys in an object.
    *
-   * @param object - Object to count
    * @returns Number of keys
    */
   length: (object?: Record<string, any> | null) => number;
@@ -337,7 +276,6 @@ export interface PanelHelpersObject {
    * source's nested objects, which the target then references.
    *
    * @param target - Target object (default: a new empty object)
-   * @param source - Source object
    * @returns The mutated target
    */
   merge: <
@@ -360,7 +298,6 @@ export interface PanelHelpersObject {
   /**
    * Converts all object keys to lowercase.
    *
-   * @param obj - Object to convert
    * @returns Object with lowercase keys
    */
   toLowerKeys: <T>(obj: Record<string, T>) => Record<string, T>;
@@ -370,26 +307,20 @@ export interface PanelHelpersObject {
 // #region URL Helpers
 
 /**
- * URL helper utilities.
- *
  * @source panel/src/helpers/url.ts
  */
 export interface PanelHelpersUrl {
   /**
    * Returns the base URL from the `<base>` element or window origin.
-   *
-   * @returns Base URL
    */
   base: () => URL;
 
   /**
-   * Builds URLSearchParams from object, merging with origin query.
-   * Nested objects become `parent[child]` keys, `null` removes a param, and
-   * `undefined` leaves it untouched.
+   * Builds `URLSearchParams` from the origin's query, with each query entry
+   * set over it as a string. Nested objects become `parent[child]` keys,
+   * `null` removes a param, and `undefined` leaves it untouched.
    *
-   * @param query - Query parameters
-   * @param origin - URL, query string, or params object whose query the result extends
-   * @returns URLSearchParams object
+   * @param origin - Existing query as a URL, a query string, or a record
    */
   buildQuery: (
     query?: Record<string, unknown>,
@@ -400,10 +331,7 @@ export interface PanelHelpersUrl {
    * Builds a full URL object with query parameters. A `URL` passed as `url`
    * is updated in place and returned.
    *
-   * @param url - URL path or object
-   * @param query - Query parameters
    * @param origin - Base origin URL
-   * @returns Complete URL object
    */
   buildUrl: (
     url?: string | URL,
@@ -416,7 +344,6 @@ export interface PanelHelpersUrl {
    * `vbscript:`, `data:`) after removing every character other than letters
    * and colons.
    *
-   * @param url - URL to check
    * @returns `true` if the URL uses a dangerous scheme
    */
   hasDangerousScheme: (url: unknown) => boolean;
@@ -424,7 +351,6 @@ export interface PanelHelpersUrl {
   /**
    * Checks if URL string starts with `http://` or `https://`.
    *
-   * @param url - URL to check
    * @returns `true` if absolute
    */
   isAbsolute: (url: unknown) => boolean;
@@ -432,37 +358,31 @@ export interface PanelHelpersUrl {
   /**
    * Checks if URL is on the same origin as current page.
    *
-   * @param url - URL to check
    * @returns `true` if same origin
    */
   isSameOrigin: (url: string | URL) => boolean;
 
   /**
-   * Checks if the value is a string, `URL`, or `Location` that parses as a URL.
-   * Without `strict`, a relative string passes too, since it resolves against
-   * the current location.
+   * Checks if the value is a `URL`, a `Location`, or a string that resolves
+   * against the current page, which nearly any string does.
    *
-   * @param url - URL to validate
-   * @param strict - Use Kirby's URL regex for validation
-   * @returns `true` if valid URL
+   * @param strict - Also check the value against Kirby's URL validator
    */
   isUrl: (url: unknown, strict?: boolean) => url is URL | Location | string;
 
   /**
-   * Converts relative path to absolute URL.
+   * Prefixes a path with `origin`; a path starting with `http://` or
+   * `https://` comes back unchanged.
    *
-   * @param path - Path to convert
-   * @param origin - Base origin
-   * @returns Absolute URL string
+   * @param origin - Base for a relative path (default: the base URL)
    */
   makeAbsolute: (path: string | URL, origin?: string | URL) => string;
 
   /**
-   * Converts string to URL object.
+   * Converts a URL string to a URL object; a `URL` instance comes back as-is.
    *
    * @param url - URL string or object
-   * @param origin - Base origin for relative URLs
-   * @returns URL object
+   * @param origin - Base for a relative path (default: the base URL)
    */
   toObject: (url: string | URL, origin?: string | URL) => URL;
 }
@@ -471,29 +391,26 @@ export interface PanelHelpersUrl {
 // #region Clipboard Helpers
 
 /**
- * Clipboard helper utilities.
- *
  * @source panel/src/helpers/clipboard.ts
  */
 export interface PanelHelpersClipboard {
   /**
-   * Reads the content of a clipboard event, preferring HTML over plain text,
-   * and cancels the event's default. Without `plain`, non-breaking spaces
-   * become spaces. A string comes back unchanged.
+   * Reads a string as-is or the content of a `ClipboardEvent`, preventing its
+   * default. Prefers HTML over plain text and turns non-breaking spaces into
+   * spaces.
    *
    * @param event - Clipboard event or string; any other event yields `null`
-   * @param plain - Read as plain text only
+   * @param plain - Read only the plain text, without the space normalization
    * @returns Clipboard content, or `null` when nothing could be read
    */
   read: (event?: Event | string | null, plain?: boolean) => string | null;
 
   /**
-   * Writes the value to the clipboard, through the clipboard event when one
-   * is passed, otherwise through the copy command. Non-string values are
-   * written as indented JSON.
+   * Writes to the clipboard; every non-string value is JSON-stringified. Sets
+   * the plain text of a `ClipboardEvent`, otherwise copies through a temporary
+   * textarea.
    *
-   * @param value - Value to write (non-strings are JSON-stringified)
-   * @param event - Event for event-based writing (narrowed to ClipboardEvent at runtime)
+   * @param event - Clipboard event to write to
    * @returns Always `true` (no failure detection)
    */
   write: (value: unknown, event?: Event) => boolean;
@@ -529,8 +446,6 @@ export interface PanelHelpersEmbed {
   /**
    * Auto-detects provider and converts to embed URL.
    *
-   * @param url - Video URL
-   * @param doNotTrack - Privacy mode
    * @returns Embed URL or `false` if not valid
    */
   video: (url: string, doNotTrack?: boolean) => string | false;
@@ -540,8 +455,6 @@ export interface PanelHelpersEmbed {
 // #region Field Helpers
 
 /**
- * Field definition object.
- *
  * @source panel/src/helpers/field.ts
  */
 export interface PanelFieldDefinition {
@@ -559,26 +472,20 @@ export interface PanelFieldDefinition {
 }
 
 /**
- * Field helper utilities.
- *
  * @source panel/src/helpers/field.ts
  */
 export interface PanelHelpersField {
   /**
-   * Returns a copy of the field's `default`, otherwise the default of the
-   * field component's `value` prop, called when it is a function.
-   *
-   * @param field - Field definition
-   * @returns Default value; `null` when the `value` prop has no default,
-   *   `undefined` when the field component has no `value` prop
+   * Resolves a field's default value: a clone of `default`, else the default
+   * of the field component's `value` prop (called when a function), else
+   * `null`. Returns `undefined` when the field component has no `value` prop,
+   * which makes `form()` skip the field.
    */
   defaultValue: (field: PanelFieldDefinition) => any;
 
   /**
-   * Creates form values object from field definitions, skipping fields
-   * whose default value is `undefined`.
+   * Creates form values object from field definitions.
    *
-   * @param fields - Field definitions
    * @returns Form values object
    */
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
@@ -614,24 +521,18 @@ export interface PanelHelpersField {
 // #region File Helpers
 
 /**
- * File helper utilities.
- *
  * @source panel/src/helpers/file.ts
  */
 export interface PanelHelpersFile {
   /**
-   * Extracts file extension from filename.
-   *
-   * @param filename - Filename
-   * @returns Extension without dot; the whole filename when it has no dot
+   * Extracts the part after the last dot, or the whole filename when it has
+   * no dot.
    */
   extension: (filename: string) => string;
 
   /**
-   * Extracts filename without extension.
-   *
-   * @param filename - Filename
-   * @returns Name without extension; `""` when the filename has no dot
+   * Extracts the part before the last dot, or `""` when the filename has no
+   * dot.
    */
   name: (filename: string) => string;
 
@@ -648,8 +549,6 @@ export interface PanelHelpersFile {
 // #region Keyboard Helpers
 
 /**
- * Keyboard helper utilities.
- *
  * @source panel/src/helpers/keyboard.ts
  */
 export interface PanelHelpersKeyboard {
@@ -665,8 +564,6 @@ export interface PanelHelpersKeyboard {
 // #region Link Helpers
 
 /**
- * Link type definition.
- *
  * @source panel/src/helpers/link.ts
  */
 export interface PanelLinkType {
@@ -686,19 +583,18 @@ export interface PanelLinkType {
 }
 
 /**
- * Detected link result.
- *
  * @source panel/src/helpers/link.ts
  */
 export interface PanelLinkDetection {
-  /** Key of the matching link type; the first type's key for an empty value. */
+  /**
+   * Key of the matching link type; for an empty value, the first type's key,
+   * or `"url"` when the type map is empty.
+   */
   type: string;
   link: string;
 }
 
 /**
- * Link helper utilities.
- *
  * @source panel/src/helpers/link.ts
  */
 export interface PanelHelpersLink {
@@ -716,24 +612,17 @@ export interface PanelHelpersLink {
 
   /**
    * Converts a file permalink to a `file://` UUID.
-   *
-   * @param value - Permalink value
-   * @returns File UUID
    */
   getFileUUID: (value: string) => string;
 
   /**
    * Converts a page permalink to a `page://` UUID.
-   *
-   * @param value - Permalink value
-   * @returns Page UUID
    */
   getPageUUID: (value: string) => string;
 
   /**
    * Checks if value is a file UUID or permalink.
    *
-   * @param value - Value to check
    * @returns `true` if file reference
    */
   isFileUUID: (value: string) => boolean;
@@ -741,7 +630,6 @@ export interface PanelHelpersLink {
   /**
    * Checks if value is `site://`, a `page://` UUID, or a page permalink.
    *
-   * @param value - Value to check
    * @returns `true` if page reference
    */
   isPageUUID: (value: string) => boolean;
@@ -749,8 +637,7 @@ export interface PanelHelpersLink {
   /**
    * Returns available link types.
    *
-   * @param keys - Filter to specific types
-   * @returns Link type definitions
+   * @param keys - Types to keep, in this order; unknown keys are skipped
    */
   types: (keys?: string[]) => Record<string, PanelLinkType>;
 }
@@ -774,8 +661,6 @@ export interface PanelPageStatusProps {
 }
 
 /**
- * Page helper utilities.
- *
  * @source panel/src/helpers/page.ts
  */
 export interface PanelHelpersPage {
@@ -783,8 +668,8 @@ export interface PanelHelpersPage {
    * Returns props for page status button.
    *
    * @param status - Page status (`"draft"`, `"unlisted"`, `"listed"`)
-   * @param disabled - Whether to disable
-   * @returns Button props
+   * @param disabled - Whether the button is disabled; also appends the
+   *   translated "disabled" label to the title
    */
   status: (status: string, disabled?: boolean) => PanelPageStatusProps;
 }
@@ -793,8 +678,8 @@ export interface PanelHelpersPage {
 // #region Upload Helpers
 
 /**
- * Receives the upload progress as a percentage from `0` to `100`; called
- * with `100` once the upload succeeds.
+ * Receives the upload progress as a percentage from `0` to `100`, with a
+ * final `100` before `success`.
  *
  * @source panel/src/helpers/upload.ts
  */
@@ -831,8 +716,8 @@ export interface PanelUploadParams {
   /** Additional form attributes (values are coerced to strings). */
   attributes?: Record<string, string | number>;
   /**
-   * Signal that aborts the request; the returned promise then stays pending
-   * and no callback fires.
+   * Signal that cancels the request; no callback runs and the returned
+   * promise stays pending.
    */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
@@ -894,8 +779,6 @@ export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
 // #region Sort Helper
 
 /**
- * Sort options.
- *
  * @source panel/src/helpers/sort.ts
  */
 export interface PanelSortOptions {
@@ -906,8 +789,6 @@ export interface PanelSortOptions {
 }
 
 /**
- * Comparator function for sorting.
- *
  * @source panel/src/helpers/sort.ts
  */
 export type PanelComparator = (
@@ -952,13 +833,14 @@ export interface PanelHelpers {
    * Deep copies plain objects and arrays and unwraps reactive proxies into
    * plain data. Shortcut for `object.clone()`.
    */
-  clone: <T>(value: T) => T;
+  clone: { <T>(value: T): T; (): undefined };
 
   /**
-   * Resolves CSS color to CSS variable.
+   * Resolves a color name to its `--color-*` CSS variable when one is defined
+   * and `pattern` to `var(--pattern)`; passes any other color through
+   * lowercased.
    *
-   * @param value - Color name or value
-   * @returns CSS variable if one matches, otherwise the lowercased value; `undefined` if not a string
+   * @returns `undefined` if the value is not a string
    */
   color: (value: unknown) => string | undefined;
 
@@ -993,17 +875,14 @@ export interface PanelHelpers {
   ) => HTMLElement | false;
 
   /**
-   * Checks if component is registered globally.
+   * Checks if a component is registered globally under exactly this name.
    *
    * @param app - Vue app instance (default: `window.panel?.app`)
-   * @returns `true` if registered
    */
   isComponent: (name: string, app?: App) => boolean;
 
   /**
    * Checks if a drag event carries files and no plain text.
-   *
-   * @returns `true` if file upload event
    */
   isUploadEvent: (event: DragEvent) => boolean;
 
@@ -1071,10 +950,7 @@ export interface PanelHelpers {
 
   /**
    * Creates a natural-order comparator: numeric runs compare as numbers, hex
-   * numbers and dates are detected, and empty values sort first, or last with
-   * `desc`.
-   *
-   * @param options - Sort options
+   * strings and dates by value, and empty values sort as the smallest.
    */
   sort: (options?: PanelSortOptions) => PanelComparator;
 
@@ -1082,8 +958,6 @@ export interface PanelHelpers {
 
   /**
    * Throttles `callback` to at most one call per `delay` milliseconds.
-   *
-   * @param delay - Delay in milliseconds
    */
   throttle: <T extends (...args: any[]) => any>(
     callback: T,
@@ -1126,12 +1000,13 @@ export interface PanelHelpers {
 export interface PanelHelpersWriter {
   /**
    * Resolves the list of allowed extensions from a permissive `allowed`
-   * argument (boolean, array, object map, `null`, or `undefined`).
+   * argument.
    *
    * @param available - Map of all available extensions keyed by name
-   * @param allowed - `true`, `null`, or `undefined` to allow all, `false` to
-   *   allow none, an array of names and extension instances, or an object map
-   *   (keys set to `false` are filtered out)
+   * @param allowed - `false` to allow none, an array of names and extension
+   *   instances (returned unfiltered), or an object map (keys set to `false`
+   *   are filtered out); any other value, including `true`, `null`, and
+   *   `undefined`, allows all
    * @returns Allowed extension names, plus any instances passed in the array
    */
   allowedExtensions: <T = never>(
