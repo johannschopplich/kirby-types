@@ -95,7 +95,7 @@ export interface PanelHelpersString {
    */
   isEmail: (string: unknown, strict?: boolean) => boolean;
 
-  /** Checks if the value is an empty string or otherwise falsy. */
+  /** Checks if the value is falsy or converts to an empty string, such as `[]`. */
   isEmpty: (string: unknown) => boolean;
 
   /**
@@ -181,7 +181,7 @@ export interface PanelHelpersString {
   ucwords: (string: string) => string;
 
   /**
-   * Converts HTML entities back to characters.
+   * Reverts the entities `escapeHTML()` produces.
    */
   unescapeHTML: (string: string) => string;
 
@@ -402,7 +402,7 @@ export interface PanelFieldDefinition {
   /** API endpoint paths of the field, its section, and its model. */
   endpoints?: { field?: string; section?: string; model?: string };
   fields?: Record<string, PanelFieldDefinition>;
-  /** Name of the parent field, set on subfields by `subfields()`. */
+  /** Name of the section the field belongs to; on subfields, the parent field's name. */
   section?: string;
   [key: string]: any;
 }
@@ -433,10 +433,10 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
-   * Sets each subfield's `section` to the parent field's name. Points each
-   * subfield's API endpoints at the parent's field endpoint, suffixed with `+`
-   * and the subfield name, when the parent has endpoints. Mutates the passed
-   * subfield definitions.
+   * Sets each subfield's `section` to the parent field's name. When the parent
+   * has endpoints, replaces each subfield's endpoints with the parent's, its
+   * `field` endpoint suffixed with `+` and the subfield name. Mutates the
+   * passed subfield definitions.
    *
    * @param field - Parent field
    * @param fields - Subfield definitions
@@ -483,7 +483,7 @@ export interface PanelHelpersFile {
  * @source panel/src/helpers/keyboard.ts
  */
 export interface PanelHelpersKeyboard {
-  /** Returns `"cmd"` on a Mac, `"ctrl"` on any other OS. */
+  /** Returns `"cmd"` on Apple devices, `"ctrl"` elsewhere. */
   metaKey: () => "cmd" | "ctrl";
 }
 // #endregion
@@ -655,8 +655,8 @@ export interface PanelUploadParams {
   /** Additional `FormData` entries; values are coerced to strings. */
   attributes?: Record<string, string | number>;
   /**
-   * Signal that cancels the request; no callback runs and the returned
-   * promise stays pending.
+   * Signal that cancels the request when it aborts during the upload; no
+   * further callback runs and the returned promise stays pending.
    *
    * @since 5.0.0
    */
@@ -803,9 +803,10 @@ export interface PanelHelpers {
   file: PanelHelpersFile;
 
   /**
-   * Focuses the first enabled match inside the element, trying in order the
-   * `field` input, an `autofocus` element, an input, a submit button, and a
-   * button, and falls back to the element itself. Without `field`, does
+   * Tries in order the `field` input, an `autofocus` element, an input, a
+   * submit button, and a button inside the element, checking only the first
+   * match of each, and focuses the first one that is enabled. Falls back to
+   * the element itself. Without `field`, does
    * nothing while focus already sits inside the element.
    *
    * @param element - Selector, element, or `null` (returns `false`)
