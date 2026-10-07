@@ -61,7 +61,7 @@ export interface TextareaToolbarContext extends Pick<
   /**
    * Upload options from the field's `uploads` option, or `false` when
    * uploads are disabled. The built-in file button offers its select and
-   * upload dropdown only when set.
+   * upload dropdown only when `uploads` is not `false`.
    */
   uploads?: false | Record<string, any>;
 }
@@ -239,6 +239,7 @@ export interface TextareaDropdownItem {
 
   /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
+
   /** URL or Panel path the item links to. */
   link?: string;
 
@@ -261,9 +262,7 @@ export interface TextareaDropdownItem {
    */
   drawer?: string | Record<string, any>;
 
-  /**
-   * Design theme, such as `"negative"` for a destructive entry.
-   */
+  /** Design theme, such as `"negative"` for a destructive entry. */
   theme?: string;
 
   /**

@@ -144,8 +144,8 @@ export interface PanelHelpersString {
   lcfirst: (string: string) => string;
 
   /**
-   * Trims characters from the beginning (greedy).
-   * Matches `replace` literally.
+   * Strips every leading repeat of `replace`, matched literally; without
+   * `replace` the string comes back unchanged.
    *
    * @param string - String to trim
    * @param replace - Substring to strip repeatedly
@@ -171,8 +171,8 @@ export interface PanelHelpersString {
   random: (length: number) => string;
 
   /**
-   * Trims characters from the end (greedy).
-   * Matches `replace` literally.
+   * Strips every trailing repeat of `replace`, matched literally; without
+   * `replace` the string comes back unchanged.
    *
    * @param string - String to trim
    * @param replace - Substring to strip repeatedly
@@ -569,7 +569,10 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
-   * Annotates subfields with the parent's section name and, when present, its API endpoints (suffixing the field endpoint with the subfield name).
+   * Sets each subfield's `section` to the parent field's name. Points each
+   * subfield's API endpoints at the parent's field endpoint, suffixed with `+`
+   * and the subfield name, when the parent has endpoints. Mutates the passed
+   * subfield definitions.
    *
    * @param field - Parent field
    * @param fields - Subfield definitions
@@ -662,7 +665,7 @@ export interface PanelLinkType {
  * @source panel/src/helpers/link.ts
  */
 export interface PanelLinkDetection {
-  /** Key of the matching link type. */
+  /** Key of the matching link type; the first type's key for an empty value. */
   type: string;
   link: string;
 }
@@ -961,7 +964,8 @@ export interface PanelHelpers {
   color: (value: unknown) => string | undefined;
 
   /**
-   * @param delay - Delay in milliseconds
+   * Debounces `fn` by `delay` milliseconds.
+   *
    * @source panel/src/helpers/debounce.ts
    * @source panel/src/helpers/index.ts
    */

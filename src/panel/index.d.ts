@@ -409,6 +409,7 @@ interface PanelPermissionsUser {
  * Complete permission set for the current user. Empty when no user is
  * logged in.
  *
+ * @source panel/src/panel/panel.js
  * @source src/Cms/Permissions.php
  * @source src/Panel/View.php
  */
@@ -487,7 +488,7 @@ export interface PanelRequestResponse {
    */
   response: {
     headers: Headers;
-    /** Parsed JSON data. */
+    /** Parsed JSON body. */
     json: any;
     ok: boolean;
     status: number;
@@ -608,20 +609,21 @@ export interface PanelPluginExtensions {
     | (PluginObject<any> | PluginFunction<any>)[];
 
   /**
-   * Callback executed after the Panel Vue app is created.
+   * Callback executed in the `created` hook of the Panel's root component.
    *
-   * Receives the Vue app instance as parameter.
+   * Receives the root component instance as parameter. The application
+   * itself is available as `window.panel.app`.
    *
    * @example
    * ```ts
    * window.panel.plugin("my-plugin", {
-   *   created(app) {
-   *     console.log("Panel app created", app);
+   *   created(instance) {
+   *     console.log("Panel created", instance.$panel);
    *   }
    * });
    * ```
    */
-  created?: (app: PanelApp) => void;
+  created?: (instance: PanelApp) => void;
 
   /**
    * Custom login form component.
@@ -710,8 +712,8 @@ export interface PanelPlugins {
   /** Registered Vue components. */
   components: Record<string, PanelComponentExtension>;
 
-  /** Callbacks to run after Panel creation. */
-  created: ((app: PanelApp) => void)[];
+  /** Callbacks to run in the `created` hook of the root component. */
+  created: ((instance: PanelApp) => void)[];
 
   /** Registered SVG icons. */
   icons: Record<string, string>;
@@ -881,9 +883,10 @@ type PanelStateInput = Partial<
  * ```
  *
  * @source panel/src/panel/panel.js
+ * @source panel/src/index.js
  * @source panel/src/panel/legacy.js
  * @source panel/src/panel/request.ts
- * @source panel/src/index.js
+ * @source panel/src/panel/translation.ts
  * @source panel/public/js/plugins.js
  */
 export interface Panel {
@@ -899,8 +902,9 @@ export interface Panel {
 
   readonly direction: "ltr" | "rtl";
 
-  /** Document title getter/setter; on set, the system title is appended as a suffix when present. */
-  title: string;
+  /** Document title; setting it appends the system title as a suffix when present. */
+  get title(): string;
+  set title(title: string);
 
   /** Whether the Panel is currently loading a new view via `open()`. */
   isLoading: boolean;
@@ -1013,10 +1017,12 @@ export interface Panel {
   deprecated: (message: string) => void;
 
   /**
-   * Handles an error: ignores `AbortError`, marks the Panel offline on `OfflineError`, logs in debug mode, and optionally opens an error notification.
+   * Handles a thrown value: ignores aborted requests, navigates the browser
+   * for a redirect, marks the Panel offline on a network failure, logs the
+   * error in debug mode, and opens an error notification.
    *
    * @param error - Error, message, or any other thrown value
-   * @param openNotification - Whether to show notification (default: `true`)
+   * @param openNotification - Whether to show the notification (default: `true`)
    * @returns Notification state if opened, `void` otherwise
    */
   error: (
@@ -1050,10 +1056,7 @@ export interface Panel {
     PanelGlobalState | PanelFeatures.PanelNotificationDefaults | undefined
   >;
 
-  /**
-   * Returns the open overlays, `"drawer"` before `"dialog"`. The view is not
-   * an overlay.
-   */
+  /** Returns the open overlays, `"drawer"` before `"dialog"`. */
   overlays: () => ("drawer" | "dialog")[];
 
   /**
@@ -1101,8 +1104,8 @@ export interface Panel {
   ) => Promise<any>;
 
   /**
-   * Navigates the browser to the absolute URL by throwing a redirect error
-   * that the Panel's error handler catches.
+   * Throws a redirect error that the Panel's error handler catches and
+   * answers by navigating the browser to the absolute URL.
    *
    * @param path - Path or URL to navigate to
    */
@@ -1122,8 +1125,8 @@ export interface Panel {
    * Sends a request through the Panel router.
    *
    * Returns an object with both the request and the parsed response.
-   * Cross-origin or non-JSON responses trigger a redirect and the promise
-   * rejects.
+   * Cross-origin or non-JSON responses reject with a redirect error, which
+   * `panel.error()` turns into a page navigation.
    *
    * @param url - URL to request
    * @param options - Request options including method
@@ -1160,7 +1163,7 @@ export interface Panel {
   /**
    * Applies a new Panel state: updates globals, dispatches per-feature `set()` calls, opens/closes modals and the dropdown, and opens the view when present.
    *
-   * @param state - State to merge; `null` or `false` for `dialog`, `drawer` or `dropdown` closes it
+   * @param state - State to merge
    * @returns `undefined`, or the `open()` promise when a modal state carries a `redirect`
    */
   set: (state?: PanelStateInput) => void | ReturnType<Panel["open"]>;
@@ -1173,11 +1176,13 @@ export interface Panel {
   state: () => PanelGlobalState;
 
   /**
-   * Translates a key using the current translation.
+   * Translates a key into the current interface language, filling
+   * `{placeholder}` values from `data`. A missing key falls back to
+   * `fallback`.
    *
    * @param key - Translation key
    * @param data - Placeholder values
-   * @param fallback - Fallback if the key is not found
+   * @param fallback - Text used when the key is missing
    * @returns Translated string
    */
   t: (

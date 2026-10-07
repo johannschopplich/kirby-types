@@ -25,9 +25,11 @@ export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
    */
   headers?: Record<string, string | null>;
   /**
-   * HTTP method. The verb helpers set their own; without one, the request
-   * goes out as `POST` while method override is on, its default
-   * (`api.methodOverride`).
+   * HTTP method. The verb helpers set their own. While method override is
+   * on – its default (`api.methodOverride`) – any method other than `GET`
+   * and `POST` goes out as `POST`, with the real method in the
+   * `x-http-method-override` header. A request without a method goes out as
+   * `GET`, or as `POST` while method override is on.
    */
   method?: string;
   /**
@@ -114,7 +116,8 @@ export interface PanelApiLoginData {
   email: string;
   /**
    * Password for a password login. An empty, `null`, or missing password
-   * starts a login code or password-reset challenge instead.
+   * starts a login code or password-reset challenge when one of those
+   * methods is enabled, and fails otherwise.
    */
   password?: string | null;
   /** Whether to keep the user logged in for an extended session. */
@@ -131,7 +134,7 @@ export interface PanelApiAuth {
    * Logs in a user.
    *
    * @param data - Login credentials
-   * @returns `{ code: 200, status: "ok", user }` after a password login, or `{ code: 200, status: "ok", challenge }` once a code challenge starts
+   * @returns `{ code: 200, status: "ok", user }` once logged in, or `{ code: 200, status: "ok", challenge }` when a code, password-reset, or 2FA challenge starts
    */
   login: (data: PanelApiLoginData) => Promise<any>;
 
@@ -370,7 +373,7 @@ export interface PanelApiPages {
    * Gets available blueprints for a page.
    *
    * @param parent - Page ID
-   * @param section - Section name
+   * @param section - Section name to narrow the blueprints to; all sections when omitted
    * @returns Array of blueprints
    */
   blueprints: (parent: string, section?: string) => Promise<any[]>;
@@ -467,10 +470,9 @@ export interface PanelApiPages {
   get: (id: string, query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Converts page ID/UUID to API format.
-   *
-   * Also accepts a `page://` UUID or a `/@/page/` permalink with or without
-   * a language prefix, both resolved to `@<uuid>`.
+   * Converts a page ID to its API form (slashes become `+`), and a `page://`
+   * UUID or a `/@/page/` permalink, with or without a language prefix, to
+   * `@<uuid>`.
    *
    * @param id - Page ID, UUID, or permalink
    * @returns API-formatted ID
@@ -604,13 +606,11 @@ export interface PanelApiSite {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Updates the site content.
-   *
-   * Sends a `POST` request, which no `site` route accepts, so the call fails –
-   * send `panel.api.patch("site", data)` instead.
+   * Meant to update the site content, but sends a `POST` that no `site`
+   * route accepts, so the call rejects – send `panel.api.patch("site", data)`
+   * instead.
    *
    * @param data - Content data
-   * @returns Updated site
    */
   update: (data: Record<string, any>) => Promise<any>;
 }
@@ -620,8 +620,9 @@ export interface PanelApiSite {
 
 /**
  * System installation data.
- * @source panel/src/components/Views/Installation/InstallationView.vue
  * @source config/api/routes/system.php
+ * @source src/Cms/UserActions.php
+ * @source panel/src/components/Views/Installation/InstallationView.vue
  */
 export interface PanelApiSystemInstallData {
   /** Email of the first user. */
@@ -710,6 +711,7 @@ export interface PanelApiTranslations {
 /**
  * User creation data.
  * @source src/Cms/UserActions.php
+ * @source src/Cms/User.php
  */
 export interface PanelApiUserCreateData {
   /** User ID, generated when omitted. */
@@ -742,10 +744,10 @@ export interface PanelApiUsers {
   blueprint: (id: string) => Promise<any>;
 
   /**
-   * Gets available blueprints for users.
+   * Gets the blueprints accepted by a user's sections.
    *
-   * @param id - User ID for context
-   * @param section - Section name to filter by
+   * @param id - User ID
+   * @param section - Section name to narrow the blueprints to; all sections when omitted
    * @returns Array of blueprints
    */
   blueprints: (id: string, section?: string) => Promise<any[]>;

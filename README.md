@@ -212,7 +212,7 @@ const page = await window.panel.api.pages.get("blog");
 await window.panel.api.pages.update("blog", { title: "New Title" });
 
 // Content state
-const currentContent = panel.content.version("changes");
+const currentContent = window.panel.content.version("changes");
 ```
 
 ## Advanced: Writer Extensions

@@ -1,7 +1,7 @@
 /**
  * Library type definitions for Kirby Panel.
  *
- * Provides types for the `$library` utilities available on the Vue prototype.
+ * Provides types for the `$library` utilities available to every component.
  * Includes color manipulation, date handling (dayjs), and textarea autosize.
  */
 
@@ -191,18 +191,21 @@ export interface PanelDayjsPattern {
   pattern: string;
   parts: PanelDayjsPatternPart[];
   /**
-   * Gets part information at cursor position/selection range.
+   * Returns the part at a cursor position or selection range.
+   *
+   * Falls back to the part the selection starts in.
    *
    * @param start - Start position
-   * @param end - End position (defaults to start)
-   * @returns Part info or `undefined`
+   * @param end - End position (default: `start`)
+   * @returns Matching part, or `undefined` if no part starts at or before `start`
    */
   at: (start: number, end?: number) => PanelDayjsPatternPart | undefined;
+
   /**
-   * Formats a dayjs instance using this pattern.
+   * Formats a datetime with this pattern.
    *
-   * @param dt - Dayjs instance (optional)
-   * @returns Formatted string or `null` if invalid
+   * @param dt - Dayjs instance
+   * @returns Formatted string, or `null` for a missing or invalid datetime
    */
   format: (dt?: Dayjs | null) => string | null;
 }
@@ -218,18 +221,21 @@ export interface PanelDayjsExtensions {
   /**
    * Formats as ISO string (Kirby format).
    *
-   * @param format - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"` (default: `"datetime"`)
+   * @param type - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"` (default: `"datetime"`)
    * @returns ISO formatted string
    */
-  toISO: (format?: "date" | "time" | "datetime") => string;
+  toISO: (type?: "date" | "time" | "datetime") => string;
 
   /**
-   * Validates datetime against an upper or lower (min/max) boundary.
+   * Validates the datetime against a lower or upper (min/max) boundary,
+   * compared at the precision of `unit`.
+   *
+   * Returns `false` for an invalid datetime or a boundary that is no ISO string.
    *
    * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
    * @param type - `"min"` or `"max"` (default: `"min"`)
    * @param unit - Comparison unit (default: `"day"`)
-   * @returns Whether the date is valid against the boundary
+   * @returns Whether the datetime lies within the boundary
    */
   validate: (
     boundary?: string,
@@ -255,6 +261,10 @@ export interface PanelDayjsExtensions {
    * `day` is read as `date`. All sub-units of the step unit are cleared,
    * except milliseconds when rounding to `second`.
    * `millisecond` throws.
+   *
+   * Only the next smaller unit is rounded, and it can carry over: 13:45
+   * rounded to a 4-hour step carries over to 14:00 first and lands on
+   * 16:00, not on the nearer 12:00.
    *
    * @param unit - Unit to round to (default: `"date"`)
    * @param size - Step size (default: `1`). Has to divide the unit evenly, e.g. `15` of 60 minutes; `date`, `month`, and `year` only take `1`.
@@ -289,21 +299,21 @@ export interface PanelDayjsStaticExtensions {
   /**
    * Parses ISO formatted string.
    *
-   * Tries all three formats when `format` is omitted.
+   * Tries all three formats when `type` is omitted.
    *
    * @param value - ISO string
-   * @param format - ISO format type
+   * @param type - ISO format type
    * @returns Dayjs instance or `null` if invalid
    */
   iso: (
     value: string,
-    format?: "date" | "time" | "datetime",
+    type?: "date" | "time" | "datetime",
   ) => PanelDayjsInstance | null;
 
   /**
    * Creates a pattern analyzer for date/time formatting.
    *
-   * @param pattern - Date format pattern, e.g. `YYYY-MM-DD`
+   * @param pattern - Display pattern, e.g. `DD.MM.YYYY`
    * @returns Pattern analyzer object
    */
   pattern: (pattern: string) => PanelDayjsPattern;
@@ -405,7 +415,7 @@ export interface PanelLibraryAutosize {
 // #region Main Library Interface
 
 /**
- * Panel libraries available on the Vue prototype as `$library`.
+ * Panel libraries available to every component as `$library`.
  *
  * @example
  * ```ts

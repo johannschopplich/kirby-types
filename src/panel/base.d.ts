@@ -407,6 +407,7 @@ export interface PanelModal<
 
   /**
    * Closes the modal, optionally by ID.
+   * Reopens the previous modal when the history holds one.
    *
    * @param id - Specific modal ID, `true` to close all, or `undefined` for current
    * @returns Promise resolving to the previous modal's state, or `void`
@@ -443,7 +444,8 @@ export interface PanelModal<
 
   /**
    * Opens the modal by URL or state object.
-   * Closes the current notification on first open and blocks document overflow.
+   * Closes the current notification on first open and marks the modal
+   * as open once a component is set, which also blocks document overflow.
    *
    * @param modal - URL or state object
    * @param options - Request options
@@ -550,7 +552,8 @@ export interface PanelHistory {
 
   /**
    * Adds a state to history.
-   * A state whose `id` is already stored is ignored, unless `replace` is `true`.
+   * A state whose `id` is already stored is ignored, unless `replace` is
+   * `true`.
    * The state must have an `id` property.
    *
    * @param state - State object with required `id`
@@ -669,6 +672,13 @@ export interface PanelRequestOptions extends Omit<
   silent?: boolean;
   on?: PanelEventListenerMap;
   /**
+   * Content language code sent as the `x-language` header. Defaults to the
+   * current content language, so each browser tab keeps its own; an empty
+   * value omits the header.
+   * @since 5.6.1
+   */
+  language?: string | null;
+  /**
    * CSRF token sent as the `x-csrf` header.
    * Defaults to the system token; `false` omits the header.
    */
@@ -678,13 +688,6 @@ export interface PanelRequestOptions extends Omit<
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
-  /**
-   * Content language code sent as the `x-language` header. Defaults to the
-   * current content language, so each browser tab keeps its own; an empty
-   * value omits the header.
-   * @since 5.6.1
-   */
-  language?: string | null;
   /**
    * Referrer path sent as the `x-fiber-referrer` header.
    * Defaults to the current view path; `false` omits the header.

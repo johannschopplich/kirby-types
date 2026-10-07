@@ -38,8 +38,8 @@ export interface PanelTimer {
    * Starts the timer with a callback.
    * Stops any previous timer first. Does nothing if `timeout <= 0`.
    *
-   * @param timeout - Delay in milliseconds
-   * @param callback - Function to call after timeout
+   * @param timeout - Interval in milliseconds
+   * @param callback - Function to call every `timeout` ms
    */
   start: (timeout: number, callback: () => void) => void;
 
@@ -839,8 +839,9 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
    * Opens a drawer by path, `URL`, or state object, switches to `tab` of a
    * state object, the first tab otherwise, and focuses the drawer. A string
    * path loads from `/drawers/`. An object with `url` loads that path and
-   * passes its other keys as options. `replace: true` on a state object swaps
-   * the current drawer in the history instead of stacking on top of it.
+   * passes its other keys as options in place of `options`. `replace: true`
+   * on a state object swaps the current drawer in the history instead of
+   * stacking on top of it.
    */
   open: (
     drawer:
