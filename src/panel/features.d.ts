@@ -428,10 +428,10 @@ export interface PanelNotification
 
   /**
    * Opens a notification. When passed a string, delegates to `success()`.
-   * Otherwise fills in the Panel's current context unless the options pass
-   * one, replaces a falsy `timeout` with `4000` ms for types other than
-   * `error` and `fatal`, opens the notification, and starts the auto-close
-   * timer.
+   * Otherwise resets every field the options omit to its default, takes the
+   * current Panel context unless the options carry their own, replaces a
+   * falsy `timeout` with `4000` ms for types other than `error` and `fatal`,
+   * opens the notification, and starts the auto-close timer.
    *
    * @param notification - Message string or options object
    */
@@ -468,7 +468,7 @@ export interface PanelSystemDefaults {
   locales: Record<string, string>;
   /** Slug character replacements of the current language. */
   slugs: Record<string, string>;
-  /** Site title, or `"Kirby Panel"` when the site has none. */
+  /** Site title; `"Kirby Panel"` when the site has none. */
   title: string;
 }
 
@@ -600,7 +600,10 @@ export interface PanelBreadcrumbItem {
  * @source src/Panel/Panel.php
  */
 export interface PanelViewDefaults extends PanelFeatureDefaults {
-  /** Crumbs after the area crumb; model views end with the current model. */
+  /**
+   * Crumbs shown after the area crumb, which `breadcrumbLabel`, `icon`, and
+   * `link` describe.
+   */
   breadcrumb: PanelBreadcrumbItem[];
   /** Label of the area crumb shown before `breadcrumb`. */
   breadcrumbLabel: string | null;
@@ -647,8 +650,7 @@ export interface PanelView
 // #region Dropdown
 
 /**
- * Dropdown menu option. In an option list, a `"-"` entry renders a
- * separator instead.
+ * Dropdown option. Other button props pass through to the rendered item.
  *
  * @source panel/src/components/Dropdowns/DropdownContent.vue
  * @source panel/src/components/Navigation/Button.vue
@@ -672,7 +674,7 @@ export interface PanelDropdownOption {
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
 
-  /** Visibility condition – the option is hidden when `false`. */
+  /** Whether the option is shown; `false` hides it. */
   when?: boolean;
 
   disabled?: boolean;
@@ -945,7 +947,7 @@ export interface PanelContentVersion {
 }
 
 /**
- * Content versions container.
+ * Published content and unpublished changes of the current model view.
  * @since 5.0.0
  * @source panel/src/panel/content.js
  * @source src/Panel/Model.php
@@ -977,15 +979,15 @@ export interface PanelContentLock {
    */
   modified: string | Date | null;
   /**
-   * User holding the lock. Both fields are `null` when nobody holds the lock
-   * or the holder is not listable.
+   * User who holds the lock; both fields are `null` when no user is set or
+   * the user is not listable.
    */
   user: { id: string | null; email: string | null };
 }
 
 /**
- * Environment of a content operation. Each key it omits falls back to the
- * current view.
+ * Target of a content operation; each omitted key defaults to the current
+ * view.
  * @since 5.0.0
  * @source panel/src/panel/content.js
  * @source src/Panel/View.php
@@ -999,10 +1001,9 @@ export interface PanelContentEnv {
 }
 
 /**
- * Content feature for form state management.
- *
- * Manages content versions, saving, publishing, and lock handling.
- * Provides automatic save on input with throttling.
+ * Content state of the current model view: versions, saving, publishing,
+ * and lock handling. `saveLazy` and `updateLazy` throttle saves while
+ * typing.
  *
  * @since 5.0.0
  * @source panel/src/panel/content.js
@@ -1182,9 +1183,8 @@ export interface PanelContent {
 
   /**
    * Merges the values into the current changes at once and saves them
-   * throttled like `saveLazy`.
+   * throttled through `saveLazy`.
    *
-   * @param values - Values to update
    * @throws Error if called for another view
    */
   updateLazy: (values?: Record<string, any>, env?: PanelContentEnv) => void;
@@ -1230,10 +1230,10 @@ export interface PanelSearchOptions {
 }
 
 /**
- * Search response from the API. Server responses also carry the request
- * envelope (`code`, `path`, `query`, `referrer`); the responses `query()`
- * builds itself for short queries and failures carry only `results` and
- * `pagination`.
+ * Search response from the Panel backend. Server responses also carry the
+ * request envelope (`code`, `path`, `query`, `referrer`); the responses
+ * `query()` builds itself for short queries and failures carry only
+ * `results` and `pagination`.
  *
  * @source panel/src/panel/search.ts
  * @source src/Panel/Controller/Search.php
@@ -1266,8 +1266,8 @@ export interface PanelSearchResponse {
  */
 export interface PanelSearcher {
   /**
-   * Controller for aborting the pending query, replaced on every `query()`
-   * call; `undefined` until the first one.
+   * Controller for canceling the pending search, replaced on each `query()`
+   * call; `undefined` until the first query.
    */
   controller: AbortController | undefined;
 
@@ -1278,7 +1278,7 @@ export interface PanelSearcher {
   readonly isLoading: boolean;
 
   /**
-   * Opens the search dialog.
+   * Closes the mobile menu and opens the search dialog for the given type.
    *
    * @param type - Search type (e.g., `"pages"`, `"files"`, `"users"`)
    */
@@ -1308,8 +1308,9 @@ export interface PanelSearcher {
 /**
  * Server-side file model passed to `PanelUpload.replace()` and stored in
  * `PanelUploadDefaults.replacing`. Distinct from `PanelUploadFile` (the
- * client-side queued upload). Carries the fields read by `replace()` to
- * configure the upload picker (`url`, `accept`).
+ * client-side queued upload). `link`, `extension`, and `mime` set the upload
+ * target and the picker's accept filter; `filename`, `url`, `mime`, and
+ * `image` render the replace dialog.
  *
  * @source panel/src/panel/upload.js
  * @source panel/src/components/Dialogs/UploadReplaceDialog.vue
@@ -1405,7 +1406,10 @@ export interface PanelUploadDefaults {
    * spreads nothing.
    */
   preview: Record<string, any> | boolean;
-  /** Server file model being replaced (carries `link`, `extension`, `mime`). */
+  /**
+   * Server file model being replaced. While set, `open()` shows the replace
+   * dialog and `model.update` carries its `link` as `path`.
+   */
   replacing: PanelUploadReplaceFile | null;
   /** Upload endpoint URL. */
   url: string | null;
@@ -1448,9 +1452,8 @@ export interface PanelUpload
   cancel: () => Promise<void>;
 
   /**
-   * Closes the upload dialog; if any files completed, emits `complete` and
-   * `done` with their server file models, announces success, and resets
-   * state. `submit()` calls it once every file has uploaded.
+   * Closes the upload dialog and, if any files completed, emits `complete`
+   * and `done` and announces success. Resets state either way.
    */
   done: () => Promise<void>;
 
@@ -1537,10 +1540,10 @@ export interface PanelUpload
   set: (state?: PanelUploadOptions) => PanelUploadDefaults | undefined;
 
   /**
-   * Uploads every file not yet completed, incrementing `attributes.sort`
-   * per file, and calls `done()` once all have completed. A file whose name
-   * another queued file shares gets an `error` instead. Throws when `url` is
-   * unset.
+   * Uploads all files not yet completed and throws when `url` is missing. A
+   * file sharing its name and extension with another queued file gets an
+   * `error` instead of uploading. A set `attributes.sort` increments once per
+   * file, and `done()` runs once every file has completed.
    */
   submit: () => Promise<void>;
 
@@ -1580,7 +1583,8 @@ export interface PanelEventEmitter {
  * Once `subscribe()` runs, document and window events are re-emitted on the
  * bus under their own name. The bus ships with built-in handlers:
  * - `online` and `offline` toggle `panel.isOffline`
- * - `keydown.cmd.s` emits `<context>.save`, e.g. `dialog.save`
+ * - `keydown.cmd.s` emits `<context>.save`; `dialog.save` and `drawer.save`
+ *   submit the open dialog or drawer
  * - `keydown.cmd.shift.f` and `keydown.cmd./` open the search dialog
  * - `clipboard.write` copies its payload and shows a success notification.
  *
