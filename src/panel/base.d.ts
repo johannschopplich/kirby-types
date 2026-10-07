@@ -1,18 +1,11 @@
 /**
- * Base type definitions for Kirby Panel.
- *
- * This module provides the foundational types for the Panel's
- * state management hierarchy: State → Feature → Modal.
+ * Base types of the Panel's state hierarchy: State → Feature → Modal.
  */
 
 // #region State Management
 
 /**
- * Base state interface for Panel state objects.
- *
- * The Panel uses a hierarchical state management pattern where all
- * reactive state objects inherit from this base. State objects are
- * created via factory functions that return Vue reactive objects.
+ * Vue-reactive base of every Panel state, including features and modals.
  *
  * @typeParam TDefaults - Shape of the default state object
  *
@@ -31,10 +24,6 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
    */
   key: () => string;
 
-  /**
-   * Returns all default values for the state.
-   * Used for state restoration and initialization.
-   */
   defaults: () => TDefaults;
 
   /**
@@ -53,9 +42,8 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
   set: (state: Partial<TDefaults>) => TDefaults;
 
   /**
-   * Returns the current state filtered to default keys only.
-   * Properties not in defaults are excluded, and a `null` or `undefined`
-   * value falls back to its default.
+   * Returns the current state, limited to the keys of `defaults()`. A `null`
+   * or `undefined` value falls back to its default.
    */
   state: () => TDefaults;
 }
@@ -69,7 +57,6 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 export type PanelEventCallback<TReturn = any> = (...args: any[]) => TReturn;
 
 /**
- * Map of event names to their callback functions.
  * @source panel/src/panel/listeners.ts
  */
 export type PanelEventListenerMap<TEvents extends string = string> = Partial<
@@ -77,11 +64,8 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
 >;
 
 /**
- * Event listener mixin interface.
- *
- * Provides event handling capabilities for Panel features.
- * Mixed into every feature and modal, e.g. `panel.view`, `panel.dialog`,
- * and `panel.drawer`, to enable custom event handling without a full
+ * Event listener mixin of every feature and modal, such as `panel.view`,
+ * `panel.dialog`, and `panel.drawer`, for custom events without a full
  * event bus.
  *
  * @typeParam TEvents - Union of valid event names
@@ -121,26 +105,17 @@ export interface PanelEventListeners<TEvents extends string = string> {
    *
    * @param event - Event name to emit
    * @param args - Arguments to pass to the listener
-   * @returns Listener result, or `undefined` when no listener is registered.
+   * @returns Listener result, or `undefined` when no listener is registered
    */
   emit: <TReturn = any>(event: TEvents, ...args: any[]) => TReturn | undefined;
 
-  /**
-   * Checks if a listener is registered for an event.
-   *
-   * @param event - Event name to check
-   * @returns `true` if a function is registered for this event
-   */
+  /** Checks if a listener is registered for `event`. */
   hasEventListener: (event: TEvents) => boolean;
 
   /** Returns all registered listeners. */
   listeners: () => PanelEventListenerMap<TEvents>;
 
-  /**
-   * Removes the listener registered for `event`.
-   *
-   * @param event - Event name whose listener should be removed
-   */
+  /** Removes the listener registered for `event`. */
   removeEventListener: (event: TEvents) => void;
 
   /**
@@ -170,10 +145,7 @@ export interface PanelFeatureDefaults {
 
   on: PanelEventListenerMap;
 
-  /**
-   * Relative path for the feature.
-   * Used for API requests and URL building.
-   */
+  /** Relative path, used for API requests and URL building. */
   path: string | null;
 
   /** Props passed to the Vue component. */
@@ -190,13 +162,8 @@ export interface PanelFeatureDefaults {
 }
 
 /**
- * Feature interface with loading and request capabilities.
- *
- * Features are the main building blocks of the Panel, providing
- * loading states, API requests, and event handling. They extend
- * State with HTTP request methods and the event listener mixin.
- *
- * Features include: view, dropdown.
+ * State that loads from the server, with request methods, a loading state,
+ * and event listeners. Features include `panel.view` and `panel.dropdown`.
  *
  * @typeParam TDefaults - Shape of the feature's default state
  *
@@ -224,7 +191,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Sets `isLoading` during the request.
    *
    * @param url - URL to fetch
-   * @param options - Request options
    * @returns Response data or `false` on error
    */
   get: (
@@ -233,12 +199,9 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   ) => Promise<any | false>;
 
   /**
-   * Loads a feature from the server and opens it.
-   * Creates an `AbortController` for the request, then routes through
-   * `panel.open()`.
+   * Loads a feature from the server and opens it through `panel.open()`.
    *
    * @param url - Feature URL to load
-   * @param options - Request options
    * @returns The feature's state after loading
    */
   load: (
@@ -250,8 +213,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Opens a feature by URL or state object.
    * If given a URL, delegates to `load()`. Otherwise sets state directly.
    *
-   * @param feature - URL string, URL object, or state object
-   * @param options - Request options or submit handler function
+   * @param options - Request options, or a function to register as the `submit` listener
    * @returns The feature's state after opening
    */
   open: (
@@ -264,17 +226,15 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Uses `props.value` if no value is provided.
    *
    * @param value - Data to send
-   * @param options - Request options
    * @returns Response data or `false` on error
    * @throws Error if feature has no path
    */
   post: (value?: any, options?: PanelRequestOptions) => Promise<any | false>;
 
   /**
-   * Reloads properties from the server to refresh state.
-   * Only updates props if the component matches.
+   * Reloads the props from the server, updating them only when the response
+   * targets the same component.
    *
-   * @param options - Request options
    * @returns The feature's state after refresh, or `undefined` when the
    *   request fails or the response targets another component
    */
@@ -283,7 +243,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   /**
    * Reloads the feature by re-opening its current URL.
    *
-   * @param options - Request options
    * @returns `false` if no path exists, otherwise the feature's state after
    *   re-opening
    */
@@ -340,12 +299,8 @@ export interface PanelModalSubmitResponse {
 }
 
 /**
- * Modal interface for dialogs and drawers.
- *
- * Modals extend features with overlay-specific functionality
- * like history navigation, form handling, and open/close states.
- *
- * Modals include `dialog` and `drawer`.
+ * Feature shown as an overlay, such as `panel.dialog` and `panel.drawer`,
+ * with history navigation, form handling, and open and close states.
  *
  * @typeParam TDefaults - Shape of the modal's default state
  *
@@ -375,16 +330,10 @@ export interface PanelModal<
 
   isOpen: boolean;
 
-  /**
-   * Navigation history for nested modals.
-   * Stores state snapshots for back navigation.
-   */
+  /** State snapshots of nested modals, for back navigation. */
   history: PanelHistory;
 
-  /**
-   * Quick access to `props.value`, or an empty object when unset.
-   * Dialogs and drawers often contain forms.
-   */
+  /** Form value, read from `props.value`, or an empty object when unset. */
   readonly value: Record<string, any>;
 
   /** Cancels the modal by emitting `"cancel"` and closing. */
@@ -408,9 +357,9 @@ export interface PanelModal<
   focus: (input?: string) => void;
 
   /**
-   * Navigates to a specific modal in history by ID.
+   * Navigates to a modal in history.
    *
-   * @param id - Milestone ID to navigate to
+   * @param id - Milestone ID
    */
   goTo: (id: string) => void;
 
@@ -433,8 +382,7 @@ export interface PanelModal<
    * Closes the current notification on first open and marks the modal
    * as open once a component is set.
    *
-   * @param modal - URL or state object
-   * @param options - Request options or submit handler function
+   * @param options - Request options, or a function to register as the `submit` listener
    * @returns The modal's state after opening
    */
   open: (
@@ -445,7 +393,6 @@ export interface PanelModal<
   /**
    * Reloads the modal by closing it and re-opening its current URL.
    *
-   * @param options - Request options
    * @returns `false` if no path exists, otherwise the `open()` result
    */
   reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
@@ -453,18 +400,16 @@ export interface PanelModal<
   /**
    * Sets modal state, auto-generating an ID if not provided.
    *
-   * @param state - State to set
    * @returns The complete state
    */
   set: (state: Partial<TDefaults>) => TDefaults;
 
   /**
-   * Submits the modal form.
-   * Does nothing while loading. Checks for a submit listener
-   * first, then sends a POST request if a path exists.
+   * Submits the modal form to the `submit` listener if one is registered,
+   * otherwise as a POST request to the modal's path. Does nothing while
+   * loading.
    *
    * @param value - Form value (defaults to `props.value`)
-   * @param options - Request options
    * @returns The `submit` listener's result if one is registered, `false` if
    *   the request fails, otherwise the `success()` result; `undefined` while
    *   loading or when closing without a path
@@ -490,17 +435,17 @@ export interface PanelModal<
   successEvents: (state: PanelModalSubmitResponse) => void;
 
   /**
-   * Shows a success notification if response contains a message.
+   * Shows a success notification if the response has a `message`.
    *
    * @param state - Success response with optional message
    */
   successNotification: (state: PanelModalSubmitResponse) => void;
 
   /**
-   * Handles redirects from success response.
+   * Opens the response's `route`, else its `redirect`, via `panel.open()`.
    *
-   * @param state - Success response with route/redirect
-   * @returns `false` if no redirect, otherwise navigates
+   * @param state - Success response with `route` or `redirect`
+   * @returns `false` if there is none, otherwise the `panel.open()` promise
    */
   successRedirect: (state: PanelModalSubmitResponse) => false | Promise<any>;
 }
@@ -509,7 +454,7 @@ export interface PanelModal<
 // #region History
 
 /**
- * A history milestone representing a saved modal state.
+ * Modal state saved in the history.
  * @source panel/src/helpers/history.ts
  */
 export interface PanelHistoryMilestone {
@@ -519,11 +464,8 @@ export interface PanelHistoryMilestone {
 }
 
 /**
- * History interface for modal navigation.
- *
- * Tracks navigation milestones within modals to enable
- * back/forward navigation in nested dialogs and drawers.
- * Each milestone stores a complete state snapshot.
+ * Navigation history of nested dialogs and drawers, each milestone a
+ * complete state snapshot.
  *
  * @example
  * ```ts
@@ -540,10 +482,8 @@ export interface PanelHistory {
   milestones: PanelHistoryMilestone[];
 
   /**
-   * Adds a state to history.
-   * A state whose `id` is already stored is ignored, unless `replace` is
-   * `true`.
-   * The state must have an `id` property.
+   * Adds a state to history. A state whose `id` is already stored is
+   * ignored, unless `replace` is `true`.
    *
    * @param state - State object with required `id`
    * @param replace - If `true`, replaces the last milestone instead of adding
@@ -552,21 +492,16 @@ export interface PanelHistory {
   add: (state: PanelHistoryMilestone, replace?: boolean) => void;
 
   /**
-   * Gets milestone at a specific index.
-   * Supports negative indices (`-1` for last).
-   *
-   * @param index - Array index
-   * @returns Milestone at index, or `undefined`
+   * Returns the milestone at an index, or `undefined`. Negative indices
+   * count from the end, `-1` being the last.
    */
   at: (index: number) => PanelHistoryMilestone | undefined;
 
   clear: () => void;
 
   /**
-   * Gets milestone by ID, or all milestones if no ID provided.
-   *
-   * @param id - Milestone ID, or `null`/`undefined` for all
-   * @returns Single milestone, all milestones, or `undefined`
+   * Returns all milestones when `id` is `null` or omitted, otherwise the
+   * milestone with that ID, or `undefined` if none matches.
    */
   get: (
     id?: string | null,
@@ -580,11 +515,7 @@ export interface PanelHistory {
    */
   goto: (id: string) => PanelHistoryMilestone | undefined;
 
-  /**
-   * Checks if a milestone exists in history.
-   *
-   * @param id - Milestone ID to check
-   */
+  /** Checks if a milestone with the given ID exists in history. */
   has: (id: string) => boolean;
 
   /**
@@ -593,41 +524,27 @@ export interface PanelHistory {
   hasPrevious: () => boolean;
 
   /**
-   * Gets the array index of a milestone.
-   *
-   * @param id - Milestone ID
-   * @returns Index, or `-1` if not found
+   * Returns the array index of the milestone with the given ID, or `-1` if
+   * not found.
    */
   index: (id: string) => number;
 
-  /** Checks if history has no milestones. */
   isEmpty: () => boolean;
 
-  /** Gets the last milestone in history. */
   last: () => PanelHistoryMilestone | undefined;
 
   /**
-   * Removes a milestone by ID, or the last milestone if no ID.
+   * Removes the milestone with the given ID, or the last one when `id` is
+   * `null` or omitted.
    *
-   * @param id - Milestone ID, or `null` to remove last
    * @returns Updated milestones array
    */
   remove: (id?: string | null) => PanelHistoryMilestone[];
 
-  /**
-   * Removes the last milestone from history.
-   *
-   * @returns Updated milestones array
-   */
+  /** Removes the last milestone and returns the remaining ones. */
   removeLast: () => PanelHistoryMilestone[];
 
-  /**
-   * Replaces a milestone at a specific index.
-   * Index `-1` replaces the last milestone.
-   *
-   * @param index - Array index to replace
-   * @param state - New state to insert
-   */
+  /** Replaces the milestone at an index; `-1` replaces the last one. */
   replace: (index: number, state: PanelHistoryMilestone) => void;
 }
 // #endregion
@@ -635,7 +552,6 @@ export interface PanelHistory {
 // #region Request Options
 
 /**
- * Options for Panel API requests.
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/feature.ts
  * @source panel/src/panel/panel.ts
@@ -686,7 +602,6 @@ export interface PanelRequestOptions extends Omit<
 }
 
 /**
- * Extended options for refresh requests.
  * @source panel/src/panel/feature.ts
  */
 export interface PanelRefreshOptions extends PanelRequestOptions {
@@ -698,19 +613,18 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
 // #region Context & Notification Types
 
 /**
- * Panel context indicating which layer is currently active.
- * Used to determine where notifications appear and which feature has focus.
+ * Layer that is currently active, which decides where notifications appear
+ * and which feature has focus.
  * @source panel/src/panel/panel.ts
  * @source panel/src/panel/notification.ts
  */
 export type PanelContext = "view" | "dialog" | "drawer";
 
 /**
- * Type of notification determining behavior and persistence.
- * Only `error` and `fatal` are written to `state.type`; `success()` and
- * `info()` shortcuts set `theme` (and `icon`) instead of `type`.
+ * Notification type, which decides behavior and persistence. The `success()`
+ * and `info()` shortcuts set `theme` and `icon` instead of a type.
  * - `error`: Operation failed, persists until dismissed.
- * - `fatal`: Critical error, displayed in isolated iframe.
+ * - `fatal`: Critical error, displayed in an isolated iframe.
  * @source panel/src/panel/notification.ts
  */
 export type NotificationType = "error" | "fatal";
@@ -728,7 +642,7 @@ export type NotificationType = "error" | "fatal";
  *
  * Kirby accepts any string as the theme and matches the stylesheet by prefix,
  * so plain color names (`red`, `green`, ...) and suffixed variants such as
- * `positive-icon` are styled as well. Hence the open union.
+ * `positive-icon` are styled as well.
  * @source panel/src/panel/notification.ts
  * @source panel/src/styles/utilities/theme.css
  */

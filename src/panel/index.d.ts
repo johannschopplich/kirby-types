@@ -1,18 +1,8 @@
 /* eslint-disable perfectionist/sort-named-exports */
 
 /**
- * Kirby Panel type definitions.
- *
- * This is the main entry point for all Panel type definitions.
- * Types are organized into modules for better maintainability:
- *
- * - `base.d.ts` - State, Feature, Modal, History, Event Listeners
- * - `features.d.ts` - View, Dialog, Drawer, Dropdown, Notification, etc.
- * - `helpers.d.ts` - $helper.* utilities
- * - `libraries.d.ts` - $library.* (colors, dayjs, autosize)
- * - `api.d.ts` - API client methods
- * - `writer.d.ts` - Writer (ProseMirror) editor and extensions
- * - `textarea.d.ts` - Textarea toolbar buttons
+ * Kirby Panel type definitions: the `Panel` interface and the re-exports of
+ * every Panel module.
  */
 
 import type {
@@ -255,7 +245,6 @@ export interface PanelConfig {
      */
     methodOverride: boolean;
   };
-  /** Whether debug mode is enabled. */
   debug: boolean;
   /**
    * Whether the textarea toolbar writes links and emails as KirbyText tags
@@ -482,7 +471,7 @@ export interface PanelUrls {
 // #region Panel Request Response
 
 /**
- * Response object from Panel requests.
+ * Result of `panel.request()`.
  *
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/html.ts
@@ -597,10 +586,9 @@ export interface PanelPluginExtensions {
   use?: Record<string, Plugin> | Plugin[];
 
   /**
-   * Callback executed in the `created` hook of the Panel's root component.
-   *
-   * Receives the root component instance as parameter. The application
-   * itself is available as `window.panel.app`.
+   * Runs in the `created` hook of the Panel's root component and receives
+   * that component instance. The application itself is available as
+   * `window.panel.app`.
    *
    * @example
    * ```ts
@@ -619,9 +607,7 @@ export interface PanelPluginExtensions {
   textareaButtons?: Record<string, TextareaButton>;
 
   /**
-   * Arbitrary third-party plugin data.
-   *
-   * Can be used to pass configuration to other plugins.
+   * Arbitrary data for other plugins to read, such as configuration.
    */
   thirdParty?: Record<string, any>;
 
@@ -652,12 +638,11 @@ export interface PanelPlugins {
   // #region Helper Functions
 
   /**
-   * Resolves a component extension if defined as component name.
+   * Resolves an `extends` given as a component name to that component, or
+   * drops it with a console warning when no such component is registered.
    *
-   * @param app - Vue application instance
    * @param name - Component name being registered
-   * @param component - Component options object
-   * @returns Updated/extended component options
+   * @returns The component options, mutated in place
    */
   resolveComponentExtension: (
     app: App,
@@ -666,20 +651,20 @@ export interface PanelPlugins {
   ) => PanelComponentExtension;
 
   /**
-   * Resolves available mixins if they are defined.
+   * Replaces the mixin names `"dialog"`, `"drawer"`, and `"section"` with
+   * their mixins, skipping one the extended component already includes.
    *
-   * @param component - Component options object
-   * @returns Updated component options with resolved mixins
+   * @returns The component options, mutated in place
    */
   resolveComponentMixins: (
     component: PanelComponentExtension,
   ) => PanelComponentExtension;
 
   /**
-   * Resolves a component's competing template/render options.
+   * Sets `render` to `null` when the component has a template, so the
+   * template wins over an inherited render function.
    *
-   * @param component - Component options object
-   * @returns Updated component options
+   * @returns The component options, mutated in place
    */
   resolveComponentRender: (
     component: PanelComponentExtension,
@@ -857,10 +842,8 @@ export interface PanelHtml {
 // #region Main Panel Interface
 
 /**
- * The main Panel interface.
- *
- * The Panel is the central object managing the Kirby admin interface.
- * It provides access to all features, configuration, and the API client.
+ * Panel instance, holding every feature, the configuration, and the API
+ * client.
  *
  * @example
  * ```ts
@@ -893,15 +876,20 @@ export interface Panel {
 
   readonly app: PanelApp;
 
-  /** Current editing context. */
+  /**
+   * Editing context: `"dialog"` while a dialog is open, else `"drawer"` while
+   * a drawer is, else `"view"`.
+   */
   readonly context: PanelContext;
 
-  /** Whether debug mode is enabled. */
   readonly debug: boolean;
 
   readonly direction: "ltr" | "rtl";
 
-  /** Document title; setting it appends the system title as a suffix when present. */
+  /**
+   * Returns the document title. Setting it appends `" | "` and the system
+   * title when the system has one.
+   */
   get title(): string;
   set title(title: string | null);
 
@@ -934,13 +922,11 @@ export interface Panel {
 
   drag: PanelFeatures.PanelDrag;
 
-  /** Global event handling. */
   events: PanelFeatures.PanelEvents;
 
-  /** Current language state. */
+  /** Current content language, as opposed to the interface `translation`. */
   language: PanelFeatures.PanelLanguage;
 
-  /** Navigation menu state. */
   menu: PanelFeatures.PanelMenu;
 
   notification: PanelFeatures.PanelNotification;
@@ -953,7 +939,6 @@ export interface Panel {
 
   translation: PanelFeatures.PanelTranslation;
 
-  /** File upload handling. */
   upload: PanelFeatures.PanelUpload;
 
   user: PanelFeatures.PanelUser;
@@ -993,7 +978,6 @@ export interface Panel {
     | "missing"
     | "unknown";
 
-  /** Whether multi-language is enabled. */
   multilang: boolean;
 
   permissions: PanelPermissions;
@@ -1012,8 +996,6 @@ export interface Panel {
 
   /**
    * Logs a deprecation warning.
-   *
-   * @param message - Deprecation message
    */
   deprecated: (message: string) => void;
 
@@ -1030,20 +1012,14 @@ export interface Panel {
   /**
    * Sends a GET request through the Panel router.
    *
-   * @param url - URL to fetch
-   * @param options - Request options
    * @returns Response data
    */
   get: (url: string | URL, options?: PanelRequestOptions) => Promise<any>;
 
   /**
-   * Opens a URL through the Panel router and sets the state.
+   * Opens a URL through the Panel router and sets the Panel state from the
+   * response. A state object instead of a URL is set directly.
    *
-   * Unlike `get()`, this method also updates the Panel state
-   * based on the response.
-   *
-   * @param url - URL to open or state object
-   * @param options - Request options
    * @returns The new Panel state, or `undefined` on failure
    */
   open: (
@@ -1059,7 +1035,6 @@ export interface Panel {
    * plugin scripts load, before the Panel boots.
    *
    * @param name - Plugin name, by convention `vendor/plugin`, unused by the runtime
-   * @param extensions - Plugin extensions to register
    *
    * @example
    * ```ts
@@ -1087,9 +1062,7 @@ export interface Panel {
   /**
    * Sends a POST request through the Panel router.
    *
-   * @param url - URL to post to
    * @param data - Request body
-   * @param options - Request options
    * @returns Response data
    */
   post: (
@@ -1109,7 +1082,6 @@ export interface Panel {
   /**
    * Reloads the current view.
    *
-   * @param options - Request options
    * @returns The new view state, or `false` if the view has no path
    */
   reload: (
@@ -1117,14 +1089,11 @@ export interface Panel {
   ) => Promise<PanelFeatures.PanelViewDefaults | false>;
 
   /**
-   * Sends a request through the Panel router.
+   * Sends a request through the Panel router. A cross-origin URL or a
+   * non-JSON response rejects with a redirect error, which `panel.error()`
+   * turns into a page navigation.
    *
-   * Returns an object with both the request and the parsed response.
-   * A cross-origin URL or a non-JSON response rejects with a redirect error,
-   * which `panel.error()` turns into a page navigation.
-   *
-   * @param url - URL to request
-   * @param options - Request options including method
+   * @param options - Request options, including the `method`
    */
   request: (
     url: string | URL,
@@ -1132,18 +1101,12 @@ export interface Panel {
   ) => Promise<PanelRequestResponse>;
 
   /**
-   * Opens the search dialog or performs a search query.
+   * Opens the search dialog with the search type preselected, or runs the
+   * search when given a query. Without a type, both use the current view's
+   * search type.
    *
-   * When called without a query, opens the search dialog
-   * with the specified search type pre-selected.
-   *
-   * When called with a query, performs the search and returns results.
-   *
-   * Without a type, the current view's search type is used.
-   *
-   * @param type - Search type (`"pages"`, `"files"`, `"users"`)
-   * @param query - Search query string
-   * @param options - Search options (page, limit)
+   * @param type - Search type, such as `"pages"`, `"files"`, or `"users"`
+   * @param options - Search options (`page`, `limit`)
    * @returns Search results when a query is provided, `undefined` if a newer search aborted the request
    */
   search: {
@@ -1156,17 +1119,13 @@ export interface Panel {
   };
 
   /**
-   * Applies a new Panel state: updates globals, dispatches per-feature `set()` calls, opens/closes modals and the dropdown, and opens the view when present.
-   *
-   * @param state - State to apply
+   * Applies a new Panel state: updates the globals, calls each feature's
+   * `set()`, opens or closes the modals and the dropdown, and opens the view
+   * when present.
    */
   set: (state?: PanelStateInput) => void;
 
-  /**
-   * Returns the current global state.
-   *
-   * @returns Globals and every feature's state
-   */
+  /** Returns the globals and every feature's current state. */
   state: () => PanelGlobalState;
 
   /**
@@ -1174,22 +1133,13 @@ export interface Panel {
    * `{placeholder}` values from `data`. A missing key falls back to
    * `fallback`, then to the key itself; a string second argument is the
    * fallback.
-   *
-   * @param key - Translation key
-   * @param data - Placeholder values
-   * @param fallback - Text used when the key is missing
-   * @returns Translated string
    */
   t: {
     (key: string, fallback: string): string;
     (key: string, data?: Record<string, any>, fallback?: string): string;
   };
 
-  /**
-   * Translates a key using the current translation.
-   *
-   * @deprecated Legacy alias of `t()`; use `t()` instead.
-   */
+  /** @deprecated Alias of `t()`; use `t()` instead. */
   $t: Panel["t"];
 
   /**
@@ -1223,7 +1173,7 @@ export interface Panel {
 }
 // #endregion
 
-// #region View Props (commonly used)
+// #region View Props
 
 /**
  * User who last edited the content, or the current user when there are no
@@ -1263,44 +1213,44 @@ interface PanelViewPropsLock {
  */
 interface PanelViewPropsPermissions {
   access: boolean;
-  /** User permission. Present on User views. */
+  /** Present on User views. */
   changeEmail?: boolean;
-  /** User permission. Present on User views. */
+  /** Present on User views. */
   changeLanguage?: boolean;
-  /** File / User permission. Present on File and User views. */
+  /** Present on File and User views. */
   changeName?: boolean;
-  /** User permission. Present on User views. */
+  /** Present on User views. */
   changePassword?: boolean;
-  /** User permission. Present on User views. */
+  /** Present on User views. */
   changeRole?: boolean;
-  /** Page permission. Present on Page views. */
+  /** Present on Page views. */
   changeSlug?: boolean;
-  /** Page permission. Present on Page views. */
+  /** Present on Page views. */
   changeStatus?: boolean;
-  /** Page / File permission. Present on Page and File views. */
+  /** Present on Page and File views. */
   changeTemplate?: boolean;
-  /** Page / Site permission. Present on Page and Site views. */
+  /** Present on Page and Site views. */
   changeTitle?: boolean;
-  /** Page / File / User permission. Present on Page, File and User views. */
+  /** Present on Page, File, and User views. */
   create?: boolean;
-  /** Page / File / User permission. Present on Page, File and User views. */
+  /** Present on Page, File, and User views. */
   delete?: boolean;
-  /** Page permission. Present on Page views. */
+  /** Present on Page views. */
   duplicate?: boolean;
-  /** Page / File / User permission. Present on Page, File and User views. */
+  /** Present on Page, File, and User views. */
   list?: boolean;
-  /** Page permission. Present on Page views. */
+  /** Present on Page views. */
   move?: boolean;
   /**
-   * Page / Site permission. Present on Page and Site views; on Site views
-   * `true` only when both the site and its home page allow the preview.
+   * Present on Page and Site views; on Site views `true` only when both the
+   * site and its home page allow the preview.
    */
   preview?: boolean;
-  /** Page / File permission. Present on Page and File views. */
+  /** Present on Page and File views. */
   read?: boolean;
-  /** File permission. Present on File views. */
+  /** Present on File views. */
   replace?: boolean;
-  /** Page / File permission. Present on Page and File views. */
+  /** Present on Page and File views. */
   sort?: boolean;
   update: boolean;
 }
@@ -1321,9 +1271,12 @@ interface PanelViewPropsVersions {
  */
 interface PanelViewPropsTab {
   label: string;
-  /** Tab icon. May be `null` when the blueprint omits an icon. */
+  /** `null` when the blueprint omits an icon. */
   icon: string | null;
-  /** A list, or an object keyed by column name when the blueprint names its columns. */
+  /**
+   * List of columns, or an object keyed by column name when the blueprint
+   * names its columns.
+   */
   columns: Record<string, any>[] | Record<string, Record<string, any>>;
   link: string;
   name: string;
@@ -1332,7 +1285,7 @@ interface PanelViewPropsTab {
 }
 
 /**
- * Navigation link (next/prev).
+ * Link to a sibling model, for `next` and `prev`.
  * @source src/Panel/Model.php
  * @source src/Panel/Controller/View/ModelViewController.php
  * @source src/Panel/Controller/View/PageViewController.php
@@ -1434,9 +1387,9 @@ export interface PanelViewProps {
    * it is absent only for an empty blueprint.
    */
   tab?: PanelViewPropsTab;
-  /** Sibling navigation link to the next model, `null` without one. */
+  /** Link to the next sibling, `null` when there is none. */
   next: PanelViewPropsNavigation | null;
-  /** Sibling navigation link to the previous model, `null` without one. */
+  /** Link to the previous sibling, `null` when there is none. */
   prev: PanelViewPropsNavigation | null;
   blueprint: string;
   title: string;

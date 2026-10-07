@@ -13,7 +13,10 @@ import type { App } from "vue";
  * @source panel/src/helpers/array.ts
  */
 export interface PanelArraySearchOptions {
-  /** Query length at or below which the array is returned unfiltered (default: `0`). */
+  /**
+   * Query length at or below which the array is returned unfiltered
+   * (default: `0`).
+   */
   min?: number;
   /** Field to search in (default: `"text"`). */
   field?: string;
@@ -52,21 +55,12 @@ export interface PanelHelpersArray {
   sortBy: <T extends Record<string, any>>(array: T[], sortBy: string) => T[];
 
   /**
-   * Splits array into subarrays at every occurrence of the string delimiter.
-   * The delimiter itself is not included in the output.
-   *
-   * @param array - Array to split
-   * @param delimiter - String element to split on
-   * @returns Array of subarrays
+   * Splits the array into subarrays at every element equal to `delimiter`,
+   * which is dropped from the output.
    */
   split: <T>(array: T[], delimiter: string) => T[][];
 
-  /**
-   * Wraps non-array values in an array.
-   *
-   * @param array - Value to wrap
-   * @returns Original array or wrapped value
-   */
+  /** Wraps a non-array value in an array; an array comes back as-is. */
   wrap: <T>(array: T | T[]) => T[];
 }
 // #endregion
@@ -85,14 +79,8 @@ export type PanelSlugRules = Record<string, string>[];
  * @source panel/src/helpers/string.ts
  */
 export interface PanelHelpersString {
-  /**
-   * Converts camelCase to kebab-case.
-   */
   camelToKebab: (string: string) => string;
 
-  /**
-   * Escapes HTML special characters.
-   */
   escapeHTML: (string: unknown) => string;
 
   /**
@@ -105,17 +93,11 @@ export interface PanelHelpersString {
   /**
    * Checks if a string is shaped like an email address.
    *
-   * @param string - String to check
-   * @param strict - Reject a trailing query/hash after the domain
-   * @returns `true` if the string looks like an email address
+   * @param strict - Reject a trailing query or hash after the domain
    */
   isEmail: (string: unknown, strict?: boolean) => boolean;
 
-  /**
-   * Checks if string is empty or falsy.
-   *
-   * @returns `true` if empty
-   */
+  /** Checks if the value is an empty string or otherwise falsy. */
   isEmpty: (string: unknown) => boolean;
 
   /**
@@ -126,30 +108,22 @@ export interface PanelHelpersString {
   /**
    * Strips every leading repeat of `replace`, matched literally; without
    * `replace` the string comes back unchanged.
-   *
-   * @param replace - Substring to strip repeatedly
    */
   ltrim: (string: string, replace?: string) => string;
 
   /**
-   * Prefixes string with zeros until length is reached.
+   * Prefixes the value with zeros up to `length` characters.
    *
    * @param length - Target length (default: `2`)
    */
   pad: (value: string | number, length?: number) => string;
 
-  /**
-   * Generates random alphanumeric string.
-   *
-   * @param length - String length
-   */
+  /** Generates a random alphanumeric string of `length` characters. */
   random: (length: number) => string;
 
   /**
    * Strips every trailing repeat of `replace`, matched literally; without
    * `replace` the string comes back unchanged.
-   *
-   * @param replace - Substring to strip repeatedly
    */
   rtrim: (string: string, replace?: string) => string;
 
@@ -158,8 +132,13 @@ export interface PanelHelpersString {
    *
    * @param html - HTML to sanitize; a falsy value resolves to `""`
    * @param options - Allowed marks and nodes
-   * @param options.marks - Allowed marks: `true` for all, `false` for none, an array of mark names and extension instances, or a map of mark name to `true`, `false`, or mark options (default: `bold`, `code`, `italic`, `link`, `strike`, `sub`, `sup`, `underline`)
-   * @param options.nodes - Allowed nodes, in the same forms as `marks`; `doc`, `text`, and `paragraph` are always installed (default: inline content only, which flattens block structure)
+   * @param options.marks - Allowed marks: `true` for all, `false` for none, an
+   *   array of mark names and extension instances, or a map of mark name to
+   *   `true`, `false`, or mark options (default: `bold`, `code`, `italic`,
+   *   `link`, `strike`, `sub`, `sup`, `underline`)
+   * @param options.nodes - Allowed nodes, in the same forms as `marks`; `doc`,
+   *   `text`, and `paragraph` are always installed (default: inline content
+   *   only, which flattens block structure)
    */
   sanitizeHTML: (
     html: unknown,
@@ -191,16 +170,12 @@ export interface PanelHelpersString {
     separator?: string,
   ) => string;
 
-  /**
-   * Strips HTML tags from string.
-   */
   stripHTML: (string: string) => string;
 
   /**
-   * Replaces `{name}`, `{{name}}`, and dotted-path placeholders (e.g. `{nested.prop}`) with values from the lookup object.
-   * An unresolved placeholder renders as `…`.
-   *
-   * @param values - Replacement values
+   * Replaces `{name}`, `{{name}}`, and dotted-path placeholders such as
+   * `{nested.prop}` with entries from `values`; an unresolved placeholder
+   * renders as `…`.
    */
   template: (string: string, values?: Record<string, any>) => string;
 
@@ -235,15 +210,12 @@ export interface PanelHelpersObject {
   /**
    * Deep copies plain objects and arrays and unwraps reactive proxies into
    * plain data. Every other value, including `Date`, `Map`, and class
-   * instances, is returned as is.
-   *
-   * @param value - Value to clone
-   * @returns Cloned value
+   * instances, comes back as-is.
    */
   clone: { <T>(value: T): T; (): undefined };
 
   /**
-   * Filters object entries by predicate.
+   * Keeps the entries for which `predicate` returns `true`.
    */
   filter: <T extends Record<string, any>>(
     object: T,
@@ -251,29 +223,23 @@ export interface PanelHelpersObject {
   ) => Partial<T>;
 
   /**
-   * Checks if value is empty (`null`, `undefined`, `""`, empty object/array).
-   *
-   * @returns `true` if empty
+   * Checks if the value is `null`, `undefined`, `""`, or an empty plain object
+   * or array.
    */
   isEmpty: (value: unknown) => boolean;
 
   /**
-   * Checks if input is a plain object (not array, `null`, etc.).
-   *
-   * @returns `true` if plain object
+   * Checks if the input is a plain object; arrays, `null`, and class instances
+   * are not.
    */
   isObject: (input: unknown) => input is Record<string, unknown>;
 
-  /**
-   * Counts keys in an object.
-   *
-   * @returns Number of keys
-   */
+  /** Counts the keys of an object; `null` and `undefined` yield `0`. */
   length: (object?: Record<string, any> | null) => number;
 
   /**
-   * Recursively merges source into target. Mutates the target and the
-   * source's nested objects, which the target then references.
+   * Recursively merges `source` into `target`. Mutates `target` and the nested
+   * objects of `source`, which `target` then references.
    *
    * @param target - Target object (default: a new empty object)
    * @returns The mutated target
@@ -286,20 +252,10 @@ export interface PanelHelpersObject {
     source?: S,
   ) => T & S;
 
-  /**
-   * Compares objects by JSON stringification.
-   *
-   * @param a - First object
-   * @param b - Second object
-   * @returns `true` if identical
-   */
+  /** Compares two values by their JSON serialization, so key order matters. */
   same: (a: unknown, b: unknown) => boolean;
 
-  /**
-   * Converts all object keys to lowercase.
-   *
-   * @returns Object with lowercase keys
-   */
+  /** Copies the object with every key lowercased. */
   toLowerKeys: <T>(obj: Record<string, T>) => Record<string, T>;
 }
 // #endregion
@@ -331,7 +287,7 @@ export interface PanelHelpersUrl {
    * Builds a full URL object with query parameters. A `URL` passed as `url`
    * is updated in place and returned.
    *
-   * @param origin - Base origin URL
+   * @param origin - Base for a relative `url` (default: the base URL)
    */
   buildUrl: (
     url?: string | URL,
@@ -343,23 +299,13 @@ export interface PanelHelpersUrl {
    * Checks if a URL begins with a dangerous URI scheme (e.g. `javascript:`,
    * `vbscript:`, `data:`) after removing every character other than letters
    * and colons.
-   *
-   * @returns `true` if the URL uses a dangerous scheme
    */
   hasDangerousScheme: (url: unknown) => boolean;
 
-  /**
-   * Checks if URL string starts with `http://` or `https://`.
-   *
-   * @returns `true` if absolute
-   */
+  /** Checks if the value starts with `http://` or `https://`. */
   isAbsolute: (url: unknown) => boolean;
 
-  /**
-   * Checks if URL is on the same origin as current page.
-   *
-   * @returns `true` if same origin
-   */
+  /** Checks if the URL is on the same origin as the current page. */
   isSameOrigin: (url: string | URL) => boolean;
 
   /**
@@ -381,7 +327,6 @@ export interface PanelHelpersUrl {
   /**
    * Converts a URL string to a URL object; a `URL` instance comes back as-is.
    *
-   * @param url - URL string or object
    * @param origin - Base for a relative path (default: the base URL)
    */
   toObject: (url: string | URL, origin?: string | URL) => URL;
@@ -420,15 +365,12 @@ export interface PanelHelpersClipboard {
 // #region Embed Helpers
 
 /**
- * Embed helper utilities for video providers.
- *
  * @source panel/src/helpers/embed.ts
  */
 export interface PanelHelpersEmbed {
   /**
    * Converts YouTube URL to embed URL.
    *
-   * @param url - YouTube video URL
    * @param doNotTrack - Enable privacy-enhanced mode
    * @returns Embed URL or `false` if not valid
    */
@@ -437,7 +379,6 @@ export interface PanelHelpersEmbed {
   /**
    * Converts Vimeo URL to embed URL.
    *
-   * @param url - Vimeo video URL
    * @param doNotTrack - Enable do-not-track mode
    * @returns Embed URL or `false` if not valid
    */
@@ -483,19 +424,13 @@ export interface PanelHelpersField {
    */
   defaultValue: (field: PanelFieldDefinition) => any;
 
-  /**
-   * Creates form values object from field definitions.
-   *
-   * @returns Form values object
-   */
+  /** Collects the default value of each field, keyed by field name. */
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
-   * Checks if a field is visible. Returns `false` for hidden fields, otherwise evaluates `when` conditions against current form values.
-   *
-   * @param field - Field definition
-   * @param values - Current form values
-   * @returns `true` if visible
+   * Checks if a field is visible. Returns `false` for hidden fields,
+   * otherwise evaluates the `when` conditions against `values`, the current
+   * form values.
    */
   isVisible: (
     field: PanelFieldDefinition,
@@ -509,7 +444,7 @@ export interface PanelHelpersField {
    *
    * @param field - Parent field
    * @param fields - Subfield definitions
-   * @returns Enhanced field definitions
+   * @returns The mutated subfield definitions
    */
   subfields: (
     field: PanelFieldDefinition,
@@ -552,11 +487,7 @@ export interface PanelHelpersFile {
  * @source panel/src/helpers/keyboard.ts
  */
 export interface PanelHelpersKeyboard {
-  /**
-   * Returns the meta key name for the current OS.
-   *
-   * @returns `"cmd"` on Mac, `"ctrl"` on other OS
-   */
+  /** Returns `"cmd"` on a Mac, `"ctrl"` on any other OS. */
   metaKey: () => "cmd" | "ctrl";
 }
 // #endregion
@@ -601,8 +532,7 @@ export interface PanelHelpersLink {
   /**
    * Detects link type and extracts link value.
    *
-   * @param value - Link value to detect
-   * @param types - Custom type definitions
+   * @param types - Link types to match against (default: all link types)
    * @returns Detection result or `undefined` if no match
    */
   detect: (
@@ -620,17 +550,11 @@ export interface PanelHelpersLink {
    */
   getPageUUID: (value: string) => string;
 
-  /**
-   * Checks if value is a file UUID or permalink.
-   *
-   * @returns `true` if file reference
-   */
+  /** Checks if the value is a file UUID or permalink. */
   isFileUUID: (value: string) => boolean;
 
   /**
-   * Checks if value is `site://`, a `page://` UUID, or a page permalink.
-   *
-   * @returns `true` if page reference
+   * Checks if the value is `site://`, a `page://` UUID, or a page permalink.
    */
   isPageUUID: (value: string) => boolean;
 
@@ -646,8 +570,6 @@ export interface PanelHelpersLink {
 // #region Page Helpers
 
 /**
- * Page status button props.
- *
  * @source panel/src/helpers/page.ts
  */
 export interface PanelPageStatusProps {
@@ -669,7 +591,7 @@ export interface PanelHelpersPage {
    *
    * @param status - Page status (`"draft"`, `"unlisted"`, `"listed"`)
    * @param disabled - Whether the button is disabled; also appends the
-   *   translated "disabled" label to the title
+   *   translated `disabled` label to the title
    */
   status: (status: string, disabled?: boolean) => PanelPageStatusProps;
 }
@@ -690,8 +612,6 @@ export type PanelUploadProgressCallback = (
 ) => void;
 
 /**
- * Upload result callback (used by `success` and `error`).
- *
  * @source panel/src/helpers/upload.ts
  */
 export type PanelUploadResultCallback = (
@@ -713,7 +633,7 @@ export interface PanelUploadParams {
   /** Filename sent with the file (default: the file's name). */
   filename?: string;
   headers?: Record<string, string>;
-  /** Additional form attributes (values are coerced to strings). */
+  /** Additional `FormData` entries; values are coerced to strings. */
   attributes?: Record<string, string | number>;
   /**
    * Signal that cancels the request; no callback runs and the returned
@@ -734,8 +654,8 @@ export interface PanelUploadParams {
 // #region Debounce/Throttle Helpers
 
 /**
- * Debounce options. Omitting the object calls on the trailing edge only; in a
- * passed object, an unset key counts as `false`.
+ * Without options, the callback fires on the trailing edge only; in a passed
+ * object, an unset key counts as `false`.
  *
  * @source panel/src/helpers/debounce.ts
  */
@@ -747,8 +667,8 @@ export interface PanelDebounceOptions {
 }
 
 /**
- * Throttle options. Omitting the object calls on the leading edge only; in a
- * passed object, an unset key counts as `false`.
+ * Without options, the callback fires on the leading edge only; in a passed
+ * object, an unset key counts as `false`.
  *
  * @source panel/src/helpers/throttle.ts
  */
@@ -782,9 +702,9 @@ export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
  * @source panel/src/helpers/sort.ts
  */
 export interface PanelSortOptions {
-  /** Sort descending (default: `false`). */
+  /** Descending order (default: `false`). */
   desc?: boolean;
-  /** Case insensitive comparison (default: `false`). */
+  /** Case-insensitive comparison (default: `false`). */
   insensitive?: boolean;
 }
 
@@ -931,9 +851,9 @@ export interface PanelHelpers {
    * Converts aspect ratio to percentage.
    *
    * @param fraction - Ratio string (default: `"3/2"`)
-   * @param fallback - Value returned when the fraction does not split into two parts (default: `"100%"`)
+   * @param fallback - Value returned when the fraction does not split into two
+   *   parts (default: `"100%"`)
    * @param vertical - Calculate for vertical orientation (default: `true`)
-   * @returns Percentage string
    */
   ratio: (fraction?: string, fallback?: string, vertical?: boolean) => string;
 
@@ -966,11 +886,12 @@ export interface PanelHelpers {
   ) => PanelThrottledFunction<T>;
 
   /**
-   * Uploads a file via XMLHttpRequest.
+   * Uploads a file via `XMLHttpRequest`.
    *
    * @returns Promise resolving to the parsed JSON response; rejects with the
    *   server's error response, or a generic `{ status: "error", message }`
-   *   object when the body is not JSON; stays pending on a network error or abort.
+   *   object when the body is not JSON; stays pending on a network error or
+   *   abort.
    */
   upload: (file: File, params: PanelUploadParams) => Promise<unknown>;
 
@@ -989,25 +910,21 @@ export interface PanelHelpers {
 // #region Writer Helpers
 
 /**
- * Writer extension helper utilities.
- *
- * Resolves which marks and nodes are allowed in a Writer field, builds
- * extension instances (including those contributed by plugins), and exposes
- * the lower-level building blocks used by `createMarks` / `createNodes`.
+ * Helpers that resolve the marks and nodes a Writer field allows and build
+ * their extension instances, plugin extensions included.
  *
  * @source panel/src/helpers/writer.ts
  */
 export interface PanelHelpersWriter {
   /**
-   * Resolves the list of allowed extensions from a permissive `allowed`
-   * argument.
+   * Resolves the names of the allowed extensions, plus any instances passed
+   * in the `allowed` array.
    *
    * @param available - Map of all available extensions keyed by name
    * @param allowed - `false` to allow none, an array of names and extension
    *   instances (returned unfiltered), or an object map (keys set to `false`
    *   are filtered out); any other value, including `true`, `null`, and
    *   `undefined`, allows all
-   * @returns Allowed extension names, plus any instances passed in the array
    */
   allowedExtensions: <T = never>(
     available: Record<string, unknown>,
@@ -1015,44 +932,38 @@ export interface PanelHelpersWriter {
   ) => (string | T)[];
 
   /**
-   * Returns all available built-in mark extension instances merged with
-   * mark extensions registered by plugins.
+   * Returns the built-in mark instances merged with the plugin marks, keyed by
+   * mark name.
    *
    * @param options - Per-mark option overrides keyed by mark name
-   * @returns Map of mark instances keyed by mark name
    */
   availableMarks: (options?: Record<string, any>) => Record<string, any>;
 
   /**
-   * Returns mark extension instances contributed by `panel.plugins.writerMarks`.
-   *
-   * @returns Map of plugin-provided mark instances
+   * Returns the mark instances from `panel.plugins.writerMarks`, keyed by mark
+   * name.
    */
   availableMarksFromPlugins: () => Record<string, any>;
 
   /**
-   * Returns all available built-in node extension instances merged with
-   * node extensions registered by plugins.
+   * Returns the built-in node instances merged with the plugin nodes, keyed by
+   * node name.
    *
    * @param options - Per-node option overrides keyed by node name
-   * @returns Map of node instances keyed by node name
    */
   availableNodes: (options?: Record<string, any>) => Record<string, any>;
 
   /**
-   * Returns node extension instances contributed by `panel.plugins.writerNodes`.
-   *
-   * @returns Map of plugin-provided node instances
+   * Returns the node instances from `panel.plugins.writerNodes`, keyed by node
+   * name.
    */
   availableNodesFromPlugins: () => Record<string, any>;
 
   /**
-   * Builds the final map of mark extensions to install for a Writer field,
-   * resolving the `marks` configuration and re-installing any required marks.
+   * Builds the map of mark instances to install for a Writer field from the
+   * `marks` configuration, always adding the `required` marks.
    *
    * @param marks - Allowed marks configuration (see `allowedExtensions`)
-   * @param required - Mark names that must always be installed
-   * @returns Map of mark instances to install
    */
   createMarks: (
     marks?:
@@ -1064,13 +975,11 @@ export interface PanelHelpersWriter {
   ) => Record<string, any>;
 
   /**
-   * Builds the final map of node extensions to install for a Writer field,
-   * resolving the `nodes` configuration and re-installing any required nodes.
-   * Automatically installs `listItem` when a list node is present.
+   * Builds the map of node instances to install for a Writer field from the
+   * `nodes` configuration, always adding the `required` nodes, and `listItem`
+   * whenever `bulletList` or `orderedList` is installed.
    *
    * @param nodes - Allowed nodes configuration (see `allowedExtensions`)
-   * @param required - Node names that must always be installed
-   * @returns Map of node instances to install
    */
   createNodes: (
     nodes?:
@@ -1082,11 +991,9 @@ export interface PanelHelpersWriter {
   ) => Record<string, any>;
 
   /**
-   * Extracts per-extension options from an object-map `allowed` configuration,
-   * keeping only entries whose value is a non-null object.
-   *
-   * @param allowed - Extension configuration
-   * @returns Map of extension options keyed by extension name
+   * Extracts per-extension options, keyed by extension name, from an
+   * object-map `allowed` configuration, keeping only entries whose value is a
+   * non-null object.
    */
   extensionOptions: (
     allowed?: boolean | unknown[] | Record<string, unknown> | null,
@@ -1098,22 +1005,14 @@ export interface PanelHelpersWriter {
    * priority. An extension instance in the array is installed under its own
    * name.
    *
-   * @param available - Map of available extensions keyed by name
-   * @param allowed - Allowed extension configuration
-   * @returns Map of installed extensions
+   * @param allowed - Allowed extension configuration (see `allowedExtensions`)
    */
   filterExtensions: <T extends { name: string }>(
     available: Record<string, T>,
     allowed?: boolean | (string | T)[] | Record<string, unknown> | null,
   ) => Record<string, T>;
 
-  /**
-   * Filters a list of node extension instances down to those whose schema is
-   * marked `inline: true`.
-   *
-   * @param nodes - Node extension instances
-   * @returns Inline-only subset
-   */
+  /** Keeps the node instances whose schema sets `inline: true`. */
   keepInlineNodes: <T extends { schema: { inline?: boolean } }>(
     nodes: T[],
   ) => T[];

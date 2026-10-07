@@ -1,8 +1,7 @@
 import type { KirbyBlock } from "./blocks";
 
 /**
- * Valid column width values for Kirby layouts.
- * Expressed as fractions (e.g., `"1/2"` for half width).
+ * Column width as a fraction of the row, such as `"1/2"` for half.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/layout#defining-your-own-layouts__available-widths
  */
@@ -37,8 +36,7 @@ export type KirbyLayoutColumnWidth =
   | "12/12";
 
 /**
- * Represents a single column within a Kirby layout row.
- * Each column has a width and contains blocks.
+ * Column of a layout row.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/layout
  *
@@ -54,20 +52,15 @@ export type KirbyLayoutColumnWidth =
  * ```
  */
 export interface KirbyLayoutColumn {
-  /** Unique identifier for the column (UUID v4). */
+  /** UUID v4. */
   id: string;
-  /**
-   * Column width as a fraction.
-   * Common values: `"1/1"` (full), `"1/2"` (half), `"1/3"` (third), `"1/4"` (quarter).
-   */
+  /** Common values are `"1/1"`, `"1/2"`, `"1/3"`, and `"1/4"`. */
   width: KirbyLayoutColumnWidth;
-  /** Array of blocks contained within this column. */
   blocks: KirbyBlock[];
 }
 
 /**
- * Represents a Kirby layout row containing multiple columns.
- * Layouts are used for flexible page building with a grid-based system.
+ * Row of a layout field, split into columns.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/layout
  *
@@ -96,13 +89,9 @@ export interface KirbyLayoutColumn {
  * ```
  */
 export interface KirbyLayout {
-  /** Unique identifier for the layout row (UUID v4). */
+  /** UUID v4. */
   id: string;
-  /**
-   * Custom attributes for the layout row.
-   * Can be a key-value object or an empty array when no attrs are set.
-   */
+  /** Custom attributes, or an empty array when none are set. */
   attrs: Record<string, any> | string[];
-  /** Array of columns in this layout row. */
   columns: KirbyLayoutColumn[];
 }

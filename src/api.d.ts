@@ -1,7 +1,7 @@
 /**
- * Represents the standard response structure from the Kirby API.
+ * Standard response envelope of the Kirby API.
  *
- * @typeParam T - The type of the result data. Defaults to `any`.
+ * @typeParam T - Type of the result data
  *
  * @see https://getkirby.com/docs/reference/api
  *
@@ -36,10 +36,10 @@
  * ```
  */
 export interface KirbyApiResponse<T = any> {
-  /** HTTP status code of the response. */
+  /** HTTP status code. */
   code: number;
-  /** Status string, typically `"ok"` for success or `"error"` for failures. */
+  /** Typically `"ok"` on success and `"error"` on failure. */
   status: string;
-  /** The response data. Only present for successful responses. */
+  /** Response data, present only on success. */
   result?: T;
 }

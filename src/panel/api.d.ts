@@ -1,8 +1,4 @@
-/**
- * API type definitions for Kirby Panel.
- *
- * Provides types for the Panel API client and its resource modules.
- */
+/** Types for the Panel API client and its resource modules. */
 
 import type { PanelRequestOptions } from "./base";
 import type { Panel } from "./index";
@@ -78,10 +74,8 @@ export interface PanelApiSearchQuery {
 // #region Model Data Types
 
 /**
- * Base model data returned by Panel API.
- *
- * Common properties shared by page, file, user, and site responses.
- * Extend this type for model-specific properties.
+ * Properties shared by the page, file, user, and site data the Panel API
+ * returns. Extend it for model-specific properties.
  *
  * @example
  * ```ts
@@ -101,9 +95,9 @@ export interface PanelApiSearchQuery {
  * @source config/api/models/User.php
  */
 export interface PanelModelData<TContent = Record<string, any>> {
-  /** Model identifier (page id, file id, user id; undefined for site). */
+  /** Model ID, `undefined` for the site. */
   id?: string;
-  /** Model title – only pages and the site carry one, files and users carry `name` instead. */
+  /** Title of a page or the site – files and users carry `name` instead. */
   title?: string;
   /** Content field values. */
   content: TContent;
@@ -113,7 +107,6 @@ export interface PanelModelData<TContent = Record<string, any>> {
 // #region Auth API
 
 /**
- * User authentication data.
  * @source panel/src/api/auth.ts
  * @source config/api/routes/auth.php
  */
@@ -130,8 +123,6 @@ export interface PanelApiLoginData {
 }
 
 /**
- * Authentication API methods.
- *
  * @source panel/src/api/auth.ts
  * @source config/api/routes/auth.php
  */
@@ -147,7 +138,7 @@ export interface PanelApiAuth {
   /** Logs out the current user. */
   logout: () => Promise<any>;
 
-  /** Pings the server to keep session alive. */
+  /** Pings the server to keep the session alive. */
   ping: () => Promise<any>;
 
   /**
@@ -172,9 +163,9 @@ export interface PanelApiAuth {
 // #region Files API
 
 /**
- * Files API methods.
- *
- * `parent` is the API path of the file's parent model – `site`, `pages/blog+post` or `users/abc` – or `null` to address the file by its UUID or permalink alone, or a site file by its filename.
+ * `parent` is the API path of the file's parent model – `site`,
+ * `pages/blog+post`, or `users/abc` – or `null` to address the file by its
+ * UUID or permalink alone, or a site file by its filename.
  *
  * @source panel/src/api/files.ts
  */
@@ -263,16 +254,14 @@ export interface PanelApiFiles {
 // #region Languages API
 
 /**
- * Language data for create/update.
+ * Language data for `create()` and `update()`.
  * @source src/Cms/Language.php
  */
 export interface PanelApiLanguageData {
   code: string;
   name?: string;
-  /** Text direction. */
   direction?: "ltr" | "rtl";
   default?: boolean;
-  /** Locale code. */
   locale?: string;
   /** Custom slug conversion rules, merged over the locale's default rules. */
   slugs?: Record<string, string>;
@@ -295,7 +284,7 @@ export interface PanelApiLanguages {
   /**
    * Creates a new language.
    *
-   * @param data - Language data (including code)
+   * @param data - Language data
    * @returns Created language
    */
   create: (data: PanelApiLanguageData) => Promise<any>;
@@ -339,7 +328,6 @@ export interface PanelApiLanguages {
 // #region Pages API
 
 /**
- * Page creation data.
  * @source src/Cms/PageActions.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Content/Translations.php
@@ -365,7 +353,6 @@ export interface PanelApiPageCreateData {
 }
 
 /**
- * Page duplicate options.
  * @source panel/src/api/pages.ts
  */
 export interface PanelApiPageDuplicateOptions {
@@ -376,8 +363,6 @@ export interface PanelApiPageDuplicateOptions {
 }
 
 /**
- * Pages API methods.
- *
  * @source panel/src/api/pages.ts
  */
 export interface PanelApiPages {
@@ -412,7 +397,7 @@ export interface PanelApiPages {
    *
    * @param id - Page ID
    * @param status - New status
-   * @param position - Sort position (for listed)
+   * @param position - Sort position of a `listed` page
    * @returns Updated page
    */
   changeStatus: (
@@ -440,7 +425,7 @@ export interface PanelApiPages {
   changeTitle: (id: string, title: string) => Promise<any>;
 
   /**
-   * Searches children pages.
+   * Searches a page's children.
    *
    * @param id - Parent page ID
    * @param query - Search query
@@ -556,8 +541,6 @@ export interface PanelApiPages {
 // #region Roles API
 
 /**
- * Roles API methods.
- *
  * @source panel/src/api/roles.ts
  * @source config/api/routes/roles.php
  */
@@ -583,8 +566,6 @@ export interface PanelApiRoles {
 // #region Site API
 
 /**
- * Site API methods.
- *
  * @source panel/src/api/site.ts
  * @source config/api/routes/site.php
  */
@@ -612,7 +593,7 @@ export interface PanelApiSite {
   changeTitle: (title: string) => Promise<any>;
 
   /**
-   * Searches site children.
+   * Searches the site's children.
    *
    * @param query - Search query
    * @returns Search results
@@ -648,25 +629,20 @@ export interface PanelApiSite {
  * @source panel/src/components/Views/Installation/InstallationView.vue
  */
 export interface PanelApiSystemInstallData extends PanelApiUserCreateData {
-  /** Password of the first user. */
   password: string;
   role: "admin";
 }
 
 /**
- * License registration data.
  * @source config/api/routes/system.php
  */
 export interface PanelApiSystemRegisterData {
-  /** License key. */
   license: string;
   /** Licensee email. */
   email: string;
 }
 
 /**
- * System API methods.
- *
  * @source panel/src/api/system.ts
  * @source config/api/routes/system.php
  */
@@ -684,7 +660,7 @@ export interface PanelApiSystem {
    * installed or when it cannot be installed.
    *
    * @param data - Installation data
-   * @returns The newly created user
+   * @returns Created user
    */
   install: (data: PanelApiSystemInstallData) => Promise<any>;
 
@@ -701,8 +677,6 @@ export interface PanelApiSystem {
 // #region Translations API
 
 /**
- * Translations API methods.
- *
  * @source panel/src/api/translations.ts
  * @source config/api/routes/translations.php
  */
@@ -727,7 +701,6 @@ export interface PanelApiTranslations {
 // #region Users API
 
 /**
- * User creation data.
  * @source src/Cms/UserActions.php
  * @source src/Cms/User.php
  */
@@ -750,8 +723,6 @@ export interface PanelApiUserCreateData {
 }
 
 /**
- * Users API methods.
- *
  * @source panel/src/api/users.ts
  * @source config/api/routes/users.php
  */
@@ -826,7 +797,7 @@ export interface PanelApiUsers {
   /**
    * Creates a new user.
    *
-   * @param data - User data; `email` is required
+   * @param data - User data
    * @returns Created user
    */
   create: (data: PanelApiUserCreateData) => Promise<any>;
@@ -864,7 +835,7 @@ export interface PanelApiUsers {
   link: (id: string, path?: string) => string;
 
   /**
-   * Queries users via the users/search endpoint.
+   * Queries users through the `users/search` endpoint.
    *
    * @param query - Search query
    * @returns Paginated users response
@@ -913,8 +884,6 @@ export interface PanelApiUsers {
 // #region Main API Interface
 
 /**
- * Panel API client.
- *
  * Request methods for any Kirby API endpoint, plus wrappers for the ones the
  * Panel uses.
  *
@@ -955,7 +924,10 @@ export interface PanelApi {
   /** Number of API requests in flight. The loading indicator stops once it drops to `0`. */
   requests: number;
 
-  /** Current language code, or `null` when no language is active (set from the Panel's active language on construction and refreshed on each request). */
+  /**
+   * Current language code, or `null` when no language is active; set from
+   * the Panel's active language on construction and refreshed on each request.
+   */
   language: string | null;
 
   /**
@@ -974,7 +946,7 @@ export interface PanelApi {
   ) => Promise<T>;
 
   /**
-   * Makes a GET request.
+   * Makes a `GET` request.
    *
    * @param path - API path
    * @param query - Query parameters
@@ -990,12 +962,12 @@ export interface PanelApi {
   ) => Promise<T>;
 
   /**
-   * Makes a POST request.
+   * Makes a `POST` request.
    *
    * @param path - API path
    * @param data - Request body
    * @param options - Request options
-   * @param method - HTTP method to send (defaults to `POST`; `patch` and `delete` delegate here to set `PATCH`/`DELETE`)
+   * @param method - HTTP method, `POST` by default
    * @param silent - Skip loading indicator
    * @returns Response data
    */
@@ -1008,7 +980,7 @@ export interface PanelApi {
   ) => Promise<T>;
 
   /**
-   * Makes a PATCH request.
+   * Makes a `PATCH` request.
    *
    * @param path - API path
    * @param data - Request body
@@ -1024,7 +996,7 @@ export interface PanelApi {
   ) => Promise<T>;
 
   /**
-   * Makes a DELETE request.
+   * Makes a `DELETE` request.
    *
    * @param path - API path
    * @param data - Request body
