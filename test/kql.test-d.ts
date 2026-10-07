@@ -37,6 +37,11 @@ expectAssignable<KirbyQueryRequest>({
   pagination: { limit: 10, page: 1 },
 });
 
+// Named queries
+expectAssignable<KirbyQueryRequest>({
+  queries: { site: "site", about: 'page("about")' },
+});
+
 // Response
 expectAssignable<KirbyQueryResponse<KirbySite>>({
   code: 200,

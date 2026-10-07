@@ -264,13 +264,13 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 
 ### KQL Types
 
-| Type                                         | Description                           |
-| -------------------------------------------- | ------------------------------------- |
-| [`KirbyQueryRequest`](./src/kql.d.ts)        | KQL request with pagination           |
-| [`KirbyQueryResponse<T, P>`](./src/kql.d.ts) | KQL response with optional pagination |
-| [`KirbyQuerySchema`](./src/kql.d.ts)         | KQL query schema structure            |
-| [`KirbyQuery<M>`](./src/query.d.ts)          | Valid KQL query string                |
-| [`ParseKirbyQuery<T>`](./src/query.d.ts)     | Parse query string to structured type |
+| Type                                         | Description                                  |
+| -------------------------------------------- | -------------------------------------------- |
+| [`KirbyQueryRequest`](./src/kql.d.ts)        | KQL request with pagination or named queries |
+| [`KirbyQueryResponse<T, P>`](./src/kql.d.ts) | KQL response with optional pagination        |
+| [`KirbyQuerySchema`](./src/kql.d.ts)         | KQL query schema structure                   |
+| [`KirbyQuery<M>`](./src/query.d.ts)          | Valid KQL query string                       |
+| [`ParseKirbyQuery<T>`](./src/query.d.ts)     | Parse query string to structured type        |
 
 ### Panel Types
 
