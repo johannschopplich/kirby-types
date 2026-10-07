@@ -47,7 +47,7 @@
     "format": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --write",
     "format:check": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --check",
     "release": "bumpp",
-    "test": "tsd -f \"test/**/*.test-d.ts\""
+    "test": "tsd -f \"test/**/*.test-d.ts\" -f \"!test/panel-globals.test-d.ts\" && tsd -f test/panel-globals.test-d.ts"
   },
   "peerDependencies": {
     "dayjs": "^1.11.13",
