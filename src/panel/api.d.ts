@@ -57,10 +57,14 @@ export interface PanelApiPagination {
  * @source config/api/routes/files.php
  * @source src/Cms/Collection.php
  * @source src/Toolkit/Collection.php
+ * @source config/components.php
  */
 export interface PanelApiSearchQuery {
-  /** Search term, or a term with search options. */
-  search?: string | { query?: string; options?: Record<string, any> };
+  /**
+   * Search term, or a term with search options: an options object, or the
+   * fields to search as a `|`-separated string.
+   */
+  search?: string | { query?: string; options?: string | Record<string, any> };
   /** Maximum number of items searched – `paginate` limits the results. */
   limit?: number;
   /** Number of items skipped before searching. */
@@ -128,6 +132,7 @@ export interface PanelApiLoginData {
  * Authentication API methods.
  *
  * @source panel/src/api/auth.js
+ * @source config/api/routes/auth.php
  */
 export interface PanelApiAuth {
   /**
@@ -167,7 +172,7 @@ export interface PanelApiAuth {
 /**
  * Files API methods.
  *
- * `parent` is the API path of the file's parent model – `site`, `pages/blog+post` or `users/abc` – or `null` to address the file by its id or UUID alone.
+ * `parent` is the API path of the file's parent model – `site`, `pages/blog+post` or `users/abc` – or `null` to address the file by its UUID or permalink alone, or a site file by its filename.
  *
  * @source panel/src/api/files.js
  */
@@ -209,9 +214,10 @@ export interface PanelApiFiles {
   ) => Promise<any>;
 
   /**
-   * Converts file ID/UUID to API format.
+   * Converts a `file://` UUID or a `/@/file/` permalink to `@<uuid>`, and
+   * returns any other value unchanged.
    *
-   * @param id - File ID or UUID
+   * @param id - Filename, UUID, or permalink
    * @returns API-formatted ID
    */
   id: (id: string) => string;
@@ -319,7 +325,10 @@ export interface PanelApiLanguages {
    * @param data - Updated data
    * @returns Updated language
    */
-  update: (code: string, data: Partial<PanelApiLanguageData>) => Promise<any>;
+  update: (
+    code: string,
+    data: Partial<Omit<PanelApiLanguageData, "code">>,
+  ) => Promise<any>;
 }
 // #endregion
 
@@ -373,7 +382,7 @@ export interface PanelApiPages {
    * Gets available blueprints for a page.
    *
    * @param parent - Page ID
-   * @param section - Section name to narrow the blueprints to; all sections when omitted
+   * @param section - Section name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
    * @returns Array of blueprints
    */
   blueprints: (parent: string, section?: string) => Promise<any[]>;
@@ -920,14 +929,9 @@ export interface PanelApi {
   /** CSRF token for requests, read live from the system. */
   readonly csrf: string;
 
-  /** API base endpoint. */
   endpoint: string;
 
-  /**
-   * Whether to use method override.
-   *
-   * @since 5.0.0
-   */
+  /** @since 5.0.0 */
   methodOverride: boolean;
 
   /**
