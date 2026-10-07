@@ -7,7 +7,7 @@
 // #region Request Types
 
 /**
- * API request options.
+ * Options for `request()` and the verb helpers, passed on to `fetch()`.
  * @source panel/src/api/request.js
  * @source panel/src/api/index.js
  * @source panel/src/api/get.js
@@ -15,8 +15,8 @@
  */
 export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
   /**
-   * Request body, sent as-is by `request()`. The verb helpers replace it
-   * with their JSON-encoded `data`.
+   * Request body, sent as-is by `request()`. `post()`, `patch()`, and
+   * `delete()` replace it with their JSON-encoded `data`.
    */
   body?: BodyInit | null;
   /**
@@ -35,6 +35,7 @@ export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
   /**
    * Whether to skip the loading indicator, like the `silent` argument of
    * `request()` and the verb helpers.
+   * @since 5.0.0
    */
   silent?: boolean;
 }
@@ -247,12 +248,12 @@ export interface PanelApiFiles {
   ) => Promise<any>;
 
   /**
-   * Gets API URL for a file.
+   * Returns the API path of a file.
    *
    * @param parent - Parent path
    * @param filename - Filename
    * @param path - Additional path
-   * @returns API URL
+   * @returns API path, relative to the API endpoint
    */
   url: (parent: string | null, filename: string, path?: string) => string;
 }
@@ -347,8 +348,14 @@ export interface PanelApiPageCreateData {
   /**
    * Content per language on a multi-language site. Each translation's
    * content runs through the fields' save handlers.
+   * @since 5.0.0
    */
-  translations?: { code: string; content?: Record<string, any> }[];
+  translations?: {
+    code: string;
+    content?: Record<string, any>;
+    /** Slug of the page in this language. */
+    slug?: string;
+  }[];
   /** Whether the page starts as a draft, `true` by default – `false` creates an unlisted page. */
   draft?: boolean;
 }
@@ -459,13 +466,13 @@ export interface PanelApiPages {
    * Duplicates a page.
    *
    * @param id - Page ID
-   * @param slug - New slug
+   * @param slug - New slug, or `null` to append the duplicate suffix to the current one
    * @param options - Duplicate options
    * @returns Duplicated page
    */
   duplicate: (
     id: string,
-    slug: string,
+    slug: string | null,
     options: PanelApiPageDuplicateOptions,
   ) => Promise<any>;
 
@@ -532,11 +539,11 @@ export interface PanelApiPages {
   update: (id: string, data: Record<string, any>) => Promise<any>;
 
   /**
-   * Gets API URL for a page.
+   * Returns the API path of a page.
    *
    * @param id - Page ID
    * @param path - Additional path
-   * @returns API URL
+   * @returns API path, relative to the API endpoint
    */
   url: (id: string | null, path?: string) => string;
 }
@@ -561,7 +568,7 @@ export interface PanelApiRoles {
   /**
    * Lists available roles.
    *
-   * @param params - Query parameters; `canBe: "changed"` or `canBe: "created"` keeps only the roles a user may be switched to or created with
+   * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role
    * @returns Wrapped Kirby collection response (`{ data, pagination }`)
    */
   list: (params?: Record<string, any>) => Promise<any>;
@@ -628,20 +635,19 @@ export interface PanelApiSite {
 // #region System API
 
 /**
- * System installation data.
+ * System installation data: the first user's create data, with a required
+ * password.
  * @source config/api/routes/system.php
  * @source src/Cms/UserActions.php
  * @source panel/src/components/Views/Installation/InstallationView.vue
  */
-export interface PanelApiSystemInstallData {
-  /** Email of the first user. */
-  email: string;
+export interface PanelApiSystemInstallData extends PanelApiUserCreateData {
   /** Password of the first user. */
   password: string;
-  /** Interface language of the first user. */
-  language?: string;
-  name?: string;
-  /** Role of the first user, `default` when omitted – the Panel's installer sends `admin`. */
+  /**
+   * Role of the first user, `default` when omitted, or `nobody` if no
+   * `default` role exists – the Panel's installer sends `admin`.
+   */
   role?: string;
 }
 
@@ -672,10 +678,10 @@ export interface PanelApiSystem {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Installs Kirby with initial user.
+   * Creates the first user on an uninstalled site and signs them in.
    *
    * @param data - Installation data
-   * @returns The newly created admin user
+   * @returns The newly created user
    */
   install: (data: PanelApiSystemInstallData) => Promise<any>;
 
@@ -701,7 +707,7 @@ export interface PanelApiTranslations {
   /**
    * Gets a translation.
    *
-   * @param locale - Locale code
+   * @param locale - Translation code, e.g. `de` or `pt_BR`
    * @returns Translation data
    */
   get: (locale: string) => Promise<any>;
@@ -729,11 +735,13 @@ export interface PanelApiUserCreateData {
   password?: string;
   name?: string;
   role?: string;
+  /** Panel interface language code. */
   language?: string;
   content?: Record<string, any>;
   /**
    * Content per language on a multi-language site. Each translation's
    * content runs through the fields' save handlers.
+   * @since 5.0.0
    */
   translations?: { code: string; content?: Record<string, any> }[];
 }
@@ -774,7 +782,7 @@ export interface PanelApiUsers {
    * Changes a user's language.
    *
    * @param id - User ID
-   * @param language - New language code
+   * @param language - Panel interface language code, e.g. `de` or `pt_BR`
    * @returns Updated user
    */
   changeLanguage: (id: string, language: string) => Promise<any>;
@@ -860,7 +868,8 @@ export interface PanelApiUsers {
   list: (query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
-   * Gets roles available to a user.
+   * Returns the roles the user can be switched to, as select options – only
+   * their current role when the current user may not change it.
    *
    * @param id - User ID
    * @returns Array of role options shaped for select inputs
@@ -870,10 +879,10 @@ export interface PanelApiUsers {
   ) => Promise<{ info: string; text: string; value: string }[]>;
 
   /**
-   * Searches users.
+   * Searches users – the same request as `list()`.
    *
    * @param query - Search query
-   * @returns Search results
+   * @returns Paginated users response
    */
   search: (query?: PanelApiSearchQuery) => Promise<any>;
 
@@ -887,11 +896,11 @@ export interface PanelApiUsers {
   update: (id: string, data: Record<string, any>) => Promise<any>;
 
   /**
-   * Gets API URL for a user.
+   * Returns the API path of a user.
    *
    * @param id - User ID (`null` for the users collection root)
    * @param path - Additional path
-   * @returns API URL
+   * @returns API path, relative to the API endpoint
    */
   url: (id: string | null, path?: string) => string;
 }
@@ -902,7 +911,8 @@ export interface PanelApiUsers {
 /**
  * Panel API client.
  *
- * Provides typed access to all Kirby API endpoints.
+ * Request methods for any Kirby API endpoint, plus wrappers for the ones the
+ * Panel uses.
  *
  * @example
  * ```ts
