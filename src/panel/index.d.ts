@@ -593,11 +593,7 @@ export interface PanelPluginExtensions {
    */
   viewButtons?: Record<string, PanelComponentExtension>;
 
-  /**
-   * Vue plugins to install via `app.use()`.
-   *
-   * Can be used to add global properties, directives, or mixins.
-   */
+  /** Vue plugins to install via `app.use()`. */
   use?: Record<string, Plugin> | Plugin[];
 
   /**
@@ -712,10 +708,13 @@ export interface PanelPlugins {
   /** Registered third-party plugin data. */
   thirdParty: Record<string, any>;
 
-  /** Installed Vue plugins via `app.use()`. */
+  /** Vue plugins installed via `app.use()`. */
   use: Plugin[];
 
-  /** Reserved bucket for view-button plugins (initialized empty; entries are actually stored under `components` as `k-${name}-view-button`). */
+  /**
+   * Reserved bucket for view-button plugins, left empty: they register under
+   * `components` as `k-${name}-view-button`.
+   */
   viewButtons: Record<
     string,
     | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
@@ -837,10 +836,10 @@ type PanelStateInput = Partial<
 // #region Panel HTML
 
 /**
- * Trusted, pre-escaped HTML string wrapper. Extends the native `String`, so it
- * interpolates, concatenates and serializes like a plain string. Where
- * `v-safe-html` escapes a plain string, it writes an `HtmlString` through as
- * HTML, and `th()` fills it into a placeholder unescaped.
+ * Trusted, pre-escaped HTML string wrapper that interpolates, concatenates,
+ * and serializes like a plain string. Where `v-safe-html` escapes a plain
+ * string, it writes an `HtmlString` through as HTML, and `th()` fills it into
+ * a placeholder unescaped.
  * @source panel/src/panel/html.ts
  * @source panel/src/config/safeHtml.ts
  */
@@ -1409,13 +1408,16 @@ interface PanelViewPropsButton {
  */
 export interface PanelViewProps {
   api: string;
-  /** View buttons. May contain `'-'` string separators between groups. */
+  /** View buttons, with `"-"` separators between groups. */
   buttons: (PanelViewPropsButton | "-")[];
   id: string;
   link: string;
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
-  /** Tab bar entries. Each lists the lowercase names of its fields to count unsaved changes per tab. */
+  /**
+   * Tab bar entries. `fields` lists the lowercase names of the tab's fields,
+   * used to count unsaved changes per tab.
+   */
   tabs: {
     fields: string[];
     icon: string | null;

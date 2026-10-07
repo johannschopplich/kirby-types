@@ -860,7 +860,7 @@ export interface PanelHelpers {
   file: PanelHelpersFile;
 
   /**
-   * Focuses the first focusable child – the `field` input, an autofocus
+   * Focuses the first focusable child – the `field` input, an `autofocus`
    * element, an input, a submit button, then any button – or else the
    * element itself. Without `field`, leaves the focus alone when it already
    * sits inside the element.
@@ -891,9 +891,9 @@ export interface PanelHelpers {
    * of up to 100 IDs per endpoint and query, and an ID already in flight
    * joins the pending request. A blank ID, an unknown ID, a model the user
    * may not list, or a failed request resolves to `undefined` – the promise
-   * never rejects. A failed request still
-   * reaches the Panel's error handling, so an expired session or a lost
-   * connection surfaces to the user.
+   * never rejects. A failed request still reaches the Panel's error
+   * handling, so an expired session or a lost connection surfaces to the
+   * user.
    *
    * @param endpoint - API endpoint, e.g. `"items/files"`
    * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs

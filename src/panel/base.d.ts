@@ -652,7 +652,7 @@ export interface PanelRequestOptions extends Omit<
   body?: string | FormData | HTMLFormElement | Record<string, any> | null;
   /**
    * Query parameters. Nested objects become `parent[child]` keys; `null`
-   * removes the param, also one already in the URL.
+   * removes the param, even one already in the URL.
    */
   query?: Record<string, any>;
   signal?: AbortSignal;

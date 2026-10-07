@@ -29,7 +29,6 @@ import type { HtmlString } from "./index";
  * @source panel/src/helpers/timer.ts
  */
 export interface PanelTimer {
-  /** Whether the timer is currently running. */
   readonly isRunning: boolean;
 
   /**
@@ -186,7 +185,6 @@ export interface PanelLanguageDefaults {
   default: boolean;
   /** Text direction. */
   direction: "ltr" | "rtl";
-  /** Whether the language uses a custom domain. */
   hasCustomDomain: boolean;
   /** Language name; `null` on single-language sites. */
   name: string | null;
@@ -226,8 +224,8 @@ export interface PanelMenuButtonProps {
   badge?: { text: string | number; theme?: string };
   class?: string;
   /**
-   * Whether this entry is currently active; a string sets that
-   * `aria-current` value.
+   * Whether the entry is currently active; a string sets its `aria-current`
+   * value.
    */
   current?: boolean | string;
   /**
@@ -398,7 +396,7 @@ export interface PanelNotificationOptions {
  */
 export interface PanelErrorObject {
   message?: string;
-  /** Details the error dialog lists in view context. */
+  /** Extra details, listed by the error dialog that opens in view context. */
   details?: Record<string, any>;
 }
 

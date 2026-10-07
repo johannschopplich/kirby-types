@@ -10,7 +10,6 @@ import type { Panel } from "./index";
 // #region Request Types
 
 /**
- * API request options.
  * @source panel/src/api/index.ts
  */
 export interface PanelApiRequestOptions extends Omit<
@@ -18,8 +17,8 @@ export interface PanelApiRequestOptions extends Omit<
   "csrf" | "on"
 > {
   /**
-   * Content language code sent as the `x-language` header. Defaults to the
-   * current content language, which an empty value keeps too.
+   * Content language code sent as the `x-language` header. Omitted or empty,
+   * it falls back to the current content language.
    */
   language?: string | null;
   /**
@@ -651,7 +650,6 @@ export interface PanelApiSite {
 export interface PanelApiSystemInstallData extends PanelApiUserCreateData {
   /** Password of the first user. */
   password: string;
-  /** Role of the first user, which has to be `admin`. */
   role: "admin";
 }
 
