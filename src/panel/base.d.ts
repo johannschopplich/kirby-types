@@ -99,8 +99,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
   /**
    * Registers a single event listener, replacing an existing one for the
-   * event with a console warning. Only functions are registered; other
-   * values are ignored.
+   * event with a console warning.
    *
    * @param event - Event name to listen for
    * @param callback - Function to call when event fires
@@ -109,7 +108,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
   /**
    * Registers multiple event listeners at once.
-   * Invalid listener objects are silently ignored.
    *
    * @param listeners - Object mapping event names to callbacks
    */
@@ -159,13 +157,33 @@ export interface PanelEventListeners<TEvents extends string = string> {
  * @source src/Panel/Json.php
  */
 export interface PanelFeatureDefaults {
+  /** Current Vue component name to render. */
   component: string | null;
+
+  /**
+   * Whether the feature is currently loading data.
+   * Set to `true` during `load()`, `get()`, and `post()` calls.
+   */
   isLoading: boolean;
+
   on: PanelEventListenerMap;
+
+  /**
+   * Relative path for the feature.
+   * Used for API requests and URL building.
+   */
   path: string | null;
+
+  /** Props passed to the Vue component. */
   props: Record<string, any>;
+
+  /** URL query parameters from the latest request. */
   query: Record<string, any>;
+
+  /** Previous path for navigation and redirects. */
   referrer: string | null;
+
+  /** Timestamp from the backend for cache invalidation. */
   timestamp: number | null;
 }
 
@@ -192,46 +210,13 @@ export interface PanelFeatureDefaults {
  * @source panel/src/panel/feature.ts
  */
 export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
-  extends PanelState<TDefaults>, PanelEventListeners {
+  extends PanelState<TDefaults>, PanelEventListeners, PanelFeatureDefaults {
   /**
    * Controller for canceling the pending request, created anew on each
    * `load()` call; `undefined` until the first load.
    * @since 5.1.0
    */
   abortController: AbortController | undefined;
-
-  /**
-   * Current Vue component name to render.
-   * Set by the backend response.
-   */
-  component: string | null;
-
-  /**
-   * Whether the feature is currently loading data.
-   * Set to `true` during `load()`, `get()`, and `post()` calls.
-   */
-  isLoading: boolean;
-
-  /**
-   * Relative path for the feature.
-   * Used for API requests and URL building.
-   */
-  path: string | null;
-
-  /**
-   * Props passed to the Vue component.
-   * Contains all data from the backend response.
-   */
-  props: Record<string, any>;
-
-  /** URL query parameters from the latest request. */
-  query: Record<string, any>;
-
-  /** Previous path for navigation and redirects. */
-  referrer: string | null;
-
-  /** Timestamp from the backend for cache invalidation. */
-  timestamp: number | null;
 
   /**
    * Sends a GET request and returns the response.
@@ -290,7 +275,8 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Only updates props if the component matches.
    *
    * @param options - Request options
-   * @returns The feature's state after refresh
+   * @returns The feature's state after refresh, or `undefined` when the
+   *   request fails or the response targets another component
    */
   refresh: (options?: PanelRefreshOptions) => Promise<TDefaults | undefined>;
 
@@ -448,7 +434,7 @@ export interface PanelModal<
    * as open once a component is set, which also blocks document overflow.
    *
    * @param modal - URL or state object
-   * @param options - Request options
+   * @param options - Request options or submit handler function
    * @returns The modal's state after opening
    */
   open: (
@@ -479,7 +465,9 @@ export interface PanelModal<
    *
    * @param value - Form value (defaults to `props.value`)
    * @param options - Request options
-   * @returns Response from listener, POST, or closes if no handler
+   * @returns The `submit` listener's result if one is registered, the
+   *   `close()` result without a path, `false` if the request fails, otherwise
+   *   the `success()` result
    */
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
 
@@ -539,7 +527,7 @@ export interface PanelHistoryMilestone {
  * @example
  * ```ts
  * // Navigate back in drawer history
- * const previous = panel.drawer.history.last();
+ * const previous = panel.drawer.history.at(-2);
  * if (previous) {
  *   panel.drawer.goTo(previous.id);
  * }
@@ -736,8 +724,8 @@ export type NotificationType = "error" | "fatal";
  * - `passive`: Gray, for muted, secondary content.
  * - `text`: White, for plain, unstyled content.
  *
- * Kirby leaves `state.theme` untyped and matches the stylesheet by prefix, so
- * plain color names (`red`, `green`, ...) and suffixed variants such as
+ * Kirby accepts any string as the theme and matches the stylesheet by prefix,
+ * so plain color names (`red`, `green`, ...) and suffixed variants such as
  * `positive-icon` are styled as well. Hence the open union.
  * @source panel/src/panel/notification.ts
  * @source panel/src/styles/utilities/theme.css
