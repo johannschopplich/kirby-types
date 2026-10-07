@@ -911,19 +911,14 @@ export interface PanelApiUsers {
  * @source panel/src/panel/request.ts
  */
 export interface PanelApi {
-  /** CSRF token for requests. */
   csrf: string;
-
-  /** API base endpoint. */
   endpoint: string;
-
-  /** Whether to use method override. */
   methodOverride: boolean;
 
   /** Panel instance the client belongs to, the same object as `window.panel`. */
   panel: Panel;
 
-  /** Heartbeat interval ID; populated once the auth ping has been scheduled. */
+  /** Interval ID of the auth heartbeat that `ping()` schedules. */
   pingId: ReturnType<typeof setInterval> | undefined;
 
   /**

@@ -848,7 +848,6 @@ type PanelStateInput = Partial<
 export interface HtmlString extends String {}
 
 /**
- * Wraps a value as trusted, pre-escaped HTML by returning an `HtmlString`.
  * @source panel/src/panel/html.ts
  */
 export interface PanelHtml {

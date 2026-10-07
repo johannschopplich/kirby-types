@@ -977,10 +977,8 @@ export interface PanelHelpers {
   /**
    * Checks if component is registered globally.
    *
-   * The optional `app` argument defaults to `window.panel?.app`.
-   *
    * @param name - Component name
-   * @param app - Vue app instance
+   * @param app - Vue app instance (default: `window.panel?.app`)
    * @returns `true` if registered
    */
   isComponent: (name: string, app?: App) => boolean;

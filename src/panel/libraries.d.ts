@@ -340,11 +340,11 @@ export interface PanelDayjsStaticExtensions {
   /**
    * Parses input against a display pattern, falling back to informed guesses.
    *
-   * @deprecated Use `parse()` instead.
    * @param input - Input string to parse
    * @param format - Expected datetime type (default: `"date"`)
    * @param pattern - Display pattern to match first
    * @returns Dayjs instance or `null` if nothing matched
+   * @deprecated Use `parse()` instead.
    */
   interpret: (
     input: string,
