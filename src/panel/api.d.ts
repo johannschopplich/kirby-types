@@ -25,6 +25,11 @@ export interface PanelApiRequestOptions extends Omit<
    */
   method?: string;
   /**
+   * Referrer path sent as the `x-panel-referrer` header. API requests send
+   * none unless one is passed.
+   */
+  referrer?: string | false;
+  /**
    * Whether to skip the loading indicator, like the `silent` argument of
    * `request()` and the verb helpers.
    */
