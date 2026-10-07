@@ -218,7 +218,7 @@ export interface WriterEditor {
   /**
    * Subscribes to an event.
    *
-   * @param event - Event name; a key of `WriterEditorEvents` types the payload
+   * @param event - Event name; a key of `WriterEditorEvents` types the payload.
    */
   on: (<K extends keyof WriterEditorEvents>(
     event: K,
