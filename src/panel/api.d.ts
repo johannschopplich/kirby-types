@@ -5,12 +5,12 @@
  */
 
 import type { PanelRequestOptions } from "./base";
+import type { Panel } from "./index";
 
 // #region Request Types
 
 /**
  * API request options.
- * @source panel/src/panel/request.ts
  * @source panel/src/api/index.ts
  */
 export interface PanelApiRequestOptions extends PanelRequestOptions {
@@ -46,10 +46,14 @@ export interface PanelApiPagination {
  * @source config/api/routes/files.php
  * @source src/Cms/Collection.php
  * @source src/Toolkit/Collection.php
+ * @source config/components.php
  */
 export interface PanelApiSearchQuery {
-  /** Search term, or a term with search options. */
-  search?: string | { query?: string; options?: Record<string, any> };
+  /**
+   * Search term, or a term with search options: an options object, or the
+   * fields to search as a `|`-separated string.
+   */
+  search?: string | { query?: string; options?: string | Record<string, any> };
   /** Maximum number of items searched – `paginate` limits the results. */
   limit?: number;
   /** Number of items skipped before searching. */
@@ -117,6 +121,7 @@ export interface PanelApiLoginData {
  * Authentication API methods.
  *
  * @source panel/src/api/auth.ts
+ * @source config/api/routes/auth.php
  */
 export interface PanelApiAuth {
   /**
@@ -156,7 +161,7 @@ export interface PanelApiAuth {
 /**
  * Files API methods.
  *
- * `parent` is the API path of the file's parent model – `site`, `pages/blog+post` or `users/abc` – or `null` to address the file by its id or UUID alone.
+ * `parent` is the API path of the file's parent model – `site`, `pages/blog+post` or `users/abc` – or `null` to address the file by its UUID or permalink alone, or a site file by its filename.
  *
  * @source panel/src/api/files.ts
  */
@@ -198,9 +203,10 @@ export interface PanelApiFiles {
   ) => Promise<any>;
 
   /**
-   * Converts file ID/UUID to API format.
+   * Converts a `file://` UUID or a `/@/file/` permalink to `@<uuid>`, and
+   * returns any other value unchanged.
    *
-   * @param id - File ID or UUID
+   * @param id - Filename, UUID, or permalink
    * @returns API-formatted ID
    */
   id: (id: string) => string;
@@ -308,7 +314,10 @@ export interface PanelApiLanguages {
    * @param data - Updated data
    * @returns Updated language
    */
-  update: (code: string, data: Partial<PanelApiLanguageData>) => Promise<any>;
+  update: (
+    code: string,
+    data: Partial<Omit<PanelApiLanguageData, "code">>,
+  ) => Promise<any>;
 }
 // #endregion
 
@@ -362,7 +371,7 @@ export interface PanelApiPages {
    * Gets available blueprints for a page.
    *
    * @param parent - Page ID
-   * @param field - Field name to narrow the blueprints to; all fields when omitted
+   * @param field - Field name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
    * @returns Array of blueprints
    */
   blueprints: (parent: string, field?: string) => Promise<any[]>;
@@ -611,6 +620,7 @@ export interface PanelApiSite {
  * System installation data.
  * @source config/api/routes/system.php
  * @source src/Cms/UserActions.php
+ * @source src/Guards/UserValidators.php
  * @source panel/src/components/Views/Installation/InstallationView.vue
  */
 export interface PanelApiSystemInstallData {
@@ -621,8 +631,8 @@ export interface PanelApiSystemInstallData {
   /** Interface language of the first user. */
   language?: string;
   name?: string;
-  /** Role of the first user, `default` when omitted – the Panel's installer sends `admin`. */
-  role?: string;
+  /** Role of the first user, which has to be `admin`. */
+  role: "admin";
 }
 
 /**
@@ -909,6 +919,9 @@ export interface PanelApi {
 
   /** Whether to use method override. */
   methodOverride: boolean;
+
+  /** Panel instance the client belongs to, the same object as `window.panel`. */
+  panel: Panel;
 
   /** Heartbeat interval ID; populated once the auth ping has been scheduled. */
   pingId: ReturnType<typeof setInterval> | undefined;
