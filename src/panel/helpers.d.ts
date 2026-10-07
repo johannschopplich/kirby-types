@@ -319,8 +319,8 @@ export interface PanelHelpersUrl {
   ) => URLSearchParams;
 
   /**
-   * Resolves `url` to a URL object and sets the query entries on its search
-   * params. A `URL` instance is mutated and returned.
+   * Builds a full URL object with query parameters. A `URL` passed as `url`
+   * is updated in place and returned.
    *
    * @param origin - Base origin URL
    */
@@ -332,7 +332,8 @@ export interface PanelHelpersUrl {
 
   /**
    * Checks if a URL begins with a dangerous URI scheme (e.g. `javascript:`,
-   * `vbscript:`, `data:`) after stripping ignorable characters.
+   * `vbscript:`, `data:`) after removing every character other than letters
+   * and colons.
    *
    * @returns `true` if the URL uses a dangerous scheme
    * @since 5.4.4
@@ -739,7 +740,12 @@ export interface PanelUploadParams {
    */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
+  /** Receives the parsed response once the upload succeeds. */
   success?: PanelUploadResultCallback;
+  /**
+   * Receives the error response when the server reports an error or returns
+   * a body that is not JSON.
+   */
   error?: PanelUploadResultCallback;
 }
 // #endregion
@@ -775,8 +781,6 @@ export interface PanelThrottleOptions {
 }
 
 /**
- * Debounced function (without cancel method).
- *
  * @source panel/src/helpers/debounce.ts
  */
 export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
@@ -784,8 +788,6 @@ export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
 }
 
 /**
- * Throttled function with cancel method.
- *
  * @since 5.0.0
  * @source panel/src/helpers/throttle.ts
  */
@@ -960,8 +962,6 @@ export interface PanelHelpers {
   /**
    * Uploads a file via XMLHttpRequest.
    *
-   * @param file - File to upload
-   * @param params - Upload parameters
    * @returns Promise resolving to the parsed JSON response; rejects with the
    *   server's error response, or a generic `{ status: "error", message }`
    *   object when the body is not JSON; stays pending on a network error or abort.
@@ -976,12 +976,7 @@ export interface PanelHelpers {
    */
   uuid: () => string;
 
-  /**
-   * Writer (ProseMirror) extension helpers for resolving allowed marks/nodes
-   * and building extension instances.
-   *
-   * @since 5.5.0
-   */
+  /** @since 5.5.0 */
   writer: PanelHelpersWriter;
 }
 // #endregion
