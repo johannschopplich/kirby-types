@@ -65,8 +65,6 @@ expectAssignable<KirbyBlock<"image">>({
     alt: "External image",
     caption: null,
     link: null,
-    ratio: "16/9",
-    crop: "false",
   },
   id: "image-2",
   isHidden: false,
@@ -167,7 +165,7 @@ expectType<
   | "video"
 >({} as KirbyDefaultBlockType);
 
-expectType<{ code: string; language: KirbyCodeLanguage | "" }>(
+expectType<{ code: string; language: KirbyCodeLanguage | "" | (string & {}) }>(
   {} as KirbyBlock<"code">["content"],
 );
 expectType<{ text: string }>({} as KirbyBlock<"text">["content"]);
