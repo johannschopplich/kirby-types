@@ -40,6 +40,7 @@ expectAssignable<PanelConfig>({
   theme: "light",
   translation: "en",
   upload: 10485760,
+  uploads: 3,
 });
 
 expectType<boolean>({} as PanelPermissions["access"]["panel"]);

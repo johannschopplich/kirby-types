@@ -280,6 +280,11 @@ export interface PanelConfig {
    * server upload limit.
    */
   upload: number;
+  /**
+   * Maximum number of files uploaded in parallel, from the `panel.uploads`
+   * option (`3` unless configured).
+   */
+  uploads: number;
 }
 // #endregion
 
