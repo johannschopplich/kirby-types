@@ -40,7 +40,8 @@ export interface KirbyOption {
 /**
  * Props of a field as the backend sends them; the field-specific types extend
  * them. `info` and `headline` omit `disabled`, `required`, and `translate`,
- * but receive `disabled` when locked.
+ * but receive `disabled` when the user may not update the model or the field
+ * is not translatable into the current language.
  *
  * @example
  * ```ts
