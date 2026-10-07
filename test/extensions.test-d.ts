@@ -52,6 +52,13 @@ expectAssignable<WriterExtension>({
   },
 });
 
+expectNotAssignable<WriterExtension>({
+  name: "history",
+  type: "extension",
+  bindEditor() {},
+  init() {},
+});
+
 // With commands
 expectAssignable<WriterExtension>({
   name: "history",
