@@ -103,7 +103,7 @@ export interface PanelDrag
   /**
    * Starts a drag operation with type and data.
    *
-   * @param type - Drag item type (e.g., `"page"`, `"file"`)
+   * @param type - Drag item type (e.g., `"text"`, `"data"`)
    * @param data - Associated data (string or object)
    */
   start: (type: string, data: string | Record<string, any>) => void;
@@ -155,8 +155,8 @@ export interface PanelTheme
   /**
    * Resolved current theme.
    *
-   * Usually `"light"` or `"dark"`, but may be any custom theme key when
-   * `setting` is a non-system custom value.
+   * Usually `"light"` or `"dark"`, but may be any custom theme key that
+   * `setting`, or without it `config`, holds.
    */
   readonly current: string;
 
@@ -357,11 +357,11 @@ export interface PanelNotificationDefaults {
  */
 export interface PanelNotificationOptions {
   /** Context where notification appears. */
-  context?: PanelContext;
+  context?: PanelContext | null;
   details?: Record<string, any>;
-  icon?: string;
-  message?: string;
-  theme?: NotificationTheme;
+  icon?: string | null;
+  message?: string | null;
+  theme?: NotificationTheme | null;
   /**
    * Auto-close delay in ms. For non-error notifications a missing or falsy
    * value (including `0`) falls back to `4000` ms; a negative one disables
@@ -369,16 +369,17 @@ export interface PanelNotificationOptions {
    * otherwise never auto-close.
    */
   timeout?: number;
-  type?: NotificationType;
+  type?: NotificationType | null;
 }
 
 /**
  * Plain error object that `error()` and `fatal()` accept. `fatal()` shows its
- * `message`; `error()` reads `Something went wrong` instead.
+ * `message`, or `Something went wrong` without one; `error()` always reads
+ * `Something went wrong`.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelErrorObject {
-  message: string;
+  message?: string;
   /** Details from the backend exception response; the notification ignores them. */
   details?: Record<string, any>;
 }
@@ -410,10 +411,11 @@ export interface PanelNotification
   deprecated: (message: string) => void;
 
   /**
-   * Shows the error notification bar; in view context also opens an error
-   * dialog. A response that cannot be parsed becomes a fatal notification,
-   * and an authentication error sends a logged-in user to the logout, which
-   * throws a redirect error.
+   * Opens an error notification: in view context as an error dialog, in
+   * dialog and drawer context as the notification bar. A response that
+   * cannot be parsed becomes a fatal notification, and an authentication
+   * error sends a logged-in user to the logout, which throws a redirect
+   * error.
    *
    * @param error - Error instance, message string, or plain object
    */
@@ -670,6 +672,18 @@ export interface PanelDropdownOption {
   text: string;
   icon?: string;
   /**
+   * Whether the option is marked as current; a string sets that
+   * `aria-current` value.
+   */
+  current?: boolean | string;
+  /** Dialog path or state object to open on click. */
+  dialog?: string | Record<string, any>;
+  /** Drawer path or state object to open on click. */
+  drawer?: string | Record<string, any>;
+  link?: string;
+  /** Anchor target attribute, e.g. `"_blank"`. */
+  target?: string;
+  /**
    * Click handler: a callback, an action name emitted to the parent
    * component as `action`, or an object that emits `name` on the parent and
    * `global` on the global event bus, each with `payload`.
@@ -677,6 +691,8 @@ export interface PanelDropdownOption {
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
   disabled?: boolean;
+  /** Whether the option is shown; `false` hides it. */
+  when?: boolean;
   [key: string]: any;
 }
 
@@ -889,9 +905,12 @@ export interface PanelContentVersion {
  * @source src/Panel/Model.php
  */
 export interface PanelContentVersions {
-  /** Original saved content. */
+  /** Published content. */
   latest: PanelContentVersion;
-  /** Current unsaved changes. */
+  /**
+   * Content including unpublished changes; equals `latest` when there are
+   * none.
+   */
   changes: PanelContentVersion;
 }
 
@@ -944,7 +963,7 @@ export interface PanelContent {
   /** Panel dialog while the lock dialog is open. */
   dialog: PanelDialog | null;
 
-  /** Whether content is being saved/published/discarded. */
+  /** Whether content is being discarded or published. */
   isProcessing: boolean;
 
   /**
@@ -959,7 +978,8 @@ export interface PanelContent {
   cancelSaving: () => void;
 
   /**
-   * Returns object with all changed fields.
+   * Returns all changed fields; a field removed from the changes maps to
+   * `null`.
    *
    * @param env - Environment context
    * @throws Error if called for another view
@@ -988,14 +1008,14 @@ export interface PanelContent {
   ) => void;
 
   /**
-   * Returns consistent environment with api and language.
+   * Returns consistent environment with `api` and `language`.
    *
    * @param env - Override values
    */
   env: (env?: PanelContentEnv) => Required<PanelContentEnv>;
 
   /**
-   * Returns whether there are any unsaved changes.
+   * Returns whether the content has unpublished changes.
    *
    * @param env - Environment context
    */
@@ -1012,6 +1032,7 @@ export interface PanelContent {
    * Returns whether the current view is locked.
    *
    * @param env - Environment context
+   * @throws Error if called for another view
    */
   isLocked: (env?: PanelContentEnv) => boolean;
 
@@ -1333,7 +1354,7 @@ export interface PanelUploadDefaults {
   files: PanelUploadFile[];
   /** Maximum number of files. */
   max: number | null;
-  /** Whether multiple files allowed. */
+  /** Whether multiple files are allowed. */
   multiple: boolean;
   /**
    * Preview settings (`back`, `color`, `cover`, `icon`) spread into every
@@ -1465,8 +1486,9 @@ export interface PanelUpload
   ) => void;
 
   /**
-   * Sets state and registers event listeners.
-   * Returns `undefined` when called without a `state` argument (early-return path).
+   * Sets state and replaces the event listeners with those in `on`.
+   * `max: 1` forces `multiple: false`, and `multiple: false` forces `max: 1`.
+   * Returns `undefined` when called without a `state` argument.
    */
   set: (state?: PanelUploadOptions) => PanelUploadDefaults | undefined;
 
@@ -1474,11 +1496,14 @@ export interface PanelUpload
   submit: () => Promise<void>;
 
   /**
-   * Uploads a single file in chunks and fails it when called before
-   * `submit()` has set `abort`: its `error` is set and `file.upload.error`
-   * fires.
+   * Uploads a single file in chunks with the given form `attributes`. On
+   * success it marks the file `completed`, stores the server file model in
+   * `model`, and emits `file.upload`. On failure, including a call before
+   * `submit()` has set `abort`, it stores `error`, resets `progress` to `0`,
+   * and emits `file.upload.error`.
    *
    * @param file - File to upload
+   * @param attributes - Form data sent with the file
    */
   upload: (
     file: PanelUploadFile,
