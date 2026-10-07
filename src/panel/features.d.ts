@@ -379,8 +379,8 @@ export interface PanelNotificationOptions {
 }
 
 /**
- * Plain error object that `error()` accepts. Its `message` is shown, or
- * `Something went wrong` when it is not a string.
+ * Plain error object that `error()` and `fatal()` accept. Its `message` is
+ * shown, or `Something went wrong` without one.
  * @source panel/src/panel/notification.ts
  */
 export interface PanelErrorObject {
@@ -429,12 +429,15 @@ export interface PanelNotification
 
   /**
    * Creates a fatal error notification, displayed in an isolated iframe.
-   * A response that cannot be parsed shows its raw text; an error without a
-   * message reads `Something went wrong`.
+   * A response that cannot be parsed shows its raw text. A plain object
+   * contributes its `message`; without one the notification reads
+   * `Something went wrong`.
    *
-   * @param error - Error instance or message string
+   * @param error - Error object, string, or plain `{ message }` object
    */
-  fatal: (error: Error | string) => PanelNotificationDefaults;
+  fatal: (
+    error: Error | string | PanelErrorObject,
+  ) => PanelNotificationDefaults;
 
   /**
    * Creates an info notification.
@@ -728,7 +731,7 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
    * @deprecated Use `open()` and read `options()` instead.
    */
   openAsync: (
-    dropdown: string,
+    dropdown: string | URL | Partial<PanelFeatureDefaults>,
     options?: PanelRequestOptions | PanelEventCallback,
   ) => (ready: (items: (PanelDropdownOption | "-")[]) => void) => Promise<void>;
 
