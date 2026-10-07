@@ -177,7 +177,7 @@ export interface PanelLibraryColors {
  */
 export interface PanelDayjsPatternPart {
   index: number;
-  /** Unit the part refers to, `undefined` for a letter sequence that is not a supported token, e.g. `Do`. */
+  /** Unit the part refers to, `undefined` for a segment that is no supported token, e.g. `Do` or the empty segment between two separators. */
   unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
   /** Start position in the pattern. */
   start: number;
@@ -249,8 +249,8 @@ export interface PanelDayjsExtensions {
    * Merges date or time parts from another dayjs instance.
    *
    * @param dt - Dayjs instance to merge from
-   * @param units - `"date"`, `"time"`, or array of specific units (`"year"`, `"month"`, `"date"`, `"hour"`, `"minute"`, `"second"`) (default: `"date"`)
-   * @returns New dayjs instance (returns `this` if `dt` is invalid)
+   * @param units - `"date"` (year, month, date), `"time"` (hour, minute, second), or an array of units (default: `"date"`)
+   * @returns New dayjs instance, or `this` if `dt` is missing or invalid
    */
   merge: (
     dt: Dayjs | null | undefined,
