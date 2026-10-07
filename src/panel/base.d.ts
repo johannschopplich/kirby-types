@@ -113,7 +113,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
    *
    * @param listeners - Object mapping event names to callbacks
    */
-  addEventListeners: (listeners: PanelEventListenerMap<TEvents>) => void;
+  addEventListeners: (listeners?: PanelEventListenerMap<TEvents>) => void;
 
   /**
    * Emits an event, calling the registered listener if any.
@@ -343,8 +343,8 @@ export interface PanelModalSubmitResponse {
   emit?: boolean;
   /** URL to navigate to. */
   route?: string | { url: string; options?: PanelRequestOptions };
-  /** Alternative to route. */
-  redirect?: string | { url: string; options?: PanelRequestOptions };
+  /** Alternative to `route`; `false` when there is nowhere to go. */
+  redirect?: string | { url: string; options?: PanelRequestOptions } | false;
   /**
    * Options for the view reload that follows when neither `route` nor
    * `redirect` is set. The view reloads either way; a boolean has no effect.
