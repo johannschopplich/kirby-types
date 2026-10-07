@@ -44,16 +44,18 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
 
   /**
    * Sets a new state, merging with defaults.
-   * Missing properties are filled from defaults.
+   * Missing and `null` properties are filled from defaults.
    *
    * @param state - Partial state to merge
    * @returns The complete merged state
+   * @throws Error if `state` is not an object
    */
   set: (state: Partial<TDefaults>) => TDefaults;
 
   /**
    * Returns the current state filtered to default keys only.
-   * Properties not in defaults are excluded.
+   * Properties not in defaults are excluded, and a `null` or `undefined`
+   * value falls back to its default.
    */
   state: () => TDefaults;
 }
@@ -78,8 +80,9 @@ export type PanelEventListenerMap<TEvents extends string = string> = Partial<
  * Event listener mixin interface.
  *
  * Provides event handling capabilities for Panel features.
- * This is mixed into Feature and Modal classes to enable
- * custom event handling without a full event bus.
+ * Mixed into every feature and modal, e.g. `panel.view`, `panel.dialog`,
+ * and `panel.drawer`, to enable custom event handling without a full
+ * event bus.
  *
  * @typeParam TEvents - Union of valid event names
  *
@@ -323,7 +326,7 @@ export interface PanelModalListeners {
 export interface PanelModalSubmitResponse {
   /** Text of the success notification. */
   message?: string;
-  /** Events to emit (string or array of strings). */
+  /** Global events to emit, each with the response as payload. */
   event?: string | string[];
   /** Whether to emit the global `"success"` event (default: `true`). */
   emit?: boolean;
@@ -333,9 +336,9 @@ export interface PanelModalSubmitResponse {
   redirect?: string | { url: string; options?: PanelRequestOptions } | false;
   /**
    * Options for the view reload that follows when neither `route` nor
-   * `redirect` is set. The view reloads either way; a boolean has no effect.
+   * `redirect` is set. The view reloads either way.
    */
-  reload?: boolean | PanelRequestOptions;
+  reload?: PanelRequestOptions;
   [key: string]: any;
 }
 
@@ -359,7 +362,7 @@ export interface PanelModalSubmitResponse {
  *   }
  * });
  *
- * // Close with history navigation
+ * // Go back to a stored drawer
  * panel.drawer.goTo("previous-drawer-id");
  * ```
  *
@@ -401,7 +404,9 @@ export interface PanelModal<
   close: (id?: string | true) => Promise<TDefaults | void>;
 
   /**
-   * Sets focus to the first focusable input or a specific input.
+   * Focuses the given input, else the first autofocus element, input, or
+   * button in the modal. Without `input`, keeps focus that is already
+   * inside the modal.
    *
    * @param input - Optional input name to focus
    */
@@ -467,13 +472,14 @@ export interface PanelModal<
    * @param options - Request options
    * @returns The `submit` listener's result if one is registered, the
    *   `close()` result without a path, `false` if the request fails, otherwise
-   *   the `success()` result
+   *   the `success()` result; `undefined` while loading
    */
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
 
   /**
-   * Handles success response after submission.
-   * Shows notification, emits events, and handles redirect/reload.
+   * Handles the submit response: closes the modal, shows the success
+   * notification, emits the response's events, then redirects or reloads
+   * the view. A registered `success` listener replaces all of this.
    *
    * @param success - Success response object or message string
    * @returns The `success` listener's result if one is registered, otherwise the given response
@@ -481,8 +487,8 @@ export interface PanelModal<
   success: (success: PanelModalSubmitResponse | string) => any;
 
   /**
-   * Emits events specified in the success response.
-   * Wraps single events in array and emits `"success"` unless disabled.
+   * Emits the response's events on the global event bus, then the global
+   * `"success"` event unless `emit` is `false`.
    *
    * @param state - Success response with event data
    */
