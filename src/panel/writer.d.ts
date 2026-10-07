@@ -155,12 +155,12 @@ export interface WriterEditor {
   /** Whether the cursor is at the start of the document. */
   selectionIsAtStart: boolean;
   /** Current editor state, `undefined` until the view exists. */
-  state: EditorState;
+  state: EditorState | undefined;
   /**
    * ProseMirror view, `undefined` until the editor creates it – which
    * includes every extension's `init()`.
    */
-  view: EditorView;
+  view: EditorView | undefined;
   // #endregion
 
   // #region Methods
@@ -339,8 +339,7 @@ export interface WriterExtensions {
   /**
    * Options of each extension, keyed by extension name; extensions without a
    * name share the `"null"` key. Assigning a changed value updates the editor
-   * view. Reading it throws when an extension lacks `options`, as plugin marks
-   * and nodes do unless their definition sets it.
+   * view. Reading it throws unless every extension defines `options`.
    */
   options: Record<string, Record<string, any>>;
 }
@@ -509,7 +508,8 @@ export interface WriterUtils {
   /**
    * Creates a paste rule that marks the first capture group of each match in
    * pasted text and drops the rest of the match. Text that already carries a
-   * `link` mark is left as is.
+   * `link` mark, and text whose parent node disallows the mark, stays
+   * unmarked.
    *
    * @param regexp - Pattern with a capture group and the `g` flag; without the flag a match hangs the paste.
    * @param type - The mark type to apply
@@ -727,10 +727,13 @@ export interface WriterExtension {
   /** The editor instance, available after the extension is bound to an editor. */
   editor?: WriterEditor;
 
-  /** Merged extension options from `defaults` and constructor options. */
+  /**
+   * Extension options. Built-in extensions merge `defaults` and their
+   * constructor options into it; a custom extension sets it itself.
+   */
   options?: Record<string, any>;
 
-  /** Default options for the extension. */
+  /** Default options, merged into `options` only by built-in extensions. */
   defaults?: Record<string, any>;
 
   /**
@@ -1000,9 +1003,8 @@ export interface WriterMarkExtension {
   bindEditor?: (editor: WriterEditor) => void;
 
   /**
-   * Runs after the editor is bound to the extension.
-   *
-   * Use this for initialization logic that requires access to `this.editor`.
+   * Runs after the editor is bound to the extension and before the editor
+   * builds its schema, view, and commands.
    */
   init?: () => null | void;
   // #endregion
@@ -1190,9 +1192,8 @@ export interface WriterNodeExtension {
   bindEditor?: (editor: WriterEditor) => void;
 
   /**
-   * Runs after the editor is bound to the extension.
-   *
-   * Use this for initialization logic that requires access to `this.editor`.
+   * Runs after the editor is bound to the extension and before the editor
+   * builds its schema, view, and commands.
    */
   init?: () => null | void;
   // #endregion
