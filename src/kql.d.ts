@@ -15,7 +15,7 @@ import type { KirbyQuery } from "./query";
  *
  * // Query with field selection
  * const schemaWithSelect: KirbyQuerySchema = {
- *   query: "page",
+ *   query: 'page("about")',
  *   select: ["title", "url", "content"]
  * };
  *
@@ -34,14 +34,24 @@ import type { KirbyQuery } from "./query";
  * ```
  */
 export interface KirbyQuerySchema {
-  query: KirbyQuery;
-  /** Field names, or an object for nested queries. */
+  /**
+   * Query whose result the selection applies to. Defaults to `site` at the
+   * top level and, in a nested selection, to the field or method of the same
+   * key on the parent model.
+   */
+  query?: KirbyQuery;
+  /**
+   * Field names as an array or a comma-separated string, `"?"` for help on the
+   * result, or an object that maps each key to `true`, `false` (skip), a query
+   * string, or a nested query.
+   */
   select?:
-    string[] | Record<string, string | number | boolean | KirbyQuerySchema>;
+    string | string[] | Record<string, string | boolean | KirbyQueryRequest>;
 }
 
 /**
- * KQL request: a {@link KirbyQuerySchema} with optional pagination.
+ * KQL request: a {@link KirbyQuerySchema} with optional pagination, or a set
+ * of named queries.
  *
  * @see https://github.com/getkirby/kql
  *
@@ -63,10 +73,22 @@ export interface KirbyQuerySchema {
  * ```
  */
 export interface KirbyQueryRequest extends KirbyQuerySchema {
+  /**
+   * Named queries, each run on its own. The result holds each query's result
+   * under the same key; `query`, `select`, and `pagination` are ignored.
+   */
+  queries?:
+    | Record<string, KirbyQuery | KirbyQueryRequest>
+    | (KirbyQuery | KirbyQueryRequest)[];
+  /**
+   * Pagination of a collection result. Applies only when `query` and `select`
+   * are set and the query returns a collection; the result is then
+   * `{ data, pagination }`.
+   */
   pagination?: {
     /**
-     * Maximum number of items to return.
-     * @default 100
+     * Maximum number of items to return. Defaults to the `pagination.limit`
+     * option, or `20`.
      */
     limit?: number;
     /** Page number, 1-indexed. */
