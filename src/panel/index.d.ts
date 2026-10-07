@@ -892,17 +892,20 @@ export interface Panel {
   get title(): string;
   set title(title: string);
 
-  /** Whether `open()` is loading a URL – a view, dialog, drawer, or dropdown. */
+  /**
+   * Whether the Panel is loading: a URL through `open()`, a non-silent API
+   * request, or results in the search view.
+   */
   isLoading: boolean;
 
   /**
    * Whether the Panel lost its connection, from the browser's `offline`
-   * event or a failed request.
+   * event or a request that fails to reach the server.
    */
   isOffline: boolean;
   // #endregion
 
-  // #region State Objects (extend State)
+  // #region State Objects
 
   /** License activation state. */
   activation: PanelFeatures.PanelActivation;
@@ -932,7 +935,7 @@ export interface Panel {
   user: PanelFeatures.PanelUser;
   // #endregion
 
-  // #region Features (extend Feature)
+  // #region Features
 
   /**
    * Content versioning and saving.
@@ -1152,9 +1155,7 @@ export interface Panel {
    * Creates a URL object for a Panel path.
    *
    * @param path - Path or URL to build (default: empty string)
-   * @param query - Query parameters
-   * @param origin - Base origin
-   * @returns URL object
+   * @param origin - Base for a relative `path` (default: the base URL)
    */
   url: (
     path?: string | URL,
