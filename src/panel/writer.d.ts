@@ -282,8 +282,11 @@ export interface WriterEditorOptions {
  */
 export interface WriterExtensions {
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /** ProseMirror view, assigned by the editor after initialization. */
-  view: EditorView;
+  /**
+   * ProseMirror view, `undefined` until the editor has created it and fired
+   * its `init` event.
+   */
+  view: EditorView | undefined;
 
   /** Returns toolbar buttons for the given type, `mark` by default. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
@@ -296,9 +299,10 @@ export interface WriterExtensions {
   /** Views of the node extensions that define one, keyed by node name. */
   nodeViews: Record<string, NodeViewConstructor>;
   /**
-   * Options of each extension, keyed by extension name; extensions without a
-   * name share the `"null"` key. Assigning a changed value updates the editor
-   * view. Reading it throws unless every extension defines `options`.
+   * Options of each extension, keyed by extension name; extensions whose
+   * `name` is `null` share the `"null"` key. Assigning a changed value updates
+   * the editor view. Reading it throws unless every extension defines
+   * `options`.
    */
   options: Record<string, Record<string, any>>;
 }
@@ -511,7 +515,8 @@ export interface WriterUtils {
   toggleWrap: (type: NodeType, attrs?: Attrs) => Command;
 
   /**
-   * Creates a command that updates the attributes of the active mark.
+   * Creates a command that sets the mark with the given attributes on every
+   * selected range, or on the mark's range around a collapsed cursor.
    *
    * @returns A ProseMirror command. It needs `dispatch` and returns nothing
    *          even when it applies, so `chainCommands` and key bindings move on
