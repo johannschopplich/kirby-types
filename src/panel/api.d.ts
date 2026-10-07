@@ -18,6 +18,11 @@ export interface PanelApiRequestOptions extends Omit<
   "csrf" | "on"
 > {
   /**
+   * Content language code sent as the `x-language` header. Defaults to the
+   * current content language, which an empty value keeps too.
+   */
+  language?: string | null;
+  /**
    * HTTP method, `GET` when omitted. The verb helpers set their own. While
    * method override is on – its default (`api.methodOverride`) – any method
    * other than `GET` and `POST` goes out as `POST`, with the real method in
@@ -155,7 +160,8 @@ export interface PanelApiAuth {
   user: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Verifies a 2FA code.
+   * Verifies the code of the active login, password-reset, or 2FA challenge
+   * and logs the user in.
    *
    * @param code - Verification code
    * @returns `{ code: 200, status: "ok", user }` with the logged-in user
@@ -280,9 +286,11 @@ export interface PanelApiLanguageData {
 }
 
 /**
- * Languages API methods.
+ * Methods for a multi-language site. Every call rejects unless the
+ * `languages` option is enabled.
  *
  * @source panel/src/api/languages.ts
+ * @source config/api/routes.php
  */
 export interface PanelApiLanguages {
   /**
@@ -334,6 +342,8 @@ export interface PanelApiLanguages {
 /**
  * Page creation data.
  * @source src/Cms/PageActions.php
+ * @source src/Cms/ModelWithContent.php
+ * @source src/Content/Translations.php
  */
 export interface PanelApiPageCreateData {
   /** Page slug, derived from `content.title` when omitted. */
@@ -343,9 +353,14 @@ export interface PanelApiPageCreateData {
   content?: Record<string, any>;
   /**
    * Content per language on a multi-language site. Each translation's
-   * content runs through the fields' save handlers.
+   * content runs through the fields' save handlers; `slug` sets the page's
+   * slug in that language.
    */
-  translations?: { code: string; content?: Record<string, any> }[];
+  translations?: {
+    code: string;
+    content?: Record<string, any>;
+    slug?: string;
+  }[];
   /** Whether the page starts as a draft, `true` by default – `false` creates an unlisted page. */
   draft?: boolean;
 }
@@ -379,7 +394,7 @@ export interface PanelApiPages {
    * Gets available blueprints for a page.
    *
    * @param parent - Page ID
-   * @param field - Field name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
+   * @param field - Field name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included.
    * @returns Array of blueprints
    */
   blueprints: (parent: string, field?: string) => Promise<any[]>;
@@ -506,7 +521,7 @@ export interface PanelApiPages {
    * Gets a page's preview URL.
    *
    * @param id - Page ID
-   * @returns Preview URL, or `null` when preview is disabled for the page
+   * @returns Preview URL, or `null` when the page or the current user cannot preview it
    */
   preview: (id: string) => Promise<string | null>;
 
@@ -515,7 +530,7 @@ export interface PanelApiPages {
    *
    * @param parent - Parent page ID (`null` for root)
    * @param query - Search query
-   * @returns Search results
+   * @returns Search results with only `id`, `title`, and `hasChildren` per page
    */
   search: (parent: string | null, query?: PanelApiSearchQuery) => Promise<any>;
 
@@ -531,7 +546,7 @@ export interface PanelApiPages {
   /**
    * Gets API URL for a page.
    *
-   * @param id - Page ID
+   * @param id - Page ID, or `null` for the `pages` collection. Unlike the other methods, it takes no UUID or permalink.
    * @param path - Additional path
    * @returns API URL
    */
@@ -545,6 +560,7 @@ export interface PanelApiPages {
  * Roles API methods.
  *
  * @source panel/src/api/roles.ts
+ * @source config/api/routes/roles.php
  */
 export interface PanelApiRoles {
   /**
@@ -571,6 +587,7 @@ export interface PanelApiRoles {
  * Site API methods.
  *
  * @source panel/src/api/site.ts
+ * @source config/api/routes/site.php
  */
 export interface PanelApiSite {
   /**
@@ -581,7 +598,7 @@ export interface PanelApiSite {
   blueprint: () => Promise<any>;
 
   /**
-   * Gets available blueprints for the site.
+   * Gets the page blueprints the site's `pagelist` fields accept.
    *
    * @returns Array of blueprints
    */
@@ -612,9 +629,8 @@ export interface PanelApiSite {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Meant to update the site content, but sends a `POST` that no `site`
-   * route accepts, so the call rejects – send `panel.api.patch("site", data)`
-   * instead.
+   * Sends the content as a `POST`, which no `site` route accepts, so the call
+   * rejects – send `panel.api.patch("site", data)` instead.
    *
    * @param data - Content data
    */
@@ -641,6 +657,14 @@ export interface PanelApiSystemInstallData {
   name?: string;
   /** Role of the first user, which has to be `admin`. */
   role: "admin";
+  /** User ID, generated when omitted. */
+  id?: string;
+  content?: Record<string, any>;
+  /**
+   * Content per language on a multi-language site. Each translation's
+   * content runs through the fields' save handlers.
+   */
+  translations?: { code: string; content?: Record<string, any> }[];
 }
 
 /**
@@ -670,7 +694,8 @@ export interface PanelApiSystem {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Installs Kirby with initial user.
+   * Creates the first user and logs them in. Rejects once the Panel is
+   * installed or when it cannot be installed.
    *
    * @param data - Installation data
    * @returns The newly created admin user
@@ -699,7 +724,7 @@ export interface PanelApiTranslations {
   /**
    * Gets a translation.
    *
-   * @param locale - Locale code
+   * @param locale - Translation code, like `de` or `pt_BR`
    * @returns Translation data
    */
   get: (locale: string) => Promise<any>;
@@ -726,7 +751,9 @@ export interface PanelApiUserCreateData {
   email: string;
   password?: string;
   name?: string;
+  /** Role ID, `default` when omitted. */
   role?: string;
+  /** Interface language, a Panel translation code like `de`. */
   language?: string;
   content?: Record<string, any>;
   /**
@@ -740,6 +767,7 @@ export interface PanelApiUserCreateData {
  * Users API methods.
  *
  * @source panel/src/api/users.ts
+ * @source config/api/routes/users.php
  */
 export interface PanelApiUsers {
   /**
@@ -769,10 +797,10 @@ export interface PanelApiUsers {
   changeEmail: (id: string, email: string) => Promise<any>;
 
   /**
-   * Changes a user's language.
+   * Changes a user's interface language.
    *
    * @param id - User ID
-   * @param language - New language code
+   * @param language - Panel translation code, like `de` or `pt_BR`
    * @returns Updated user
    */
   changeLanguage: (id: string, language: string) => Promise<any>;
@@ -858,13 +886,15 @@ export interface PanelApiUsers {
   list: (query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
-   * Gets roles available to a user.
+   * Gets the roles the current user may give a user – only the user's current
+   * role when they may not change it – or, for `null`, every role the current
+   * user can access.
    *
-   * @param id - User ID
+   * @param id - User ID, or `null` for all roles
    * @returns Array of role options shaped for select inputs
    */
   roles: (
-    id: string,
+    id: string | null,
   ) => Promise<{ info: string; text: string; value: string }[]>;
 
   /**
@@ -943,12 +973,13 @@ export interface PanelApi {
   language: string | null;
 
   /**
-   * Makes a raw API request.
+   * Sends a request to the API. A model response resolves to its `data`, any
+   * other response to the full JSON.
    *
    * @param path - API path
    * @param options - Request options
    * @param silent - Skip loading indicator
-   * @returns Response data
+   * @returns Response JSON, or the model data of a model response
    */
   request: <T = any>(
     path: string,
