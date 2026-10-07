@@ -56,28 +56,31 @@ export type KirbyCodeLanguage =
  * ```ts
  * // Access content type for a specific block
  * type CodeContent = KirbyDefaultBlocks["code"];
- * // Result: { code: string; language: KirbyCodeLanguage }
+ * // Result: { code: string; language: KirbyCodeLanguage | "" }
  * ```
  */
 export interface KirbyDefaultBlocks {
   /** @see https://getkirby.com/docs/reference/panel/blocks/code */
   code: {
     code: string;
-    language: KirbyCodeLanguage;
+    language: KirbyCodeLanguage | "";
   };
 
   /** @see https://getkirby.com/docs/reference/panel/blocks/gallery */
   gallery: {
     images: string[];
-    caption: string | null;
-    ratio: string | null;
-    crop: boolean;
+    caption: string;
+    ratio: string;
+    crop: "true" | "false";
   };
 
   /** @see https://getkirby.com/docs/reference/panel/blocks/heading */
   heading: {
-    level: string;
+    /** Heading tag, or `""` for content saved without a level. */
+    level: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "";
     text: string;
+    /** Anchor ID of a heading pasted or parsed from HTML with an `id` attribute. */
+    id?: string;
   };
 
   /**
@@ -90,15 +93,15 @@ export interface KirbyDefaultBlocks {
         location: "kirby";
         /** File references. */
         image: string[];
-        alt: string | null;
+        alt: string;
         /** Caption, may contain inline HTML. */
-        caption: string | null;
+        caption: string;
         /** URL the image links to. */
-        link: string | null;
-        /** Aspect ratio, such as `"16/9"` or `"1/1"`. */
-        ratio: string | null;
+        link: string;
+        /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. */
+        ratio: string;
         /** Whether to crop the image to fit the ratio. */
-        crop: boolean;
+        crop: "true" | "false";
       }
     | {
         /** External image. */
@@ -109,10 +112,10 @@ export interface KirbyDefaultBlocks {
         caption: string | null;
         /** URL the image links to. */
         link: string | null;
-        /** Aspect ratio, such as `"16/9"` or `"1/1"`. */
-        ratio: string | null;
+        /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. */
+        ratio: string;
         /** Whether to crop the image to fit the ratio. */
-        crop: boolean;
+        crop: "true" | "false";
       };
 
   /**
@@ -137,7 +140,8 @@ export interface KirbyDefaultBlocks {
   /** @see https://getkirby.com/docs/reference/panel/blocks/quote */
   quote: {
     text: string;
-    citation?: string;
+    /** Citation, `null` for HTML parsed without a `<footer>`. */
+    citation: string | null;
   };
 
   /**
@@ -164,7 +168,7 @@ export interface KirbyDefaultBlocks {
         /** External video URL (YouTube, Vimeo, etc.). */
         url: string;
         /** Caption, may contain inline HTML. */
-        caption: string | null;
+        caption: string;
       }
     | {
         /** Internal Kirby video file. */
@@ -174,12 +178,12 @@ export interface KirbyDefaultBlocks {
         /** Poster image file references. */
         poster: string[];
         /** Caption, may contain inline HTML. */
-        caption: string | null;
-        autoplay: boolean;
-        muted: boolean;
-        loop: boolean;
-        controls: boolean;
-        preload: "auto" | "metadata" | "none";
+        caption: string;
+        autoplay: "true" | "false";
+        muted: "true" | "false";
+        loop: "true" | "false";
+        controls: "true" | "false";
+        preload: "auto" | "metadata" | "none" | "";
       };
 }
 

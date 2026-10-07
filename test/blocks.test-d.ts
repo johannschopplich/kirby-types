@@ -27,7 +27,7 @@ expectAssignable<KirbyBlock<"gallery">>({
     images: ["image1.jpg", "image2.jpg"],
     caption: "Gallery caption",
     ratio: "16/9",
-    crop: true,
+    crop: "true",
   },
   id: "gallery-1",
   isHidden: false,
@@ -35,7 +35,7 @@ expectAssignable<KirbyBlock<"gallery">>({
 });
 
 expectAssignable<KirbyBlock<"heading">>({
-  content: { level: "1", text: "Main Title" },
+  content: { level: "h1", text: "Main Title" },
   id: "heading-1",
   isHidden: false,
   type: "heading",
@@ -50,7 +50,7 @@ expectAssignable<KirbyBlock<"image">>({
     caption: "A test image",
     link: "https://example.com",
     ratio: "1/1",
-    crop: true,
+    crop: "true",
   },
   id: "image-1",
   isHidden: false,
@@ -66,7 +66,7 @@ expectAssignable<KirbyBlock<"image">>({
     caption: null,
     link: null,
     ratio: "16/9",
-    crop: false,
+    crop: "false",
   },
   id: "image-2",
   isHidden: false,
@@ -97,9 +97,9 @@ expectAssignable<KirbyBlock<"quote">>({
   type: "quote",
 });
 
-// Quote: citation is optional
+// Quote: citation is `null` for HTML parsed without a footer
 expectAssignable<KirbyBlock<"quote">>({
-  content: { text: "An anonymous quote." },
+  content: { text: "An anonymous quote.", citation: null },
   id: "quote-2",
   isHidden: false,
   type: "quote",
@@ -123,11 +123,11 @@ expectAssignable<KirbyBlock<"video">>({
     location: "kirby",
     video: ["video.mp4"],
     poster: ["poster.jpg"],
-    caption: null,
-    autoplay: false,
-    muted: true,
-    loop: false,
-    controls: true,
+    caption: "",
+    autoplay: "false",
+    muted: "true",
+    loop: "false",
+    controls: "true",
     preload: "auto",
   },
   id: "video-2",
@@ -167,7 +167,7 @@ expectType<
   | "video"
 >({} as KirbyDefaultBlockType);
 
-expectType<{ code: string; language: KirbyCodeLanguage }>(
+expectType<{ code: string; language: KirbyCodeLanguage | "" }>(
   {} as KirbyBlock<"code">["content"],
 );
 expectType<{ text: string }>({} as KirbyBlock<"text">["content"]);
