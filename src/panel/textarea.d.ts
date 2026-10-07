@@ -54,7 +54,7 @@ export interface TextareaToolbarContext extends Pick<
 
   /**
    * Button names from the field's `buttons` option, or `true` for the
-   * default toolbar.
+   * default toolbar. A `"|"` entry renders a separator.
    */
   buttons: string[] | true;
 
@@ -134,7 +134,8 @@ export interface TextareaButton {
    * Keyboard shortcut key (without modifier).
    *
    * Fires with Cmd/Ctrl + the key while the textarea has focus and no other
-   * modifier is held. Matched against `KeyboardEvent.key`.
+   * modifier is held. Matched against `KeyboardEvent.key`. Still runs `click`
+   * when `when` hides the button or `disabled` is set.
    *
    * @example
    * ```js
@@ -245,6 +246,21 @@ export interface TextareaDropdownItem {
 
   /** Link target, such as `"_blank"`. Applies only with `link`. */
   target?: string;
+
+  /**
+   * Value of the link's `rel` attribute. Applies only with `link`. A
+   * `"_blank"` target replaces it with `"noreferrer noopener"`.
+   */
+  rel?: string;
+
+  /**
+   * Downloads the linked file instead of opening it. Applies only with
+   * `link`.
+   */
+  download?: boolean;
+
+  /** Tooltip text. Also the item's accessible label when `text` is unset. */
+  title?: string;
 
   /**
    * Dialog to open on click instead of running `click`, as a Panel path or
