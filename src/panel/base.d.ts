@@ -331,11 +331,6 @@ export interface PanelModalListeners {
 }
 
 /**
- * @deprecated Use `PanelModalSubmitResponse` instead.
- */
-export type PanelSuccessResponse = PanelModalSubmitResponse;
-
-/**
  * Success response from modal submission.
  * @source panel/src/panel/modal.js
  */
