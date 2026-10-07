@@ -21,7 +21,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    * - `"prepend"`: Prepends the given text and a space to the current selection.
    * - `"toggle"`: Toggles wrapping of the current selection in the given `before` text and the optional `after` text, which defaults to `before`.
    * - `"upload"`: Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
-   * - `"wrap"`: Wraps the current selection with the given text.
+   * - `"wrap"`: Wraps the current selection in the given `before` text and the optional `after` text, which defaults to `before`.
    * - `"file"`: Opens a dialog to select existing files and inserts their tags.
    *
    * @example
