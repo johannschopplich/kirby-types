@@ -202,9 +202,13 @@ export type PanelApp = InstanceType<VueConstructor> & {
 /**
  * Vue component options for Panel plugin extensions.
  *
- * Components can be defined as:
- * - Vue component options object with template or render function
- * - Component that extends another component by name.
+ * Components can be an options object or a `defineComponent()` result that
+ * provides at least one of:
+ * - a template
+ * - a render function
+ * - an `extends` component.
+ *
+ * Without any of them, the component is skipped with a console warning.
  * @source panel/src/panel/plugins.ts
  */
 export type PanelComponentExtension =
@@ -228,7 +232,7 @@ export type PanelComponentExtension =
             any,
             any
           >;
-      /** Named mixins (e.g., `"dialog"`, `"drawer"`, `"section"`) or component objects. */
+      /** Named mixins (`"dialog"`, `"drawer"`, `"section"`) or component objects. */
       mixins?: (
         | string
         | ComponentOptions<any>
@@ -243,7 +247,8 @@ export type PanelComponentExtension =
 // #region Panel Configuration
 
 /**
- * Global Panel configuration.
+ * Panel settings the backend derives from the site options and the
+ * server's upload limits.
  *
  * @source panel/src/panel/panel.js
  * @source src/Panel/View.php
@@ -262,7 +267,7 @@ export interface PanelConfig {
   debug: boolean;
   /**
    * Whether the textarea toolbar writes links and emails as KirbyText tags
-   * rather than Markdown, from the `panel.kirbytext` option.
+   * instead of Markdown, from the `panel.kirbytext` option.
    */
   kirbytext: boolean;
   /**
@@ -907,7 +912,7 @@ export interface Panel {
   get title(): string;
   set title(title: string);
 
-  /** Whether the Panel is currently loading a new view via `open()`. */
+  /** Whether `open()` is loading a URL – a view, dialog, drawer, or dropdown. */
   isLoading: boolean;
 
   /**
@@ -933,7 +938,6 @@ export interface Panel {
   /** Navigation menu state. */
   menu: PanelFeatures.PanelMenu;
 
-  /** Notification display. */
   notification: PanelFeatures.PanelNotification;
 
   searcher: PanelFeatures.PanelSearcher;
@@ -1174,7 +1178,7 @@ export interface Panel {
   /**
    * Returns the current global state.
    *
-   * @returns All feature states
+   * @returns Globals and every feature's state
    */
   state: () => PanelGlobalState;
 
@@ -1308,7 +1312,8 @@ interface PanelViewPropsPermissions {
 }
 
 /**
- * Version information.
+ * Form values of the saved (`latest`) and the unsaved (`changes`) content in
+ * the current language. `changes` equals `latest` when nothing is unsaved.
  * @source src/Panel/Model.php
  */
 interface PanelViewPropsVersions {
@@ -1373,7 +1378,7 @@ interface PanelViewPropsModel {
 }
 
 /**
- * Button definition.
+ * Button in the view header.
  * @source src/Panel/Ui/Buttons/ViewButton.php
  * @source src/Panel/Ui/Button.php
  * @source src/Panel/Ui/Buttons/ViewButtons.php
@@ -1384,10 +1389,7 @@ interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
-    /**
-     * Badge shown at the top-right of the button; the Panel reads its `text`
-     * and `theme`.
-     */
+    /** Badge on the button's top-right corner, like `{ text: 5, theme: "positive" }`. */
     badge?: Record<string, any>;
     class?: string;
     /** Value of the button's `aria-current` attribute. */
@@ -1426,7 +1428,7 @@ interface PanelViewPropsButton {
 }
 
 /**
- * Common view props passed from backend.
+ * Props of a page, site, file, or user view.
  * @source src/Panel/Model.php
  * @source src/Panel/Page.php
  * @source src/Panel/File.php
@@ -1494,8 +1496,6 @@ export interface PanelViewProps {
 }
 
 /**
- * Props of a file view.
- *
  * @source src/Panel/File.php
  * @source src/Panel/Ui/FilePreview.php
  */
@@ -1515,7 +1515,7 @@ export interface PanelFileViewProps extends PanelViewProps {
 }
 
 /**
- * Props of a user view.
+ * Props of a user view, also sent to the account view.
  *
  * @source src/Panel/User.php
  */
