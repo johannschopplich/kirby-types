@@ -342,11 +342,13 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   extend: <T = unknown>(plugin: PluginFunc<T>, option?: T) => PanelLibraryDayjs;
 
   /**
-   * Activates or registers a locale and returns the active locale name.
+   * Activates or registers a locale and returns the active locale name. An
+   * unloaded `preset` with a region, such as `de-at`, falls back to its base
+   * locale and activates it, even with `isLocal` set.
    *
    * @param object - Locale data to register under `preset`
    * @param isLocal - Whether to return the locale without activating it
-   * @returns `false` if `isLocal` is set and `preset` names no loaded locale
+   * @returns `false` if `isLocal` is set and `preset`, without a region, names no loaded locale
    */
   locale: (
     preset?: string | ILocale,
