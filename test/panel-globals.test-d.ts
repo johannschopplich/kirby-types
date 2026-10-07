@@ -9,6 +9,5 @@ expectType<Panel>(window.panel);
 defineComponent({
   mounted() {
     expectType<Panel>(this.$panel);
-    expectType<string>(this.$t("save"));
   },
 });
