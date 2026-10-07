@@ -16,6 +16,7 @@ import type {
   KirbyObjectFieldProps,
   KirbyOption,
   KirbyOptionsFieldProps,
+  KirbyStatsFieldProps,
   KirbyStructureColumn,
   KirbyStructureFieldProps,
   KirbyTextareaFieldProps,
@@ -495,6 +496,11 @@ expectAssignable<KirbyWriterFieldProps>({
   type: "writer",
   width: "1/1",
 });
+// #endregion
+
+// #region Stats Field Props
+
+expectAssignable<KirbyStatsFieldProps["size"]>("huge");
 // #endregion
 
 // #region Fieldset Props

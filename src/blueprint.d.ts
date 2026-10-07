@@ -576,7 +576,7 @@ export interface KirbyStatsFieldProps extends KirbyFieldProps {
   /** Reports, resolved from a query if the blueprint sets a string. */
   reports: KirbyStatsReport[];
   /** Card size. */
-  size: "tiny" | "small" | "medium" | "large";
+  size: "tiny" | "small" | "medium" | "large" | "huge";
 }
 // #endregion
 
