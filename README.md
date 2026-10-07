@@ -265,7 +265,7 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 
 | Type                                         | Description                        |
 | -------------------------------------------- | ---------------------------------- |
-| [`KirbyApiResponse<T>`](./src/api.d.ts)      | Standard API response wrapper      |
+| [`KirbyApiResponse<T>`](./src/api.d.ts)      | KQL and error response envelope    |
 | [`KirbyBlock<T, U>`](./src/blocks.d.ts)      | Block with type and content        |
 | [`KirbyLayout`](./src/layout.d.ts)           | Layout row with columns            |
 | [`KirbyLayoutColumn`](./src/layout.d.ts)     | Column with width and blocks       |

@@ -40,7 +40,7 @@ expectAssignable<KirbyQueryRequest>({
 // Response
 expectAssignable<KirbyQueryResponse<KirbySite>>({
   code: 200,
-  status: "OK",
+  status: "ok",
   result: {
     title: "Site",
     children: [{ id: "home", title: "Home", isListed: true }],
@@ -49,7 +49,7 @@ expectAssignable<KirbyQueryResponse<KirbySite>>({
 
 expectAssignable<KirbyQueryResponse<never>>({
   code: 404,
-  status: "Not Found",
+  status: "error",
 });
 // #endregion
 
