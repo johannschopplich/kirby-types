@@ -51,8 +51,8 @@ export interface PanelActivationDefaults {
 }
 
 /**
- * License activation card; once closed, it stays hidden for the browser
- * session.
+ * License activation card; once closed, it stays hidden in the same tab,
+ * across reloads.
  *
  * @source panel/src/panel/activation.ts
  */
@@ -102,6 +102,7 @@ export interface PanelDrag
 // #region Theme
 
 /**
+ * @since 5.0.0
  * @source panel/src/panel/theme.ts
  */
 export interface PanelThemeDefaults {
@@ -113,6 +114,7 @@ export interface PanelThemeDefaults {
 
 /**
  * Theme preference accepted by `set()`.
+ * @since 5.0.0
  * @source panel/src/panel/theme.ts
  */
 export type PanelThemeValue = "light" | "dark" | "system";
@@ -193,7 +195,8 @@ export interface PanelLanguage
 /**
  * Sidebar menu entry, bound as props onto a `k-button`.
  *
- * The backend drops falsy fields, so an entry may arrive sparse.
+ * An entry may arrive sparse: the backend drops falsy fields from area
+ * entries, and the fixed bottom entries set only the fields they use.
  *
  * @source panel/src/panel/menu.ts
  * @source src/Panel/Menu.php
@@ -426,7 +429,7 @@ export interface PanelSystemDefaults {
   ascii: Record<string, string>;
   /** CSRF token for API requests. */
   csrf: string;
-  /** Whether running on localhost. */
+  /** Whether the Panel runs in a local development environment. */
   isLocal: boolean;
   /**
    * Locale of each interface translation, keyed by translation code
@@ -1440,7 +1443,10 @@ export interface PanelUpload
   remove: (id: string) => void;
 
   /** Opens the file picker to replace an existing file. */
-  replace: (file: PanelUploadReplaceFile, options?: PanelUploadOptions) => void;
+  replace: (
+    file: PanelUploadReplaceFile,
+    options?: PanelUploadOptions & { immediate?: boolean },
+  ) => void;
 
   /**
    * Adds files to upload list with deduplication.
@@ -1638,8 +1644,8 @@ export interface PanelEvents extends PanelEventEmitter {
   subscribe: () => void;
 
   /**
-   * Meant to remove the listeners `subscribe()` added, but leaves them
-   * attached: it passes the unbound handlers.
+   * Removes nothing: it passes the unbound handlers, so the listeners
+   * `subscribe()` added stay attached.
    */
   unsubscribe: () => void;
 }
