@@ -113,7 +113,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
    *
    * @param listeners - Object mapping event names to callbacks
    */
-  addEventListeners: (listeners: PanelEventListenerMap<TEvents>) => void;
+  addEventListeners: (listeners?: PanelEventListenerMap<TEvents>) => void;
 
   /**
    * Emits an event, calling the registered listener if any.
@@ -339,8 +339,8 @@ export interface PanelModalSubmitResponse {
   emit?: boolean;
   /** URL to navigate to. */
   route?: string | { url: string; options?: PanelRequestOptions };
-  /** Alternative to route. */
-  redirect?: string | { url: string; options?: PanelRequestOptions };
+  /** Alternative to `route`; `null` when there is nowhere to go. */
+  redirect?: string | { url: string; options?: PanelRequestOptions } | null;
   /**
    * Options for the view reload that follows when neither `route` nor
    * `redirect` is set. The view reloads either way.
@@ -655,8 +655,11 @@ export interface PanelRequestOptions extends Omit<
    * strings are sent as-is.
    */
   body?: string | FormData | HTMLFormElement | Record<string, any> | null;
-  /** Query parameters; `null` values are skipped. */
-  query?: Record<string, string | number | boolean | null>;
+  /**
+   * Query parameters. Nested objects become `parent[child]` keys; `null`
+   * removes the param, also one already in the URL.
+   */
+  query?: Record<string, any>;
   signal?: AbortSignal;
   /**
    * If `true`, `load()` skips setting the feature's `isLoading` state.
