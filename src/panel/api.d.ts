@@ -159,7 +159,8 @@ export interface PanelApiAuth {
   user: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Verifies a 2FA code.
+   * Verifies the code of the active login, password-reset, or 2FA challenge
+   * and logs the user in.
    *
    * @param code - Verification code
    * @returns `{ code: 200, status: "ok", user }` with the logged-in user
@@ -284,9 +285,11 @@ export interface PanelApiLanguageData {
 }
 
 /**
- * Languages API methods.
+ * Methods for a multi-language site. Every call rejects unless the
+ * `languages` option is enabled.
  *
  * @source panel/src/api/languages.js
+ * @source config/api/routes.php
  */
 export interface PanelApiLanguages {
   /**
@@ -338,6 +341,8 @@ export interface PanelApiLanguages {
 /**
  * Page creation data.
  * @source src/Cms/PageActions.php
+ * @source src/Cms/ModelWithContent.php
+ * @source src/Content/Translations.php
  */
 export interface PanelApiPageCreateData {
   /** Page slug, derived from `content.title` when omitted. */
@@ -516,7 +521,7 @@ export interface PanelApiPages {
    * Gets a page's preview URL.
    *
    * @param id - Page ID
-   * @returns Preview URL, or `null` when preview is disabled for the page
+   * @returns Preview URL, or `null` when the page or the current user cannot preview it
    */
   preview: (id: string) => Promise<string | null>;
 
@@ -525,7 +530,7 @@ export interface PanelApiPages {
    *
    * @param parent - Parent page ID (`null` for root)
    * @param query - Search query
-   * @returns Search results
+   * @returns Search results with only `id`, `title`, and `hasChildren` per page
    */
   search: (parent: string | null, query?: PanelApiSearchQuery) => Promise<any>;
 
@@ -555,6 +560,7 @@ export interface PanelApiPages {
  * Roles API methods.
  *
  * @source panel/src/api/roles.js
+ * @source config/api/routes/roles.php
  */
 export interface PanelApiRoles {
   /**
@@ -581,6 +587,7 @@ export interface PanelApiRoles {
  * Site API methods.
  *
  * @source panel/src/api/site.js
+ * @source config/api/routes/site.php
  */
 export interface PanelApiSite {
   /**
@@ -622,9 +629,8 @@ export interface PanelApiSite {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Meant to update the site content, but sends a `POST` that no `site`
-   * route accepts, so the call rejects – send `panel.api.patch("site", data)`
-   * instead.
+   * Sends the content as a `POST`, which no `site` route accepts, so the call
+   * rejects – send `panel.api.patch("site", data)` instead.
    *
    * @param data - Content data
    */
@@ -734,6 +740,7 @@ export interface PanelApiUserCreateData {
   email: string;
   password?: string;
   name?: string;
+  /** Role ID, `default` when omitted. */
   role?: string;
   /** Panel interface language code. */
   language?: string;
@@ -750,6 +757,7 @@ export interface PanelApiUserCreateData {
  * Users API methods.
  *
  * @source panel/src/api/users.js
+ * @source config/api/routes/users.php
  */
 export interface PanelApiUsers {
   /**
@@ -961,12 +969,13 @@ export interface PanelApi {
   language: string | null | undefined;
 
   /**
-   * Makes a raw API request.
+   * Sends a request to the API. A model response resolves to its `data`, any
+   * other response to the full JSON.
    *
    * @param path - API path
    * @param options - Request options
    * @param silent - Skip loading indicator
-   * @returns Response data
+   * @returns Response JSON, or the model data of a model response
    */
   request: <T = any>(
     path: string,
