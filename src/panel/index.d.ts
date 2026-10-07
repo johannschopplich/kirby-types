@@ -129,11 +129,7 @@ export type { PanelLibrary } from "./libraries";
 
 // #region Re-exports from textarea.d.ts
 
-export type {
-  TextareaButton,
-  TextareaDropdownItem,
-  TextareaToolbarContext,
-} from "./textarea";
+export type { TextareaButton, TextareaToolbarContext } from "./textarea";
 // #endregion
 
 // #region Re-exports from writer.d.ts
@@ -245,7 +241,8 @@ export type PanelComponentExtension =
 // #region Panel Configuration
 
 /**
- * Global Panel configuration.
+ * Panel settings the backend derives from the site options and the
+ * server's upload limits.
  *
  * @source panel/src/panel/panel.ts
  * @source src/Panel/State.php
@@ -493,7 +490,6 @@ export interface PanelUrls {
  * @source panel/src/panel/html.ts
  */
 export interface PanelRequestResponse {
-  /** The original Request object. */
   request: Request;
   /**
    * Parsed response: a plain object that exposes the pre-resolved body
@@ -764,7 +760,10 @@ export interface PanelLanguageInfo {
   locale: Record<number, string>;
   name: string;
   rules: Record<string, string>;
-  /** Absolute URL for this language (always resolved against the site URL). */
+  /**
+   * URL of the language: a path prefix (`/<code>` unless configured)
+   * resolved against the site URL, or the configured custom domain as is.
+   */
   url: string;
 }
 // #endregion
@@ -911,7 +910,7 @@ export interface Panel {
   get title(): string;
   set title(title: string | null);
 
-  /** Whether the Panel is currently loading a new view via `open()`. */
+  /** Whether `open()` is loading a URL – a view, dialog, drawer, or dropdown. */
   isLoading: boolean;
 
   /** Whether the browser is offline. */
@@ -946,7 +945,6 @@ export interface Panel {
   /** Navigation menu state. */
   menu: PanelFeatures.PanelMenu;
 
-  /** Notification display. */
   notification: PanelFeatures.PanelNotification;
 
   searcher: PanelFeatures.PanelSearcher;
@@ -1006,7 +1004,7 @@ export interface Panel {
 
   searches: PanelSearches;
 
-  /** Whether at least one search type is registered. */
+  /** Whether at least one search type is available to the user. */
   readonly hasSearch: boolean;
 
   urls: PanelUrls;
@@ -1124,8 +1122,8 @@ export interface Panel {
    * Sends a request through the Panel router.
    *
    * Returns an object with both the request and the parsed response.
-   * Cross-origin or non-JSON responses reject with a redirect error, which
-   * `panel.error()` turns into a page navigation.
+   * A cross-origin URL or a non-JSON response rejects with a redirect error,
+   * which `panel.error()` turns into a page navigation.
    *
    * @param url - URL to request
    * @param options - Request options including method
@@ -1162,14 +1160,14 @@ export interface Panel {
   /**
    * Applies a new Panel state: updates globals, dispatches per-feature `set()` calls, opens/closes modals and the dropdown, and opens the view when present.
    *
-   * @param state - State to merge
+   * @param state - State to apply
    */
   set: (state?: PanelStateInput) => void;
 
   /**
    * Returns the current global state.
    *
-   * @returns All feature states
+   * @returns Globals and every feature's state
    */
   state: () => PanelGlobalState;
 
@@ -1309,7 +1307,8 @@ interface PanelViewPropsPermissions {
 }
 
 /**
- * Version information.
+ * Form values of the saved (`latest`) and the unsaved (`changes`) content in
+ * the current language. `changes` equals `latest` when nothing is unsaved.
  * @source src/Panel/Controller/View/ModelViewController.php
  */
 interface PanelViewPropsVersions {
@@ -1318,7 +1317,7 @@ interface PanelViewPropsVersions {
 }
 
 /**
- * Tab definition.
+ * Active blueprint tab, its columns carrying the resolved field props.
  * @source src/Blueprint/Tab.php
  */
 interface PanelViewPropsTab {
@@ -1347,7 +1346,7 @@ interface PanelViewPropsNavigation {
 }
 
 /**
- * Button definition.
+ * Button in the view header.
  * @source src/Panel/Ui/Button/ViewButton.php
  * @source src/Panel/Ui/Button/ModelButton.php
  * @source src/Panel/Ui/Button.php
@@ -1359,10 +1358,10 @@ interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
-    /** Optional badge config rendered next to the button. */
+    /** Badge on the button's top-right corner, like `{ text: 5, theme: "positive" }`. */
     badge?: Record<string, any>;
     class?: string;
-    /** Whether the button represents the current view/route. */
+    /** Value of the button's `aria-current` attribute, like `true` or `"page"`. */
     current?: string | boolean;
     /** Dialog endpoint to open on click. */
     dialog?: string;
@@ -1375,7 +1374,7 @@ interface PanelViewPropsButton {
     hasDiff?: boolean;
     icon?: string;
     link?: string;
-    /** Inline dropdown options or query string. */
+    /** Dropdown options, or the path of a dropdown endpoint the Panel loads on click. */
     options?: string | Record<string, any>[];
     responsive: boolean | string;
     size?: string;
@@ -1395,7 +1394,7 @@ interface PanelViewPropsButton {
 }
 
 /**
- * Common view props passed from backend.
+ * Props of a page, site, file, or user view.
  * @source src/Panel/Controller/View/ModelViewController.php
  * @source src/Panel/Controller/View/PageViewController.php
  * @source src/Panel/Controller/View/SiteViewController.php
@@ -1439,8 +1438,6 @@ export interface PanelViewProps {
 }
 
 /**
- * Props of a file view.
- *
  * @source src/Panel/Controller/View/FileViewController.php
  * @source src/Panel/Ui/FilePreview.php
  */
@@ -1455,7 +1452,7 @@ export interface PanelFileViewProps extends PanelViewProps {
 }
 
 /**
- * Props of a user view.
+ * Props of a user view, also sent to the account view.
  *
  * @source src/Panel/Controller/View/UserViewController.php
  */
