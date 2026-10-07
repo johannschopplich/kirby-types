@@ -560,8 +560,8 @@ export interface PanelPluginExtensions {
    * Custom block types for the blocks field.
    *
    * Can be either a template string (shorthand) or a component options object.
-   * Registered as `k-block-type-${name}` components that automatically
-   * extend `k-block-type-default`.
+   * Registered as `k-block-type-${name}` components that extend
+   * `k-block-type-default` unless they set their own `extends`.
    */
   blocks?: Record<string, string | PanelComponentExtension>;
 
@@ -665,6 +665,7 @@ export interface PanelPluginExtensions {
  *
  * @source panel/src/panel/plugins.ts
  * @source panel/public/js/plugins.js
+ * @source panel/src/panel/app.js
  */
 export interface PanelPlugins {
   // #region Helper Functions
@@ -795,6 +796,7 @@ export interface PanelLanguageInfo {
 /**
  * Global Panel state for `panel.state()`.
  * @source panel/src/panel/panel.js
+ * @source src/Panel/View.php
  */
 export interface PanelGlobalState {
   config: PanelConfig;
@@ -888,6 +890,8 @@ type PanelStateInput = Partial<
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/translation.ts
  * @source panel/public/js/plugins.js
+ * @source src/Panel/View.php
+ * @source src/Cms/LicenseStatus.php
  */
 export interface Panel {
   // #region Core Properties
@@ -944,7 +948,6 @@ export interface Panel {
   /** File upload handling. */
   upload: PanelFeatures.PanelUpload;
 
-  /** Current user data. */
   user: PanelFeatures.PanelUser;
   // #endregion
 
@@ -989,7 +992,6 @@ export interface Panel {
   /** Whether multi-language is enabled. */
   multilang: boolean;
 
-  /** User permissions. */
   permissions: PanelPermissions;
 
   plugins: PanelPlugins;
@@ -1416,6 +1418,7 @@ interface PanelViewPropsButton {
  * @source src/Panel/File.php
  * @source src/Panel/User.php
  * @source src/Panel/Site.php
+ * @source src/Cms/Blueprint.php
  */
 export interface PanelViewProps {
   /** @since 5.0.0 */
@@ -1441,7 +1444,11 @@ export interface PanelViewProps {
   uuid: string | null;
   /** @since 5.0.0 */
   versions: PanelViewPropsVersions;
-  /** Active blueprint tab. Only present when the blueprint defines tabs. */
+  /**
+   * Active blueprint tab: the one the `tab` query parameter names, else the
+   * first. Blueprint-level fields, sections or columns form a single tab, so
+   * it is absent only for an empty blueprint.
+   */
   tab?: PanelViewPropsTab;
   /**
    * Sibling navigation link to the next model. Emitted only on Page, File
