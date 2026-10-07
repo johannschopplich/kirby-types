@@ -2,8 +2,7 @@ import type { KirbyApiResponse } from "./api";
 import type { KirbyQuery } from "./query";
 
 /**
- * Defines the structure of a KQL (Kirby Query Language) query schema.
- * Used for building nested, structured queries against Kirby content.
+ * KQL (Kirby Query Language) query with an optional, nestable field selection.
  *
  * @see https://github.com/getkirby/kql
  *
@@ -35,19 +34,14 @@ import type { KirbyQuery } from "./query";
  * ```
  */
 export interface KirbyQuerySchema {
-  /** The KQL query string to execute. */
   query: KirbyQuery;
-  /**
-   * Fields to select from the query result.
-   * Can be an array of field names or an object for nested queries.
-   */
+  /** Field names, or an object for nested queries. */
   select?:
     string[] | Record<string, string | number | boolean | KirbyQuerySchema>;
 }
 
 /**
- * Represents a complete KQL request with optional pagination.
- * Extends {@link KirbyQuerySchema} with pagination options.
+ * KQL request: a {@link KirbyQuerySchema} with optional pagination.
  *
  * @see https://github.com/getkirby/kql
  *
@@ -69,26 +63,22 @@ export interface KirbyQuerySchema {
  * ```
  */
 export interface KirbyQueryRequest extends KirbyQuerySchema {
-  /**
-   * Pagination options for limiting and offsetting results.
-   */
   pagination?: {
     /**
      * Maximum number of items to return.
      * @default 100
      */
     limit?: number;
-    /** Page number to retrieve (1-indexed). */
+    /** Page number, 1-indexed. */
     page?: number;
   };
 }
 
 /**
- * Represents the response from a KQL query.
- * Wraps the result in a {@link KirbyApiResponse} with optional pagination metadata.
+ * KQL response, wrapped in a {@link KirbyApiResponse}.
  *
- * @typeParam T - The type of the result data.
- * @typeParam Pagination - Whether pagination metadata is included. When `true`, the result is wrapped in `{ data, pagination }`.
+ * @typeParam T - Type of the result data
+ * @typeParam Pagination - Whether `result` is `{ data, pagination }`
  *
  * @see https://github.com/getkirby/kql
  *
@@ -140,15 +130,13 @@ export type KirbyQueryResponse<
 > = KirbyApiResponse<
   Pagination extends true
     ? {
-        /** The query result data. */
         data: T;
-        /** Pagination metadata. */
         pagination: {
-          /** Current page number (1-indexed). */
+          /** Current page, 1-indexed. */
           page: number;
           /** Total number of pages. */
           pages: number;
-          /** Number of items skipped (offset). */
+          /** Number of items skipped. */
           offset: number;
           /** Maximum items per page. */
           limit: number;

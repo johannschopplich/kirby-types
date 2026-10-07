@@ -1,21 +1,18 @@
 /**
- * Represents all supported model names in Kirby Query Language.
+ * Model name a query starts from: a built-in Kirby model or a custom one.
  *
- * This type includes all built-in Kirby models that can be used as the starting point
- * for queries, plus any custom models you define.
- *
- * Built-in models include:
- * - `site` - The site object.
- * - `page` - A page object.
- * - `user` - A user object.
- * - `file` - A file object.
- * - `collection` - A collection object.
- * - `kirby` - The Kirby instance.
- * - `content` - Content field data.
- * - `item` - Generic item in collections.
- * - `arrayItem` - An item in an array.
- * - `structureItem` - An item in a structure field.
- * - `block` - A block in the blocks field.
+ * Built-in models:
+ * - `site` – The site object.
+ * - `page` – A page object.
+ * - `user` – A user object.
+ * - `file` – A file object.
+ * - `collection` – A collection object.
+ * - `kirby` – The Kirby instance.
+ * - `content` – Content field data.
+ * - `item` – Generic item in collections.
+ * - `arrayItem` – An item in an array.
+ * - `structureItem` – An item in a structure field.
+ * - `block` – A block in the blocks field.
  *
  * @example
  * ```ts
@@ -45,14 +42,14 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | CustomModel;
 
 /**
- * Helper type for dot notation queries (e.g., `model.property.method`).
+ * Dot notation query, such as `model.property.method`.
  * @internal
  */
 type DotNotationQuery<M extends string = never> =
   `${KirbyQueryModel<M>}.${string}`;
 
 /**
- * Helper type for function notation queries (e.g., `model(params)` or `model(params).chain`).
+ * Function notation query, such as `model(params)` or `model(params).chain`.
  * @internal
  */
 type FunctionNotationQuery<M extends string = never> =
@@ -60,10 +57,8 @@ type FunctionNotationQuery<M extends string = never> =
   | `${KirbyQueryModel<M>}(${string})${string}`;
 
 /**
- * Represents query chains that extend beyond a simple model name.
- *
- * This type covers all valid query patterns that start with a model and include
- * additional property access or method calls:
+ * Query that starts with a model and continues with property access or method
+ * calls:
  *
  * - **Dot notation**: `model.property.method()`
  * - **Function calls**: `model(params)`
@@ -90,15 +85,15 @@ export type KirbyQueryChain<M extends string = never> =
   DotNotationQuery<M> | FunctionNotationQuery<M>;
 
 /**
- * Represents any valid Kirby Query Language (KQL) string.
- *
- * This is the main type for validating KQL queries. It accepts:
+ * Kirby Query Language (KQL) string, checked against the known models. It
+ * accepts:
  * - Simple model names (e.g., `"site"`, `"page"`)
  * - Property chains (e.g., `"page.children.listed"`)
  * - Method calls (e.g., `'site("home")'`, `'page.filterBy("status", "published")'`)
  * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`).
  *
- * Invalid queries (unknown models, malformed syntax) will be rejected at the type level.
+ * A query whose root is not a known model is a type error; the rest of the
+ * chain is not checked.
  *
  * @example
  * ```ts
@@ -146,7 +141,7 @@ type ParseQueryChain<T extends string> =
     : [ParseQuerySegment<T>];
 
 /**
- * Parses a single query segment to determine if it's a property access or method call.
+ * Parses a query segment as a property access or a method call.
  *
  * @example
  * ```ts
@@ -172,11 +167,8 @@ type ParseQuerySegment<T extends string> =
       };
 
 /**
- * Parses a Kirby Query Language (KQL) string into a structured object.
- *
- * This type breaks down a query string into its constituent parts:
- * - `model`: The root model the query starts with (e.g., `site`, `page`, `user`).
- * - `chain`: An array of query segments representing the method calls and property accesses.
+ * Parses a Kirby Query Language (KQL) string into its root `model` (e.g.,
+ * `site`, `page`, `user`) and a `chain` of property accesses and method calls.
  *
  * @example
  * ```ts
@@ -217,15 +209,15 @@ type ParseQuerySegment<T extends string> =
  * @template M - Optional custom model names to include in validation
  */
 export type ParseKirbyQuery<T extends string, M extends string = never> =
-  // Case 1: Simple model name (e.g., `site`, `page`)
+  // Case 1: Simple model name (e.g., `site`, `page`).
   T extends KirbyQueryModel<M>
     ? { model: T; chain: [] }
-    : // Case 2: Dot notation (e.g., `page.children.listed`)
+    : // Case 2: Dot notation (e.g., `page.children.listed`).
       T extends `${infer Model}.${infer Chain}`
       ? Model extends KirbyQueryModel<M>
         ? { model: Model; chain: ParseQueryChain<Chain> }
         : never
-      : // Case 3: Method call only (e.g., `site("home")`)
+      : // Case 3: Method call only (e.g., `site("home")`).
         T extends `${infer Model}(${infer Params})`
         ? Model extends KirbyQueryModel<M>
           ? { model: Model; chain: [ParseQuerySegment<T>] }
