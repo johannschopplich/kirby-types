@@ -570,11 +570,11 @@ export interface PanelTranslation
    */
   translate: {
     (key: string, fallback: string): string;
-    (key: string, data?: Record<string, any>, fallback?: string | null): string;
+    (key: string, data?: Record<string, any>, fallback?: string): string;
     (
       key: unknown,
       data?: Record<string, any> | string,
-      fallback?: string | null,
+      fallback?: string,
     ): string | undefined;
   };
 
