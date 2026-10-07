@@ -538,7 +538,6 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
  * Props for entries fields.
  * A simplified structure field for single-field entries.
  *
- * @since 6.0.0
  * @see https://getkirby.com/docs/reference/panel/fields/entries
  */
 export interface KirbyEntriesFieldProps extends KirbyFieldProps {
@@ -583,7 +582,6 @@ export interface KirbyStatsReport {
  * Props for stats fields.
  * Display stats/metrics as cards.
  *
- * @since 6.0.0
  * @see https://getkirby.com/docs/reference/panel/fields/stats
  */
 export interface KirbyStatsFieldProps extends KirbyFieldProps {

@@ -22,14 +22,14 @@ import type {
   PanelDrawer,
   PanelNotification,
   PanelNotificationDefaults,
-  PanelSearchResult,
+  PanelSearchResponse,
   PanelUpload,
   PanelUploadDefaults,
   PanelUploadFile,
   PanelUser,
   PanelUserDefaults,
 } from "../src/panel/features";
-import { expectAssignable, expectType } from "tsd";
+import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Configuration
 
@@ -214,10 +214,15 @@ expectType<Promise<void>>(content.discard());
 declare const panel: Panel;
 
 expectType<Promise<void>>(panel.search("pages"));
-expectType<Promise<PanelSearchResult | undefined>>(
+expectType<Promise<PanelSearchResponse | undefined>>(
   panel.search("pages", "test"),
 );
 expectType<void>(panel.error(new Error("Failed")));
+expectAssignable<Parameters<Panel["set"]>[0]>({
+  dialog: null,
+  notification: { message: "Saved" },
+});
+expectNotAssignable<Parameters<Panel["set"]>[0]>({ config: { debug: true } });
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval> | undefined>(

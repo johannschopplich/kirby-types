@@ -184,7 +184,7 @@ type PaginatedResponse = KirbyQueryResponse<BlogPostSummary[], true>;
 | v1          | 4 and 5 | Vue 2.7 |
 
 > [!NOTE]
-> The Panel types track Kirby 6's own sources: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Kirby 6 Panel source – PHP wins where they disagree.
+> The Panel types describe the latest Kirby 6 release: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Panel source – PHP wins where they disagree.
 
 For Panel plugin development, import the opt-in globals once, e.g. in your plugin's entry file. The import types `window.panel` and the Panel's global properties on every Vue component (`this.$panel`, `this.$t`, `this.$helper`, …):
 

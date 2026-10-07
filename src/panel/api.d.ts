@@ -22,7 +22,8 @@ export interface PanelApiRequestOptions extends PanelRequestOptions {
    */
   method?: string;
   /**
-   * Whether to skip the loading indicator.
+   * Whether to skip the loading indicator, like the `silent` argument of
+   * `request()` and the verb helpers.
    */
   silent?: boolean;
 }
@@ -44,6 +45,7 @@ export interface PanelApiPagination {
  * @source config/api/routes/users.php
  * @source config/api/routes/files.php
  * @source src/Cms/Collection.php
+ * @source src/Toolkit/Collection.php
  */
 export interface PanelApiSearchQuery {
   /** Search term, or a term with search options. */
@@ -97,10 +99,16 @@ export interface PanelModelData<TContent = Record<string, any>> {
 /**
  * User authentication data.
  * @source panel/src/api/auth.ts
+ * @source config/api/routes/auth.php
  */
 export interface PanelApiLoginData {
   email: string;
-  password: string;
+  /**
+   * Password for a password login. An empty, `null`, or missing password
+   * starts a login code or password-reset challenge when one of those
+   * methods is enabled, and fails otherwise.
+   */
+  password?: string | null;
   /** Whether to keep the user logged in for an extended session. */
   remember?: boolean;
 }
@@ -115,7 +123,7 @@ export interface PanelApiAuth {
    * Logs in a user.
    *
    * @param data - Login credentials
-   * @returns User data
+   * @returns `{ code: 200, status: "ok", user }` once logged in, or `{ code: 200, status: "ok", challenge }` when a code, password-reset, or 2FA challenge starts
    */
   login: (data: PanelApiLoginData) => Promise<any>;
 
@@ -137,7 +145,7 @@ export interface PanelApiAuth {
    * Verifies a 2FA code.
    *
    * @param code - Verification code
-   * @returns Verification result
+   * @returns `{ code: 200, status: "ok", user }` with the logged-in user
    */
   verifyCode: (code: string) => Promise<any>;
 }
@@ -313,15 +321,16 @@ export interface PanelApiLanguages {
 export interface PanelApiPageCreateData {
   /** Page slug, derived from `content.title` when omitted. */
   slug?: string;
-  /** @deprecated Ignored by Kirby – set the title as `content.title` instead. */
-  title?: string;
   template?: string;
   /** Initial content. */
   content?: Record<string, any>;
+  /**
+   * Content per language on a multi-language site. Each translation's
+   * content runs through the fields' save handlers.
+   */
+  translations?: { code: string; content?: Record<string, any> }[];
   /** Whether the page starts as a draft, `true` by default – `false` creates an unlisted page. */
   draft?: boolean;
-  /** @deprecated Ignored by Kirby – new pages are drafts unless `draft` is `false`. */
-  status?: "draft" | "unlisted" | "listed";
 }
 
 /**
@@ -450,9 +459,11 @@ export interface PanelApiPages {
   get: (id: string, query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Converts page ID/UUID to API format.
+   * Converts a page ID to its API form (slashes become `+`), and a `page://`
+   * UUID or a `/@/page/` permalink, with or without a language prefix, to
+   * `@<uuid>`.
    *
-   * @param id - Page ID or UUID
+   * @param id - Page ID, UUID, or permalink
    * @returns API-formatted ID
    */
   id: (id: string) => string;
@@ -584,10 +595,11 @@ export interface PanelApiSite {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Updates the site content.
+   * Meant to update the site content, but sends a `POST` that no `site`
+   * route accepts, so the call rejects – send `panel.api.patch("site", data)`
+   * instead.
    *
    * @param data - Content data
-   * @returns Updated site
    */
   update: (data: Record<string, any>) => Promise<any>;
 }
@@ -599,13 +611,14 @@ export interface PanelApiSite {
  * System installation data.
  * @source config/api/routes/system.php
  * @source src/Cms/UserActions.php
+ * @source panel/src/components/Views/Installation/InstallationView.vue
  */
 export interface PanelApiSystemInstallData {
-  /** Admin email. */
+  /** Email of the first user. */
   email: string;
-  /** Admin password. */
+  /** Password of the first user. */
   password: string;
-  /** Admin language. */
+  /** Interface language of the first user. */
   language?: string;
   name?: string;
   /** Role of the first user, `default` when omitted – the Panel's installer sends `admin`. */
@@ -627,6 +640,7 @@ export interface PanelApiSystemRegisterData {
  * System API methods.
  *
  * @source panel/src/api/system.ts
+ * @source config/api/routes/system.php
  */
 export interface PanelApiSystem {
   /**
@@ -661,6 +675,7 @@ export interface PanelApiSystem {
  * Translations API methods.
  *
  * @source panel/src/api/translations.ts
+ * @source config/api/routes/translations.php
  */
 export interface PanelApiTranslations {
   /**
@@ -696,6 +711,11 @@ export interface PanelApiUserCreateData {
   role?: string;
   language?: string;
   content?: Record<string, any>;
+  /**
+   * Content per language on a multi-language site. Each translation's
+   * content runs through the fields' save handlers.
+   */
+  translations?: { code: string; content?: Record<string, any> }[];
 }
 
 /**
@@ -753,13 +773,13 @@ export interface PanelApiUsers {
    *
    * @param id - User ID
    * @param password - New password
-   * @param currentPassword - Current password for verification
+   * @param currentPassword - Password of the acting user, required unless they reset their own password after a password-reset login
    * @returns Updated user
    */
   changePassword: (
     id: string,
     password: string,
-    currentPassword: string,
+    currentPassword?: string,
   ) => Promise<any>;
 
   /**
@@ -814,10 +834,10 @@ export interface PanelApiUsers {
   /**
    * Queries users via the users/search endpoint.
    *
-   * @param query - Query parameters
+   * @param query - Search query
    * @returns Paginated users response
    */
-  list: (query?: Record<string, any>) => Promise<any>;
+  list: (query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Gets roles available to a user.
@@ -895,6 +915,8 @@ export interface PanelApi {
 
   /**
    * Clears any existing heartbeat and schedules a new auth ping every 5 minutes.
+   * Runs on setup and after each request. The heartbeat skips the ping while
+   * the Panel is offline.
    */
   ping: () => void;
 

@@ -23,7 +23,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    * Available commands:
    * - `"dialog"` - Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
    * - `"insert"` - Inserts the given text at the current selection.
-   * - `"prepend"` - Prepends the given text to the current selection.
+   * - `"prepend"` - Prepends the given text and a space to the current selection.
    * - `"toggle"` - Toggles wrapping of current selection (accepts `before`, `after` texts).
    * - `"upload"` - Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
    * - `"wrap"` - Wraps the current selection with the given text.
@@ -35,7 +35,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    * @example
    * ```js
    * this.command("toggle", "**"); // Toggle bold
-   * this.command("prepend", "# "); // Add heading
+   * this.command("prepend", "#"); // Add heading
    * this.command("dialog", "link"); // Open link dialog
    * this.command("insert", (input, selection) => selection.toUpperCase());
    * ```
@@ -48,6 +48,19 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
 
   /** Closes all dropdowns. */
   close: () => void;
+
+  /**
+   * Button names from the field's `buttons` option, or `true` for the
+   * default toolbar.
+   */
+  buttons: string[] | true;
+
+  /**
+   * Upload options from the field's `uploads` option, or `false` when
+   * uploads are disabled. The built-in file button offers its select and
+   * upload dropdown only when `uploads` is not `false`.
+   */
+  uploads?: false | Record<string, any>;
 }
 // #endregion
 
@@ -139,7 +152,7 @@ export interface TextareaButton {
   /**
    * Dropdown menu items. A `"-"` entry renders a separator.
    *
-   * If provided, clicking the button opens the dropdown instead of running
+   * If non-empty, clicking the button opens the dropdown instead of running
    * `click`. The `shortcut` still runs `click`.
    */
   dropdown?: (TextareaDropdownItem | "-")[];
@@ -152,9 +165,7 @@ export interface TextareaButton {
   /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
 
-  /**
-   * Tooltip text used as a fallback when `label` is not set.
-   */
+  /** Tooltip text used as a fallback when `label` is not set. */
   title?: string;
 
   /** Custom CSS class for the button. */
@@ -195,6 +206,8 @@ export interface TextareaButton {
  * ```
  *
  * @source panel/src/components/Dropdowns/Dropdown.vue
+ * @source panel/src/components/Navigation/Button.vue
+ * @source panel/src/components/Navigation/Link.vue
  */
 export interface TextareaDropdownItem {
   /** Item label. Falls back to `text` when unset. */
@@ -210,8 +223,8 @@ export interface TextareaDropdownItem {
    *   toolbar
    * - a string is emitted as an `action` event on the dropdown, which the
    *   toolbar does not listen to
-   * - an object emits `name` on the dropdown and `global` on
-   *   the global event bus, each with `payload`.
+   * - an object emits `name` on the dropdown and `global` on the global
+   *   event bus, each with `payload`.
    */
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
@@ -223,5 +236,29 @@ export interface TextareaDropdownItem {
 
   /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
+
+  /** URL or Panel path the item links to. */
+  link?: string;
+
+  /** Link target, such as `"_blank"`. Applies only with `link`. */
+  target?: string;
+
+  /**
+   * Dialog to open on click instead of running `click`, as a Panel path or
+   * a dialog state object.
+   */
+  dialog?: string | Record<string, any>;
+
+  /**
+   * Drawer to open on click instead of running `click`, as a Panel path or
+   * a drawer state object.
+   */
+  drawer?: string | Record<string, any>;
+
+  /** Design theme, such as `"negative"` for a destructive entry. */
+  theme?: string;
+
+  /** Colored badge on the item. Its `theme` falls back to the item's `theme`. */
+  badge?: { text: string | number; theme?: string };
 }
 // #endregion

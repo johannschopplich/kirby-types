@@ -18,6 +18,7 @@ import type {
   WriterToolbarButton,
 } from "../src/panel";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
+import { defineComponent } from "vue";
 
 // #region Writer Toolbar Button
 
@@ -292,6 +293,7 @@ expectType<void>(
 );
 expectType<void>(context.close());
 expectType<string>(context.$t("toolbar.button.bold"));
+expectType<string>(context.$t("key", { n: 1 }));
 // #endregion
 
 // #region Panel Plugin Extensions
@@ -399,6 +401,12 @@ expectType<void>(
     },
   }),
 );
+
+expectAssignable<PanelComponentExtension>({
+  extends: defineComponent({ props: { text: String } }),
+  mixins: ["dialog", defineComponent({ props: { text: String } })],
+  template: "<div />",
+});
 
 expectType<Record<string, PanelComponentExtension>>(panel.plugins.components);
 expectType<Record<string, string>>(panel.plugins.icons);

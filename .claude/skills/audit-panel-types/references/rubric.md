@@ -9,7 +9,13 @@ Each kirby-types branch types one Kirby release line. Its Kirby majors and `@sin
 | `main`         | v1.x    | Vue 2.7      |
 | `feat/kirby-6` | v2      | Vue 3        |
 
-Types describe the line's runtime and nothing beyond it: a member another line adds, removes, or reshapes belongs to that line's branch. A member the line itself removed or ignores in a later release keeps `@deprecated` with a one-line note naming the release.
+Types and docs describe the line's **latest release** and nothing beyond it: a member another line adds, removes, or reshapes belongs to that line's branch. Until the line's first stable release, its develop branch stands in for the latest release; a prerelease tag is no release. An older release of the line shows only as `@since` on a member or declaration it lacked. The latest release's shape is the whole type:
+
+- A member a later release removed is deleted.
+- A member the latest release always sets is required, even where older releases omitted it.
+- A value only an older release returns leaves the union.
+- The prose names no version.
+- A member the latest release deprecates keeps `@deprecated` with what to use instead, or what happens without it; a member it accepts but ignores is deleted.
 
 ## Authority order
 
@@ -24,15 +30,15 @@ Panel TS is **evidence-strength, not absolute**. PHP overrules it when they disa
 
 ## Anti-pattern: defaults-as-runtime fallacy
 
-For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for its nullability and never widen it to `T | null` on JS evidence alone: `PanelView.path` and `PanelTranslation.code` stay non-nullable. A browser-only property takes its nullability from the Panel source, release by release. Without PHP evidence for a nullability, DEFER the widening and file it as `soft`.
+For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for its nullability and never widen it to `T | null` on JS evidence alone: `PanelView.path` and `PanelTranslation.code` stay non-nullable. A browser-only property takes its nullability from the latest release's Panel source. Without PHP evidence for a nullability, DEFER the widening.
 
 ## Finding categories
 
-- **tighten**: the Panel's own TS type is stricter or clearer than ours AND PHP confirms the shape. Adopt it.
-- **renameCandidate**: the source uses a different name that better reflects intent. Surface for the user gate; never auto-applied.
+- **tighten**: the Panel's own TS type is stricter or clearer than ours AND PHP confirms the shape. Adopt it, unless it rejects a value the runtime accepts: `PanelComponentExtension.extends` keeps taking a `DefineComponent`.
+- **renameCandidate**: the source uses a different name that better reflects intent. Surface for the user gate; never auto-applied. An approved rename replaces the name outright: the old name leaves the types.
 - **missing**: public Kirby member not represented in TS.
 - **redundant**: TS member without runtime backing.
-- **signatureMismatch**: wrong arity, param types, or return type.
+- **signatureMismatch**: wrong arity, param types, or return type, or a doc naming a shape the type rejects.
 - **soft**: JSDoc shape narrower than `any` / `Record<string, any>` widening allows; lower severity.
 
 ## Skip – never report
@@ -40,7 +46,8 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 - `#`-prefixed JS class privates
 - Symbols marked `@internal` in JSDoc
 - Test-only references (`*.test.{js,ts}`)
-- Inherited `*Defaults` members on the wrapping state interface. State interfaces extend their Defaults via intersection (e.g. `PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`); the Defaults interface is the declaration site. Never duplicate the property+JSDoc pair onto the state interface during ACT.
+- Inherited members: a declaration that extends another is reviewed only for what it adds or overrides.
+- A state interface's `*Defaults` members live on the Defaults interface, their declaration site (`PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`); ACT adds a property and its JSDoc there only.
 
 ## Intentional looseness – note, do not flag or widen
 
@@ -56,9 +63,9 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 
 ## `@since`
 
-- **Git from a full-history root.** Never assign a version from a topology hint. `git log -S <symbol>` for the introducing commit, then `git tag --contains <commit> | grep -E '^[0-9]' | sort -V | head -1` for the earliest release. A prerelease tag dates to its release: a member first tagged `6.0.0-alpha.2` is present at the 6.0.0 baseline.
-- **A member present at the line's baseline carries no property-level `@since`.** Baseline tags live only on module/interface docblocks.
-- **`@since` dates a member's introduction.** A later behavior change goes in the body: "Resolves to a boolean since 5.6.0, `void` before."
+- **Git from a full-history root.** Never assign a version from a topology hint. `git log -S <symbol>` for the introducing commit, then `git tag --contains <commit> | grep -E '^[0-9]' | sort -V | head -1` for the earliest release. Read the file at that tag and at the previous release tag (`git show <tag>:<path>`) before writing the version: a patch release often carries the change (`5.4.1`, not `5.4.0` or `5.5.0`). A prerelease tag, or an untagged commit on the develop branch standing in for the latest release, dates to its release: a member first tagged `6.0.0-alpha.2` is present at the 6.0.0 baseline.
+- **Nothing present at the line's baseline carries `@since`.**
+- **`@since` dates a member's or declaration's introduction.**
 
 ## JSDoc style
 

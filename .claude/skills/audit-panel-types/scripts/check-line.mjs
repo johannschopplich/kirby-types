@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-// Check the kirby-types declarations for traces of the other release line: a
-// `@since` outside the line's majors, a baseline `@since` on a member, and doc
-// prose naming another line's Kirby version. Exits 1 with one `file:line` per hit.
+// Check the comments in the kirby-types declarations for misplaced versions: a
+// `@since` outside the line's majors or not newer than the baseline; and any
+// version in prose – another line's or the line's own – since the docs describe
+// the line's latest release.
+// Exits 1 with one `file:line` per hit.
 //
 // Usage: node check-line.mjs <KIRBY_TYPES_ROOT> [LINE]
 import fs from "node:fs";
@@ -33,8 +35,20 @@ const foreignMajors = Object.values(LINES)
   .filter((major) => !rules.majors.includes(major))
   .join("");
 const foreign = new RegExp(
-  `\\bKirby [${foreignMajors}]\\b|\\b[${foreignMajors}]\\.\\d+\\.\\d+\\b`,
+  `\\bKirby [${foreignMajors}]\\b|(?<![\\d.])[${foreignMajors}]\\.\\d+\\b`,
 );
+
+// A missing or `x` patch, as in `4.8` or `5.3.x`, counts as 0.
+const compare = (a, b) => {
+  const [x, y] = [a, b].map((v) =>
+    v.split(".").map((part) => Number(part) || 0),
+  );
+  return x[0] - y[0] || x[1] - y[1] || (x[2] ?? 0) - (y[2] ?? 0);
+};
+const versions = (text) =>
+  (text.match(/(?<![\d.])\d+\.\d+(?:\.(?:\d+|x))?\b/g) ?? []).filter((v) =>
+    rules.majors.includes(v.split(".")[0]),
+  );
 
 const files = [
   ...fs.readdirSync(TYPES).filter((f) => f.endsWith(".d.ts")),
@@ -50,32 +64,24 @@ for (const file of files) {
   lines.forEach((text, index) => {
     const at = `${file}:${index + 1}`;
     if (!/^\s*(\/\*\*|\*|\/\/)/.test(text)) return;
-
-    const since = text.match(/@since\s+(\d+)\.\S+/);
-    if (since && !rules.majors.includes(since[1])) {
+    const since = text.match(/@since\s+(?:Kirby\s+)?((\d+)\.[\w.]+)/);
+    const prose = since ? text.replace(since[0], "") : text;
+    const dated = versions(prose);
+    if (since && !rules.majors.includes(since[2])) {
       hits.push(
-        `${at}: \`@since ${since[0].split(/\s+/)[1]}\` is outside the line's majors (${rules.majors.join(", ")})`,
+        `${at}: \`@since ${since[1]}\` is outside the line's majors (${rules.majors.join(", ")})`,
       );
-    } else if (since && text.includes(`@since ${rules.baseline}`)) {
-      // The baseline tag belongs on the module docblock or an exported declaration's, never on a member's.
-      const opensAt = (l) => l.trimStart().startsWith("/**");
-      const isModuleDocblock =
-        lines.findIndex(opensAt) ===
-        lines.findLastIndex((l, i) => i <= index && opensAt(l));
-      const end = lines.findIndex((l, i) => i >= index && l.includes("*/"));
-      const next =
-        lines
-          .slice(end + 1)
-          .find((l) => l.trim() !== "" && !/^\s*\/\//.test(l)) ?? "";
-      if (
-        !isModuleDocblock &&
-        !/^\s*(export|declare)\b|^\s*(interface|type)\s+[A-Z]/.test(next)
-      )
-        hits.push(
-          `${at}: \`@since ${rules.baseline}\` on a member – the baseline sits on declarations only`,
-        );
-    } else if (foreign.test(text)) {
+    } else if (since && compare(since[1], rules.baseline) <= 0) {
+      hits.push(
+        `${at}: \`@since ${since[1]}\` is not newer than the line's baseline ${rules.baseline} – ${text.trim()}`,
+      );
+    }
+    if (foreign.test(prose)) {
       hits.push(`${at}: names another line's Kirby version – ${text.trim()}`);
+    } else if (dated.length > 0) {
+      hits.push(
+        `${at}: \`${dated[0]}\` dates the prose – describe the latest release – ${text.trim()}`,
+      );
     }
   });
 }
@@ -85,5 +91,5 @@ if (hits.length > 0) {
   process.exit(1);
 }
 process.stdout.write(
-  `No traces of another line in ${files.length} files (\`${line}\`).\n`,
+  `No misplaced versions in ${files.length} files (\`${line}\`).\n`,
 );

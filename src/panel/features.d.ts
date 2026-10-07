@@ -26,7 +26,6 @@ import type { HtmlString } from "./index";
 /**
  * Simple timer utility for auto-closing notifications.
  *
- * @since 6.0.0
  * @source panel/src/helpers/timer.ts
  */
 export interface PanelTimer {
@@ -37,8 +36,8 @@ export interface PanelTimer {
    * Starts the timer with a callback.
    * Stops any previous timer first. Does nothing if `timeout <= 0`.
    *
-   * @param timeout - Delay in milliseconds; values `<= 0` skip
-   * @param callback - Function to call after timeout
+   * @param timeout - Interval in milliseconds
+   * @param callback - Function to call every `timeout` ms
    */
   start: (timeout: number, callback: () => void) => void;
 
@@ -64,7 +63,6 @@ export interface PanelActivationDefaults {
  * Controls visibility of the license activation card based on
  * session storage state.
  *
- * @since 6.0.0
  * @source panel/src/panel/activation.ts
  */
 export interface PanelActivation
@@ -93,7 +91,6 @@ export interface PanelDragDefaults {
 /**
  * Drag state for tracking drag-and-drop operations.
  *
- * @since 6.0.0
  * @source panel/src/panel/drag.ts
  */
 export interface PanelDrag
@@ -139,7 +136,6 @@ export type PanelThemeValue = "light" | "dark" | "system";
  * Supports user preference, system preference, and config-based themes.
  * Watches system media query for dark mode changes.
  *
- * @since 6.0.0
  * @source panel/src/panel/theme.ts
  * @source src/Panel/State.php
  */
@@ -181,6 +177,8 @@ export interface PanelTheme
 /**
  * Default state for content language.
  * @source panel/src/panel/language.ts
+ * @source src/Panel/State.php
+ * @source src/Cms/Language.php
  */
 export interface PanelLanguageDefaults {
   /** Language code (e.g., `"en"`, `"de"`). */
@@ -191,7 +189,7 @@ export interface PanelLanguageDefaults {
   /** Whether the language uses a custom domain. */
   hasCustomDomain: boolean;
   name: string | null;
-  /** Slug conversion rules. */
+  /** Slug conversion rules; empty on single-language sites. */
   rules: Record<string, string>;
 }
 
@@ -200,7 +198,6 @@ export interface PanelLanguageDefaults {
  *
  * Represents the current content language for multilingual sites.
  *
- * @since 6.0.0
  * @source panel/src/panel/language.ts
  * @source src/Panel/State.php
  * @source src/Cms/Language.php
@@ -215,7 +212,7 @@ export interface PanelLanguage extends PanelState<PanelLanguageDefaults> {
   hasCustomDomain: boolean;
   /** Language name; `null` on single-language sites. */
   name: string | null;
-  /** Slug conversion rules. */
+  /** Slug conversion rules; empty on single-language sites. */
   rules: Record<string, string>;
 
   /** Alias for `default` property. */
@@ -277,6 +274,7 @@ export interface PanelMenuItem {
 /**
  * Default state for the sidebar menu.
  * @source panel/src/panel/menu.ts
+ * @source src/Panel/State.php
  */
 export interface PanelMenuDefaults {
   /** Whether menu is being hovered. */
@@ -293,7 +291,6 @@ export interface PanelMenuDefaults {
  * Manages the Panel sidebar with responsive behavior
  * for mobile and desktop layouts.
  *
- * @since 6.0.0
  * @source panel/src/panel/menu.ts
  */
 export interface PanelMenu
@@ -347,15 +344,14 @@ export interface PanelMenu
 export interface PanelNotificationDefaults {
   /** Context where notification appears. */
   context: PanelContext | null;
-  /** Additional details (for error dialogs); defaults to an empty object. */
+  /** Details passed to `open()`, unread by the Panel; an empty object by default. */
   details: Record<string, any>;
   icon: string | null;
   /** Whether notification is visible. */
   isOpen: boolean;
   message: string | null;
-  /** Visual theme. */
   theme: NotificationTheme | null;
-  /** Auto-close timeout in ms; `0` disables auto-close. Default `0`. */
+  /** Auto-close timeout in ms; `0`, the default, disables auto-close. */
   timeout: number;
   /** Error severity; `null` for success and info notifications. */
   type: "error" | "fatal" | null;
@@ -371,13 +367,12 @@ export interface PanelNotificationOptions {
   details?: Record<string, any>;
   icon?: string;
   message?: string;
-  /** Visual theme. */
   theme?: NotificationTheme;
   /**
-   * Auto-close delay in ms. For non-error notifications a falsy value
-   * (including `0`) falls back to `4000` ms, so auto-close cannot be
-   * disabled for them. `error` and `fatal` notifications keep the passed value and otherwise
-   * never auto-close.
+   * Auto-close delay in ms. For non-error notifications a missing or falsy
+   * value (including `0`) falls back to `4000` ms; a negative one disables
+   * auto-close. `error` and `fatal` notifications keep the passed value and
+   * otherwise never auto-close.
    */
   timeout?: number;
   type?: NotificationType;
@@ -400,7 +395,6 @@ export interface PanelErrorObject {
  * Displays contextual notifications in view, dialog, or drawer.
  * Supports auto-close timers and different severity levels.
  *
- * @since 6.0.0
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotification
@@ -477,6 +471,7 @@ export interface PanelNotification
 /**
  * Default state for system information.
  * @source panel/src/panel/system.ts
+ * @source src/Panel/State.php
  */
 export interface PanelSystemDefaults {
   /** ASCII character replacements for slugs. */
@@ -498,7 +493,6 @@ export interface PanelSystemDefaults {
  *
  * Contains static system information from the server.
  *
- * @since 6.0.0
  * @source panel/src/panel/system.ts
  * @source src/Panel/State.php
  */
@@ -511,6 +505,7 @@ export interface PanelSystem
 /**
  * Default state for interface translation.
  * @source panel/src/panel/translation.ts
+ * @source src/Panel/State.php
  */
 export interface PanelTranslationDefaults {
   /** Translation code (e.g., `"en"`, `"de"`). */
@@ -530,7 +525,6 @@ export interface PanelTranslationDefaults {
  * Manages UI translations for the current user.
  * Updates document language and direction on change.
  *
- * @since 6.0.0
  * @source panel/src/panel/translation.ts
  * @source src/Panel/State.php
  */
@@ -581,6 +575,7 @@ export interface PanelTranslation
 /**
  * Default state for the current user.
  * @source panel/src/panel/user.ts
+ * @source src/Panel/State.php
  */
 export interface PanelUserDefaults {
   email: string | null;
@@ -596,7 +591,6 @@ export interface PanelUserDefaults {
  *
  * Contains information about the logged-in user.
  *
- * @since 6.0.0
  * @source panel/src/panel/user.ts
  * @source src/Panel/State.php
  */
@@ -655,7 +649,6 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  * Manages the primary view state, document title,
  * and browser history.
  *
- * @since 6.0.0
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
  */
@@ -663,15 +656,15 @@ export interface PanelView
   extends
     Omit<PanelFeature<PanelViewDefaults>, "set" | keyof PanelViewDefaults>,
     PanelViewDefaults {
-  /** Loads a view, canceling any previous request. */
+  /** Loads a view, canceling any previous request first. */
   load: (
     url: string | URL,
     options?: PanelRequestOptions,
   ) => Promise<PanelViewDefaults>;
 
   /**
-   * Sets view state and updates document title and browser URL.
-   * Returns the merged state.
+   * Sets view state, updates document title and browser URL, and returns the
+   * merged state.
    */
   set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
@@ -695,7 +688,8 @@ export interface PanelDropdownOption {
   icon?: string;
   /**
    * Click handler: a callback, an action name emitted to the parent
-   * component as `action`, or an object that emits `name` on the parent and `global` on the global event bus, each with `payload`.
+   * component as `action`, or an object that emits `name` on the parent and
+   * `global` on the global event bus, each with `payload`.
    */
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
@@ -709,7 +703,6 @@ export interface PanelDropdownOption {
  * Manages dropdown menus loaded from the server
  * or created programmatically.
  *
- * @since 6.0.0
  * @source panel/src/panel/dropdown.ts
  * @source panel/src/panel/feature.ts
  * @source src/Panel/Response/DropdownResponse.php
@@ -749,7 +742,11 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
    * Sets the dropdown state. A top-level `options` array, the shape dropdown
    * routes respond with, replaces `props` as `props.options`.
    */
-  set: (state: Partial<PanelFeatureDefaults>) => PanelFeatureDefaults;
+  set: (
+    state: Partial<PanelFeatureDefaults> & {
+      options?: (PanelDropdownOption | "-")[];
+    },
+  ) => PanelFeatureDefaults;
 }
 // #endregion
 
@@ -771,7 +768,6 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  * Dialog modal for overlays, loaded from the server or opened from a state
  * object.
  *
- * @since 6.0.0
  * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/modal.ts
  */
@@ -779,9 +775,9 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   /**
    * Opens a dialog by path, `URL`, or state object. A string path loads from
    * `/dialogs/`; an object with `component` and `props` opens inline, and an
-   * object with `url` loads that path and passes its other keys as options.
-   * `replace: true` on a state object swaps the current dialog in the history
-   * instead of stacking on top of it.
+   * object with `url` loads that path and passes its other keys as options in
+   * place of `options`. `replace: true` on a state object swaps the current
+   * dialog in the history instead of stacking on top of it.
    */
   open: (
     dialog:
@@ -810,7 +806,6 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  *
  * Supports nested drawers with breadcrumb navigation.
  *
- * @since 6.0.0
  * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.ts
  */
@@ -823,10 +818,11 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 
   /**
    * Opens a drawer by path, `URL`, or state object, switches to `tab` of a
-   * state object, the first tab otherwise, and focuses the drawer. A string path loads from
-   * `/drawers/`. An object with `url` loads that path and passes
-   * its other keys as options. `replace: true` on a state object swaps the
-   * current drawer in the history instead of stacking on top of it.
+   * state object, the first tab otherwise, and focuses the drawer. A string
+   * path loads from `/drawers/`. An object with `url` loads that path and
+   * passes its other keys as options in place of `options`. `replace: true`
+   * on a state object swaps the current drawer in the history instead of
+   * stacking on top of it.
    */
   open: (
     drawer:
@@ -843,13 +839,17 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /**
    * Switches drawer tabs.
    * If `tab` is omitted, falls back to the first key of `props.tabs`.
+   * A `tab` name missing from `props.tabs` throws.
    *
    * @param tab - Tab name to switch to
    */
   tab: (tab?: string) => void;
 
   /** Returns the modal listeners extended with drawer-specific `crumb` (history navigation) and `tab` handlers. */
-  listeners: () => PanelModalListeners;
+  listeners: () => PanelModalListeners & {
+    crumb: (id: string) => void;
+    tab: (tab?: string) => void;
+  };
 }
 // #endregion
 
@@ -918,7 +918,6 @@ export interface PanelContentEnv {
  * Manages content versions, saving, publishing, and lock handling.
  * Provides automatic save on input with throttling.
  *
- * @since 6.0.0
  * @source panel/src/panel/content.ts
  */
 export interface PanelContent {
@@ -1162,18 +1161,31 @@ export interface PanelSearchOptions {
 }
 
 /**
- * Search result from API.
+ * Search response from the API. Server responses also carry the request
+ * envelope (`code`, `path`, `query`, `referrer`); the responses `query()`
+ * builds itself for short queries and failures carry only `results` and
+ * `pagination`.
+ *
  * @source panel/src/panel/search.ts
  * @source src/Panel/Controller/Search/ModelsSearchController.php
  * @source src/Panel/Response/SearchResponse.php
+ * @source src/Panel/Response/JsonResponse.php
  */
-export interface PanelSearchResult {
+export interface PanelSearchResponse {
   /**
-   * Result items, `null` for a query shorter than two characters and empty
+   * Result items; `null` for a query shorter than two characters and empty
    * when the request fails.
    */
   results: any[] | null;
   pagination: PanelSearchPagination;
+  /** HTTP status code. */
+  code?: number;
+  /** Panel path of the search route. */
+  path?: string | null;
+  /** Query parameters of the search request. */
+  query?: Record<string, any>;
+  /** Panel path the request came from. */
+  referrer?: string;
 }
 
 /**
@@ -1181,7 +1193,6 @@ export interface PanelSearchResult {
  *
  * Manages search dialog and query requests.
  *
- * @since 6.0.0
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearcher {
@@ -1212,7 +1223,7 @@ export interface PanelSearcher {
     type: string,
     query: string,
     options?: PanelSearchOptions,
-  ) => Promise<PanelSearchResult | undefined>;
+  ) => Promise<PanelSearchResponse | undefined>;
 }
 // #endregion
 
@@ -1225,11 +1236,15 @@ export interface PanelSearcher {
  * configure the upload picker (`url`, `accept`).
  *
  * @source panel/src/panel/upload.ts
+ * @source panel/src/components/Dialogs/UploadReplaceDialog.vue
  * @source src/Panel/Ui/Item/FileItem.php
  * @source src/Panel/Controller/View/FileViewController.php
  */
 export interface PanelUploadReplaceFile {
-  /** API path segment used to build the upload URL. */
+  /**
+   * Relative Panel path of the file, appended to the API URL for the upload
+   * and sent as `path` with the `model.update` event.
+   */
   link: string;
   /** File extension without dot, used for the picker `accept` filter. */
   extension: string;
@@ -1239,6 +1254,11 @@ export interface PanelUploadReplaceFile {
   filename: string;
   /** Public URL of the current file, previewed in the replace dialog. */
   url: string;
+  /**
+   * Preview image settings whose `color` and `icon` style the replace dialog;
+   * `null` when the image is switched off.
+   */
+  image?: { color?: string; icon?: string; [key: string]: any } | null;
   /** Additional server-side fields. */
   [key: string]: any;
 }
@@ -1316,7 +1336,6 @@ type PanelUploadOptions = Partial<PanelUploadDefaults>;
  * Manages file selection, upload progress, and completion.
  * Supports chunked uploads for large files.
  *
- * @since 6.0.0
  * @source panel/src/panel/upload.ts
  */
 export interface PanelUpload
@@ -1338,17 +1357,24 @@ export interface PanelUpload
    */
   announce: () => void;
 
-  /** Emits `cancel`, aborts any ongoing upload, and if some files already finished emits `complete` and announces success before resetting state. */
+  /**
+   * Emits `cancel`, aborts any ongoing upload, and if some files already
+   * finished emits `complete` and announces success before resetting state.
+   */
   cancel: () => Promise<void>;
 
-  /** Closes the upload dialog after all remaining files have uploaded; if any files completed, emits `complete` and `done`, announces success, and resets state. */
+  /**
+   * Closes the upload dialog after all remaining files have uploaded; if any
+   * files completed, emits `complete` and `done`, announces success, and
+   * resets state.
+   */
   done: () => Promise<void>;
 
   /**
-   * Finds the index of an existing file in the queue with the same `src.name`, `src.type`, `src.size`, and `src.lastModified`. Returns the matching index, or `-1` if no duplicate is found.
+   * Finds the index of the last file in the queue with the same `src.name`, `src.type`, `src.size`, and `src.lastModified`, so the newest duplicate wins. Returns `-1` if no duplicate is found.
    *
    * @param file - Enriched upload file to check
-   * @returns Index of the duplicate file, or `-1` if none
+   * @returns Index of the last duplicate file, or `-1` if none
    */
   findDuplicate: (file: PanelUploadFile) => number;
 
@@ -1429,11 +1455,11 @@ export interface PanelUpload
   submit: () => Promise<void>;
 
   /**
-   * Uploads a single file with chunking support.
-   * Fails the file when called before `submit()` has set `abort`: its `error` is set and `file.upload.error` fires.
+   * Uploads a single file in chunks and fails it when called before
+   * `submit()` has set `abort`: its `error` is set and `file.upload.error`
+   * fires.
    *
    * @param file - File to upload
-   * @param attributes - Additional attributes
    */
   upload: (
     file: PanelUploadFile,
@@ -1465,7 +1491,6 @@ export interface PanelEventEmitter {
  * - `keydown.cmd.shift.f` and `keydown.cmd./` open the search dialog
  * - `clipboard.write` copies its payload and shows a success notification.
  *
- * @since 6.0.0
  * @source panel/src/panel/events.ts
  */
 export interface PanelEvents extends PanelEventEmitter {

@@ -9,7 +9,11 @@ import type { App } from "vue";
 
 // #region Array Helpers
 
-/** Search options for array filtering. */
+/**
+ * Search options for array filtering.
+ *
+ * @source panel/src/helpers/array.ts
+ */
 export interface PanelArraySearchOptions {
   /** Query length at or below which the array is returned unfiltered (default: `0`). */
   min?: number;
@@ -37,7 +41,8 @@ export interface PanelHelpersArray {
    * Searches through an array by query string.
    *
    * @param array - Array to search
-   * @param query - Search query; `null` and `undefined` throw
+   * @param query - Search query; `null` and `undefined` throw unless
+   *   `options.min` reaches the length of their string form.
    * @param options - Search options
    * @returns Filtered array
    */
@@ -78,7 +83,11 @@ export interface PanelHelpersArray {
 
 // #region String Helpers
 
-/** Slug conversion rules. */
+/**
+ * Slug conversion rules.
+ *
+ * @source panel/src/helpers/string.ts
+ */
 export type PanelSlugRules = Record<string, string>[];
 
 /**
@@ -137,10 +146,11 @@ export interface PanelHelpersString {
   lcfirst: (string: string) => string;
 
   /**
-   * Trims characters from the beginning (greedy).
+   * Strips every leading repeat of `replace`, matched literally; without
+   * `replace` the string comes back unchanged.
    *
    * @param string - String to trim
-   * @param replace - Characters to remove
+   * @param replace - Substring to strip repeatedly
    * @returns Trimmed string
    */
   ltrim: (string: string, replace?: string) => string;
@@ -163,10 +173,11 @@ export interface PanelHelpersString {
   random: (length: number) => string;
 
   /**
-   * Trims characters from the end (greedy).
+   * Strips every trailing repeat of `replace`, matched literally; without
+   * `replace` the string comes back unchanged.
    *
    * @param string - String to trim
-   * @param replace - Characters to remove
+   * @param replace - Substring to strip repeatedly
    * @returns Trimmed string
    */
   rtrim: (string: string, replace?: string) => string;
@@ -200,15 +211,23 @@ export interface PanelHelpersString {
    *
    * @param html - HTML string to sanitize
    * @param options - Allowed marks/nodes (defaults to common writer marks)
-   * @param options.marks - Allowed marks; strings are treated as mark names, objects as mark configs
-   * @param options.nodes - Allowed nodes; strings are treated as node names, objects as node configs
+   * @param options.marks - Allowed marks: `true` for all, `false` for none, an array of mark names and extension instances, or a map of mark name to `true`, `false`, or mark options
+   * @param options.nodes - Allowed nodes, in the same forms as `marks`
    * @returns Promise resolving to the sanitized HTML string
    */
   sanitizeHTML: (
     html: unknown,
     options?: {
-      marks?: (string | Record<string, any>)[];
-      nodes?: (string | Record<string, any>)[];
+      marks?:
+        | boolean
+        | (string | Record<string, any>)[]
+        | Record<string, unknown>
+        | null;
+      nodes?:
+        | boolean
+        | (string | Record<string, any>)[]
+        | Record<string, unknown>
+        | null;
     },
   ) => Promise<string>;
 
@@ -411,8 +430,6 @@ export interface PanelHelpersUrl {
   isSameOrigin: (url: string | URL) => boolean;
 
   /**
-   * Validates URL format.
-   *
    * @param url - URL to validate
    * @param strict - Use Kirby's URL regex for validation
    * @returns `true` if valid URL
@@ -452,7 +469,7 @@ export interface PanelHelpersClipboard {
    *
    * @param event - Event (narrowed to ClipboardEvent at runtime) or string
    * @param plain - Read as plain text only
-   * @returns Clipboard content, or `null` if no event/string was provided
+   * @returns Clipboard content, or `null` when nothing could be read
    */
   read: (event?: Event | string | null, plain?: boolean) => string | null;
 
@@ -506,19 +523,22 @@ export interface PanelHelpersEmbed {
 
 // #region Field Helpers
 
-/** Field definition object. */
+/**
+ * Field definition object.
+ *
+ * @source panel/src/helpers/field.ts
+ */
 export interface PanelFieldDefinition {
   type?: string;
-  /** Default value. */
+  name?: string;
   default?: any;
   disabled?: boolean;
+  hidden?: boolean;
   /** Conditional visibility. */
   when?: Record<string, any>;
-  /** API endpoint. */
+  /** API endpoint paths of the field and its model. */
   endpoints?: { field?: string; model?: string };
-  /** Nested fields. */
   fields?: Record<string, PanelFieldDefinition>;
-  /** Additional properties. */
   [key: string]: any;
 }
 
@@ -625,7 +645,11 @@ export interface PanelHelpersKeyboard {
 
 // #region Link Helpers
 
-/** Link type definition. */
+/**
+ * Link type definition.
+ *
+ * @source panel/src/helpers/link.ts
+ */
 export interface PanelLinkType {
   /** Returns `true` if the value belongs to this link type. */
   detect: (value: string) => boolean;
@@ -634,7 +658,6 @@ export interface PanelLinkType {
   label: string;
   /** Extracts link from value. */
   link: (value: string) => string;
-  /** Input placeholder. */
   placeholder?: string;
   /** Input validation pattern. */
   pattern?: string;
@@ -643,11 +666,14 @@ export interface PanelLinkType {
   value: (value: string) => string;
 }
 
-/** Detected link result. */
+/**
+ * Detected link result.
+ *
+ * @source panel/src/helpers/link.ts
+ */
 export interface PanelLinkDetection {
-  /** Detected type. */
+  /** Key of the matching link type; the first type's key for an empty value. */
   type: string;
-  /** Extracted link. */
   link: string;
 }
 
@@ -670,7 +696,7 @@ export interface PanelHelpersLink {
   ) => PanelLinkDetection | undefined;
 
   /**
-   * Converts file permalink to file:// UUID.
+   * Converts a file permalink to a `file://` UUID.
    *
    * @param value - Permalink value
    * @returns File UUID
@@ -678,7 +704,7 @@ export interface PanelHelpersLink {
   getFileUUID: (value: string) => string;
 
   /**
-   * Converts page permalink to page:// UUID.
+   * Converts a page permalink to a `page://` UUID.
    *
    * @param value - Permalink value
    * @returns Page UUID
@@ -713,16 +739,18 @@ export interface PanelHelpersLink {
 
 // #region Page Helpers
 
-/** Page status button props. */
+/**
+ * Page status button props.
+ *
+ * @source panel/src/helpers/page.ts
+ */
 export interface PanelPageStatusProps {
   title: string;
   icon: string;
-  /** Status color. */
   theme: "negative-icon" | "info-icon" | "positive-icon";
   disabled: boolean;
-  /** Button size. */
   size: string;
-  /** Button style. */
+  /** Inline CSS declarations. */
   style: string;
 }
 
@@ -745,14 +773,22 @@ export interface PanelHelpersPage {
 
 // #region Upload Helpers
 
-/** Upload progress callback. */
+/**
+ * Upload progress callback.
+ *
+ * @source panel/src/helpers/upload.ts
+ */
 export type PanelUploadProgressCallback = (
   xhr: XMLHttpRequest,
   file: File,
   percent: number,
 ) => void;
 
-/** Upload result callback (used by `success` and `error`). */
+/**
+ * Upload result callback (used by `success` and `error`).
+ *
+ * @source panel/src/helpers/upload.ts
+ */
 export type PanelUploadResultCallback = (
   xhr: XMLHttpRequest,
   file: File,
@@ -791,7 +827,6 @@ export interface PanelUploadParams {
  * Debounce options. Omitting the object calls on the trailing edge only; in a
  * passed object, an unset key counts as `false`.
  *
- * @since 6.0.0
  * @source panel/src/helpers/debounce.ts
  */
 export interface PanelDebounceOptions {
@@ -805,7 +840,6 @@ export interface PanelDebounceOptions {
  * Throttle options. Omitting the object calls on the leading edge only; in a
  * passed object, an unset key counts as `false`.
  *
- * @since 6.0.0
  * @source panel/src/helpers/throttle.ts
  */
 export interface PanelThrottleOptions {
@@ -850,7 +884,11 @@ export interface PanelSortOptions {
   insensitive?: boolean;
 }
 
-/** Comparator function for sorting. */
+/**
+ * Comparator function for sorting.
+ *
+ * @source panel/src/helpers/sort.ts
+ */
 export type PanelComparator = (
   a: string | number,
   b: string | number,
@@ -901,12 +939,8 @@ export interface PanelHelpers {
   color: (value: unknown) => string | undefined;
 
   /**
-   * Creates a debounced function.
+   * Debounces `fn` by `delay` milliseconds.
    *
-   * @param fn - Function to debounce
-   * @param delay - Delay in milliseconds
-   * @param options - Debounce options
-   * @returns Debounced function
    * @source panel/src/helpers/debounce.ts
    * @source panel/src/helpers/index.ts
    */
@@ -1122,7 +1156,6 @@ export interface PanelHelpers {
  * the lower-level building blocks used by `createMarks` / `createNodes`.
  *
  * @source panel/src/helpers/writer.ts
- * @since 6.0.0
  */
 export interface PanelHelpersWriter {
   /**
@@ -1219,9 +1252,10 @@ export interface PanelHelpersWriter {
   ) => Record<string, Record<string, any>>;
 
   /**
-   * Filters a map of available extensions down to those listed in `allowed`,
-   * in the order of `allowed`. An extension instance in the array is installed
-   * under its own name.
+   * Filters a map of available extensions down to those listed in `allowed`.
+   * Keeps the order of `allowed`; for marks, that order sets the nesting
+   * priority. An extension instance in the array is installed under its own
+   * name.
    *
    * @param available - Map of available extensions keyed by name
    * @param allowed - Allowed extension configuration

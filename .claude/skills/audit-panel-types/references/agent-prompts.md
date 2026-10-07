@@ -25,7 +25,7 @@ SYMBOLS YOU OWN:
 MODULES (extension-free):
 <MODULE LIST FROM TOPOLOGY>
 PHP: <PHP paths from topology, or "silent">. A path KIRBY ROOT lacks has moved: find its counterpart by resolver or method name and cite that.
-WATCH: <from topology: the file section's preamble, the cluster's preamble, and its Watch line – or "none">
+WATCH: <from topology: the file section's preamble, the cluster's preamble, and every cluster bullet besides Symbols, Modules and PHP – or "none">
 
 JOB:
 1. Resolve each owned symbol's modules to real files via the source map, then read them. A module missing from the map is renamed or gone: find its successor by symbol name, else file the symbol as `redundant`.
@@ -86,9 +86,9 @@ JOB, for every pass-1 finding:
 4. Merge findings several clusters report for the same member into one patch.
 5. For each ACT, emit `{old_string, new_string}`:
    - `old_string` is an exact substring found once in the current file. Widen it to the wrapping declaration when a member name repeats, as `slug:` or `uuid:` do on a sub-interface and as a shortcut. Patches never overlap; merge neighbours.
-   - Keep indentation and existing JSDoc; a phantom `@source` is the one existing line you rewrite. A JSDoc's indent is that of its inner `*` lines, one more than `/**`; expand a one-line `/** … */` before adding a line to it.
+   - Keep indentation and the existing JSDoc the finding leaves true; rewrite or drop the lines it falsifies – a phantom `@source`, a version in prose, a shape the type rejects, a deleted member's doc. A JSDoc's indent is that of its inner `*` lines, one more than `/**`; expand a one-line `/** … */` before adding a line to it.
    - New members follow the rubric's JSDoc style, and a patch changes only its finding.
-   - A broken `test/*.test-d.ts` assertion or a companion edit in another file, such as a re-export, gets its own patch with `"file"` set to that path.
+   - A broken `test/*.test-d.ts` assertion or a companion edit in another file, such as a re-export, gets its own patch with `"file"` set to that path. A fixed assertion keeps exercising the same call against the new type.
 
 Soft items: tighten when the type is statically known and breaks nothing; otherwise DEFER.
 

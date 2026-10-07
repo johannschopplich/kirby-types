@@ -100,8 +100,8 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
   /**
    * Registers a single event listener, replacing an existing one for the
-   * event with a console warning. Only functions are
-   * registered; other values are ignored.
+   * event with a console warning. Only functions are registered; other
+   * values are ignored.
    *
    * @param event - Event name to listen for
    * @param callback - Function to call when event fires
@@ -155,6 +155,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
 /**
  * @source panel/src/panel/feature.ts
+ * @source src/Panel/Response/JsonResponse.php
  */
 export interface PanelFeatureDefaults {
   component: string | null;
@@ -192,8 +193,8 @@ export interface PanelFeatureDefaults {
 export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   extends PanelState<TDefaults>, PanelEventListeners {
   /**
-   * AbortController for canceling pending requests.
-   * Created on each `load()` call to enable request cancellation.
+   * Controller for canceling the pending request, created anew on each
+   * `load()` call; `undefined` until the first load.
    */
   abortController: AbortController | undefined;
 
@@ -245,7 +246,8 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 
   /**
    * Loads a feature from the server and opens it.
-   * Creates an AbortController and routes through `panel.open()`.
+   * Creates an `AbortController` for the request, then routes through
+   * `panel.open()`.
    *
    * @param url - Feature URL to load
    * @param options - Request options
@@ -293,7 +295,8 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * Reloads the feature by re-opening its current URL.
    *
    * @param options - Request options
-   * @returns `false` if no path exists; otherwise the feature's state after re-opening.
+   * @returns `false` if no path exists, otherwise the feature's state after
+   *   re-opening
    */
   reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
@@ -305,8 +308,8 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 // #region Modal
 
 /**
- * Modal event types for dialogs and drawers.
  * @source panel/src/panel/modal.ts
+ * @source panel/src/panel/feature.ts
  */
 export type PanelModalEvent =
   "cancel" | "close" | "closed" | "input" | "open" | "submit" | "success";
@@ -449,7 +452,7 @@ export interface PanelModal<
   ) => Promise<TDefaults>;
 
   /**
-   * Reloads the modal by closing and reopening at the same URL.
+   * Reloads the modal by closing it and re-opening its current URL.
    *
    * @param options - Request options
    * @returns `false` if no path exists, otherwise the `open()` result
@@ -563,7 +566,6 @@ export interface PanelHistory {
    */
   at: (index: number) => PanelHistoryMilestone | undefined;
 
-  /** Clears all milestones from history. */
   clear: () => void;
 
   /**
@@ -664,8 +666,9 @@ export interface PanelRequestOptions extends Omit<
   silent?: boolean;
   on?: PanelEventListenerMap;
   /**
-   * Content language code sent as the `x-language` header.
-   * Defaults to the current content language; `null` omits the header.
+   * Content language code sent as the `x-language` header. Defaults to the
+   * current content language, so each browser tab keeps its own; an empty
+   * value omits the header.
    */
   language?: string | null;
   /**

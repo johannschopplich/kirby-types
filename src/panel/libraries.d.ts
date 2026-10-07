@@ -5,14 +5,26 @@
  * Includes color manipulation, date handling (dayjs), and textarea autosize.
  */
 
-import type { ConfigType, Dayjs, PluginFunc, UnitTypeLong } from "dayjs";
+import type {
+  ConfigType,
+  Dayjs,
+  OptionType,
+  PluginFunc,
+  UnitTypeLong,
+} from "dayjs";
 
 // #region Color Types
 
-/** Color format identifiers. */
+/**
+ * Color format identifiers.
+ *
+ * @source panel/src/libraries/colors.ts
+ */
 export type PanelColorFormat = "hex" | "rgb" | "hsl" | "hsv";
 
-/** RGB color object. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export interface PanelColorRGB {
   /** Red channel (0-255). */
   r: number;
@@ -24,7 +36,9 @@ export interface PanelColorRGB {
   a?: number;
 }
 
-/** HSL color object. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export interface PanelColorHSL {
   /** Hue (0-360). */
   h: number;
@@ -36,7 +50,9 @@ export interface PanelColorHSL {
   a?: number;
 }
 
-/** HSV color object. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export interface PanelColorHSV {
   /** Hue (0-360). */
   h: number;
@@ -48,11 +64,17 @@ export interface PanelColorHSV {
   a?: number;
 }
 
-/** Any color object type. */
+/**
+ * @source panel/src/libraries/colors.ts
+ */
 export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
 
-/** Color input (string or object). */
-export type PanelColorInput = string | PanelColorObject;
+/**
+ * Any color, as a CSS string or an object.
+ *
+ * @source panel/src/libraries/colors.ts
+ */
+export type PanelColor = string | PanelColorObject;
 
 /**
  * Parses CSS color strings and converts between HEX, RGB, HSL, and HSV color spaces.
@@ -64,9 +86,9 @@ export type PanelColorInput = string | PanelColorObject;
  * const css = this.$library.colors.toString(hex, "rgb");
  * ```
  *
- * @since 6.0.0
  * @source panel/src/libraries/colors.ts
  * @source panel/src/libraries/colors-checks.ts
+ * @source panel/src/libraries/colors-func.ts
  */
 export interface PanelLibraryColors {
   /**
@@ -94,10 +116,7 @@ export interface PanelLibraryColors {
     (color: PanelColorHSV, format: "rgb"): PanelColorRGB;
     (color: PanelColorHSV, format: "hsl"): PanelColorHSL;
     (color: PanelColorHSV, format: "hsv"): PanelColorHSV;
-    (
-      color: PanelColorInput,
-      format: PanelColorFormat,
-    ): string | PanelColorObject;
+    (color: PanelColor, format: PanelColorFormat): string | PanelColorObject;
   };
 
   /**
@@ -141,7 +160,7 @@ export interface PanelLibraryColors {
    * @throws Error if unsupported color or format (HSV cannot be output as CSS)
    */
   toString: (
-    color: PanelColorInput,
+    color: PanelColor,
     format?: PanelColorFormat,
     alpha?: boolean,
   ) => string;
@@ -150,7 +169,9 @@ export interface PanelLibraryColors {
 
 // #region Dayjs Types
 
-/** Pattern part information. */
+/**
+ * @source panel/src/libraries/dayjs-pattern.ts
+ */
 export interface PanelDayjsPatternPart {
   index: number;
   /** Unit the part refers to, `undefined` for a letter sequence that is not a supported token, e.g. `Do`. */
@@ -267,7 +288,6 @@ export interface PanelDayjsExtensions {
   round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
 }
 
-/** Kirby-extended dayjs instance type. */
 export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
@@ -327,8 +347,10 @@ export interface PanelDayjsStaticExtensions {
   /**
    * Parses ISO formatted string.
    *
+   * Tries all three formats when `type` is omitted.
+   *
    * @param value - ISO string
-   * @param type - ISO format type. If omitted, tries all three formats.
+   * @param type - ISO format type
    * @returns Dayjs instance or `null` if invalid
    */
   iso: (
@@ -360,24 +382,25 @@ export interface PanelDayjsStaticExtensions {
  * const parsed = this.$library.dayjs.parse("15.01.2024", { pattern: "DD.MM.YYYY" });
  * ```
  *
- * @since 6.0.0
  * @source panel/src/libraries/dayjs.ts
  * @source panel/src/libraries/dayjs-locale.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   (date?: ConfigType): PanelDayjsInstance;
-  (date?: ConfigType, format?: string, strict?: boolean): PanelDayjsInstance;
   (
     date?: ConfigType,
-    format?: string,
+    format?: OptionType,
+    strict?: boolean,
+  ): PanelDayjsInstance;
+  (
+    date?: ConfigType,
+    format?: OptionType,
     locale?: string,
     strict?: boolean,
   ): PanelDayjsInstance;
 
-  extend: <T = unknown>(
-    plugin: PluginFunc<T>,
-    option?: T,
-  ) => typeof import("dayjs");
+  /** Registers a plugin once and returns the dayjs function for chaining. */
+  extend: <T = unknown>(plugin: PluginFunc<T>, option?: T) => PanelLibraryDayjs;
 
   /**
    * Activates or registers a locale and returns the active locale name.
@@ -396,6 +419,9 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
     object?: Partial<ILocale>,
     isLocal?: boolean,
   ) => string;
+
+  /** Loaded locales, keyed by locale name. */
+  Ls: Record<string, ILocale>;
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
 
