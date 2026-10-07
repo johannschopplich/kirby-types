@@ -131,7 +131,9 @@ export interface PanelLibraryColors {
    * @param string - CSS color string
    * @returns Parsed color, `null` if unparsable, or `false` for empty input
    */
-  parse: (string: string) => string | PanelColorObject | null | false;
+  parse: (
+    string: string,
+  ) => string | PanelColorRGB | PanelColorHSL | null | false;
 
   /**
    * Parses a color string and converts to target format.
@@ -274,6 +276,9 @@ export interface PanelDayjsExtensions {
   round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
 }
 
+/**
+ * @source panel/src/libraries/dayjs.ts
+ */
 export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
