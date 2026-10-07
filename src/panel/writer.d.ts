@@ -519,11 +519,8 @@ export interface WriterUtils {
 
   /**
    * Creates a command that sets the mark with the given attributes on every
-   * selected range, or on the mark's range around a collapsed cursor.
-   *
-   * @returns A ProseMirror command. It needs `dispatch` and returns nothing
-   *          even when it applies, so `chainCommands` and key bindings move on
-   *          to the next command.
+   * selected range, or on the mark's range around a collapsed cursor. The
+   * command returns `false` when the cursor is outside the mark.
    */
   updateMark: (type: MarkType, attrs: Attrs) => Command;
   // #endregion
