@@ -183,30 +183,6 @@ export interface PanelHelpersString {
   rtrim: (string: string, replace?: string) => string;
 
   /**
-   * Converts string to ASCII slug.
-   *
-   * @param string - String to convert
-   * @param rules - Language/ASCII conversion rules
-   * @param allowed - Allowed characters (default: `"a-z0-9"`)
-   * @param separator - Separator character (default: `"-"`)
-   * @returns Slug string
-   */
-  slug: (
-    string: string,
-    rules?: PanelSlugRules,
-    allowed?: string,
-    separator?: string,
-  ) => string;
-
-  /**
-   * Strips HTML tags from string.
-   *
-   * @param string - String to strip
-   * @returns Plain text string
-   */
-  stripHTML: (string: string) => string;
-
-  /**
    * Sanitizes HTML by only keeping allowed marks and nodes.
    *
    * @param html - HTML string to sanitize
@@ -232,7 +208,32 @@ export interface PanelHelpersString {
   ) => Promise<string>;
 
   /**
+   * Converts string to ASCII slug.
+   *
+   * @param string - String to convert
+   * @param rules - Language/ASCII conversion rules
+   * @param allowed - Allowed characters (default: `"a-z0-9"`)
+   * @param separator - Separator character (default: `"-"`)
+   * @returns Slug string
+   */
+  slug: (
+    string: string,
+    rules?: PanelSlugRules,
+    allowed?: string,
+    separator?: string,
+  ) => string;
+
+  /**
+   * Strips HTML tags from string.
+   *
+   * @param string - String to strip
+   * @returns Plain text string
+   */
+  stripHTML: (string: string) => string;
+
+  /**
    * Replaces `{name}`, `{{name}}`, and dotted-path placeholders (e.g. `{nested.prop}`) with values from the lookup object.
+   * An unresolved placeholder renders as `…`.
    *
    * @param string - Template string
    * @param values - Replacement values
@@ -328,17 +329,18 @@ export interface PanelHelpersObject {
   length: (object?: Record<string, any> | null) => number;
 
   /**
-   * Recursively merges source into target.
+   * Recursively merges source into target. Mutates the target and the
+   * source's nested objects, which the target then references.
    *
-   * @param target - Target object
+   * @param target - Target object (default: a new empty object)
    * @param source - Source object
    * @returns The mutated target
    */
   merge: <
-    T extends Record<string, any>,
+    T extends Record<string, any> = Record<string, any>,
     S extends Record<string, any> = Partial<T>,
   >(
-    target: T,
+    target?: T,
     source?: S,
   ) => T & S;
 
@@ -430,6 +432,8 @@ export interface PanelHelpersUrl {
   isSameOrigin: (url: string | URL) => boolean;
 
   /**
+   * Checks if the value is a string, `URL`, or `Location` that parses as a URL.
+   *
    * @param url - URL to validate
    * @param strict - Use Kirby's URL regex for validation
    * @returns `true` if valid URL
@@ -807,7 +811,7 @@ export interface PanelUploadParams {
   method?: string;
   /** Form field name (default: `"file"`). */
   field?: string;
-  /** Override filename. */
+  /** Filename sent with the file (default: the file's name). */
   filename?: string;
   /** Request headers. */
   headers?: Record<string, string>;
@@ -830,9 +834,9 @@ export interface PanelUploadParams {
  * @source panel/src/helpers/debounce.ts
  */
 export interface PanelDebounceOptions {
-  /** Call on leading edge. */
+  /** Whether the callback fires on the leading edge. */
   leading?: boolean;
-  /** Call on trailing edge. */
+  /** Whether the callback fires on the trailing edge. */
   trailing?: boolean;
 }
 
@@ -843,9 +847,9 @@ export interface PanelDebounceOptions {
  * @source panel/src/helpers/throttle.ts
  */
 export interface PanelThrottleOptions {
-  /** Call on leading edge. */
+  /** Whether the callback fires on the leading edge. */
   leading?: boolean;
-  /** Call on trailing edge. */
+  /** Whether the callback fires on the trailing edge. */
   trailing?: boolean;
 }
 
@@ -909,23 +913,29 @@ export type PanelComparator = (
  * this.$helper.clone(someObject);
  * this.$helper.uuid();
  * ```
+ *
+ * @source panel/src/helpers/index.ts
+ * @source panel/src/helpers/color.ts
+ * @source panel/src/helpers/debounce.ts
+ * @source panel/src/helpers/focus.ts
+ * @source panel/src/helpers/isComponent.ts
+ * @source panel/src/helpers/isUploadEvent.ts
+ * @source panel/src/helpers/items.ts
+ * @source panel/src/helpers/object.ts
+ * @source panel/src/helpers/ratio.ts
+ * @source panel/src/helpers/sort.ts
+ * @source panel/src/helpers/string.ts
+ * @source panel/src/helpers/throttle.ts
+ * @source panel/src/helpers/upload.ts
  */
 export interface PanelHelpers {
-  /**
-   * @source panel/src/helpers/array.ts
-   */
   array: PanelHelpersArray;
 
-  /**
-   * @source panel/src/helpers/clipboard.ts
-   */
   clipboard: PanelHelpersClipboard;
 
   /**
    * Deep copies plain objects and arrays and unwraps reactive proxies into
    * plain data. Shortcut for `object.clone()`.
-   * @source panel/src/helpers/object.ts
-   * @source panel/src/helpers/index.ts
    */
   clone: <T>(value: T) => T;
 
@@ -934,35 +944,22 @@ export interface PanelHelpers {
    *
    * @param value - Color name or value
    * @returns CSS variable if one matches, otherwise the lowercased value; `undefined` if not a string
-   * @source panel/src/helpers/color.ts
    */
   color: (value: unknown) => string | undefined;
 
   /**
-   * Debounces `fn` by `delay` milliseconds.
-   *
-   * @source panel/src/helpers/debounce.ts
-   * @source panel/src/helpers/index.ts
+   * Debounces `callback` by `delay` milliseconds.
    */
   debounce: <T extends (...args: any[]) => any>(
-    fn: T,
+    callback: T,
     delay: number,
     options?: PanelDebounceOptions,
   ) => PanelDebouncedFunction<T>;
 
-  /**
-   * @source panel/src/helpers/embed.ts
-   */
   embed: PanelHelpersEmbed;
 
-  /**
-   * @source panel/src/helpers/field.ts
-   */
   field: PanelHelpersField;
 
-  /**
-   * @source panel/src/helpers/file.ts
-   */
   file: PanelHelpersFile;
 
   /**
@@ -971,7 +968,6 @@ export interface PanelHelpers {
    * @param element - Selector, element, or `null` (returns `false`)
    * @param field - Specific input name to focus
    * @returns The focused element, or `false` if nothing could be focused
-   * @source panel/src/helpers/focus.ts
    */
   focus: (
     element: string | HTMLElement | null,
@@ -986,8 +982,6 @@ export interface PanelHelpers {
    * @param name - Component name
    * @param app - Vue app instance
    * @returns `true` if registered
-   * @source panel/src/helpers/isComponent.ts
-   * @source panel/src/helpers/index.ts
    */
   isComponent: (name: string, app?: App) => boolean;
 
@@ -996,8 +990,6 @@ export interface PanelHelpers {
    *
    * @param event - Event to check
    * @returns `true` if file upload event
-   * @source panel/src/helpers/isUploadEvent.ts
-   * @source panel/src/helpers/index.ts
    */
   isUploadEvent: (event: DragEvent) => boolean;
 
@@ -1005,14 +997,14 @@ export interface PanelHelpers {
    * Requests item props by model ID. Calls from the same tick share one
    * request per endpoint and query, and an ID already in flight joins the
    * pending request. A blank ID, an unknown ID, or a failed request resolves
-   * to `undefined` – the promise never rejects.
+   * to `undefined` – the promise never rejects. A failed request still
+   * reaches the Panel's error handling, so an expired session or a lost
+   * connection surfaces to the user.
    *
    * @param endpoint - API endpoint, e.g. `"items/files"`
    * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs
    * @param query - Query passed on to the endpoint
    * @returns Item props, or an array of them in the order of the IDs
-   * @source panel/src/helpers/items.ts
-   * @source panel/src/helpers/index.ts
    */
   items: {
     (
@@ -1027,32 +1019,18 @@ export interface PanelHelpers {
     ): Promise<(Record<string, any> | undefined)[]>;
   };
 
-  /**
-   * @source panel/src/helpers/keyboard.ts
-   */
   keyboard: PanelHelpersKeyboard;
 
-  /**
-   * @source panel/src/helpers/link.ts
-   */
   link: PanelHelpersLink;
 
-  /**
-   * @source panel/src/helpers/object.ts
-   */
   object: PanelHelpersObject;
 
   /**
    * Left-pads value with zeros.
    * Shortcut for `string.pad()`.
-   * @source panel/src/helpers/index.ts
-   * @source panel/src/helpers/string.ts
    */
   pad: (value: string | number, length?: number) => string;
 
-  /**
-   * @source panel/src/helpers/page.ts
-   */
   page: PanelHelpersPage;
 
   /**
@@ -1062,15 +1040,12 @@ export interface PanelHelpers {
    * @param fallback - Value returned when the fraction does not split into two parts (default: `"100%"`)
    * @param vertical - Calculate for vertical orientation (default: `true`)
    * @returns Percentage string
-   * @source panel/src/helpers/ratio.ts
    */
   ratio: (fraction?: string, fallback?: string, vertical?: boolean) => string;
 
   /**
    * Converts string to slug.
    * Shortcut for `string.slug()`.
-   * @source panel/src/helpers/index.ts
-   * @source panel/src/helpers/string.ts
    */
   slug: (
     string: string,
@@ -1084,27 +1059,21 @@ export interface PanelHelpers {
    *
    * @param options - Sort options
    * @returns Comparator function
-   * @source panel/src/helpers/sort.ts
    */
   sort: (options?: PanelSortOptions) => PanelComparator;
 
-  /**
-   * @source panel/src/helpers/string.ts
-   */
   string: PanelHelpersString;
 
   /**
    * Creates a throttled function.
    *
-   * @param fn - Function to throttle
+   * @param callback - Function to throttle
    * @param delay - Delay in milliseconds
    * @param options - Throttle options
    * @returns Throttled function with cancel method
-   * @source panel/src/helpers/throttle.ts
-   * @source panel/src/helpers/index.ts
    */
   throttle: <T extends (...args: any[]) => any>(
-    fn: T,
+    callback: T,
     delay: number,
     options?: PanelThrottleOptions,
   ) => PanelThrottledFunction<T>;
@@ -1116,31 +1085,21 @@ export interface PanelHelpers {
    * @param params - Upload parameters
    * @returns Promise resolving to the parsed JSON response; rejects with the
    *   server's error response, or a generic `{ status: "error", message }`
-   *   object when the body is not JSON; stays pending on a network error or abort
-   * @source panel/src/helpers/upload.ts
-   * @source panel/src/helpers/index.ts
+   *   object when the body is not JSON; stays pending on a network error or abort.
    */
   upload: (file: File, params: PanelUploadParams) => Promise<unknown>;
 
-  /**
-   * @source panel/src/helpers/url.ts
-   */
   url: PanelHelpersUrl;
 
   /**
    * Generates UUID v4 string.
    * Shortcut for `string.uuid()`.
-   * @source panel/src/helpers/index.ts
-   * @source panel/src/helpers/string.ts
    */
   uuid: () => string;
 
   /**
    * Writer (ProseMirror) extension helpers for resolving allowed marks/nodes
    * and building extension instances.
-   *
-   * @source panel/src/helpers/writer.ts
-   * @source panel/src/helpers/index.ts
    */
   writer: PanelHelpersWriter;
 }
