@@ -276,9 +276,11 @@ export interface PanelDayjsExtensions {
    * Rounds to the nearest step of a unit, e.g. to the nearest 15 minutes.
    *
    * `day` is read as `date`. All sub-units of the step unit are cleared,
-   * down to the milliseconds. Their rounding cascades from the smallest
-   * sub-unit upwards: 13:45 rounded to a 4-hour step carries over to 14:00
-   * first and lands on 16:00, not on the nearer 12:00.
+   * down to the milliseconds.
+   *
+   * Only the next smaller unit is rounded, and it can carry over: 13:45
+   * rounded to a 4-hour step carries over to 14:00 first and lands on
+   * 16:00, not on the nearer 12:00.
    *
    * @param unit - Unit to round to (default: `"date"`)
    * @param size - Step size (default: `1`). Has to divide the unit evenly, e.g. `15` of 60 minutes; `date`, `month`, and `year` only take `1`.

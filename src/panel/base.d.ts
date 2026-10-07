@@ -18,7 +18,6 @@
  *
  * @example
  * ```ts
- * // State is used by: activation, drag, language, menu, notification, system, theme, translation, upload, user
  * const notification: PanelState<PanelNotificationDefaults> = panel.notification;
  * notification.set({ message: "Saved!" });
  * ```
