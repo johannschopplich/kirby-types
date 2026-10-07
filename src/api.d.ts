@@ -2,7 +2,9 @@
  * Response envelope of the Kirby API for the KQL endpoint `/api/query` and for
  * errors.
  *
- * Model and collection endpoints return their payload under `data`, not `result`.
+ * Model, collection, and upload endpoints return their payload under `data`,
+ * not `result`. A file that fails to upload is reported under `message`, or
+ * under `errors` when several files were sent, with `status` but no `code`.
  *
  * @typeParam T - Type of the result data
  *
