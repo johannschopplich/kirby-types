@@ -223,7 +223,8 @@ export interface PanelDayjsPattern {
 
   /**
    * Returns the part spanning a cursor position or selection range, falling
-   * back to the part the selection starts in, then to the first part.
+   * back to the last part that starts at or before the selection, then to the
+   * first part.
    *
    * @param end - End position (default: `start`)
    * @param dt - Datetime to position the parts against
