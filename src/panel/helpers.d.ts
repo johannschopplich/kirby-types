@@ -226,8 +226,8 @@ export interface PanelHelpersObject {
   ) => Partial<T>;
 
   /**
-   * Checks if the value is `null`, `undefined`, `""`, or an empty plain object
-   * or array.
+   * Checks if the value is `null`, `undefined`, `""`, an empty array, or a
+   * plain object without keys or with a `length` of `0`.
    */
   isEmpty: (value: unknown) => boolean;
 
