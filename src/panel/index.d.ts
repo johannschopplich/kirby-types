@@ -125,11 +125,7 @@ export type { PanelLibrary } from "./libraries";
 
 // #region Re-exports from textarea.d.ts
 
-export type {
-  TextareaButton,
-  TextareaDropdownItem,
-  TextareaToolbarContext,
-} from "./textarea";
+export type { TextareaButton, TextareaToolbarContext } from "./textarea";
 // #endregion
 
 // #region Re-exports from writer.d.ts
@@ -255,8 +251,8 @@ export type PanelComponentExtension =
 export interface PanelConfig {
   api: {
     /**
-     * Whether requests other than `GET` and `POST` are sent as `POST` with an
-     * `X-HTTP-Method-Override` header.
+     * Whether API requests other than `GET` and `POST` are sent as `POST`
+     * with an `X-HTTP-Method-Override` header.
      *
      * @since 5.0.0
      */
@@ -264,7 +260,10 @@ export interface PanelConfig {
   };
   /** Whether debug mode is enabled. */
   debug: boolean;
-  /** Whether KirbyText is enabled. */
+  /**
+   * Whether the textarea toolbar writes links and emails as KirbyText tags
+   * rather than Markdown, from the `panel.kirbytext` option.
+   */
   kirbytext: boolean;
   /**
    * Default color theme from the `panel.theme` option (`"system"` unless
@@ -274,8 +273,9 @@ export interface PanelConfig {
    */
   theme: string;
   /**
-   * Default interface language code from the `panel.language` option. The
-   * logged-in user's language lives on `panel.translation`.
+   * Interface language code from the `panel.language` option, `"en"` unless
+   * configured. The active interface translation lives on
+   * `panel.translation`.
    */
   translation: string;
   /**
@@ -309,7 +309,6 @@ interface PanelPermissionsAccess {
 }
 
 /**
- * File operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsFiles {
@@ -327,7 +326,6 @@ interface PanelPermissionsFiles {
 }
 
 /**
- * Language operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsLanguages {
@@ -337,7 +335,6 @@ interface PanelPermissionsLanguages {
 }
 
 /**
- * Page operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsPages {
@@ -358,7 +355,6 @@ interface PanelPermissionsPages {
 }
 
 /**
- * Site operation permissions.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsSite {
@@ -406,8 +402,8 @@ interface PanelPermissionsUser {
 }
 
 /**
- * Complete permission set for the current user. Empty when no user is
- * logged in.
+ * Permissions of the current user's role. Blueprint `options` can override
+ * them per model, as a model view's `permissions` prop reflects.
  *
  * @source panel/src/panel/panel.js
  * @source src/Cms/Permissions.php
@@ -432,7 +428,8 @@ export interface PanelPermissions {
 // #region Panel Search
 
 /**
- * Search type definition.
+ * Search type an accessible area registers. `icon` defaults to `"search"`,
+ * `label` to the id turned into a label.
  * @source src/Panel/View.php
  */
 export interface PanelSearchType {
@@ -480,7 +477,7 @@ export interface PanelUrls {
  * @source panel/src/panel/request.ts
  */
 export interface PanelRequestResponse {
-  /** The original Request object. */
+  /** Request built from the URL, the query, and the Panel's headers. */
   request: Request;
   /**
    * Parsed response: a plain object that exposes the pre-resolved body
@@ -785,8 +782,12 @@ export interface PanelLanguageInfo {
   /** PHP locale settings keyed by `LC_*` integer constants (e.g., `LC_ALL`, `LC_CTYPE`). */
   locale: Record<number, string>;
   name: string;
+  /** Slug transliteration rules, mapping a character to its replacement. */
   rules: Record<string, string>;
-  /** Absolute URL for this language (always resolved against the site URL). */
+  /**
+   * Language URL: the configured custom domain as is, else the language's
+   * path (`/<code>` unless configured) on the site URL.
+   */
   url: string;
 }
 // #endregion
@@ -820,7 +821,8 @@ export interface PanelGlobalState {
 
 /**
  * State accepted by `panel.set()` and `panel.open()`. A global replaces its
- * current value whole; a feature state and the view merge into theirs.
+ * current value whole when the new value has the same type; a feature state
+ * and the view replace theirs, with omitted keys reset to their defaults.
  * `null` or `false` for a modal or the dropdown closes it; a modal's
  * `redirect` opens that path and skips the rest of the state.
  *
@@ -840,15 +842,10 @@ type PanelStateInput = Partial<
 > & {
   [
     K in
-      | "language"
-      | "menu"
-      | "notification"
-      | "system"
-      | "translation"
-      | "user"
-      | "view"
+      "language" | "notification" | "system" | "translation" | "user" | "view"
   ]?: Partial<PanelGlobalState[K]>;
 } & {
+  menu?: PanelGlobalState["menu"]["entries"];
   dialog?:
     | (Partial<PanelGlobalState["dialog"]> & { redirect?: string })
     | null
@@ -913,7 +910,10 @@ export interface Panel {
   /** Whether the Panel is currently loading a new view via `open()`. */
   isLoading: boolean;
 
-  /** Whether the browser is offline. */
+  /**
+   * Whether the Panel lost its connection, from the browser's `offline`
+   * event or a failed request.
+   */
   isOffline: boolean;
   // #endregion
 
@@ -1004,9 +1004,10 @@ export interface Panel {
   // #region Methods
 
   /**
-   * Creates the Panel Vue app.
+   * Builds the Panel singleton from the collected plugin data and the
+   * initial server state.
    *
-   * @param plugins - Optional plugins to register
+   * @param plugins - Plugin data `panel.plugin()` collected
    * @returns The Panel instance
    */
   create: (plugins?: Record<string, any>) => Panel;
@@ -1065,7 +1066,7 @@ export interface Panel {
    * Registers a Panel plugin with its extensions. Available only while
    * plugin scripts load, before the Panel boots.
    *
-   * @param name - Unique plugin identifier (typically vendor/plugin-name)
+   * @param name - Plugin name, by convention `vendor/plugin`, unused by the runtime
    * @param extensions - Plugin extensions to register
    *
    * @example
@@ -1127,8 +1128,8 @@ export interface Panel {
    * Sends a request through the Panel router.
    *
    * Returns an object with both the request and the parsed response.
-   * Cross-origin or non-JSON responses reject with a redirect error, which
-   * `panel.error()` turns into a page navigation.
+   * A cross-origin URL or a non-JSON response rejects with a redirect error,
+   * which `panel.error()` turns into a page navigation.
    *
    * @param url - URL to request
    * @param options - Request options including method
@@ -1165,7 +1166,7 @@ export interface Panel {
   /**
    * Applies a new Panel state: updates globals, dispatches per-feature `set()` calls, opens/closes modals and the dropdown, and opens the view when present.
    *
-   * @param state - State to merge
+   * @param state - State to apply
    * @returns `undefined`, or the `open()` promise when a modal state carries a `redirect`
    */
   set: (state?: PanelStateInput) => void | ReturnType<Panel["open"]>;
@@ -1220,8 +1221,9 @@ export interface Panel {
 // #region View Props (commonly used)
 
 /**
- * User holding the content lock. Both fields are `null` when nobody holds
- * the lock or the holder is not listable.
+ * User who last edited the content, or the current user when there are no
+ * unsaved changes. Both fields are `null` when that user is unknown or not
+ * listable.
  * @source src/Content/Lock.php
  */
 interface PanelViewPropsLockUser {
@@ -1236,19 +1238,25 @@ interface PanelViewPropsLockUser {
  * @source panel/src/panel/content.js
  */
 interface PanelViewPropsLock {
+  /** @since 5.0.0 */
   isLegacy: boolean;
+  /** @since 5.0.0 */
   isLocked: boolean;
   /**
    * ISO 8601 timestamp of the last change. The Panel replaces it with a
    * `Date` after each save of the current view.
+   *
+   * @since 5.0.0
    */
   modified: string | Date | null;
+  /** @since 5.0.0 */
   user: PanelViewPropsLockUser;
 }
 
 /**
  * Content permissions for a view.
  * @source src/Cms/ModelPermissions.php
+ * @source src/Cms/Blueprint.php
  * @source src/Cms/PageBlueprint.php
  * @source src/Cms/FileBlueprint.php
  * @source src/Cms/UserBlueprint.php
@@ -1358,7 +1366,7 @@ interface PanelViewPropsModel {
   parent: string;
   /** `null` when the user may not open a preview of the model. */
   previewUrl: string | null;
-  status: string;
+  status: "draft" | "listed" | "unlisted";
   title: string;
   /** `null` when the `content.uuid` option is `false`. */
   uuid: string | null;
@@ -1376,10 +1384,13 @@ interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
-    /** Optional badge config rendered next to the button. */
+    /**
+     * Badge shown at the top-right of the button; the Panel reads its `text`
+     * and `theme`.
+     */
     badge?: Record<string, any>;
     class?: string;
-    /** Whether the button represents the current view/route. */
+    /** Value of the button's `aria-current` attribute. */
     current?: string | boolean;
     /** Dialog endpoint to open on click. */
     dialog?: string;
@@ -1392,8 +1403,11 @@ interface PanelViewPropsButton {
     hasDiff?: boolean;
     icon?: string;
     link?: string;
-    /** Inline dropdown options or query string. */
-    options?: string | Record<string, any>[];
+    /**
+     * Dropdown options: an inline list, or the path of a dropdown endpoint
+     * that loads them.
+     */
+    options?: string | (Record<string, any> | "-")[];
     responsive: boolean | string;
     size?: string;
     /** Inline CSS style string. */
@@ -1477,5 +1491,59 @@ export interface PanelViewProps {
    * @since 5.0.0
    */
   title?: string;
+}
+
+/**
+ * Props of a file view.
+ *
+ * @source src/Panel/File.php
+ * @source src/Panel/Ui/FilePreview.php
+ */
+export interface PanelFileViewProps extends PanelViewProps {
+  /** @since 5.0.0 */
+  extension: string;
+  /** @since 5.0.0 */
+  filename: string;
+  /** @since 5.0.0 */
+  mime: string | null;
+  /** Preview component the view renders above its tabs. */
+  preview: { component: string; key: string; props: Record<string, any> };
+  /** @since 5.0.0 */
+  type: string | null;
+  /** @since 5.0.0 */
+  url: string;
+}
+
+/**
+ * Props of a user view.
+ *
+ * @source src/Panel/User.php
+ */
+export interface PanelUserViewProps extends PanelViewProps {
+  /** @since 5.0.0 */
+  avatar: string | null;
+  canChangeEmail: boolean;
+  canChangeLanguage: boolean;
+  canChangeName: boolean;
+  /** Whether the logged-in user may move this user to another role. */
+  canChangeRole: boolean;
+  /** @since 5.0.0 */
+  email: string | null;
+  /**
+   * Name of the user's Panel language.
+   *
+   * @since 5.0.0
+   */
+  language: string;
+  /** @since 5.0.0 */
+  name: string;
+  /**
+   * Title of the user's role.
+   *
+   * @since 5.0.0
+   */
+  role: string;
+  /** @since 5.0.0 */
+  username: string | null;
 }
 // #endregion
