@@ -130,7 +130,9 @@ export interface PanelLibraryColors {
    * @param string - CSS color string
    * @returns Parsed color, `null` if unparsable, or `false` for empty input
    */
-  parse: (string: string) => string | PanelColorObject | null | false;
+  parse: (
+    string: string,
+  ) => string | PanelColorRGB | PanelColorHSL | null | false;
 
   /**
    * Parses a color string and converts to target format.
@@ -200,7 +202,7 @@ export interface PanelDayjsPattern {
    * Whether the pattern describes a date or a time: `time` when it shows
    * no calendar unit, `date` otherwise, including for an empty pattern.
    */
-  readonly type: "date" | "time" | "datetime";
+  readonly type: "date" | "time";
 
   /**
    * Units the pattern is made up of, in the order they appear,
@@ -290,6 +292,9 @@ export interface PanelDayjsExtensions {
   round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
 }
 
+/**
+ * @source panel/src/libraries/dayjs.ts
+ */
 export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
@@ -316,9 +321,10 @@ export interface PanelDayjsStaticExtensions {
   /**
    * Parses input against a display pattern.
    *
-   * Matches the pattern exactly first and, unless `strict` is set, falls back
-   * to informed guesses: partial input, another unit order, digits typed
-   * without separators, and localized month names and day periods.
+   * Matches the pattern exactly first, which already reads digits typed
+   * without separators and localized month names and day periods. Unless
+   * `strict` is set, falls back to informed guesses: partial input or
+   * another unit order.
    * Units the input leaves out are filled in: more significant ones from now,
    * less significant ones with their minimum.
    *
