@@ -279,6 +279,7 @@ export interface PanelApiLanguageData {
  *
  * @source panel/src/api/languages.ts
  * @source config/api/routes.php
+ * @source config/api/routes/languages.php
  */
 export interface PanelApiLanguages {
   /**
@@ -530,7 +531,7 @@ export interface PanelApiPages {
   /**
    * Returns the API path of a page.
    *
-   * @param id - Page ID, or `null` for the `pages` collection. Unlike the other methods, it takes no UUID or permalink.
+   * @param id - Page ID, or `null` for the `pages` collection. Like `link` and unlike the other methods, it takes no UUID or permalink.
    * @param path - Additional path
    * @returns API path, relative to the API endpoint
    */
@@ -556,7 +557,7 @@ export interface PanelApiRoles {
   /**
    * Lists available roles.
    *
-   * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role
+   * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role.
    * @returns Wrapped Kirby collection response (`{ data, pagination }`)
    */
   list: (params?: Record<string, any>) => Promise<any>;
@@ -703,6 +704,7 @@ export interface PanelApiTranslations {
 /**
  * @source src/Cms/UserActions.php
  * @source src/Cms/User.php
+ * @source src/Cms/ModelWithContent.php
  */
 export interface PanelApiUserCreateData {
   /** User ID, generated when omitted. */
@@ -912,7 +914,7 @@ export interface PanelApi {
   panel: Panel;
 
   /** Interval ID of the auth heartbeat that `ping()` schedules. */
-  pingId: ReturnType<typeof setInterval> | undefined;
+  pingId: ReturnType<typeof setInterval>;
 
   /**
    * Clears any existing heartbeat and schedules a new auth ping every 5 minutes.

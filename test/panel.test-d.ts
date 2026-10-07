@@ -226,9 +226,7 @@ expectAssignable<Parameters<Panel["set"]>[0]>({
 expectNotAssignable<Parameters<Panel["set"]>[0]>({ config: { debug: true } });
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
-expectType<ReturnType<typeof setInterval> | undefined>(
-  {} as PanelApi["pingId"],
-);
+expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
 expectType<void>(panel.api.ping());
 expectAssignable<PanelApi["auth"]>({
   login: async () => ({}),
