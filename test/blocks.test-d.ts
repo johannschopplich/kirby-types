@@ -2,6 +2,8 @@
 import type {
   KirbyBlock,
   KirbyCodeLanguage,
+  KirbyDefaultBlock,
+  KirbyDefaultBlocks,
   KirbyDefaultBlockType,
 } from "../src/blocks";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
@@ -178,6 +180,11 @@ expectType<Record<string, any>>({} as KirbyBlock<"unknownType">["content"]);
 
 // Without type arguments, any block
 expectAssignable<KirbyBlock>({} as KirbyBlock<"hero", { title: string }>);
+
+// Checking `type` narrows a default block's content.
+const defaultBlock = {} as KirbyDefaultBlock;
+if (defaultBlock.type === "heading")
+  expectType<KirbyDefaultBlocks["heading"]>(defaultBlock.content);
 // #endregion
 
 // #region Negative Tests

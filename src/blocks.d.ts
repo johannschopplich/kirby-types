@@ -236,6 +236,21 @@ export interface KirbyBlock<
 }
 
 /**
+ * Any default block, discriminated by `type`, so checking `type` narrows
+ * `content`.
+ *
+ * @example
+ * ```ts
+ * function headingLevel(block: KirbyDefaultBlock) {
+ *   return block.type === "heading" ? block.content.level : undefined;
+ * }
+ * ```
+ */
+export type KirbyDefaultBlock = {
+  [K in KirbyDefaultBlockType]: KirbyBlock<K>;
+}[KirbyDefaultBlockType];
+
+/**
  * @example
  * ```ts
  * function isDefaultBlock(type: string): type is KirbyDefaultBlockType {
