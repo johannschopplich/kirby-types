@@ -5,14 +5,17 @@
  * - `site` – The site object.
  * - `page` – A page object.
  * - `user` – A user object.
+ * - `users` – All users.
  * - `file` – A file object.
- * - `collection` – A collection object.
+ * - `model` – The page, file, user, or site the query runs on.
+ * - `collection` – Named collection, called as `collection("name")`.
  * - `kirby` – The Kirby instance.
- * - `content` – Content field data.
- * - `item` – Generic item in collections.
- * - `arrayItem` – An item in an array.
- * - `structureItem` – An item in a structure field.
- * - `block` – A block in the blocks field.
+ * - `t` – Translation for the given key, called as `t("key")`.
+ * - `qr` – QR code for the given data, called as `qr("data")`.
+ * - `item` – Current item while options are built from a query or an API.
+ * - `arrayItem` – Current array item while options are built from a query.
+ * - `structureItem` – Current structure entry while options are built from a query.
+ * - `block` – Current block while options are built from a query.
  *
  * @example
  * ```ts
@@ -33,8 +36,11 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "site"
   | "page"
   | "user"
+  | "users"
   | "file"
-  | "content"
+  | "model"
+  | "t"
+  | "qr"
   | "item"
   | "arrayItem"
   | "structureItem"
@@ -42,27 +48,54 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | CustomModel;
 
 /**
+ * Root that a query can only call, as in `t("key")`: its function requires
+ * arguments and no query data supplies it bare.
+ * @internal
+ */
+type FunctionOnlyQueryModel = "collection" | "t" | "qr";
+
+/**
+ * Root that a query can use without a call, as in `page.title`.
+ * @internal
+ */
+type AccessibleQueryModel<M extends string = never> =
+  Exclude<KirbyQueryModel, FunctionOnlyQueryModel> | M;
+
+/**
+ * Root that a query can call, as in `page("id")`: a global query function or a
+ * custom root.
+ * @internal
+ */
+type CallableQueryModel<M extends string = never> =
+  | Exclude<
+      KirbyQueryModel,
+      "model" | "item" | "arrayItem" | "structureItem" | "block"
+    >
+  | M;
+
+/**
  * Dot notation query, such as `root.property.method`.
  * @internal
  */
 type DotNotationQuery<M extends string = never> =
-  `${KirbyQueryModel<M>}.${string}`;
+  `${AccessibleQueryModel<M>}.${string}`;
 
 /**
- * Function notation query, such as `root(params)` or `root(params).chain`.
+ * Function notation query, such as `page(params)` or `page(params).chain`.
  * @internal
  */
 type FunctionNotationQuery<M extends string = never> =
-  | `${KirbyQueryModel<M>}(${string})`
-  | `${KirbyQueryModel<M>}(${string})${string}`;
+  | `${CallableQueryModel<M>}(${string})`
+  | `${CallableQueryModel<M>}(${string})${string}`;
 
 /**
  * Query that starts with a root and continues with property access or method
  * calls:
  *
- * - **Dot notation**: `root.property.method()`
- * - **Function calls**: `root(params)`
- * - **Mixed chains**: `root(params).property.method()`
+ * - **Dot notation**: `root.property.method()`.
+ * - **Function calls**: `page(params)`, calling a global function or custom
+ *   root.
+ * - **Mixed chains**: `page(params).property.method()`.
  *
  * @example
  * ```ts
@@ -92,7 +125,9 @@ export type KirbyQueryChain<M extends string = never> =
  * - Method calls (e.g., `'site("home")'`, `'page.filterBy("status", "published")'`)
  * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`).
  *
- * An unknown root is a type error; the rest of the chain is not checked.
+ * An unknown root is a type error. `collection`, `t`, and `qr` only work as
+ * calls; `model`, `item`, `arrayItem`, `structureItem`, and `block` never take
+ * `(`. The rest of the chain is not checked.
  *
  * @example
  * ```ts
@@ -108,13 +143,14 @@ export type KirbyQueryChain<M extends string = never> =
  *
  * // Invalid queries (these will cause TypeScript errors)
  * // const invalid: KirbyQuery = "unknownRoot"; // ❌ Unknown root
+ * // const invalid: KirbyQuery = "collection"; // ❌ Only works as a call
  * // const invalid: KirbyQuery<MyRoots> = "user"; // ❌ Not in custom roots
  * ```
  *
  * @template CustomModel - Optional custom root names to include alongside built-in roots
  */
 export type KirbyQuery<CustomModel extends string = never> =
-  | KirbyQueryModel<CustomModel>
+  | AccessibleQueryModel<CustomModel>
   | (string extends KirbyQueryChain<CustomModel>
       ? never
       : KirbyQueryChain<CustomModel>);
@@ -210,21 +246,21 @@ type ParseQuerySegment<T extends string> =
  */
 export type ParseKirbyQuery<T extends string, M extends string = never> =
   // Case 1: Bare root (e.g., `site`, `page`).
-  T extends KirbyQueryModel<M>
+  T extends AccessibleQueryModel<M>
     ? { model: T; chain: [] }
     : // Case 2: Dot notation (e.g., `page.children.listed`).
       T extends `${infer Model}.${infer Chain}`
-      ? Model extends KirbyQueryModel<M>
+      ? Model extends AccessibleQueryModel<M>
         ? { model: Model; chain: ParseQueryChain<Chain> }
         : never
       : // Case 3: Method call only (e.g., `site("home")`).
         T extends `${infer Model}(${infer Params})`
-        ? Model extends KirbyQueryModel<M>
+        ? Model extends CallableQueryModel<M>
           ? { model: Model; chain: [ParseQuerySegment<T>] }
           : never
         : // Case 4: Method call followed by chain (e.g., `site("home").children`)
           T extends `${infer Model}(${infer Params})${infer Rest}`
-          ? Model extends KirbyQueryModel<M>
+          ? Model extends CallableQueryModel<M>
             ? Rest extends `.${infer Chain}`
               ? {
                   model: Model;

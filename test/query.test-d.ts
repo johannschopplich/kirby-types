@@ -8,10 +8,10 @@ import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 expectAssignable<KirbyQuery>("site");
 expectAssignable<KirbyQuery>("page");
 expectAssignable<KirbyQuery>("user");
+expectAssignable<KirbyQuery>("users");
 expectAssignable<KirbyQuery>("file");
-expectAssignable<KirbyQuery>("collection");
 expectAssignable<KirbyQuery>("kirby");
-expectAssignable<KirbyQuery>("content");
+expectAssignable<KirbyQuery>("model");
 expectAssignable<KirbyQuery>("item");
 expectAssignable<KirbyQuery>("arrayItem");
 expectAssignable<KirbyQuery>("structureItem");
@@ -33,7 +33,9 @@ expectAssignable<KirbyQuery>('file("image.jpg")');
 // Complex chains
 expectAssignable<KirbyQuery>('site.children.listed().sortBy("date", "desc")');
 expectAssignable<KirbyQuery>('page.images.template("gallery").first()');
-expectAssignable<KirbyQuery>('collection.filterBy("status", "published")');
+expectAssignable<KirbyQuery>(
+  'collection("articles").filterBy("status", "published")',
+);
 expectAssignable<KirbyQuery>('page.filterBy("date", ">=", "2023-01-01")');
 expectAssignable<KirbyQuery>(
   'page("blog").children.filterBy("status", "published").sortBy("date").limit(10)',
@@ -66,6 +68,7 @@ expectType<{ model: "customModel"; chain: [] }>(
 
 // Invalid queries return never
 expectType<never>({} as ParseKirbyQuery<"unknown">);
+expectType<never>({} as ParseKirbyQuery<'model("x")'>);
 // #endregion
 
 // #region Negative Tests
@@ -74,6 +77,10 @@ expectNotAssignable<KirbyQuery>("unknown");
 expectNotAssignable<KirbyQuery>("invalidModel");
 expectNotAssignable<KirbyQuery>("Site"); // Case sensitive
 expectNotAssignable<KirbyQuery>(""); // Empty string
+expectNotAssignable<KirbyQuery>("content");
+expectNotAssignable<KirbyQuery>('model("x")'); // Not callable
+expectNotAssignable<KirbyQuery>("collection"); // Only works as a call
+expectNotAssignable<KirbyQuery>("t.foo");
 expectNotAssignable<KirbyQuery<"customModel">>("otherModel");
 expectNotAssignable<KirbyQuery<"product" | "category">>("brand");
 // #endregion
