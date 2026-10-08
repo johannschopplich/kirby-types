@@ -25,6 +25,9 @@ expectAssignable<KirbyQuery>("file.url");
 expectAssignable<KirbyQuery>("kirby.version");
 expectAssignable<KirbyQuery>("page?.title");
 
+// Operators
+expectAssignable<KirbyQuery>("page ?? site");
+
 // Function calls
 expectAssignable<KirbyQuery>('page("notes")');
 expectAssignable<KirbyQuery>('site("home")');
