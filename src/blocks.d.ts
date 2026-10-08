@@ -56,14 +56,15 @@ export type KirbyCodeLanguage =
  * ```ts
  * // Access content type for a specific block
  * type CodeContent = KirbyDefaultBlocks["code"];
- * // Result: { code: string; language: KirbyCodeLanguage | "" }
+ * // Result: { code: string; language: KirbyCodeLanguage | "" | (string & {}) }
  * ```
  */
 export interface KirbyDefaultBlocks {
   /** @see https://getkirby.com/docs/reference/panel/blocks/code */
   code: {
     code: string;
-    language: KirbyCodeLanguage | "";
+    /** Language key, `""` for none, or any `language-*` class suffix of parsed HTML. */
+    language: KirbyCodeLanguage | "" | (string & {});
   };
 
   /** @see https://getkirby.com/docs/reference/panel/blocks/gallery */
@@ -106,16 +107,16 @@ export interface KirbyDefaultBlocks {
     | {
         /** External image. */
         location: "web";
-        src: string;
+        src: string | null;
         alt: string | null;
         /** Caption, may contain inline HTML. */
         caption: string | null;
         /** URL the image links to. */
         link: string | null;
-        /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. */
-        ratio: string;
-        /** Whether to crop the image to fit the ratio. */
-        crop: boolean;
+        /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. Missing for parsed HTML. */
+        ratio?: string;
+        /** Whether to crop the image to fit the ratio. Missing for parsed HTML. */
+        crop?: boolean;
       };
 
   /**
@@ -145,7 +146,7 @@ export interface KirbyDefaultBlocks {
   };
 
   /**
-   * Tabular data whose content shape varies with its rows and columns.
+   * Table block, not offered by default, with content from the blueprint extending it, typically a `rows` structure.
    */
   table: Record<string, any>;
 
@@ -163,12 +164,12 @@ export interface KirbyDefaultBlocks {
    */
   video:
     | {
-        /** External video source. */
-        location: "web";
+        /** External video source, `""` for pasted HTML, missing for parsed HTML. */
+        location?: "web" | "";
         /** External video URL (YouTube, Vimeo, etc.). */
         url: string;
         /** Caption, may contain inline HTML. */
-        caption: string;
+        caption: string | null;
       }
     | {
         /** Internal Kirby video file. */

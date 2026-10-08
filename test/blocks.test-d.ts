@@ -167,7 +167,7 @@ expectType<
   | "video"
 >({} as KirbyDefaultBlockType);
 
-expectType<{ code: string; language: KirbyCodeLanguage | "" }>(
+expectType<{ code: string; language: KirbyCodeLanguage | "" | (string & {}) }>(
   {} as KirbyBlock<"code">["content"],
 );
 expectType<{ text: string }>({} as KirbyBlock<"text">["content"]);
