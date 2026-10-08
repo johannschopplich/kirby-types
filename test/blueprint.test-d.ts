@@ -404,11 +404,6 @@ expectAssignable<KirbyObjectFieldProps>({
   type: "object",
   width: "1/1",
 });
-
-// Object value can be empty string (Kirby quirk) or undefined.
-expectType<Record<string, any> | "" | undefined>(
-  {} as KirbyObjectFieldProps["value"],
-);
 // #endregion
 
 // #region Blocks Field Props
@@ -498,7 +493,6 @@ expectAssignable<KirbyWriterFieldProps>({
   saveable: true,
   translate: true,
   type: "writer",
-  value: "<p>Content</p>",
   width: "1/1",
 });
 // #endregion

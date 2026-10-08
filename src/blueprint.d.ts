@@ -415,7 +415,6 @@ export interface KirbyStructureFieldProps extends KirbyFieldProps {
   sortable?: boolean;
   /** Field to sort entries by, e.g. `title desc`; disables drag & drop. */
   sortBy?: string;
-  value?: Record<string, any>[];
 }
 
 /**
@@ -427,7 +426,6 @@ export interface KirbyObjectFieldProps extends KirbyFieldProps {
   empty?: string;
   /** Nested field definitions. */
   fields: Record<string, KirbyFieldProps>;
-  value?: Record<string, any> | "";
 }
 
 /**
@@ -446,7 +444,6 @@ export interface KirbyBlocksFieldProps extends KirbyFieldProps {
   max?: number;
   /** Minimum number of blocks. */
   min?: number;
-  value?: KirbyBlockValue[];
 }
 
 /**
@@ -474,7 +471,6 @@ export interface KirbyLayoutFieldProps extends KirbyFieldProps {
   };
   /** Fieldset for each layout's settings. */
   settings?: KirbyFieldsetProps;
-  value?: KirbyLayoutValue[];
 }
 
 /**
@@ -505,7 +501,6 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
    */
   nodes?: string[] | boolean | Record<string, any>;
   toolbar?: Record<string, any>;
-  value?: string;
 }
 
 /**
@@ -526,7 +521,6 @@ export interface KirbyEntriesFieldProps extends KirbyFieldProps {
   min?: number;
   /** Whether entries are sortable via drag & drop. */
   sortable: boolean;
-  value?: any[];
 }
 
 /**
