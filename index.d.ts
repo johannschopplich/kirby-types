@@ -8,6 +8,7 @@ export type { KirbyApiResponse } from "./src/api";
 export type {
   KirbyBlock,
   KirbyCodeLanguage,
+  KirbyDefaultBlock,
   KirbyDefaultBlocks,
   KirbyDefaultBlockType,
 } from "./src/blocks";

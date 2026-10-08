@@ -269,6 +269,7 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 | [`KirbyBlock<T, U>`](./src/blocks.d.ts)      | Block with type and content        |
 | [`KirbyLayout`](./src/layout.d.ts)           | Layout row with columns            |
 | [`KirbyLayoutColumn`](./src/layout.d.ts)     | Column with width and blocks       |
+| [`KirbyDefaultBlock`](./src/blocks.d.ts)     | Union of default blocks by type    |
 | [`KirbyDefaultBlocks`](./src/blocks.d.ts)    | Map of default block content types |
 | [`KirbyDefaultBlockType`](./src/blocks.d.ts) | Union of default block type names  |
 
