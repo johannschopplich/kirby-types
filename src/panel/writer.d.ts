@@ -143,13 +143,14 @@ export interface WriterEditor {
   selectionAtStart: ProseMirrorSelection;
   selectionIsAtEnd: boolean;
   selectionIsAtStart: boolean;
-  /** Current editor state, `undefined` while no view exists. */
-  state: EditorState | undefined;
+  /** Current state of the view, `undefined` wherever `view` is `null`. */
+  state: EditorState;
   /**
-   * ProseMirror view, `null` until the editor creates it, so also inside
-   * every extension's `init()`, and again after `destroy()`.
+   * ProseMirror view, created after the extensions are set up, so `null`
+   * inside their `init()`, `keys()`, `inputRules()`, `pasteRules()`, and
+   * `plugins()`, and again after `destroy()`.
    */
-  view: EditorView | null;
+  view: EditorView;
   // #endregion
 
   // #region Methods

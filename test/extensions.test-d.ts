@@ -1,5 +1,6 @@
 // Tests representative plugin-author types (writer + textarea + plugin extensions) – not exhaustive.
 import type { Node as ProseMirrorNode } from "prosemirror-model";
+import type { EditorView } from "prosemirror-view";
 import type { ComponentPublicInstance } from "vue";
 import type {
   Panel,
@@ -241,6 +242,7 @@ editor.on("custom", (...args) => {
 });
 expectType<ProseMirrorNode>(editor.createDocument("<p>Text</p>"));
 expectType<ProseMirrorNode | false>(editor.createDocument(42 as unknown));
+expectType<EditorView>(editor.view);
 // #endregion
 
 // #region Textarea Button
