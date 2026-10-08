@@ -140,13 +140,14 @@ export interface WriterEditor {
   selectionAtStart: ProseMirrorSelection;
   selectionIsAtEnd: boolean;
   selectionIsAtStart: boolean;
-  /** Current editor state, `undefined` until the view exists. */
-  state: EditorState | undefined;
+  /** Current state of the view, `undefined` wherever `view` is not set. */
+  state: EditorState;
   /**
-   * ProseMirror view, `undefined` until the editor creates it, so also inside
-   * every extension's `init()`.
+   * ProseMirror view, created after the extensions are set up, so not yet set
+   * inside their `init()`, `keys()`, `inputRules()`, `pasteRules()`, or
+   * `plugins()`.
    */
-  view: EditorView | undefined;
+  view: EditorView;
   // #endregion
 
   // #region Methods
@@ -203,7 +204,7 @@ export interface WriterEditor {
   /** Inserts text at the current selection. */
   insertText: (text: string, selected?: boolean) => void;
   isEditable: () => boolean;
-  isEmpty: () => boolean | undefined;
+  isEmpty: () => boolean;
   /**
    * Unsubscribes from events.
    *
@@ -282,11 +283,8 @@ export interface WriterEditorOptions {
  */
 export interface WriterExtensions {
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /**
-   * ProseMirror view, `undefined` until the editor has created it and fired
-   * its `init` event.
-   */
-  view: EditorView | undefined;
+  /** ProseMirror view, set once the editor has fired its `init` event. */
+  view: EditorView;
 
   /** Returns toolbar buttons for the given type, `mark` by default. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
