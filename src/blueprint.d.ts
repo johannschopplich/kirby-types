@@ -228,7 +228,9 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
  * Picker item data as returned by the Panel API.
  */
 export interface KirbyPickerItem {
-  /** Item identifier (UUID or ID). */
+  /**
+   * Model ID; the stored reference for an item the current user may not list.
+   */
   id: string;
   /** Display text. */
   text: string;
@@ -237,6 +239,18 @@ export interface KirbyPickerItem {
   image: Record<string, any> | null;
   /** Panel path, `false` for an item the current user may not list. */
   link: string | false;
+  /** Layout of the field the item belongs to. */
+  layout: "list" | "cardlets" | "cards";
+  /**
+   * Current user's permissions on the model; an empty array for an item the
+   * current user may not list.
+   */
+  permissions: Record<string, boolean> | [];
+  /**
+   * Model UUID, `null` with UUIDs disabled; the stored reference for an item
+   * the current user may not list.
+   */
+  uuid: string | null;
   [key: string]: any;
 }
 
