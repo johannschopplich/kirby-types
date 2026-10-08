@@ -306,23 +306,23 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 <details>
 <summary>View all Blueprint field types</summary>
 
-| Type                                              | Description                     |
-| ------------------------------------------------- | ------------------------------- |
-| [`KirbyTextFieldProps`](./src/blueprint.d.ts)     | Text field props                |
-| [`KirbyTextareaFieldProps`](./src/blueprint.d.ts) | Textarea field props            |
-| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)   | Number field props              |
-| [`KirbyDateFieldProps`](./src/blueprint.d.ts)     | Date and time field props       |
-| [`KirbyFilesFieldProps`](./src/blueprint.d.ts)    | Files/pages/users picker props  |
-| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)  | Select/radio/checkboxes/toggles |
-| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)   | Toggle (boolean) field props    |
-| [`KirbyColorFieldProps`](./src/blueprint.d.ts)    | Color picker field props        |
-| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)    | Range slider field props        |
-| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)     | Tags field props                |
-| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)     | Link field props                |
-| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)   | Object field props              |
-| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)   | Writer (rich text) field props  |
-| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)  | Entries field props (Kirby 5+)  |
-| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)    | Stats field props (Kirby 5.1+)  |
+| Type                                              | Description                      |
+| ------------------------------------------------- | -------------------------------- |
+| [`KirbyTextFieldProps`](./src/blueprint.d.ts)     | Text field props                 |
+| [`KirbyTextareaFieldProps`](./src/blueprint.d.ts) | Textarea field props             |
+| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)   | Number field props               |
+| [`KirbyDateFieldProps`](./src/blueprint.d.ts)     | Date and time field props        |
+| [`KirbyFilesFieldProps`](./src/blueprint.d.ts)    | Files/pages/users picker props   |
+| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)  | Select/radio/checkboxes/toggles  |
+| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)   | Toggle (boolean) field props     |
+| [`KirbyColorFieldProps`](./src/blueprint.d.ts)    | Color picker field props         |
+| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)    | Range slider field props         |
+| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)     | Tags and multiselect field props |
+| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)     | Link field props                 |
+| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)   | Object field props               |
+| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)   | Writer (rich text) field props   |
+| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)  | Entries field props (Kirby 5+)   |
+| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)    | Stats field props (Kirby 5.1+)   |
 
 </details>
 

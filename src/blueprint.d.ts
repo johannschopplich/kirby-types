@@ -357,6 +357,7 @@ export interface KirbyTagsSearch {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/tags
+ * @see https://getkirby.com/docs/reference/panel/fields/multiselect
  */
 export interface KirbyTagsFieldProps extends KirbyFieldProps {
   type: "tags" | "multiselect";
