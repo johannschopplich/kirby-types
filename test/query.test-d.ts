@@ -63,6 +63,14 @@ expectType<{
   chain: [{ type: "method"; name: "page"; params: '"notes"' }];
 }>({} as ParseKirbyQuery<'page("notes")'>);
 
+expectType<{
+  model: "page";
+  chain: [
+    { type: "method"; name: "page"; params: '"blog"' },
+    { type: "property"; name: "children" },
+  ];
+}>({} as ParseKirbyQuery<'page("blog").children'>);
+
 expectType<{ model: "customModel"; chain: [] }>(
   {} as ParseKirbyQuery<"customModel", "customModel">,
 );
