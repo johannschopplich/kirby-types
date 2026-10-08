@@ -268,8 +268,11 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   type: "files" | "pages" | "users";
   /** Placeholder text when no items are selected. */
   empty?: string;
-  /** Image settings for each item. */
-  image?: Record<string, any>;
+  /**
+   * Image settings for each item, a query string, `"icon"` to show only the
+   * icon, or `false` for none.
+   */
+  image?: false | string | Record<string, any>;
   /** Info text template for each item. */
   info?: string;
   /** Display layout for selected items. */
