@@ -191,6 +191,7 @@ export interface KirbyDefaultBlocks {
 
 /**
  * Block from a blocks or layout field, its content typed by the block type.
+ * Without type arguments, any block.
  *
  * @typeParam T - Block type name
  * @typeParam U - Custom content shape, overriding the default content of `T`
@@ -217,7 +218,7 @@ export interface KirbyDefaultBlocks {
  * ```
  */
 export interface KirbyBlock<
-  T extends string = keyof KirbyDefaultBlocks,
+  T extends string = string,
   U extends Record<string, any> = T extends keyof KirbyDefaultBlocks
     ? KirbyDefaultBlocks[T]
     : Record<string, any>,

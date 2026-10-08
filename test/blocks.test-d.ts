@@ -175,6 +175,9 @@ expectType<{ videoId: number }>(
 
 // Custom block type without a content shape takes any fields.
 expectType<Record<string, any>>({} as KirbyBlock<"unknownType">["content"]);
+
+// Without type arguments, any block
+expectAssignable<KirbyBlock>({} as KirbyBlock<"hero", { title: string }>);
 // #endregion
 
 // #region Negative Tests
