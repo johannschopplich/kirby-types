@@ -1,7 +1,7 @@
 {
   "name": "kirby-types",
   "type": "module",
-  "version": "1.8.1",
+  "version": "2.0.0-beta.2",
   "packageManager": "pnpm@11.10.0",
   "description": "TypeScript types for Kirby Panel plugins and headless CMS usage",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
@@ -27,12 +27,18 @@
     ".": {
       "types": "./index.d.ts",
       "default": "./index.js"
+    },
+    "./panel-globals": {
+      "types": "./panel-globals.d.ts",
+      "default": "./panel-globals.js"
     }
   },
   "types": "./index.d.ts",
   "files": [
     "index.d.ts",
     "index.js",
+    "panel-globals.d.ts",
+    "panel-globals.js",
     "src"
   ],
   "scripts": {
@@ -41,7 +47,7 @@
     "format": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --write",
     "format:check": "prettier \"**/*.{css,html,json,md,mjs,ts,vue,yml}\" --check",
     "release": "bumpp",
-    "test": "tsd -f \"test/**/*.test-d.ts\""
+    "test": "tsd -f \"test/**/*.test-d.ts\" -f \"!test/panel-globals.test-d.ts\" && tsd -f test/panel-globals.test-d.ts"
   },
   "peerDependencies": {
     "dayjs": "^1.11.13",
@@ -51,7 +57,7 @@
     "prosemirror-schema-list": "^1.5.1",
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.41.4",
-    "vue": "^2.7.16"
+    "vue": "^3.5.0"
   },
   "peerDependenciesMeta": {
     "dayjs": {

@@ -1,8 +1,11 @@
 /**
  * Helper type definitions for Kirby Panel.
  *
- * Provides types for the `$helper` utilities available on the Vue prototype.
+ * Provides types for the `$helper` utilities registered as a global property
+ * on the Panel app.
  */
+
+import type { App } from "vue";
 
 // #region Array Helpers
 
@@ -65,8 +68,10 @@ export interface PanelHelpersArray {
 // #region String Helpers
 
 /**
- * Ordered character maps applied before slugging; a key lists `|`-separated
- * strings, each replaced literally by the key's value.
+ * Ordered character maps applied to the trimmed, lowercased string before
+ * slugging; each key is replaced literally by its value, so a key with
+ * uppercase letters never matches. A key starting with `/` has its first and
+ * last characters stripped first.
  *
  * @source panel/src/helpers/string.ts
  */
@@ -91,7 +96,6 @@ export interface PanelHelpersString {
    * Checks if a string is shaped like an email address.
    *
    * @param strict - Reject a trailing query or hash after the domain
-   * @since 5.4.4
    */
   isEmail: (string: unknown, strict?: boolean) => boolean;
 
@@ -104,9 +108,8 @@ export interface PanelHelpersString {
   lcfirst: (string: string) => string;
 
   /**
-   * Strips every leading repeat of `replace`, matched literally except that
-   * `|` separates alternatives; without `replace` the string comes back
-   * unchanged.
+   * Strips every leading repeat of `replace`, matched literally; without
+   * `replace` the string comes back unchanged.
    */
   ltrim: (string: string, replace?: string) => string;
 
@@ -121,33 +124,39 @@ export interface PanelHelpersString {
   random: (length: number) => string;
 
   /**
-   * Strips every trailing repeat of `replace`, matched literally except that
-   * `|` separates alternatives; without `replace` the string comes back
-   * unchanged.
+   * Strips every trailing repeat of `replace`, matched literally; without
+   * `replace` the string comes back unchanged.
    */
   rtrim: (string: string, replace?: string) => string;
 
   /**
    * Sanitizes HTML by only keeping allowed marks and nodes.
    *
-   * @param html - HTML to sanitize; a falsy value returns `""`
+   * @param html - HTML to sanitize; a falsy value resolves to `""`
    * @param options - Allowed marks and nodes
    * @param options.marks - Allowed marks: `true` for all, `false` for none, an
-   *   array of mark names, or a map of mark name to `true`, `false`, or mark
-   *   options (default: `bold`, `code`, `italic`, `link`, `strike`, `sub`,
-   *   `sup`, `underline`)
+   *   array of mark names and extension instances, or a map of mark name to
+   *   `true`, `false`, or mark options (default: `bold`, `code`, `italic`,
+   *   `link`, `strike`, `sub`, `sup`, `underline`)
    * @param options.nodes - Allowed nodes, in the same forms as `marks`; `doc`,
    *   `text`, and `paragraph` are always installed (default: inline content
    *   only, which flattens block structure)
-   * @since 5.5.0
    */
   sanitizeHTML: (
     html: unknown,
     options?: {
-      marks?: boolean | string[] | Record<string, unknown> | null;
-      nodes?: boolean | string[] | Record<string, unknown> | null;
+      marks?:
+        | boolean
+        | (string | Record<string, any>)[]
+        | Record<string, unknown>
+        | null;
+      nodes?:
+        | boolean
+        | (string | Record<string, any>)[]
+        | Record<string, unknown>
+        | null;
     },
-  ) => string;
+  ) => Promise<string>;
 
   /**
    * Converts string to ASCII slug.
@@ -183,7 +192,8 @@ export interface PanelHelpersString {
   ucwords: (string: string) => string;
 
   /**
-   * Reverts the entities `escapeHTML()` produces.
+   * Reverses the entities `escapeHTML()` produces; any other entity stays
+   * as-is.
    */
   unescapeHTML: (string: string) => string;
 
@@ -201,15 +211,14 @@ export interface PanelHelpersString {
  */
 export interface PanelHelpersObject {
   /**
-   * Deep clones a value with `structuredClone`; `undefined` comes back
-   * unchanged.
+   * Deep copies plain objects and arrays and unwraps reactive proxies into
+   * plain data. Every other value, including `Date`, `Map`, and class
+   * instances, comes back as-is.
    */
   clone: { <T>(value: T): T; (): undefined };
 
   /**
    * Keeps the entries for which `predicate` returns `true`.
-   *
-   * @since 5.0.0
    */
   filter: <T extends Record<string, any>>(
     object: T,
@@ -267,7 +276,8 @@ export interface PanelHelpersUrl {
 
   /**
    * Builds `URLSearchParams` from the origin's query, with each query entry
-   * set over it as a string; `null` values are skipped.
+   * set over it as a string. Nested objects become `parent[child]` keys,
+   * `null` removes a param, and `undefined` leaves it untouched.
    *
    * @param origin - Existing query as a URL, a query string, or a record
    */
@@ -292,8 +302,6 @@ export interface PanelHelpersUrl {
    * Checks if a URL begins with a dangerous URI scheme (e.g. `javascript:`,
    * `vbscript:`, `data:`) after removing every character other than letters
    * and colons.
-   *
-   * @since 5.4.4
    */
   hasDangerousScheme: (url: unknown) => boolean;
 
@@ -401,11 +409,9 @@ export interface PanelFieldDefinition {
   hidden?: boolean;
   /** Conditional visibility. */
   when?: Record<string, any>;
-  /** API endpoint paths of the field, its section, and its model. */
-  endpoints?: { field?: string; section?: string; model?: string };
+  /** API endpoint paths of the field and its model. */
+  endpoints?: { field?: string; model?: string };
   fields?: Record<string, PanelFieldDefinition>;
-  /** Name of the section the field belongs to; on subfields, the parent field's name. */
-  section?: string;
   [key: string]: any;
 }
 
@@ -425,9 +431,9 @@ export interface PanelHelpersField {
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
-   * Checks if a field or section is visible. Returns `false` for hidden
-   * fields, otherwise evaluates the `when` conditions against `values`, the
-   * current form values.
+   * Checks if a field is visible. Returns `false` for hidden fields,
+   * otherwise evaluates the `when` conditions against `values`, the current
+   * form values.
    */
   isVisible: (
     field: PanelFieldDefinition,
@@ -435,10 +441,10 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
-   * Sets each subfield's `section` to the parent field's name. When the parent
-   * has endpoints, replaces each subfield's endpoints with the parent's, its
-   * `field` endpoint suffixed with `+` and the subfield name. Mutates the
-   * passed subfield definitions.
+   * Sets each subfield's endpoints when the parent has them: `field` to the
+   * parent's `field` endpoint suffixed with `+` and the subfield name, `model`
+   * to the parent's `model` endpoint.
+   * Mutates the passed subfield definitions.
    *
    * @param field - Parent field
    * @param fields - Subfield definitions
@@ -525,16 +531,6 @@ export interface PanelLinkDetection {
 
 /**
  * @source panel/src/helpers/link.ts
- * @source src/Panel/Model.php
- */
-export interface PanelLinkPreview {
-  label: string;
-  /** Panel image settings; `url` is set only when an image resolves. */
-  image?: { url?: string; [key: string]: any } | null;
-}
-
-/**
- * @source panel/src/helpers/link.ts
  */
 export interface PanelHelpersLink {
   /**
@@ -565,19 +561,6 @@ export interface PanelHelpersLink {
    * Checks if the value is `site://`, a `page://` UUID, or a page permalink.
    */
   isPageUUID: (value: string) => boolean;
-
-  /**
-   * Fetches the label and image of a page or file link; `site://` resolves to
-   * the site label, any other link to `{ label: link }`.
-   *
-   * @param fields - Fields to fetch (default: `["title", "panelImage"]` for
-   *   pages, `["filename", "panelImage"]` for files)
-   * @returns Preview data, or `null` for an empty link or a failed request
-   */
-  preview: (
-    link: PanelLinkDetection,
-    fields?: string[],
-  ) => Promise<PanelLinkPreview | null>;
 
   /**
    * Returns available link types.
@@ -659,8 +642,6 @@ export interface PanelUploadParams {
   /**
    * Signal that cancels the request when it aborts during the upload; no
    * further callback runs and the returned promise stays pending.
-   *
-   * @since 5.0.0
    */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
@@ -680,7 +661,6 @@ export interface PanelUploadParams {
  * Without options, the callback fires on the trailing edge only; in a passed
  * object, an unset key counts as `false`.
  *
- * @since 5.0.0
  * @source panel/src/helpers/debounce.ts
  */
 export interface PanelDebounceOptions {
@@ -694,7 +674,6 @@ export interface PanelDebounceOptions {
  * Without options, the callback fires on the leading edge only; in a passed
  * object, an unset key counts as `false`.
  *
- * @since 5.0.0
  * @source panel/src/helpers/throttle.ts
  */
 export interface PanelThrottleOptions {
@@ -712,7 +691,6 @@ export interface PanelDebouncedFunction<T extends (...args: any[]) => any> {
 }
 
 /**
- * @since 5.0.0
  * @source panel/src/helpers/throttle.ts
  */
 export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
@@ -746,7 +724,7 @@ export type PanelComparator = (
 // #region Main Helpers Interface
 
 /**
- * Panel helpers available on the Vue prototype as `$helper`.
+ * Panel helpers registered as the `$helper` global property of the Panel app.
  *
  * @example
  * ```ts
@@ -762,6 +740,7 @@ export type PanelComparator = (
  * @source panel/src/helpers/focus.ts
  * @source panel/src/helpers/isComponent.ts
  * @source panel/src/helpers/isUploadEvent.ts
+ * @source panel/src/helpers/items.ts
  * @source panel/src/helpers/object.ts
  * @source panel/src/helpers/ratio.ts
  * @source panel/src/helpers/sort.ts
@@ -775,8 +754,8 @@ export interface PanelHelpers {
   clipboard: PanelHelpersClipboard;
 
   /**
-   * Deep clones a value.
-   * Shortcut for `object.clone()`.
+   * Deep copies plain objects and arrays and unwraps reactive proxies into
+   * plain data. Shortcut for `object.clone()`.
    */
   clone: { <T>(value: T): T; (): undefined };
 
@@ -805,15 +784,14 @@ export interface PanelHelpers {
   file: PanelHelpersFile;
 
   /**
-   * Tries in order the `field` input, an `autofocus` element, an input, a
-   * submit button, and a button inside the element, checking only the first
-   * match of each, and focuses the first one that is enabled. Falls back to
-   * the element itself. Without `field`, does
-   * nothing while focus already sits inside the element.
+   * Tries the first `field` input, `autofocus` element, input, submit button,
+   * and button inside the element, in that order, and focuses the first of
+   * them that is focusable, or else the element itself. Without `field`,
+   * leaves the focus alone when it already sits inside the element.
    *
    * @param element - Selector, element, or `null` (returns `false`)
-   * @param field - Name of the input to focus first
-   * @returns The focused element, or `false` if nothing could be focused
+   * @param field - Specific input name to focus
+   * @returns The focused element, or `false` if nothing was focused
    */
   focus: (
     element: string | HTMLElement | null,
@@ -822,13 +800,42 @@ export interface PanelHelpers {
 
   /**
    * Checks if a component is registered globally under exactly this name.
+   *
+   * @param app - Vue app instance (default: `window.panel?.app`)
    */
-  isComponent: (name: string) => boolean;
+  isComponent: (name: string, app?: App) => boolean;
 
   /**
    * Checks if a drag event carries files and no plain text.
    */
   isUploadEvent: (event: DragEvent) => boolean;
+
+  /**
+   * Requests item props by model ID. Calls from the same tick share requests
+   * of up to 100 IDs per endpoint and query, and an ID already in flight
+   * joins the pending request. A blank ID, an unknown ID, a model the user
+   * may not list, or a failed request resolves to `undefined` – the promise
+   * never rejects. A failed request still reaches the Panel's error
+   * handling, so an expired session or a lost connection surfaces to the
+   * user.
+   *
+   * @param endpoint - API endpoint, e.g. `"items/files"`
+   * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs
+   * @param query - Query passed on to the endpoint
+   * @returns Item props, or an array of them in the order of the IDs
+   */
+  items: {
+    (
+      endpoint: string,
+      id: string,
+      query?: Record<string, any>,
+    ): Promise<Record<string, any> | undefined>;
+    (
+      endpoint: string,
+      ids: string[],
+      query?: Record<string, any>,
+    ): Promise<(Record<string, any> | undefined)[]>;
+  };
 
   keyboard: PanelHelpersKeyboard;
 
@@ -875,8 +882,6 @@ export interface PanelHelpers {
 
   /**
    * Throttles `callback` to at most one call per `delay` milliseconds.
-   *
-   * @since 5.0.0
    */
   throttle: <T extends (...args: any[]) => any>(
     callback: T,
@@ -902,7 +907,6 @@ export interface PanelHelpers {
    */
   uuid: () => string;
 
-  /** @since 5.5.0 */
   writer: PanelHelpersWriter;
 }
 // #endregion
@@ -913,22 +917,23 @@ export interface PanelHelpers {
  * Helpers that resolve the marks and nodes a Writer field allows and build
  * their extension instances, plugin extensions included.
  *
- * @source panel/src/helpers/writer.js
- * @since 5.5.0
+ * @source panel/src/helpers/writer.ts
  */
 export interface PanelHelpersWriter {
   /**
-   * Resolves the names of the allowed extensions.
+   * Resolves the names of the allowed extensions, plus any instances passed
+   * in the `allowed` array.
    *
    * @param available - Map of all available extensions keyed by name
-   * @param allowed - `false` to allow none, an array of names (returned
-   *   unfiltered), or an object map (keys set to `false` are filtered out);
-   *   any other value, including `true`, `null`, and `undefined`, allows all
+   * @param allowed - `false` to allow none, an array of names and extension
+   *   instances (returned unfiltered), or an object map (keys set to `false`
+   *   are filtered out); any other value, including `true`, `null`, and
+   *   `undefined`, allows all
    */
-  allowedExtensions: (
+  allowedExtensions: <T = never>(
     available: Record<string, unknown>,
-    allowed?: boolean | string[] | Record<string, unknown> | null,
-  ) => string[];
+    allowed?: boolean | (string | T)[] | Record<string, unknown> | null,
+  ) => (string | T)[];
 
   /**
    * Returns the built-in mark instances merged with the plugin marks, keyed by
@@ -965,7 +970,11 @@ export interface PanelHelpersWriter {
    * @param marks - Allowed marks configuration (see `allowedExtensions`)
    */
   createMarks: (
-    marks?: boolean | string[] | Record<string, unknown> | null,
+    marks?:
+      | boolean
+      | (string | Record<string, any>)[]
+      | Record<string, unknown>
+      | null,
     required?: string[],
   ) => Record<string, any>;
 
@@ -977,7 +986,11 @@ export interface PanelHelpersWriter {
    * @param nodes - Allowed nodes configuration (see `allowedExtensions`)
    */
   createNodes: (
-    nodes?: boolean | string[] | Record<string, unknown> | null,
+    nodes?:
+      | boolean
+      | (string | Record<string, any>)[]
+      | Record<string, unknown>
+      | null,
     required?: string[],
   ) => Record<string, any>;
 
@@ -987,19 +1000,20 @@ export interface PanelHelpersWriter {
    * non-null object.
    */
   extensionOptions: (
-    allowed?: boolean | string[] | Record<string, unknown> | null,
+    allowed?: boolean | unknown[] | Record<string, unknown> | null,
   ) => Record<string, Record<string, any>>;
 
   /**
    * Filters a map of available extensions down to those listed in `allowed`.
    * Keeps the order of `allowed`; for marks, that order sets the nesting
-   * priority.
+   * priority. An extension instance in the array is installed under its own
+   * name.
    *
    * @param allowed - Allowed extension configuration (see `allowedExtensions`)
    */
-  filterExtensions: <T>(
+  filterExtensions: <T extends { name: string }>(
     available: Record<string, T>,
-    allowed?: boolean | string[] | Record<string, unknown> | null,
+    allowed?: boolean | (string | T)[] | Record<string, unknown> | null,
   ) => Record<string, T>;
 
   /** Keeps the node instances whose schema sets `inline: true`. */

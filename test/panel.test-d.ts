@@ -41,6 +41,7 @@ expectAssignable<PanelConfig>({
   theme: "light",
   translation: "en",
   upload: 10485760,
+  uploads: 3,
 });
 
 expectType<boolean>({} as PanelPermissions["access"]["panel"]);
@@ -104,17 +105,16 @@ expectAssignable<PanelUploadFile>({
   url: "blob:http://localhost/abc123",
   progress: 50,
   completed: false,
-  error: null,
   model: null,
 });
 
 expectAssignable<PanelUploadDefaults>({
-  abort: null,
   accept: "*",
   attributes: {},
   files: [],
   max: null,
   multiple: true,
+  on: {},
   preview: {},
   replacing: null,
   url: null,
@@ -174,8 +174,8 @@ expectType<PanelHistoryMilestone | undefined>(history.goto("id"));
 declare const modal: PanelModal<PanelDialogDefaults>;
 
 expectType<Promise<void>>(modal.cancel());
-expectType<Promise<false | void>>(modal.reload());
-expectType<Promise<PanelDialogDefaults | void>>(modal.close());
+expectType<Promise<false | PanelDialogDefaults>>(modal.reload());
+expectType<Promise<void>>(modal.close());
 expectType<Promise<any>>(modal.submit({}));
 expectType<void>(modal.goTo("milestone-id"));
 expectType<void>(modal.input({ field: "value" }));
@@ -192,7 +192,7 @@ expectType<Promise<PanelDialogDefaults>>(
   dialog.open({ component: "k-remove-dialog", props: { text: "Delete?" } }),
 );
 
-expectType<false | void>(undefined as ReturnType<PanelDrawer["tab"]>);
+expectType<void>(undefined as ReturnType<PanelDrawer["tab"]>);
 // #endregion
 
 // #region Notification & Content
@@ -219,18 +219,19 @@ expectType<Promise<void>>(panel.search("pages"));
 expectType<Promise<PanelSearchResponse | undefined>>(
   panel.search("pages", "test"),
 );
+expectType<void>(panel.error(new Error("Failed")));
 expectAssignable<Parameters<Panel["set"]>[0]>({
   dialog: null,
   notification: { message: "Saved" },
 });
 expectNotAssignable<Parameters<Panel["set"]>[0]>({ config: { debug: true } });
-expectType<void | PanelNotificationDefaults>({} as ReturnType<Panel["error"]>);
 expectType<PanelApiRequestOptions | undefined>(
   {} as Parameters<PanelApi["get"]>[2],
 );
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
-expectType<ReturnType<typeof setInterval>>({} as PanelApi["ping"]);
+expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
+expectType<void>(panel.api.ping());
 expectAssignable<PanelApi["auth"]>({
   login: async () => ({}),
   logout: async () => {},

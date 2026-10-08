@@ -39,9 +39,10 @@ export interface KirbyOption {
 
 /**
  * Props of a field as the backend sends them; the field-specific types extend
- * them. `info` and `headline` omit `disabled`, `required`, and `translate`,
- * but receive `disabled` when the user may not update the model or the field
- * is not translatable into the current language.
+ * them. Input fields always send `autofocus`, `disabled`, `required`, and
+ * `translate`; other fields omit them, but receive `disabled` when the current
+ * user may not update the model or the field is not translatable into the
+ * current language.
  *
  * @example
  * ```ts
@@ -64,10 +65,7 @@ export interface KirbyOption {
 export interface KirbyFieldProps {
   /** Text shown after the input. */
   after?: string;
-  /**
-   * Whether the field receives focus when the form loads; absent for fields
-   * that take no focus, like `files`, `structure`, or `object`.
-   */
+  /** Whether the field receives focus when the form loads. */
   autofocus?: boolean;
   /** Text shown before the input. */
   before?: string;
@@ -93,8 +91,10 @@ export interface KirbyFieldProps {
   type: string;
   /** Conditional visibility rules. */
   when?: Record<string, any>;
-  /** Field width in the grid, e.g. `1/1`, `1/2`, or `1/3`. */
-  width: string;
+  /**
+   * Field width in the grid, e.g. `1/1`, `1/2`, or `1/3`; absent for `hidden`.
+   */
+  width?: string;
 }
 // #endregion
 
@@ -104,30 +104,29 @@ export interface KirbyFieldProps {
  * @see https://getkirby.com/docs/reference/panel/fields/text
  */
 export interface KirbyTextFieldProps extends KirbyFieldProps {
-  type: "text" | "slug" | "url" | "email" | "tel";
+  type: "text" | "slug" | "url" | "email" | "tel" | "password";
   /**
    * Regex character class the slug may contain, replacing `a-z0-9` (slug
    * only).
    */
   allow?: string;
-  /** HTML `autocomplete` attribute of the input (url, email, and tel only). */
+  /** Browser autocomplete hint, e.g. `email` or `url`. */
   autocomplete?: string;
   /** Converter applied to the value before it is saved. */
-  converter?: "lower" | "upper" | "ucfirst" | "slug";
-  /** Whether to show the character counter (text only). */
-  counter?: boolean;
+  converter?: "label" | "lower" | "upper" | "ucfirst" | "slug";
+  /** Whether to show the character counter. */
+  counter: boolean;
   font: "sans-serif" | "monospace";
   /** Maximum character length. */
   maxlength?: number;
   /** Minimum character length. */
   minlength?: number;
-  /** Prefix of the slug preview below the field (slug only). */
+  /** Path shown with the slug below the field (slug only). */
   path?: string;
   /** Validation regex pattern. */
   pattern?: string;
-  /** Whether the browser spellcheck is on (text and email only). */
   spellcheck?: boolean;
-  /** Field whose value the slug follows while it changes (slug only). */
+  /** Field the slug is generated from while it changes (slug only). */
   sync?: string;
   /** Button that fills the slug from another field (slug only). */
   wizard?: boolean | { field?: string; text?: string };
@@ -146,16 +145,17 @@ export interface KirbyTextareaFieldProps extends KirbyFieldProps {
   buttons: boolean | string[];
   /** Whether to show the character counter. */
   counter: boolean;
-  /** File picker options; a blueprint query string arrives as `query`. */
-  files: Record<string, any>;
   font: "sans-serif" | "monospace";
   /** Maximum character length. */
   maxlength?: number;
   /** Minimum character length. */
   minlength?: number;
   size?: "small" | "medium" | "large" | "huge";
-  spellcheck: boolean;
-  /** Upload options with an `accept` attribute, or `false` without uploads. */
+  spellcheck?: boolean;
+  /**
+   * Upload settings like the accepted file types, or `false` when uploads are
+   * off.
+   */
   uploads: false | Record<string, any>;
 }
 
@@ -166,8 +166,8 @@ export interface KirbyNumberFieldProps extends KirbyFieldProps {
   type: "number";
   max?: number;
   min?: number;
-  /** Step increment, `"any"` to allow any decimal value, or `""` when unset. */
-  step: number | "any" | "";
+  /** Step increment, or `"any"` to allow any decimal value. */
+  step?: number | "any";
 }
 
 /**
@@ -175,11 +175,7 @@ export interface KirbyNumberFieldProps extends KirbyFieldProps {
  */
 export interface KirbyOptionsFieldProps extends KirbyFieldProps {
   type: "select" | "radio" | "checkboxes" | "toggles";
-  /**
-   * Whether to show batch select toggle (checkboxes only).
-   *
-   * @since 5.2.0
-   */
+  /** Whether to show batch select toggle (checkboxes only). */
   batch?: boolean;
   /** Number of columns for layout (radio, checkboxes). */
   columns?: number;
@@ -193,7 +189,7 @@ export interface KirbyOptionsFieldProps extends KirbyFieldProps {
   min?: number;
   options: KirbyOption[];
   /** Whether a toggle can be deactivated on click (toggles only). */
-  reset?: boolean;
+  resettable?: boolean;
 }
 
 /**
@@ -235,15 +231,9 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
  */
 export interface KirbyPickerItem {
   /**
-   * Model ID, or the filename for a file of the field's own model; the stored
-   * reference for an item the current user may not list.
+   * Model ID; the stored reference for an item the current user may not list.
    */
   id: string;
-  /**
-   * Model UUID, `null` with UUIDs disabled; the stored reference for an item
-   * the current user may not list.
-   */
-  uuid: string | null;
   /** Display text. */
   text: string;
   /** Info text, `null` for an item the current user may not list. */
@@ -251,14 +241,18 @@ export interface KirbyPickerItem {
   image: Record<string, any> | null;
   /** Panel path, `false` for an item the current user may not list. */
   link: string | false;
+  /** Layout of the field the item belongs to. */
+  layout: "list" | "cardlets" | "cards";
   /**
    * Current user's permissions on the model; an empty array for an item the
    * current user may not list.
-   *
-   * @since 5.1.0
    */
   permissions: Record<string, boolean> | [];
-  sortable: boolean;
+  /**
+   * Model UUID, `null` with UUIDs disabled; the stored reference for an item
+   * the current user may not list.
+   */
+  uuid: string | null;
   [key: string]: any;
 }
 
@@ -266,14 +260,12 @@ export interface KirbyPickerItem {
  * @see https://getkirby.com/docs/reference/panel/fields/files
  */
 export interface KirbyFilesFieldProps extends KirbyFieldProps {
-  type: "files" | "pages" | "users";
+  /** Picker type, also for blueprints that set `files`, `pages`, or `users`. */
+  type: "filepicker" | "pagepicker" | "userpicker";
   /** Placeholder text when no items are selected. */
   empty?: string;
-  /**
-   * Image settings for each item, a query string, `"icon"` to show only the
-   * icon, or `false` for none.
-   */
-  image?: false | string | Record<string, any>;
+  /** Image settings for each item. */
+  image?: Record<string, any>;
   /** Info text template for each item. */
   info?: string;
   /** Display layout for selected items. */
@@ -286,7 +278,7 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   min?: number;
   /** Whether multiple selection is allowed. */
   multiple: boolean;
-  /** API path of the model whose files the picker lists (files field only). */
+  /** API path of the field's parent model (`filepicker` only). */
   parent?: string;
   /** Query for available items. */
   query?: string;
@@ -296,13 +288,13 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   size: "tiny" | "small" | "medium" | "large" | "huge" | "full" | "auto";
   /** Reference saved in the content file. */
   store: "uuid" | "id";
-  /** Whether the picker includes subpages (pages field only). */
+  /** Whether the picker includes subpages (`pagepicker` only). */
   subpages?: boolean;
   /** Text template for each item. */
   text?: string;
   /**
-   * Upload options with an `accept` attribute, or `false` without uploads
-   * (files field only).
+   * Upload settings like the accepted file types, or `false` when uploads are
+   * off (`filepicker` only).
    */
   uploads?: false | Record<string, any>;
 }
@@ -336,11 +328,11 @@ export interface KirbyColorFieldProps extends KirbyFieldProps {
  */
 export interface KirbyRangeFieldProps extends KirbyFieldProps {
   type: "range";
-  /** Maximum value (default: `100`). */
+  /** Maximum value, `100` by default. */
   max: number;
   min?: number;
-  /** Step increment, `"any"` for any decimal value, or `""` when unset. */
-  step: number | "any" | "";
+  /** Step increment, or `"any"` for any decimal value. */
+  step?: number | "any";
   /** Whether to show the value tooltip, or its `before` and `after` text. */
   tooltip: boolean | { after: string | null; before: string | null };
 }
@@ -410,11 +402,7 @@ export interface KirbyStructureColumn {
  */
 export interface KirbyStructureFieldProps extends KirbyFieldProps {
   type: "structure";
-  /**
-   * Whether to enable batch editing.
-   *
-   * @since 5.1.0
-   */
+  /** Whether to enable batch editing. */
   batch: boolean;
   /** Column definitions for table display. */
   columns: Record<string, KirbyStructureColumn>;
@@ -431,9 +419,9 @@ export interface KirbyStructureFieldProps extends KirbyFieldProps {
   /** Minimum number of entries. */
   min?: number;
   /** Whether to prepend new entries. */
-  prepend?: boolean;
+  prepend: boolean;
   /** Whether entries are sortable via drag & drop. */
-  sortable?: boolean;
+  sortable: boolean;
   /** Field to sort entries by, e.g. `title desc`; disables drag & drop. */
   sortBy?: string;
 }
@@ -521,13 +509,14 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
    * object keyed by node where `false` excludes one.
    */
   nodes?: string[] | boolean | Record<string, any>;
-  toolbar?: Record<string, any>;
+  spellcheck?: boolean;
+  /** Toolbar options `inline`, `marks`, and `nodes`; a boolean has no effect. */
+  toolbar?: boolean | Record<string, any>;
 }
 
 /**
  * Simplified structure field with a single field per entry.
  *
- * @since 5.0.0
  * @see https://getkirby.com/docs/reference/panel/fields/entries
  */
 export interface KirbyEntriesFieldProps extends KirbyFieldProps {
@@ -547,7 +536,6 @@ export interface KirbyEntriesFieldProps extends KirbyFieldProps {
 /**
  * Stats report item for the stats field.
  *
- * @since 5.1.0
  * @source src/Panel/Ui/Stat.php
  */
 export interface KirbyStatsReport {
@@ -569,7 +557,6 @@ export interface KirbyStatsReport {
 /**
  * Field showing reports as cards.
  *
- * @since 5.1.0
  * @see https://getkirby.com/docs/reference/panel/fields/stats
  */
 export interface KirbyStatsFieldProps extends KirbyFieldProps {
@@ -685,7 +672,7 @@ export interface KirbyFieldsetTab {
   /** Field definitions in this tab. */
   fields: Record<string, KirbyFieldProps>;
   /** Tab label; absent when the fieldset defines no `tabs`. */
-  label?: string;
+  label?: string | null;
   /** Tab identifier; absent when the fieldset defines no `tabs`. */
   name?: string;
 }

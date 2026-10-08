@@ -24,6 +24,8 @@ expectAssignable<KirbyQuery>("user.email");
 expectAssignable<KirbyQuery>("file.url");
 expectAssignable<KirbyQuery>("kirby.version");
 expectAssignable<KirbyQuery>("page?.title");
+expectAssignable<KirbyQuery>('page["my-key"]');
+expectAssignable<KirbyQuery>('this["my-key"]');
 
 // Operators
 expectAssignable<KirbyQuery>("page ?? site");

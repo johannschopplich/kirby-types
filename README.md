@@ -178,19 +178,29 @@ type PaginatedResponse = KirbyQueryResponse<BlogPostSummary[], true>;
 
 ## Panel Types
 
-> [!NOTE]
-> The Panel types describe the latest Kirby 5 release: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Panel source – PHP wins where they disagree. Members added after Kirby 4 carry a git-verified `@since` tag. Kirby 6 types ship in kirby-types v2.
+| kirby-types | Kirby   | Panel   |
+| ----------- | ------- | ------- |
+| v2          | 6       | Vue 3   |
+| v1          | 4 and 5 | Vue 2.7 |
 
-For Panel plugin development, type the global `window.panel` object:
+> [!NOTE]
+> The Panel types describe the latest Kirby 6 release: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Panel source – PHP wins where they disagree.
+
+For Panel plugin development, import the opt-in globals once, e.g. in your plugin's entry file. The import types `window.panel` and the Panel's global properties on every Vue component (`this.$panel`, `this.$t`, `this.$helper`, …):
 
 ```ts
-import type { Panel } from "kirby-types";
+import "kirby-types/panel-globals";
 
-declare global {
-  interface Window {
-    panel: Panel;
-  }
-}
+window.panel.plugin("my/plugin", {
+  fields: {
+    color: {
+      extends: "k-text-field",
+    },
+  },
+  created(instance) {
+    instance.$panel.notification.info("Plugin ready");
+  },
+});
 ```
 
 Common Panel operations:
@@ -332,10 +342,10 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 Vue is an optional peer dependency for Panel types:
 
 ```bash
-pnpm add -D vue@^2.7.0
+pnpm add -D vue@^3.5.0
 ```
 
-`dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `interpret`, `pattern`, …):
+`dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `parse`, `pattern`, …):
 
 ```bash
 pnpm add -D dayjs

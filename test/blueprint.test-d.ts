@@ -78,6 +78,14 @@ expectAssignable<KirbyFieldProps>({
   when: { status: "draft" },
   width: "1/1",
 });
+
+// Hidden field, which sends neither input nor layout props
+expectAssignable<KirbyFieldProps>({
+  hidden: true,
+  name: "id",
+  saveable: true,
+  type: "hidden",
+});
 // #endregion
 
 // #region Text Field Props
@@ -102,7 +110,6 @@ expectAssignable<KirbyTextareaFieldProps>({
   buttons: true,
   counter: false,
   disabled: false,
-  files: {},
   font: "monospace",
   hidden: false,
   maxlength: 100,
@@ -118,7 +125,7 @@ expectAssignable<KirbyTextareaFieldProps>({
 });
 
 // All text-like types
-expectType<"text" | "slug" | "url" | "email" | "tel">(
+expectType<"text" | "slug" | "url" | "email" | "tel" | "password">(
   {} as KirbyTextFieldProps["type"],
 );
 // #endregion
@@ -132,7 +139,6 @@ expectAssignable<KirbyNumberFieldProps>({
   name: "quantity",
   required: false,
   saveable: true,
-  step: "",
   translate: false,
   type: "number",
   width: "1/4",
@@ -275,7 +281,7 @@ expectAssignable<KirbyFilesFieldProps>({
   size: "auto",
   store: "uuid",
   translate: false,
-  type: "files",
+  type: "filepicker",
   width: "1/1",
 });
 
@@ -300,7 +306,7 @@ expectAssignable<KirbyFilesFieldProps>({
   store: "uuid",
   text: "{{ file.filename }}",
   translate: false,
-  type: "files",
+  type: "filepicker",
   width: "1/1",
 });
 // #endregion
@@ -363,8 +369,10 @@ expectAssignable<KirbyStructureFieldProps>({
   },
   hidden: false,
   name: "items",
+  prepend: false,
   required: false,
   saveable: true,
+  sortable: true,
   translate: true,
   type: "structure",
   width: "1/1",
@@ -571,7 +579,7 @@ expectNotAssignable<KirbyTextFieldProps>({
   saveable: true,
   spellcheck: true,
   translate: true,
-  type: "number", // Should be text/textarea/slug/url/email/tel
+  type: "number",
   width: "1/1",
 });
 

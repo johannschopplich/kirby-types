@@ -54,7 +54,6 @@ export interface KirbyQuerySchema {
  */
 type KirbyQueryObjectAlias =
   | "blocks"
-  | "blueprint"
   | "content"
   | "field"
   | "files"

@@ -115,16 +115,12 @@ export interface PanelEventListeners<TEvents extends string = string> {
   /** Returns all registered listeners. */
   listeners: () => PanelEventListenerMap<TEvents>;
 
-  /**
-   * Removes the listener registered for `event`.
-   * @since 5.5.0
-   */
+  /** Removes the listener registered for `event`. */
   removeEventListener: (event: TEvents) => void;
 
   /**
    * Clears every registered listener. Called automatically when feature
    * state is replaced.
-   * @since 5.5.0
    */
   removeEventListeners: () => void;
 }
@@ -134,7 +130,8 @@ export interface PanelEventListeners<TEvents extends string = string> {
 
 /**
  * @source panel/src/panel/feature.ts
- * @source src/Panel/Json.php
+ * @source src/Panel/Response/JsonResponse.php
+ * @source src/Panel/State.php
  */
 export interface PanelFeatureDefaults {
   /** Current Vue component name to render. */
@@ -186,7 +183,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   /**
    * Controller for canceling the pending request, created anew on each
    * `load()` call; `undefined` until the first load.
-   * @since 5.1.0
    */
   abortController: AbortController | undefined;
 
@@ -196,7 +192,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    *
    * @param url - URL to fetch
    * @returns Response data or `false` on error
-   * @since 5.1.0
    */
   get: (
     url: string | URL,
@@ -261,7 +256,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 // #region Modal
 
 /**
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  * @source panel/src/panel/feature.ts
  */
 export type PanelModalEvent =
@@ -269,11 +264,11 @@ export type PanelModalEvent =
 
 /**
  * Bound listener functions returned by `modal.listeners()`.
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
-  close: (id?: string | true) => Promise<Record<string, any> | void>;
+  close: (id?: string | true) => Promise<void>;
   input: (value: any) => void;
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
   success: (response: PanelModalSubmitResponse | string) => any;
@@ -282,7 +277,7 @@ export interface PanelModalListeners {
 
 /**
  * Success response from modal submission.
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModalSubmitResponse {
   /** Text of the success notification. */
@@ -293,8 +288,8 @@ export interface PanelModalSubmitResponse {
   emit?: boolean;
   /** URL to navigate to. */
   route?: string | { url: string; options?: PanelRequestOptions };
-  /** Alternative to `route`; `false` when there is nowhere to go. */
-  redirect?: string | { url: string; options?: PanelRequestOptions } | false;
+  /** Alternative to `route`; `null` when there is nowhere to go. */
+  redirect?: string | { url: string; options?: PanelRequestOptions } | null;
   /**
    * Options for the view reload that follows when neither `route` nor
    * `redirect` is set. The view reloads either way.
@@ -305,8 +300,7 @@ export interface PanelModalSubmitResponse {
 
 /**
  * Feature shown as an overlay, such as `panel.dialog` and `panel.drawer`,
- * with history navigation, form handling, and open and close states. An
- * open modal manages document overflow and scroll position.
+ * with history navigation, form handling, and open and close states.
  *
  * @typeParam TDefaults - Shape of the modal's default state
  *
@@ -323,11 +317,11 @@ export interface PanelModalSubmitResponse {
  * panel.drawer.goTo("previous-drawer-id");
  * ```
  *
- * @source panel/src/panel/modal.js
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelModal<
   TDefaults extends object = PanelFeatureDefaults & { id: string | null },
-> extends Omit<PanelFeature<TDefaults>, "reload"> {
+> extends PanelFeature<TDefaults> {
   /**
    * Unique ID for identifying nested modals.
    * Auto-generated via UUID if not provided.
@@ -339,8 +333,8 @@ export interface PanelModal<
   /** State snapshots of nested modals, for back navigation. */
   history: PanelHistory;
 
-  /** Form value, read from `props.value`. */
-  readonly value: any;
+  /** Form value, read from `props.value`, or an empty object when unset. */
+  readonly value: Record<string, any>;
 
   /** Cancels the modal by emitting `"cancel"` and closing. */
   cancel: () => Promise<void>;
@@ -350,9 +344,8 @@ export interface PanelModal<
    * Reopens the previous modal when the history holds one.
    *
    * @param id - Specific modal ID, `true` to close all, or `undefined` for current
-   * @returns The previous modal's state, or `void`
    */
-  close: (id?: string | true) => Promise<TDefaults | void>;
+  close: (id?: string | true) => Promise<void>;
 
   /**
    * Focuses the given input, else the first autofocus element, input, or
@@ -387,7 +380,7 @@ export interface PanelModal<
   /**
    * Opens the modal by URL or state object.
    * Closes the current notification on first open and marks the modal
-   * as open once a component is set, which also blocks document overflow.
+   * as open once a component is set.
    *
    * @param options - Request options, or a function to register as the `submit` listener
    * @returns The modal's state after opening
@@ -400,9 +393,9 @@ export interface PanelModal<
   /**
    * Reloads the modal by closing it and re-opening its current URL.
    *
-   * @returns `false` if no path exists, otherwise `void` (the re-open is not awaited)
+   * @returns `false` if no path exists, otherwise the `open()` result
    */
-  reload: (options?: PanelRequestOptions) => Promise<false | void>;
+  reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
   /**
    * Sets modal state, auto-generating an ID if not provided.
@@ -417,9 +410,9 @@ export interface PanelModal<
    * loading.
    *
    * @param value - Form value (defaults to `props.value`)
-   * @returns The `submit` listener's result if one is registered, the
-   *   `close()` result without a path, `false` if the request fails, otherwise
-   *   the `success()` result; `undefined` while loading
+   * @returns The `submit` listener's result if one is registered, `false` if
+   *   the request fails, otherwise the `success()` result; `undefined` while
+   *   loading or when closing without a path
    */
   submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
 
@@ -429,7 +422,7 @@ export interface PanelModal<
    * the view. A registered `success` listener replaces all of this.
    *
    * @param success - Success response object or message string
-   * @returns The `success` listener's result if one is registered, otherwise the given response
+   * @returns The `success` listener's result if one is registered, `undefined` for a string message, otherwise the given response
    */
   success: (success: PanelModalSubmitResponse | string) => any;
 
@@ -527,7 +520,6 @@ export interface PanelHistory {
 
   /**
    * Returns `true` when more than one milestone is stored.
-   * @since 5.5.0
    */
   hasPrevious: () => boolean;
 
@@ -562,7 +554,7 @@ export interface PanelHistory {
 /**
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/feature.ts
- * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  */
 export interface PanelRequestOptions extends Omit<
   RequestInit,
@@ -574,8 +566,11 @@ export interface PanelRequestOptions extends Omit<
    * strings are sent as-is.
    */
   body?: string | FormData | HTMLFormElement | Record<string, any> | null;
-  /** Query parameters; `null` values are skipped. */
-  query?: Record<string, string | number | boolean | null>;
+  /**
+   * Query parameters. Nested objects become `parent[child]` keys; `null`
+   * removes the param, even one already in the URL.
+   */
+  query?: Record<string, any>;
   signal?: AbortSignal;
   /**
    * If `true`, `load()` skips setting the feature's `isLoading` state.
@@ -587,7 +582,6 @@ export interface PanelRequestOptions extends Omit<
    * Content language code sent as the `x-language` header. Defaults to the
    * current content language, so each browser tab keeps its own; an empty
    * value omits the header.
-   * @since 5.6.1
    */
   language?: string | null;
   /**
@@ -596,12 +590,12 @@ export interface PanelRequestOptions extends Omit<
    */
   csrf?: string | false;
   /**
-   * Globals sent as the `x-fiber-globals` header.
+   * Globals sent as the `x-panel-globals` header.
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
   /**
-   * Referrer path sent as the `x-fiber-referrer` header.
+   * Referrer path sent as the `x-panel-referrer` header.
    * Defaults to the current view path; `false` omits the header.
    */
   referrer?: string | false;
@@ -621,7 +615,7 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
 /**
  * Layer that is currently active, which decides where notifications appear
  * and which feature has focus.
- * @source panel/src/panel/panel.js
+ * @source panel/src/panel/panel.ts
  * @source panel/src/panel/notification.ts
  */
 export type PanelContext = "view" | "dialog" | "drawer";

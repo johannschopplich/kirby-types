@@ -10,7 +10,6 @@ import type {
   Dayjs,
   OptionType,
   PluginFunc,
-  UnitType,
   UnitTypeLong,
 } from "dayjs";
 
@@ -173,13 +172,13 @@ export interface PanelLibraryColors {
 export interface PanelDayjsPatternPart {
   index: number;
   /**
-   * Unit the part refers to; `undefined` for a segment that is not a
-   * supported token, e.g. `Do` or the empty segment between two separators.
+   * Unit the part refers to; `undefined` for a letter sequence that is not a
+   * supported token, e.g. `Do`.
    */
   unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
-  /** Start position in the pattern. */
+  /** Start position in the pattern, or in the rendered string when the parts are positioned against a datetime. */
   start: number;
-  /** End position (inclusive) in the pattern. */
+  /** End position (inclusive) in the pattern, or in the rendered string when the parts are positioned against a datetime. */
   end: number;
 }
 
@@ -188,16 +187,54 @@ export interface PanelDayjsPatternPart {
  * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsPattern {
-  pattern: string;
-  parts: PanelDayjsPatternPart[];
+  /** Display pattern the analyzer reads, empty when none is given. */
+  source: string;
+
+  /**
+   * Strings the pattern escapes and prints as they are,
+   * e.g. `["um"]` for `DD.MM.YYYY [um] HH:mm`.
+   */
+  readonly literals: string[];
+
+  /**
+   * Whether the pattern describes a date or a time: `time` when every unit
+   * it shows is a time unit, `date` otherwise, including for a pattern
+   * without any unit.
+   */
+  readonly type: "date" | "time";
+
+  /**
+   * Units the pattern is made up of, in the order they appear,
+   * e.g. `["month", "day", "year"]` for `MM/DD/YYYY`.
+   */
+  readonly units: NonNullable<PanelDayjsPatternPart["unit"]>[];
+
+  /**
+   * Returns the parts of the pattern, one per letter sequence.
+   *
+   * Without a valid datetime, the parts are positioned in the pattern itself.
+   * With one, they are positioned in the string the datetime renders into,
+   * as a token and what it prints can differ in width, e.g. `MMMM` printing
+   * `September`.
+   *
+   * @param dt - Datetime to position the parts against
+   */
+  parts: (dt?: Dayjs | null) => PanelDayjsPatternPart[];
+
   /**
    * Returns the part spanning a cursor position or selection range, falling
-   * back to the last part that starts at or before the selection.
+   * back to the last part that starts at or before the selection, then to the
+   * first part.
    *
    * @param end - End position (default: `start`)
-   * @returns Matching part, or `undefined` if no part starts at or before `start`
+   * @param dt - Datetime to position the parts against
+   * @returns Matching part, or `undefined` if the pattern has no parts
    */
-  at: (start: number, end?: number) => PanelDayjsPatternPart | undefined;
+  at: (
+    start: number,
+    end?: number,
+    dt?: Dayjs | null,
+  ) => PanelDayjsPatternPart | undefined;
 
   /**
    * Formats a datetime with this pattern.
@@ -211,7 +248,6 @@ export interface PanelDayjsPattern {
  * Kirby plugin extensions for dayjs instances.
  * @source panel/src/libraries/dayjs-iso.ts
  * @source panel/src/libraries/dayjs-validate.ts
- * @source panel/src/libraries/dayjs-merge.ts
  * @source panel/src/libraries/dayjs-round.ts
  */
 export interface PanelDayjsExtensions {
@@ -224,39 +260,22 @@ export interface PanelDayjsExtensions {
 
   /**
    * Validates the datetime against a lower or upper boundary, compared at
-   * the precision of `unit`.
+   * full precision.
    *
    * Returns `false` for an invalid datetime or a boundary that is not an ISO
    * string.
    *
    * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
    * @param type - `"min"` or `"max"` (default: `"min"`)
-   * @param unit - Comparison unit (default: `"day"`)
    * @returns Whether the datetime lies within the boundary
    */
-  validate: (
-    boundary?: string,
-    type?: "min" | "max",
-    unit?: UnitType,
-  ) => boolean;
-
-  /**
-   * Merges date or time parts from another dayjs instance.
-   *
-   * @param dt - Dayjs instance to merge from
-   * @param units - `"date"` (year, month, date), `"time"` (hour, minute, second), or an array of units (default: `"date"`)
-   * @returns New dayjs instance, or `this` if `dt` is missing or invalid
-   */
-  merge: (
-    dt: Dayjs | null | undefined,
-    units?: "date" | "time" | UnitType[],
-  ) => Dayjs & PanelDayjsExtensions;
+  validate: (boundary?: string, type?: "min" | "max") => boolean;
 
   /**
    * Rounds to the nearest step of a unit, e.g. to the nearest 15 minutes.
    *
    * `day` is read as `date`. All sub-units of the step unit are cleared,
-   * except milliseconds when rounding to `second`.
+   * down to the milliseconds.
    *
    * Only the next smaller unit is rounded, and it can carry over: `13:45`
    * rounded to a 4-hour step carries over to `14:00` first and lands on
@@ -264,7 +283,7 @@ export interface PanelDayjsExtensions {
    *
    * @param unit - Unit to round to (default: `"date"`)
    * @param size - Step size (default: `1`). Has to divide the unit evenly, e.g. `15` of 60 minutes; `date`, `month`, and `year` only take `1`.
-   * @throws If the unit is `millisecond` or the step size is not supported
+   * @throws If the unit or the step size is not supported
    */
   round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
 }
@@ -275,21 +294,52 @@ export interface PanelDayjsExtensions {
 export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
 
 /**
+ * @source panel/src/libraries/dayjs-parse.ts
+ */
+export interface PanelDayjsParseOptions {
+  /** Display pattern the input is matched against first, e.g. `DD.MM.YYYY`. */
+  pattern?: string;
+  /** Whether to skip the informed guesses when the input does not match the pattern exactly. */
+  strict?: boolean;
+  /** Datetime type to guess, the pattern's own type by default. `datetime` guesses like `date`. */
+  type?: "date" | "time" | "datetime";
+}
+
+/**
  * Kirby plugin extensions for the dayjs function (static methods).
- * @source panel/src/libraries/dayjs-interpret.ts
  * @source panel/src/libraries/dayjs-iso.ts
+ * @source panel/src/libraries/dayjs-parse.ts
  * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsStaticExtensions {
   /**
-   * Interprets a date or time typed in one of many human-readable formats.
+   * Parses input against a display pattern.
    *
-   * @param format - Whether to read a date or a time (default: `"date"`)
-   * @returns Dayjs instance, or `null` if no format matched
+   * Matches the pattern exactly first, which already reads digits typed
+   * without separators and localized month names and day periods. Unless
+   * `strict` is set, falls back to informed guesses: partial input or
+   * another unit order. Units the input leaves out are filled in: more
+   * significant ones from now, less significant ones with their minimum.
+   *
+   * @returns Dayjs instance, or `null` for empty input or when nothing matched
+   */
+  parse: (
+    input: string,
+    options?: PanelDayjsParseOptions,
+  ) => PanelDayjsInstance | null;
+
+  /**
+   * Parses input against a display pattern, falling back to informed guesses.
+   *
+   * @param format - Datetime type to read (default: `"date"`)
+   * @param pattern - Display pattern to match first
+   * @returns Dayjs instance, or `null` if nothing matched
+   * @deprecated Use `parse()` instead.
    */
   interpret: (
     input: string,
-    format?: "date" | "time",
+    format?: "date" | "time" | "datetime",
+    pattern?: string,
   ) => PanelDayjsInstance | null;
 
   /**
@@ -306,9 +356,9 @@ export interface PanelDayjsStaticExtensions {
   /**
    * Creates a pattern analyzer for date/time formatting.
    *
-   * @param pattern - Display pattern, e.g. `DD.MM.YYYY`
+   * @param pattern - Display pattern, e.g. `DD.MM.YYYY`. A missing pattern reads as an empty one.
    */
-  pattern: (pattern: string) => PanelDayjsPattern;
+  pattern: (pattern?: string | null) => PanelDayjsPattern;
 }
 
 /**
@@ -319,10 +369,11 @@ export interface PanelDayjsStaticExtensions {
  * const dt = this.$library.dayjs("2024-01-15");
  * const iso = dt.toISO("date"); // "2024-01-15"
  * const rounded = dt.round("minute", 15); // Round to 15-minute intervals
- * const parsed = this.$library.dayjs.interpret("Jan 15 2024", "date");
+ * const parsed = this.$library.dayjs.parse("15.01.2024", { pattern: "DD.MM.YYYY" });
  * ```
  *
  * @source panel/src/libraries/dayjs.ts
+ * @source panel/src/libraries/dayjs-locale.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   (date?: ConfigType): PanelDayjsInstance;
@@ -342,19 +393,21 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   extend: <T = unknown>(plugin: PluginFunc<T>, option?: T) => PanelLibraryDayjs;
 
   /**
-   * Activates or registers a locale and returns the active locale name. An
-   * unloaded `preset` with a region, such as `de-at`, falls back to its base
-   * locale and activates it, even with `isLocal` set.
+   * Activates or registers a locale and returns the active locale name.
+   *
+   * Also activates a locale by Kirby translation code, e.g. `pt_BR` or
+   * `sr@latin`, built from the browser's date data when dayjs has none
+   * registered. Falls back to `en` when the browser knows neither the
+   * full code nor its base language.
    *
    * @param object - Locale data to register under `preset`
    * @param isLocal - Whether to return the locale without activating it
-   * @returns `false` if `isLocal` is set and `preset`, without a region, names no loaded locale
    */
   locale: (
     preset?: string | ILocale,
     object?: Partial<ILocale>,
     isLocal?: boolean,
-  ) => string | false;
+  ) => string;
 
   /** Loaded locales, keyed by locale name. */
   Ls: Record<string, ILocale>;
