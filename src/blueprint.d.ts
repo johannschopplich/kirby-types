@@ -545,6 +545,7 @@ export interface KirbyEntriesFieldProps extends KirbyFieldProps {
 /**
  * Stats report item for the stats field.
  *
+ * @since 5.1.0
  * @source src/Panel/Ui/Stat.php
  */
 export interface KirbyStatsReport {
