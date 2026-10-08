@@ -16,6 +16,7 @@
  * - `arrayItem` – Current array item while options are built from a query.
  * - `structureItem` – Current structure entry while options are built from a query.
  * - `block` – Current block while options are built from a query.
+ * - `this` – The whole data context, for keys that are not valid identifiers, as in `this["my-key"]`.
  *
  * @example
  * ```ts
@@ -45,6 +46,7 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "arrayItem"
   | "structureItem"
   | "block"
+  | "this"
   | CustomModel;
 
 /**
@@ -69,7 +71,7 @@ type AccessibleQueryModel<M extends string = never> =
 type CallableQueryModel<M extends string = never> =
   | Exclude<
       KirbyQueryModel,
-      "model" | "item" | "arrayItem" | "structureItem" | "block"
+      "model" | "item" | "arrayItem" | "structureItem" | "block" | "this"
     >
   | M;
 
@@ -140,8 +142,8 @@ export type KirbyQueryChain<M extends string = never> =
  * A query is a type error unless it starts with a known root, alone or followed
  * by `.`, `?.`, `[`, `(`, or a spaced `??`, `?:`, or `?` – `!page.isListed`,
  * `page == site`, and `page??fallback` fail. `collection`, `t`, and `qr` only
- * work as calls; `model`, `item`, `arrayItem`, `structureItem`, and `block`
- * never take `(`. The rest of the chain is not checked.
+ * work as calls; `model`, `item`, `arrayItem`, `structureItem`, `block`, and
+ * `this` never take `(`. The rest of the chain is not checked.
  *
  * @example
  * ```ts
