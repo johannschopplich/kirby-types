@@ -205,7 +205,9 @@ type ParseQuerySegment<T extends string> =
 /**
  * Parses a Kirby Query Language (KQL) string into its root, returned as
  * `model` (e.g., `site`, `page`, `user`), and a `chain` of property accesses
- * and method calls. `?.` reads as `.` everywhere, inside method arguments too.
+ * and method calls. The chain splits at every dot, including dots inside method
+ * arguments other than the root call's, and `?.` reads as `.` everywhere, inside
+ * arguments too.
  *
  * @example
  * ```ts
@@ -252,27 +254,19 @@ export type ParseKirbyQuery<T extends string, M extends string = never> =
     : // Case 1: Bare root (e.g., `site`, `page`).
       T extends AccessibleQueryModel<M>
       ? { model: T; chain: [] }
-      : // Case 2: Dot notation (e.g., `page.children.listed`).
-        T extends `${infer Model}.${infer Chain}`
-        ? Model extends AccessibleQueryModel<M>
-          ? { model: Model; chain: ParseQueryChain<Chain> }
-          : never
-        : // Case 3: Method call only (e.g., `site("home")`).
-          T extends `${infer Model}(${infer Params})`
-          ? Model extends CallableQueryModel<M>
-            ? { model: Model; chain: [ParseQuerySegment<T>] }
-            : never
-          : // Case 4: Method call followed by chain (e.g., `site("home").children`)
-            T extends `${infer Model}(${infer Params})${infer Rest}`
-            ? Model extends CallableQueryModel<M>
-              ? Rest extends `.${infer Chain}`
-                ? {
-                    model: Model;
-                    chain: [
-                      ParseQuerySegment<`${Model}(${Params})`>,
-                      ...ParseQueryChain<Chain>,
-                    ];
-                  }
-                : never
-              : never
+      : // Case 2: Method call followed by a chain (e.g., `page("blog").children`).
+        T extends `${infer Model extends CallableQueryModel<M>}(${infer Params}).${infer Chain}`
+        ? {
+            model: Model;
+            chain: [
+              ParseQuerySegment<`${Model}(${Params})`>,
+              ...ParseQueryChain<Chain>,
+            ];
+          }
+        : // Case 3: Method call only (e.g., `page("blog")`).
+          T extends `${infer Model extends CallableQueryModel<M>}(${string})`
+          ? { model: Model; chain: [ParseQuerySegment<T>] }
+          : // Case 4: Dot notation (e.g., `page.children.listed`).
+            T extends `${infer Model extends AccessibleQueryModel<M>}.${infer Chain}`
+            ? { model: Model; chain: ParseQueryChain<Chain> }
             : never;
