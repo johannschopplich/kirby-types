@@ -507,7 +507,8 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
    */
   nodes?: string[] | boolean | Record<string, any>;
   spellcheck?: boolean;
-  toolbar?: Record<string, any>;
+  /** Toolbar options `inline`, `marks`, and `nodes`; a boolean has no effect. */
+  toolbar?: boolean | Record<string, any>;
 }
 
 /**
