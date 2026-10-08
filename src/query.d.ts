@@ -114,7 +114,7 @@ type OperatorQuery<M extends string = never> =
  * const methodQuery: KirbyQueryChain = "page.children.filterBy('featured', true)";
  *
  * // Function notation queries
- * const funcQuery: KirbyQueryChain = 'site("home")';
+ * const funcQuery: KirbyQueryChain = 'page("home")';
  * const mixedQuery: KirbyQueryChain = 'page("blog").children.sortBy("date")';
  *
  * // With custom roots
@@ -132,7 +132,7 @@ export type KirbyQueryChain<M extends string = never> =
  * accepts:
  * - Bare roots (e.g., `"site"`, `"page"`)
  * - Property chains (e.g., `"page.children.listed"`)
- * - Method calls (e.g., `'site("home")'`, `'page.filterBy("status", "published")'`)
+ * - Method calls (e.g., `'page("home")'`, `'page.children.filterBy("status", "listed")'`)
  * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`).
  *
  * An unknown root is a type error. `collection`, `t`, and `qr` only work as
@@ -144,8 +144,8 @@ export type KirbyQueryChain<M extends string = never> =
  * // Valid queries
  * const simpleQuery: KirbyQuery = "site";
  * const propertyQuery: KirbyQuery = "page.children.listed";
- * const methodQuery: KirbyQuery = 'page.filterBy("featured", true)';
- * const complexQuery: KirbyQuery = 'site("home").children.sortBy("date", "desc").limit(10)';
+ * const methodQuery: KirbyQuery = 'page.children.filterBy("featured", true)';
+ * const complexQuery: KirbyQuery = 'page("home").children.sortBy("date", "desc").limit(10)';
  *
  * // Custom roots
  * type MyRoots = "product" | "category";
@@ -154,7 +154,7 @@ export type KirbyQueryChain<M extends string = never> =
  * // Invalid queries (these will cause TypeScript errors)
  * // const invalid: KirbyQuery = "unknownRoot"; // ❌ Unknown root
  * // const invalid: KirbyQuery = "collection"; // ❌ Only works as a call
- * // const invalid: KirbyQuery<MyRoots> = "user"; // ❌ Not in custom roots
+ * // const invalid: KirbyQuery<MyRoots> = "brand"; // ❌ Not a built-in or custom root
  * ```
  *
  * @template CustomModel - Optional custom root names to include alongside built-in roots
@@ -237,10 +237,10 @@ type ParseQuerySegment<T extends string> =
  * // }
  *
  * // Method call query
- * type Method = ParseKirbyQuery<'site("home")'>;
+ * type Method = ParseKirbyQuery<'page("notes")'>;
  * // Result: {
- * //   model: "site";
- * //   chain: [{ type: "method"; name: "site"; params: '"home"' }]
+ * //   model: "page";
+ * //   chain: [{ type: "method"; name: "page"; params: '"notes"' }]
  * // }
  *
  * // Complex query with mixed property and method calls
