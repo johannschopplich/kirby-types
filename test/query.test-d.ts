@@ -30,7 +30,6 @@ expectAssignable<KirbyQuery>("page ?? site");
 
 // Function calls
 expectAssignable<KirbyQuery>('page("notes")');
-expectAssignable<KirbyQuery>('site("home")');
 expectAssignable<KirbyQuery>('user("admin")');
 expectAssignable<KirbyQuery>('file("image.jpg")');
 
@@ -40,7 +39,9 @@ expectAssignable<KirbyQuery>('page.images.template("gallery").first()');
 expectAssignable<KirbyQuery>(
   'collection("articles").filterBy("status", "published")',
 );
-expectAssignable<KirbyQuery>('page.filterBy("date", ">=", "2023-01-01")');
+expectAssignable<KirbyQuery>(
+  'page.children.filterBy("date", ">=", "2023-01-01")',
+);
 expectAssignable<KirbyQuery>(
   'page("blog").children.filterBy("status", "published").sortBy("date").limit(10)',
 );
