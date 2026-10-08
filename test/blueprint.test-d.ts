@@ -74,9 +74,16 @@ expectAssignable<KirbyFieldProps>({
   saveable: true,
   translate: false,
   type: "text",
-  value: "Current value",
   when: { status: "draft" },
   width: "1/1",
+});
+
+// Hidden field, which sends neither input nor layout props
+expectAssignable<KirbyFieldProps>({
+  hidden: true,
+  name: "id",
+  saveable: true,
+  type: "hidden",
 });
 // #endregion
 
@@ -99,6 +106,7 @@ expectAssignable<KirbyTextFieldProps>({
 
 expectAssignable<KirbyTextareaFieldProps>({
   autofocus: false,
+  buttons: true,
   counter: false,
   disabled: false,
   font: "monospace",
@@ -111,12 +119,12 @@ expectAssignable<KirbyTextareaFieldProps>({
   spellcheck: false,
   translate: false,
   type: "textarea",
-  value: "some-slug",
+  uploads: false,
   width: "1/2",
 });
 
 // All text-like types
-expectType<"text" | "slug" | "url" | "email" | "tel">(
+expectType<"text" | "slug" | "url" | "email" | "tel" | "password">(
   {} as KirbyTextFieldProps["type"],
 );
 // #endregion
@@ -147,7 +155,6 @@ expectAssignable<KirbyNumberFieldProps>({
   step: 0.01,
   translate: false,
   type: "number",
-  value: 49.99,
   width: "1/2",
 });
 // #endregion
@@ -183,12 +190,11 @@ expectAssignable<KirbyOptionsFieldProps>({
   saveable: true,
   translate: true,
   type: "checkboxes",
-  value: ["tag1", "tag2"],
   width: "1/1",
 });
 
 // All options types
-expectType<"select" | "radio" | "checkboxes" | "multiselect" | "toggles">(
+expectType<"select" | "radio" | "checkboxes" | "toggles">(
   {} as KirbyOptionsFieldProps["type"],
 );
 // #endregion
@@ -204,7 +210,6 @@ expectAssignable<KirbyToggleFieldProps>({
   saveable: true,
   translate: false,
   type: "toggle",
-  value: true,
   width: "1/4",
 });
 
@@ -218,7 +223,6 @@ expectAssignable<KirbyToggleFieldProps>({
   text: ["Inactive", "Active"],
   translate: false,
   type: "toggle",
-  value: false,
   width: "1/2",
 });
 // #endregion
@@ -228,10 +232,13 @@ expectAssignable<KirbyToggleFieldProps>({
 expectAssignable<KirbyDateFieldProps>({
   autofocus: false,
   disabled: false,
+  display: "YYYY-MM-DD",
+  format: "Y-m-d",
   hidden: false,
   name: "publishDate",
   required: false,
   saveable: true,
+  step: { size: 1, unit: "day" },
   translate: false,
   type: "date",
   width: "1/2",
@@ -242,6 +249,7 @@ expectAssignable<KirbyDateFieldProps>({
   calendar: true,
   disabled: false,
   display: "DD.MM.YYYY",
+  format: "Y-m-d",
   hidden: false,
   max: "2030-12-31",
   min: "2020-01-01",
@@ -249,10 +257,9 @@ expectAssignable<KirbyDateFieldProps>({
   required: true,
   saveable: true,
   step: { size: 1, unit: "day" },
-  time: true,
+  time: false,
   translate: false,
   type: "date",
-  value: "2024-06-15",
   width: "1/3",
 });
 // #endregion
@@ -263,12 +270,17 @@ expectAssignable<KirbyFilesFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  layout: "list",
+  link: true,
   multiple: true,
   name: "images",
   required: false,
   saveable: true,
+  search: true,
+  size: "auto",
+  store: "uuid",
   translate: false,
-  type: "files",
+  type: "filepicker",
   width: "1/1",
 });
 
@@ -279,6 +291,7 @@ expectAssignable<KirbyFilesFieldProps>({
   hidden: false,
   image: { cover: true },
   info: "{{ file.size }}",
+  layout: "list",
   link: true,
   max: 5,
   min: 1,
@@ -288,11 +301,11 @@ expectAssignable<KirbyFilesFieldProps>({
   required: true,
   saveable: true,
   search: true,
+  size: "auto",
   store: "uuid",
   text: "{{ file.filename }}",
   translate: false,
-  type: "files",
-  value: [{ id: "image.jpg", text: "image.jpg" }],
+  type: "filepicker",
   width: "1/1",
 });
 // #endregion
@@ -300,10 +313,14 @@ expectAssignable<KirbyFilesFieldProps>({
 // #region Color Field Props
 
 expectAssignable<KirbyColorFieldProps>({
+  alpha: false,
   autofocus: false,
   disabled: false,
+  format: "hex",
   hidden: false,
+  mode: "picker",
   name: "background",
+  options: [],
   required: false,
   saveable: true,
   translate: false,
@@ -324,7 +341,6 @@ expectAssignable<KirbyColorFieldProps>({
   saveable: true,
   translate: false,
   type: "color",
-  value: "hsl(0, 100%, 50%)",
   width: "1/2",
 });
 // #endregion
@@ -333,7 +349,10 @@ expectAssignable<KirbyColorFieldProps>({
 
 expectAssignable<KirbyStructureFieldProps>({
   autofocus: false,
+  batch: false,
+  columns: {},
   disabled: false,
+  duplicate: true,
   fields: {
     title: {
       autofocus: false,
@@ -349,8 +368,10 @@ expectAssignable<KirbyStructureFieldProps>({
   },
   hidden: false,
   name: "items",
+  prepend: false,
   required: false,
   saveable: true,
+  sortable: true,
   translate: true,
   type: "structure",
   width: "1/1",
@@ -391,11 +412,6 @@ expectAssignable<KirbyObjectFieldProps>({
   type: "object",
   width: "1/1",
 });
-
-// Object value can be empty string (Kirby quirk) or undefined.
-expectType<Record<string, any> | "" | undefined>(
-  {} as KirbyObjectFieldProps["value"],
-);
 // #endregion
 
 // #region Blocks Field Props
@@ -404,6 +420,7 @@ expectAssignable<KirbyBlocksFieldProps>({
   autofocus: false,
   disabled: false,
   fieldsets: {},
+  group: "blocks",
   hidden: false,
   name: "content",
   required: false,
@@ -427,6 +444,7 @@ expectAssignable<KirbyLayoutFieldProps>({
   autofocus: false,
   disabled: false,
   fieldsets: {},
+  group: "blocks",
   hidden: false,
   layouts: [["1/1"], ["1/2", "1/2"], ["1/3", "1/3", "1/3"]],
   name: "builder",
@@ -456,6 +474,7 @@ expectAssignable<KirbyWriterFieldProps>({
   autofocus: false,
   counter: false,
   disabled: false,
+  headings: [1, 2, 3, 4, 5, 6],
   hidden: false,
   inline: false,
   name: "text",
@@ -482,7 +501,6 @@ expectAssignable<KirbyWriterFieldProps>({
   saveable: true,
   translate: true,
   type: "writer",
-  value: "<p>Content</p>",
   width: "1/1",
 });
 // #endregion
@@ -541,7 +559,7 @@ expectAssignable<KirbyFieldsetGroup>({
 expectNotAssignable<KirbyFieldProps>({
   name: "title",
   type: "text",
-  // Missing: autofocus, disabled, hidden, required, saveable, translate, width
+  // Missing: hidden, saveable
 });
 
 // Wrong type literal
@@ -556,7 +574,7 @@ expectNotAssignable<KirbyTextFieldProps>({
   saveable: true,
   spellcheck: true,
   translate: true,
-  type: "number", // Should be text/textarea/slug/url/email/tel
+  type: "number",
   width: "1/1",
 });
 
