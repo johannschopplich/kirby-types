@@ -91,13 +91,22 @@ type FunctionNotationQuery<M extends string = never> =
   | `${CallableQueryModel<M>}(${string})${string}`;
 
 /**
- * Query that starts with a root and continues with property access or method
- * calls:
+ * Operator expression on a bare root, such as `root ?? fallback` or
+ * `root ? a : b`.
+ * @internal
+ */
+type OperatorQuery<M extends string = never> =
+  `${AccessibleQueryModel<M>} ${"??" | "?:" | "?"} ${string}`;
+
+/**
+ * Query that starts with a root and continues with property access, method
+ * calls, or an operator:
  *
  * - **Dot notation**: `root.property.method()` or `root?.property`.
  * - **Function calls**: `page(params)`, calling a global function or custom
  *   root.
  * - **Mixed chains**: `page(params).property.method()`.
+ * - **Operators**: `root ?? fallback`, `root ?: fallback`, or `root ? a : b`.
  *
  * @example
  * ```ts
@@ -117,7 +126,7 @@ type FunctionNotationQuery<M extends string = never> =
  * @template M - Optional custom root names to include in validation
  */
 export type KirbyQueryChain<M extends string = never> =
-  DotNotationQuery<M> | FunctionNotationQuery<M>;
+  DotNotationQuery<M> | FunctionNotationQuery<M> | OperatorQuery<M>;
 
 /**
  * Kirby Query Language (KQL) string, checked against the known roots. It
@@ -208,7 +217,9 @@ type ParseQuerySegment<T extends string> =
  * `model` (e.g., `site`, `page`, `user`), and a `chain` of property accesses
  * and method calls. The chain splits at every dot, including dots inside method
  * arguments other than the root call's, and `?.` reads as `.` everywhere, inside
- * arguments too.
+ * arguments too. Operators such as `??`, `?:`, and `? :` are not parsed: on a
+ * bare root the result is `never`; after a chain they stay inside the segment
+ * names, split at any dot they contain.
  *
  * @example
  * ```ts
