@@ -56,7 +56,7 @@ export interface KirbyLayoutColumn {
   id: string;
   /** Fraction of the row, `"1/1"` if unset. */
   width: KirbyLayoutColumnWidth;
-  blocks: KirbyBlock<string>[];
+  blocks: KirbyBlock[];
 }
 
 /**
