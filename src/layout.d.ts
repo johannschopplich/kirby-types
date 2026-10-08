@@ -54,9 +54,9 @@ export type KirbyLayoutColumnWidth =
 export interface KirbyLayoutColumn {
   /** UUID v4. */
   id: string;
-  /** Common values are `"1/1"`, `"1/2"`, `"1/3"`, and `"1/4"`. */
+  /** Fraction of the row, `"1/1"` if unset. */
   width: KirbyLayoutColumnWidth;
-  blocks: KirbyBlock[];
+  blocks: KirbyBlock<string>[];
 }
 
 /**
@@ -91,7 +91,7 @@ export interface KirbyLayoutColumn {
 export interface KirbyLayout {
   /** UUID v4. */
   id: string;
-  /** Custom attributes, or an empty array when none are set. */
-  attrs: Record<string, any> | string[];
+  /** Values of the layout's settings fields. */
+  attrs: Record<string, any>;
   columns: KirbyLayoutColumn[];
 }

@@ -216,16 +216,15 @@ export interface KirbyDefaultBlocks {
  */
 export interface KirbyBlock<
   T extends string = keyof KirbyDefaultBlocks,
-  U extends Record<string, any> | undefined = undefined,
+  U extends Record<string, any> = T extends keyof KirbyDefaultBlocks
+    ? KirbyDefaultBlocks[T]
+    : Record<string, any>,
 > {
   /**
-   * Content fields: `U` if given, else the default content of `T`, else empty.
+   * Content fields: `U` if given, else the default content of `T`, else any
+   * fields.
    */
-  content: U extends Record<string, any>
-    ? U
-    : T extends keyof KirbyDefaultBlocks
-      ? KirbyDefaultBlocks[T]
-      : Record<string, never>;
+  content: U;
   /** UUID v4. */
   id: string;
   /** Whether the block is hidden in the frontend output. */

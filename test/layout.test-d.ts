@@ -1,4 +1,5 @@
 // Tests representative core types for `src/layout.d.ts` – not exhaustive.
+import type { KirbyBlock } from "../src/blocks";
 import type {
   KirbyLayout,
   KirbyLayoutColumn,
@@ -38,6 +39,9 @@ expectAssignable<KirbyLayoutColumn>({
     },
   ],
 });
+
+// Default blocks fit a column too.
+expectAssignable<KirbyLayoutColumn["blocks"]>([{} as KirbyBlock<"text">]);
 
 expectAssignable<KirbyLayout>({
   id: "layout-1",

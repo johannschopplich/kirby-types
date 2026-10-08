@@ -175,8 +175,8 @@ expectType<{ videoId: number }>(
   {} as KirbyBlock<"video", { videoId: number }>["content"],
 );
 
-// Unknown block type returns empty content
-expectType<Record<string, never>>({} as KirbyBlock<"unknownType">["content"]);
+// Custom block type without a content shape takes any fields.
+expectType<Record<string, any>>({} as KirbyBlock<"unknownType">["content"]);
 // #endregion
 
 // #region Negative Tests
