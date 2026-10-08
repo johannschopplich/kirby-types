@@ -33,9 +33,9 @@ expectAssignable<KirbyLayoutColumn>({
   blocks: [
     {
       id: "block-1",
-      type: "text",
+      type: "custom",
       isHidden: false,
-      content: { text: "Hello world" },
+      content: { foo: "bar" },
     },
   ],
 });

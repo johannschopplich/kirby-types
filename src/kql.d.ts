@@ -50,6 +50,7 @@ export interface KirbyQuerySchema {
 /**
  * KQL alias of an object that a nested query can start at, besides the core
  * query roots.
+ * @internal
  */
 type KirbyQueryObjectAlias =
   | "blocks"
@@ -70,7 +71,7 @@ type KirbyQueryObjectAlias =
   | "version"
   | "versionId";
 
-/** Nested query in a selection. */
+/** @internal */
 interface KirbyQueryNestedRequest extends Omit<KirbyQueryRequest, "query"> {
   /**
    * Query whose result the selection applies to. Can also start at the parent

@@ -1,7 +1,10 @@
 /**
- * Response envelope of the Kirby API for the KQL endpoint `/api/query` and for errors.
+ * Response envelope of the Kirby API for the KQL endpoint `/api/query` and for
+ * errors.
  *
- * Model, collection and upload endpoints return their payload under `data`, not `result`. A failed upload returns `status` with `message` or `errors` but no `code`.
+ * Model, collection, and upload endpoints return their payload under `data`,
+ * not `result`. A file that fails to upload is reported under `message`, or
+ * under `errors` when several files were sent, with `status` but no `code`.
  *
  * @typeParam T - Type of the result data
  *
@@ -40,14 +43,16 @@
  */
 export interface KirbyApiResponse<T = any> {
   /**
-   * HTTP status code. An error whose code lies outside `400`–`599` is sent as HTTP `500` but keeps its own code here.
+   * HTTP status code. An error whose code lies outside `400`–`599` is sent as
+   * HTTP `500` but keeps its own code here.
    */
   code: number;
   status: "ok" | "error";
   /** Response data, present only on success. */
   result?: T;
   /**
-   * Error message. Outside debug mode, an unexpected PHP error carries a generic message instead of its own.
+   * Error message. Outside debug mode, an unexpected PHP error carries a
+   * generic message instead of its own.
    */
   message?: string;
   /**
@@ -69,6 +74,9 @@ export interface KirbyApiResponse<T = any> {
   file?: string;
   /** Line that threw the exception, present only in debug mode. */
   line?: number;
-  /** Route pattern that matched the request, present only in debug mode. */
+  /**
+   * Route pattern that matched the request, `null` without one, present only
+   * in debug mode.
+   */
   route?: string | null;
 }

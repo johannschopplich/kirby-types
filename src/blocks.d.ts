@@ -146,7 +146,8 @@ export interface KirbyDefaultBlocks {
   };
 
   /**
-   * Table block, not offered by default, with content from the blueprint extending it, typically a `rows` structure.
+   * Table block, not offered by default, whose content follows the blueprint
+   * that extends it, typically a `rows` structure.
    */
   table: Record<string, any>;
 

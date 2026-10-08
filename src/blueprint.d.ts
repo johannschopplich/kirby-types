@@ -349,6 +349,7 @@ export interface KirbyTagsSearch {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/tags
+ * @see https://getkirby.com/docs/reference/panel/fields/multiselect
  */
 export interface KirbyTagsFieldProps extends KirbyFieldProps {
   type: "tags" | "multiselect";
@@ -655,8 +656,9 @@ export interface KirbyFieldsetProps {
   /** Block type, e.g. `text`, `heading`, or `image`. */
   type: string;
   /**
-   * Whether the block is unavailable; set with `disabled` for a
-   * non-translatable block in a secondary language.
+   * Blueprint flag, forced to `true` together with `disabled` for a
+   * non-translatable block in a secondary language; the Panel acts on
+   * `disabled` only.
    */
   unset: boolean;
   /** Whether the block uses WYSIWYG editing. */
@@ -669,9 +671,9 @@ export interface KirbyFieldsetProps {
 export interface KirbyFieldsetTab {
   /** Field definitions in this tab. */
   fields: Record<string, KirbyFieldProps>;
-  /** Tab label; absent when the fieldset sets `fields` without tabs. */
+  /** Tab label; absent when the fieldset defines no `tabs`. */
   label?: string | null;
-  /** Tab identifier; absent when the fieldset sets `fields` without tabs. */
+  /** Tab identifier; absent when the fieldset defines no `tabs`. */
   name?: string;
 }
 

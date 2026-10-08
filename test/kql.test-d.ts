@@ -30,11 +30,22 @@ expectAssignable<KirbyQueryRequest>({
   },
 });
 
+// Nested query starting at a KQL object alias
+expectAssignable<KirbyQueryRequest>({
+  query: "page.layouts",
+  select: { columns: { query: "layout.columns", select: ["width"] } },
+});
+
 // Pagination
 expectAssignable<KirbyQueryRequest>({
   query: "site.children",
   select: { id: true, title: true },
   pagination: { limit: 10, page: 1 },
+});
+
+// Named queries
+expectAssignable<KirbyQueryRequest>({
+  queries: { site: "site", about: 'page("about")' },
 });
 
 // Response
@@ -50,10 +61,16 @@ expectAssignable<KirbyQueryResponse<KirbySite>>({
 expectAssignable<KirbyQueryResponse<never>>({
   code: 404,
   status: "error",
+  message: "not found",
 });
 // #endregion
 
 // #region Negative Tests
+
+expectNotAssignable<KirbyQueryResponse<never>>({
+  code: 404,
+  status: "Not Found",
+});
 
 expectNotAssignable<KirbyQueryRequest>({
   query: "site",

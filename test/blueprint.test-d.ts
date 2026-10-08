@@ -16,6 +16,7 @@ import type {
   KirbyObjectFieldProps,
   KirbyOption,
   KirbyOptionsFieldProps,
+  KirbyStatsFieldProps,
   KirbyStructureColumn,
   KirbyStructureFieldProps,
   KirbyTextareaFieldProps,
@@ -505,6 +506,11 @@ expectAssignable<KirbyWriterFieldProps>({
 });
 // #endregion
 
+// #region Stats Field Props
+
+expectAssignable<KirbyStatsFieldProps["size"]>("huge");
+// #endregion
+
 // #region Fieldset Props
 
 expectAssignable<KirbyFieldsetProps>({
@@ -559,7 +565,6 @@ expectAssignable<KirbyFieldsetGroup>({
 expectNotAssignable<KirbyFieldProps>({
   name: "title",
   type: "text",
-  // Missing: hidden, saveable
 });
 
 // Wrong type literal
