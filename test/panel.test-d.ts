@@ -1,6 +1,7 @@
 // Tests representative core types for `src/panel/` – not exhaustive.
 import type {
   Panel,
+  PanelApiRequestOptions,
   PanelConfig,
   PanelPermissions,
   PanelRequestResponse,
@@ -224,6 +225,9 @@ expectAssignable<Parameters<Panel["set"]>[0]>({
   notification: { message: "Saved" },
 });
 expectNotAssignable<Parameters<Panel["set"]>[0]>({ config: { debug: true } });
+expectType<PanelApiRequestOptions | undefined>(
+  {} as Parameters<PanelApi["get"]>[2],
+);
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
