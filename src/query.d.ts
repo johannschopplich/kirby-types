@@ -1,7 +1,7 @@
 /**
- * Model name a query starts from: a built-in Kirby model or a custom one.
+ * Root a query starts from: a built-in Kirby root or a custom one.
  *
- * Built-in models:
+ * Built-in roots:
  * - `site` – The site object.
  * - `page` – A page object.
  * - `user` – A user object.
@@ -16,16 +16,16 @@
  *
  * @example
  * ```ts
- * // Using built-in models
- * const siteModel: KirbyQueryModel = "site";
- * const pageModel: KirbyQueryModel = "page";
+ * // Built-in roots
+ * const siteRoot: KirbyQueryModel = "site";
+ * const pageRoot: KirbyQueryModel = "page";
  *
- * // Using with custom models
- * type CustomModels = "product" | "category";
- * const customModel: KirbyQueryModel<CustomModels> = "product";
+ * // Custom roots
+ * type CustomRoots = "product" | "category";
+ * const customRoot: KirbyQueryModel<CustomRoots> = "product";
  * ```
  *
- * @template CustomModel - Additional custom model names to include
+ * @template CustomModel - Additional custom root names to include
  */
 export type KirbyQueryModel<CustomModel extends string = never> =
   | "collection"
@@ -42,14 +42,14 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | CustomModel;
 
 /**
- * Dot notation query, such as `model.property.method`.
+ * Dot notation query, such as `root.property.method`.
  * @internal
  */
 type DotNotationQuery<M extends string = never> =
   `${KirbyQueryModel<M>}.${string}`;
 
 /**
- * Function notation query, such as `model(params)` or `model(params).chain`.
+ * Function notation query, such as `root(params)` or `root(params).chain`.
  * @internal
  */
 type FunctionNotationQuery<M extends string = never> =
@@ -57,12 +57,12 @@ type FunctionNotationQuery<M extends string = never> =
   | `${KirbyQueryModel<M>}(${string})${string}`;
 
 /**
- * Query that starts with a model and continues with property access or method
+ * Query that starts with a root and continues with property access or method
  * calls:
  *
- * - **Dot notation**: `model.property.method()`
- * - **Function calls**: `model(params)`
- * - **Mixed chains**: `model(params).property.method()`
+ * - **Dot notation**: `root.property.method()`
+ * - **Function calls**: `root(params)`
+ * - **Mixed chains**: `root(params).property.method()`
  *
  * @example
  * ```ts
@@ -74,26 +74,25 @@ type FunctionNotationQuery<M extends string = never> =
  * const funcQuery: KirbyQueryChain = 'site("home")';
  * const mixedQuery: KirbyQueryChain = 'page("blog").children.sortBy("date")';
  *
- * // With custom models
- * type CustomModels = "product" | "category";
- * const customQuery: KirbyQueryChain<CustomModels> = "product.price";
+ * // With custom roots
+ * type CustomRoots = "product" | "category";
+ * const customQuery: KirbyQueryChain<CustomRoots> = "product.price";
  * ```
  *
- * @template M - Optional custom model names to include in validation
+ * @template M - Optional custom root names to include in validation
  */
 export type KirbyQueryChain<M extends string = never> =
   DotNotationQuery<M> | FunctionNotationQuery<M>;
 
 /**
- * Kirby Query Language (KQL) string, checked against the known models. It
+ * Kirby Query Language (KQL) string, checked against the known roots. It
  * accepts:
- * - Simple model names (e.g., `"site"`, `"page"`)
+ * - Bare roots (e.g., `"site"`, `"page"`)
  * - Property chains (e.g., `"page.children.listed"`)
  * - Method calls (e.g., `'site("home")'`, `'page.filterBy("status", "published")'`)
  * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`).
  *
- * A query whose root is not a known model is a type error; the rest of the
- * chain is not checked.
+ * An unknown root is a type error; the rest of the chain is not checked.
  *
  * @example
  * ```ts
@@ -103,16 +102,16 @@ export type KirbyQueryChain<M extends string = never> =
  * const methodQuery: KirbyQuery = 'page.filterBy("featured", true)';
  * const complexQuery: KirbyQuery = 'site("home").children.sortBy("date", "desc").limit(10)';
  *
- * // Custom models
- * type MyModels = "product" | "category";
- * const customQuery: KirbyQuery<MyModels> = "product.price";
+ * // Custom roots
+ * type MyRoots = "product" | "category";
+ * const customQuery: KirbyQuery<MyRoots> = "product.price";
  *
  * // Invalid queries (these will cause TypeScript errors)
- * // const invalid: KirbyQuery = "unknownModel"; // ❌ Unknown model
- * // const invalid: KirbyQuery<MyModels> = "user"; // ❌ Not in custom models
+ * // const invalid: KirbyQuery = "unknownRoot"; // ❌ Unknown root
+ * // const invalid: KirbyQuery<MyRoots> = "user"; // ❌ Not in custom roots
  * ```
  *
- * @template CustomModel - Optional custom model names to include alongside built-in models
+ * @template CustomModel - Optional custom root names to include alongside built-in roots
  */
 export type KirbyQuery<CustomModel extends string = never> =
   | KirbyQueryModel<CustomModel>
@@ -167,12 +166,13 @@ type ParseQuerySegment<T extends string> =
       };
 
 /**
- * Parses a Kirby Query Language (KQL) string into its root `model` (e.g.,
- * `site`, `page`, `user`) and a `chain` of property accesses and method calls.
+ * Parses a Kirby Query Language (KQL) string into its root, returned as
+ * `model` (e.g., `site`, `page`, `user`), and a `chain` of property accesses
+ * and method calls.
  *
  * @example
  * ```ts
- * // Basic model query
+ * // Bare root query
  * type Basic = ParseKirbyQuery<"site">;
  * // Result: { model: "site"; chain: [] }
  *
@@ -206,10 +206,10 @@ type ParseQuerySegment<T extends string> =
  * ```
  *
  * @template T - The query string to parse
- * @template M - Optional custom model names to include in validation
+ * @template M - Optional custom root names to include in validation
  */
 export type ParseKirbyQuery<T extends string, M extends string = never> =
-  // Case 1: Simple model name (e.g., `site`, `page`).
+  // Case 1: Bare root (e.g., `site`, `page`).
   T extends KirbyQueryModel<M>
     ? { model: T; chain: [] }
     : // Case 2: Dot notation (e.g., `page.children.listed`).

@@ -4,7 +4,7 @@ import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Query Validation
 
-// Basic model names
+// Bare roots
 expectAssignable<KirbyQuery>("site");
 expectAssignable<KirbyQuery>("page");
 expectAssignable<KirbyQuery>("user");
@@ -39,7 +39,7 @@ expectAssignable<KirbyQuery>(
   'page("blog").children.filterBy("status", "published").sortBy("date").limit(10)',
 );
 
-// Custom models
+// Custom roots
 expectAssignable<KirbyQuery<"customModel">>("customModel");
 expectAssignable<KirbyQuery<"customModel">>("customModel.cover");
 expectAssignable<KirbyQuery<"product" | "category">>("product.price");
