@@ -40,7 +40,9 @@ export interface KirbyOption {
 /**
  * Props of a field as the backend sends them; the field-specific types extend
  * them. Input fields always send `autofocus`, `disabled`, `required`, and
- * `translate`; other fields omit them, but receive `disabled` when locked.
+ * `translate`; other fields omit them, but receive `disabled` when the current
+ * user may not update the model or the field is not translatable into the
+ * current language.
  *
  * @example
  * ```ts
