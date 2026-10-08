@@ -23,6 +23,7 @@ expectAssignable<KirbyQuery>("page.slug");
 expectAssignable<KirbyQuery>("user.email");
 expectAssignable<KirbyQuery>("file.url");
 expectAssignable<KirbyQuery>("kirby.version");
+expectAssignable<KirbyQuery>("page?.title");
 
 // Function calls
 expectAssignable<KirbyQuery>('page("notes")');

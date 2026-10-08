@@ -74,11 +74,12 @@ type CallableQueryModel<M extends string = never> =
   | M;
 
 /**
- * Dot notation query, such as `root.property.method`.
+ * Dot notation query, such as `root.property.method` or `root?.property`.
  * @internal
  */
 type DotNotationQuery<M extends string = never> =
-  `${AccessibleQueryModel<M>}.${string}`;
+  | `${AccessibleQueryModel<M>}.${string}`
+  | `${AccessibleQueryModel<M>}?.${string}`;
 
 /**
  * Function notation query, such as `page(params)` or `page(params).chain`.
@@ -92,7 +93,7 @@ type FunctionNotationQuery<M extends string = never> =
  * Query that starts with a root and continues with property access or method
  * calls:
  *
- * - **Dot notation**: `root.property.method()`.
+ * - **Dot notation**: `root.property.method()` or `root?.property`.
  * - **Function calls**: `page(params)`, calling a global function or custom
  *   root.
  * - **Mixed chains**: `page(params).property.method()`.
@@ -204,7 +205,7 @@ type ParseQuerySegment<T extends string> =
 /**
  * Parses a Kirby Query Language (KQL) string into its root, returned as
  * `model` (e.g., `site`, `page`, `user`), and a `chain` of property accesses
- * and method calls.
+ * and method calls. `?.` reads as `.` everywhere, inside method arguments too.
  *
  * @example
  * ```ts
@@ -245,30 +246,33 @@ type ParseQuerySegment<T extends string> =
  * @template M - Optional custom root names to include in validation
  */
 export type ParseKirbyQuery<T extends string, M extends string = never> =
-  // Case 1: Bare root (e.g., `site`, `page`).
-  T extends AccessibleQueryModel<M>
-    ? { model: T; chain: [] }
-    : // Case 2: Dot notation (e.g., `page.children.listed`).
-      T extends `${infer Model}.${infer Chain}`
-      ? Model extends AccessibleQueryModel<M>
-        ? { model: Model; chain: ParseQueryChain<Chain> }
-        : never
-      : // Case 3: Method call only (e.g., `site("home")`).
-        T extends `${infer Model}(${infer Params})`
-        ? Model extends CallableQueryModel<M>
-          ? { model: Model; chain: [ParseQuerySegment<T>] }
+  // Case 0: Null-safe access parses like a dot (e.g., `page?.title`).
+  T extends `${infer Head}?.${infer Tail}`
+    ? ParseKirbyQuery<`${Head}.${Tail}`, M>
+    : // Case 1: Bare root (e.g., `site`, `page`).
+      T extends AccessibleQueryModel<M>
+      ? { model: T; chain: [] }
+      : // Case 2: Dot notation (e.g., `page.children.listed`).
+        T extends `${infer Model}.${infer Chain}`
+        ? Model extends AccessibleQueryModel<M>
+          ? { model: Model; chain: ParseQueryChain<Chain> }
           : never
-        : // Case 4: Method call followed by chain (e.g., `site("home").children`)
-          T extends `${infer Model}(${infer Params})${infer Rest}`
+        : // Case 3: Method call only (e.g., `site("home")`).
+          T extends `${infer Model}(${infer Params})`
           ? Model extends CallableQueryModel<M>
-            ? Rest extends `.${infer Chain}`
-              ? {
-                  model: Model;
-                  chain: [
-                    ParseQuerySegment<`${Model}(${Params})`>,
-                    ...ParseQueryChain<Chain>,
-                  ];
-                }
-              : never
+            ? { model: Model; chain: [ParseQuerySegment<T>] }
             : never
-          : never;
+          : // Case 4: Method call followed by chain (e.g., `site("home").children`)
+            T extends `${infer Model}(${infer Params})${infer Rest}`
+            ? Model extends CallableQueryModel<M>
+              ? Rest extends `.${infer Chain}`
+                ? {
+                    model: Model;
+                    chain: [
+                      ParseQuerySegment<`${Model}(${Params})`>,
+                      ...ParseQueryChain<Chain>,
+                    ];
+                  }
+                : never
+              : never
+            : never;
