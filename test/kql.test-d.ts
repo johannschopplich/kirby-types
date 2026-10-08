@@ -59,11 +59,17 @@ expectNotAssignable<KirbyQueryRequest>({
   query: "site",
   select: {
     children: {
-      query: "some.children", // Invalid query model
+      query: "some.children", // Invalid query root
       select: { id: true },
     },
   },
-});
+} as const);
+
+// An alias takes no call.
+expectNotAssignable<KirbyQueryRequest>({
+  query: "page.layouts",
+  select: { columns: { query: 'layout("x")', select: { width: true } } },
+} as const);
 
 expectNotAssignable<KirbyQueryRequest>({
   query: "site",
@@ -73,5 +79,5 @@ expectNotAssignable<KirbyQueryRequest>({
       select: { id: null }, // null is not allowed
     },
   },
-});
+} as const);
 // #endregion
