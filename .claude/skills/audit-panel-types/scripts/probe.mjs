@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Probe the live Kirby checkout and write a fresh source map to
-// <KIRBY_TYPES_ROOT>/.review/source-map.json (creating .review/.raw/ for pass 1).
+// <KIRBY_TYPES_ROOT>/.review/source-map.json (emptying .review/.raw/ for pass 1).
 // Volatile facts are discovered here, so topology.md holds only stable ones.
 //
 // Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
@@ -254,7 +254,9 @@ if (unowned.length > 0) {
   );
 }
 
-fs.mkdirSync(path.join(TYPES, ".review", ".raw"), { recursive: true });
+const rawDir = path.join(TYPES, ".review", ".raw");
+fs.rmSync(rawDir, { recursive: true, force: true });
+fs.mkdirSync(rawDir, { recursive: true });
 fs.writeFileSync(
   path.join(TYPES, ".review", "source-map.json"),
   JSON.stringify(
