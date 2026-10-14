@@ -71,7 +71,10 @@ export interface KirbyFieldProps {
   autofocus?: boolean;
   /** Text shown before the input. */
   before?: string;
-  /** Default value for new content. */
+  /**
+   * Default value for new content; sent only for fields in a structure,
+   * object, or fieldset, and in the create dialog.
+   */
   default?: any;
   disabled?: boolean;
   /** Help text below the field, rendered from KirbyText to HTML. */
