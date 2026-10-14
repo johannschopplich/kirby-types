@@ -30,6 +30,11 @@ import type {
   PanelUser,
   PanelUserDefaults,
 } from "../src/panel/features";
+import type {
+  PanelHelpersPage,
+  PanelPageStatusFlag,
+  PanelPageStatusProps,
+} from "../src/panel/helpers";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Configuration
@@ -268,4 +273,13 @@ interface ArticleContent {
 declare const article: PanelModelData<ArticleContent>;
 expectType<string>(article.content.text);
 expectType<string>(article.content.author);
+// #endregion
+
+// #region Page Helpers
+
+expectAssignable<PanelPageStatusProps["theme"]>("notice-icon");
+expectNotAssignable<PanelPageStatusProps["theme"]>("notice");
+expectAssignable<Parameters<PanelHelpersPage["status"]>[2]>(
+  {} as PanelPageStatusFlag,
+);
 // #endregion

@@ -87,7 +87,7 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 
 ### `helpers-data`
 
-- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps
+- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
 - **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), **(K6 line)** `items`
 - **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index}`, **(K6 line)** `panel/src/helpers/items`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 

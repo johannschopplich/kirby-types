@@ -596,11 +596,24 @@ export interface PanelHelpersLink {
 export interface PanelPageStatusProps {
   title: string;
   icon: string;
-  theme: "negative-icon" | "info-icon" | "positive-icon";
+  theme: `${string}-icon`;
   disabled: boolean;
   size: string;
   /** Inline CSS declarations. */
   style: string;
+}
+
+/**
+ * Icon, label, and theme a page blueprint sets for a status, each replacing
+ * the status default.
+ *
+ * @since 5.7.0
+ * @source panel/src/helpers/page.ts
+ */
+export interface PanelPageStatusFlag {
+  icon?: string | null;
+  label?: string | null;
+  theme?: string | null;
 }
 
 /**
@@ -613,8 +626,13 @@ export interface PanelHelpersPage {
    * @param status - Page status (`"draft"`, `"unlisted"`, `"listed"`)
    * @param disabled - Whether the button is disabled; also appends the
    *   translated `disabled` label to the title
+   * @param flag - Blueprint overrides for the status icon, label, and theme
    */
-  status: (status: string, disabled?: boolean) => PanelPageStatusProps;
+  status: (
+    status: string,
+    disabled?: boolean,
+    flag?: PanelPageStatusFlag,
+  ) => PanelPageStatusProps;
 }
 // #endregion
 
