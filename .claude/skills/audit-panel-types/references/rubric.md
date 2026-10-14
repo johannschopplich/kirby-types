@@ -25,7 +25,7 @@ PHP is the response-shape contract for everything Features render. Panel TS is t
 
 Panel TS is **evidence-strength, not absolute**. PHP overrules it when they disagree:
 
-- `PanelSystem.csrf` – the Panel TS types `string | null`, PHP `csrfFromSession()` always returns `string`. Keep `string`.
+- **(main)** `PanelSystem.csrf` – the Panel TS types `string | null`, PHP `csrfFromSession()` always returns `string`. Keep `string`.
 - `PanelSystem.slugs` – the Panel TS types `string[]`, PHP emits `Record<string, string>`. Keep the record.
 
 ## Anti-pattern: defaults-as-runtime fallacy
