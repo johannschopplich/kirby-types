@@ -100,10 +100,16 @@ export interface WriterEditor {
   // #region Properties
 
   activeMarks: string[];
-  /** Currently active mark attributes by mark name. */
+  /**
+   * Attributes of every schema mark, keyed by name; `{}` for a mark the
+   * selection lacks.
+   */
   activeMarkAttrs: Record<string, Record<string, any>>;
   activeNodes: string[];
-  /** Currently active node attributes by node name. */
+  /**
+   * Attributes of every schema node, keyed by name; `{}` for a node the
+   * selection lacks.
+   */
   activeNodeAttrs: Record<string, Record<string, any>>;
   /**
    * Commands from all extensions, keyed by command name. Each focuses the
@@ -673,6 +679,9 @@ export interface WriterExtension {
  * Marks are inline formatting such as bold, italic, or links, registered
  * through `window.panel.plugin("name", { writerMarks: { ... } })`.
  *
+ * Getters in the definition run with `this` bound to the definition itself,
+ * so `this.name`, `this.editor`, and `this.options` are unset there.
+ *
  * @example
  * ```js
  * window.panel.plugin("my-plugin", {
@@ -894,6 +903,11 @@ export interface WriterMarkExtension {
  *
  * Nodes are block-level or inline elements such as headings, lists, or images,
  * registered through `window.panel.plugin("name", { writerNodes: { ... } })`.
+ * A writer field installs one only when its `nodes` setting names it or is
+ * `true`.
+ *
+ * Getters in the definition run with `this` bound to the definition itself,
+ * so `this.name`, `this.editor`, and `this.options` are unset there.
  *
  * @example
  * ```js
@@ -945,7 +959,8 @@ export interface WriterNodeExtension {
   editor?: WriterEditor;
 
   /**
-   * Merged extension options from `defaults` and constructor options.
+   * Options merged from `defaults` and the node's object entry in the field's
+   * `nodes` setting.
    *
    * Only built-in nodes are constructed. A node registered through
    * `writerNodes` is created without its constructor, so this stays unset
