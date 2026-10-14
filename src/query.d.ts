@@ -32,7 +32,7 @@
  * @template CustomModel - Additional custom root names to include
  *
  * @source src/Query/Query.php
- * @source src/Query/Segment.php
+ * @source src/Query/Runners/Scope.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Option/OptionsQuery.php
  * @source src/Option/OptionsApi.php
@@ -134,9 +134,8 @@ type OperatorQuery<M extends string = never> =
  *
  * @template M - Optional custom root names to include in validation
  *
- * @source src/Query/Expression.php
- * @source src/Query/Segments.php
- * @source src/Query/Segment.php
+ * @source src/Query/Parser/Parser.php
+ * @source src/Query/Parser/Tokenizer.php
  */
 export type KirbyQueryChain<M extends string = never> =
   DotNotationQuery<M> | FunctionNotationQuery<M> | OperatorQuery<M>;
