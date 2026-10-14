@@ -60,6 +60,8 @@ export interface KirbyOption {
  * ```
  *
  * @source src/Form/Field.php
+ * @source src/Form/FieldClass.php
+ * @source src/Form/Fields.php
  */
 export interface KirbyFieldProps {
   /** Text shown after the input. */
@@ -102,6 +104,11 @@ export interface KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/text
+ * @source config/fields/text.php
+ * @source config/fields/slug.php
+ * @source config/fields/url.php
+ * @source config/fields/email.php
+ * @source config/fields/tel.php
  */
 export interface KirbyTextFieldProps extends KirbyFieldProps {
   type: "text" | "slug" | "url" | "email" | "tel";
@@ -135,6 +142,8 @@ export interface KirbyTextFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/textarea
+ * @source config/fields/textarea.php
+ * @source config/fields/mixins/upload.php
  */
 export interface KirbyTextareaFieldProps extends KirbyFieldProps {
   type: "textarea";
@@ -161,6 +170,7 @@ export interface KirbyTextareaFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/number
+ * @source config/fields/number.php
  */
 export interface KirbyNumberFieldProps extends KirbyFieldProps {
   type: "number";
@@ -172,6 +182,12 @@ export interface KirbyNumberFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/select
+ * @source config/fields/select.php
+ * @source config/fields/radio.php
+ * @source config/fields/checkboxes.php
+ * @source config/fields/toggles.php
+ * @source config/fields/mixins/options.php
+ * @source config/fields/mixins/min.php
  */
 export interface KirbyOptionsFieldProps extends KirbyFieldProps {
   type: "select" | "radio" | "checkboxes" | "toggles";
@@ -198,6 +214,7 @@ export interface KirbyOptionsFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/toggle
+ * @source config/fields/toggle.php
  */
 export interface KirbyToggleFieldProps extends KirbyFieldProps {
   type: "toggle";
@@ -207,6 +224,9 @@ export interface KirbyToggleFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/date
+ * @source config/fields/date.php
+ * @source config/fields/time.php
+ * @source config/fields/mixins/datetime.php
  */
 export interface KirbyDateFieldProps extends KirbyFieldProps {
   type: "date" | "time";
@@ -232,6 +252,12 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
 
 /**
  * Picker item data as returned by the Panel API.
+ *
+ * @source src/Panel/Ui/Item/ModelItem.php
+ * @source src/Panel/File.php
+ * @source src/Panel/Page.php
+ * @source src/Panel/User.php
+ * @source config/fields/mixins/picker.php
  */
 export interface KirbyPickerItem {
   /**
@@ -264,6 +290,13 @@ export interface KirbyPickerItem {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/files
+ * @source config/fields/files.php
+ * @source config/fields/pages.php
+ * @source config/fields/users.php
+ * @source config/fields/mixins/picker.php
+ * @source config/fields/mixins/layout.php
+ * @source config/fields/mixins/upload.php
+ * @source config/fields/mixins/min.php
  */
 export interface KirbyFilesFieldProps extends KirbyFieldProps {
   type: "files" | "pages" | "users";
@@ -309,6 +342,8 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
 
 /**
  * Color option for the color field.
+ *
+ * @source config/fields/color.php
  */
 export interface KirbyColorOption {
   /** Color value (hex, rgb, or hsl). */
@@ -319,6 +354,7 @@ export interface KirbyColorOption {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/color
+ * @source config/fields/color.php
  */
 export interface KirbyColorFieldProps extends KirbyFieldProps {
   type: "color";
@@ -333,6 +369,8 @@ export interface KirbyColorFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/range
+ * @source config/fields/range.php
+ * @source config/fields/number.php
  */
 export interface KirbyRangeFieldProps extends KirbyFieldProps {
   type: "range";
@@ -347,6 +385,8 @@ export interface KirbyRangeFieldProps extends KirbyFieldProps {
 
 /**
  * Search configuration for tags field.
+ *
+ * @source panel/src/components/Forms/Input/PicklistInput.vue
  */
 export interface KirbyTagsSearch {
   /** Maximum items to display in dropdown. */
@@ -365,6 +405,10 @@ export interface KirbyTagsSearch {
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/tags
  * @see https://getkirby.com/docs/reference/panel/fields/multiselect
+ * @source config/fields/tags.php
+ * @source config/fields/multiselect.php
+ * @source config/fields/mixins/options.php
+ * @source config/fields/mixins/min.php
  */
 export interface KirbyTagsFieldProps extends KirbyFieldProps {
   type: "tags" | "multiselect";
@@ -388,6 +432,7 @@ export interface KirbyTagsFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/link
+ * @source config/fields/link.php
  */
 export interface KirbyLinkFieldProps extends KirbyFieldProps {
   type: "link";
@@ -397,6 +442,8 @@ export interface KirbyLinkFieldProps extends KirbyFieldProps {
 
 /**
  * Column definition for structure field table display.
+ *
+ * @source config/fields/structure.php
  */
 export interface KirbyStructureColumn {
   label: string;
@@ -414,6 +461,8 @@ export interface KirbyStructureColumn {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/structure
+ * @source config/fields/structure.php
+ * @source config/fields/mixins/min.php
  */
 export interface KirbyStructureFieldProps extends KirbyFieldProps {
   type: "structure";
@@ -447,6 +496,7 @@ export interface KirbyStructureFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/object
+ * @source config/fields/object.php
  */
 export interface KirbyObjectFieldProps extends KirbyFieldProps {
   type: "object";
@@ -458,6 +508,7 @@ export interface KirbyObjectFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/blocks
+ * @source src/Form/Field/BlocksField.php
  */
 export interface KirbyBlocksFieldProps extends KirbyFieldProps {
   type: "blocks";
@@ -476,6 +527,8 @@ export interface KirbyBlocksFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/layout
+ * @source src/Form/Field/LayoutField.php
+ * @source src/Form/Field/BlocksField.php
  */
 export interface KirbyLayoutFieldProps extends KirbyFieldProps {
   type: "layout";
@@ -503,6 +556,7 @@ export interface KirbyLayoutFieldProps extends KirbyFieldProps {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/writer
+ * @source config/fields/writer.php
  */
 export interface KirbyWriterFieldProps extends KirbyFieldProps {
   type: "writer";
@@ -536,6 +590,7 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
  *
  * @since 5.0.0
  * @see https://getkirby.com/docs/reference/panel/fields/entries
+ * @source src/Form/Field/EntriesField.php
  */
 export interface KirbyEntriesFieldProps extends KirbyFieldProps {
   type: "entries";
@@ -578,6 +633,8 @@ export interface KirbyStatsReport {
  *
  * @since 5.1.0
  * @see https://getkirby.com/docs/reference/panel/fields/stats
+ * @source src/Form/Field/StatsField.php
+ * @source src/Panel/Ui/Stats.php
  */
 export interface KirbyStatsFieldProps extends KirbyFieldProps {
   type: "stats";
@@ -592,6 +649,8 @@ export interface KirbyStatsFieldProps extends KirbyFieldProps {
 
 /**
  * Block value as stored in content.
+ *
+ * @source src/Cms/Block.php
  */
 export interface KirbyBlockValue {
   /** Values of the block's fields. */
@@ -605,6 +664,8 @@ export interface KirbyBlockValue {
 
 /**
  * Layout column value as stored in content.
+ *
+ * @source src/Cms/LayoutColumn.php
  */
 export interface KirbyLayoutColumnValue {
   blocks: KirbyBlockValue[];
@@ -616,6 +677,8 @@ export interface KirbyLayoutColumnValue {
 
 /**
  * Layout value as stored in content.
+ *
+ * @source src/Cms/Layout.php
  */
 export interface KirbyLayoutValue {
   /** Values of the layout's settings fields. */
@@ -687,6 +750,8 @@ export interface KirbyFieldsetProps {
 
 /**
  * Tab within a fieldset.
+ *
+ * @source src/Cms/Fieldset.php
  */
 export interface KirbyFieldsetTab {
   /** Field definitions in this tab. */
@@ -699,6 +764,8 @@ export interface KirbyFieldsetTab {
 
 /**
  * Fieldset group for organizing block types.
+ *
+ * @source src/Cms/Fieldsets.php
  */
 export interface KirbyFieldsetGroup {
   label: string;

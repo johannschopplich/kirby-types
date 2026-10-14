@@ -4,6 +4,8 @@ import type { KirbyBlock } from "./blocks";
  * Column width as a fraction of the row, such as `"1/2"` for half.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/layout#defining-your-own-layouts__available-widths
+ * @source src/Cms/LayoutColumn.php
+ * @source panel/src/components/Layout/Grid.vue
  */
 export type KirbyLayoutColumnWidth =
   | "1/1"
@@ -50,6 +52,8 @@ export type KirbyLayoutColumnWidth =
  *   ]
  * };
  * ```
+ *
+ * @source src/Cms/LayoutColumn.php
  */
 export interface KirbyLayoutColumn {
   /** UUID v4. */
@@ -87,6 +91,8 @@ export interface KirbyLayoutColumn {
  *   ]
  * };
  * ```
+ *
+ * @source src/Cms/Layout.php
  */
 export interface KirbyLayout {
   /** UUID v4. */

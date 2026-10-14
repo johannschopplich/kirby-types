@@ -40,6 +40,8 @@
  *   // result is undefined for errors
  * };
  * ```
+ *
+ * @source src/Api/Api.php
  */
 export interface KirbyApiResponse<T = any> {
   /**
