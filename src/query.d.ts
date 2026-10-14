@@ -3,10 +3,10 @@
  *
  * Built-in roots:
  * - `site` – The site object.
- * - `page` – A page object.
- * - `user` – A user object.
+ * - `page` – The page in context.
+ * - `user` – The user in context, else the logged-in user.
  * - `users` – All users.
- * - `file` – A file object.
+ * - `file` – The file in context.
  * - `model` – The page, file, user, or site the query runs on.
  * - `collection` – Named collection, called as `collection("name")`.
  * - `kirby` – The Kirby instance.
