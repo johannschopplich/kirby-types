@@ -1286,7 +1286,7 @@ export interface PanelUploadFile {
   niceSize: string;
   /** MIME type. */
   type: string;
-  /** Blob URL for preview. */
+  /** Blob URL for preview, revoked once the file leaves the queue. */
   url: string;
   /** Upload progress (`0`-`100`). */
   progress: number;
