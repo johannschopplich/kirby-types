@@ -18,6 +18,7 @@ import type {
   WriterNodeExtension,
   WriterToolbarButton,
 } from "../src/panel";
+import type { PanelDayjsInstance } from "../src/panel/libraries";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 import { defineComponent } from "vue";
 
@@ -439,4 +440,11 @@ declare const app: PanelApp;
 expectType<PanelHelpers>(app.config.globalProperties.$helper);
 expectType<PanelLibrary>(app.config.globalProperties.$library);
 expectType<(string: unknown) => string>(app.config.globalProperties.$esc);
+// #endregion
+
+// #region Panel Libraries
+// dayjs takes a `locale` option as its second argument, not a format string.
+declare const library: PanelLibrary;
+expectType<PanelDayjsInstance>(library.dayjs("2024-01-15", { locale: "de" }));
+expectNotAssignable<Parameters<PanelLibrary["dayjs"]>[1]>("DD.MM.YYYY");
 // #endregion

@@ -5,13 +5,7 @@
  * Includes color manipulation, date handling (dayjs), and textarea autosize.
  */
 
-import type {
-  ConfigType,
-  Dayjs,
-  OptionType,
-  PluginFunc,
-  UnitTypeLong,
-} from "dayjs";
+import type { ConfigType, Dayjs, PluginFunc, UnitTypeLong } from "dayjs";
 
 // #region Color Types
 
@@ -376,18 +370,7 @@ export interface PanelDayjsStaticExtensions {
  * @source panel/src/libraries/dayjs-locale.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
-  (date?: ConfigType): PanelDayjsInstance;
-  (
-    date?: ConfigType,
-    format?: OptionType,
-    strict?: boolean,
-  ): PanelDayjsInstance;
-  (
-    date?: ConfigType,
-    format?: OptionType,
-    locale?: string,
-    strict?: boolean,
-  ): PanelDayjsInstance;
+  (date?: ConfigType, options?: { locale?: string }): PanelDayjsInstance;
 
   /** Registers a plugin once and returns the dayjs function for chaining. */
   extend: <T = unknown>(plugin: PluginFunc<T>, option?: T) => PanelLibraryDayjs;
