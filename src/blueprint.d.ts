@@ -284,21 +284,20 @@ export interface KirbyPickerItem {
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/files
- * @source config/fields/files.php
- * @source config/fields/pages.php
- * @source config/fields/users.php
- * @source config/fields/mixins/picker.php
- * @source config/fields/mixins/layout.php
- * @source config/fields/mixins/upload.php
- * @source config/fields/mixins/min.php
+ * @source src/Form/Field/ModelPickerField.php
+ * @source src/Form/Field/FilePickerField.php
+ * @source src/Form/Field/PagePickerField.php
  */
-export interface KirbyFilesFieldProps extends KirbyFieldProps {
+export interface KirbyPickerFieldProps extends KirbyFieldProps {
   /** Picker type, also for blueprints that set `files`, `pages`, or `users`. */
   type: "filepicker" | "pagepicker" | "userpicker";
   /** Placeholder text when no items are selected. */
   empty?: string;
-  /** Image settings for each item. */
-  image?: Record<string, any>;
+  /**
+   * Image settings for each item, a query string, `"icon"` to show only the
+   * icon, or `false` for none.
+   */
+  image?: false | string | Record<string, any>;
   /** Info text template for each item. */
   info?: string;
   /** Display layout for selected items. */
@@ -311,7 +310,10 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   min?: number;
   /** Whether multiple selection is allowed. */
   multiple: boolean;
-  /** API path of the field's parent model (`filepicker` only). */
+  /**
+   * API path of the model the blueprint's `parent` query resolves to, else of
+   * the field's own model (`filepicker` only).
+   */
   parent?: string;
   /** Query for available items. */
   query?: string;
@@ -330,6 +332,43 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
    * off (`filepicker` only).
    */
   uploads?: false | Record<string, any>;
+}
+
+/**
+ * List of files or pages, by default the model's own. The entries load from
+ * the field's own API endpoint, not from the props.
+ *
+ * @source src/Form/Field/ModelListField.php
+ * @source src/Form/Field/FileListField.php
+ * @source src/Form/Field/PageListField.php
+ */
+export interface KirbyModelListFieldProps extends KirbyFieldProps {
+  /** List type, also for blueprints that set a `files` or `pages` section. */
+  type: "filelist" | "pagelist";
+  /**
+   * File types the `template` file blueprint accepts, as an HTML `accept`
+   * value (`filelist` only).
+   */
+  accept?: string;
+  batch: boolean;
+  /** Column definitions for `layout: table`; an empty array otherwise. */
+  columns: Record<string, Record<string, any>> | [];
+  /** Text for the empty state. */
+  empty?: string;
+  layout: "list" | "cardlets" | "cards" | "table";
+  /**
+   * Panel path of the model the entries come from; absent when that is the
+   * field's own model.
+   */
+  link?: string;
+  /** Maximum number of entries. */
+  max?: number;
+  /** Minimum number of entries. */
+  min?: number;
+  /** The blueprint's `search` option. */
+  searchable: boolean;
+  /** Card size for `layout: cards`. */
+  size: "tiny" | "small" | "medium" | "large" | "huge" | "full" | "auto";
 }
 
 /**
@@ -771,7 +810,8 @@ export type KirbyAnyFieldProps =
   | KirbyOptionsFieldProps
   | KirbyToggleFieldProps
   | KirbyDateFieldProps
-  | KirbyFilesFieldProps
+  | KirbyPickerFieldProps
+  | KirbyModelListFieldProps
   | KirbyColorFieldProps
   | KirbyRangeFieldProps
   | KirbyTagsFieldProps

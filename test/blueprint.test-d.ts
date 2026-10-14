@@ -8,14 +8,15 @@ import type {
   KirbyFieldsetGroup,
   KirbyFieldsetProps,
   KirbyFieldsetTab,
-  KirbyFilesFieldProps,
   KirbyLayoutColumnValue,
   KirbyLayoutFieldProps,
   KirbyLayoutValue,
+  KirbyModelListFieldProps,
   KirbyNumberFieldProps,
   KirbyObjectFieldProps,
   KirbyOption,
   KirbyOptionsFieldProps,
+  KirbyPickerFieldProps,
   KirbyStatsFieldProps,
   KirbyStructureColumn,
   KirbyStructureFieldProps,
@@ -265,12 +266,13 @@ expectAssignable<KirbyDateFieldProps>({
 });
 // #endregion
 
-// #region Files Field Props
+// #region Picker Field Props
 
-expectAssignable<KirbyFilesFieldProps>({
+expectAssignable<KirbyPickerFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  image: false,
   layout: "list",
   link: true,
   multiple: true,
@@ -285,7 +287,7 @@ expectAssignable<KirbyFilesFieldProps>({
   width: "1/1",
 });
 
-expectAssignable<KirbyFilesFieldProps>({
+expectAssignable<KirbyPickerFieldProps>({
   autofocus: false,
   disabled: false,
   empty: "No files selected",
@@ -309,6 +311,26 @@ expectAssignable<KirbyFilesFieldProps>({
   type: "filepicker",
   width: "1/1",
 });
+// #endregion
+
+// #region Model List Field Props
+
+const list = {
+  batch: false,
+  columns: [],
+  hidden: false,
+  label: "Files",
+  layout: "table",
+  link: "/pages/photography",
+  name: "files",
+  saveable: false,
+  searchable: true,
+  size: "auto",
+  type: "filelist",
+  width: "1/1",
+} satisfies KirbyModelListFieldProps;
+
+expectNotAssignable<KirbyModelListFieldProps>({ ...list, link: true as const });
 // #endregion
 
 // #region Color Field Props
