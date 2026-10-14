@@ -351,8 +351,15 @@ export interface KirbyRangeFieldProps extends KirbyFieldProps {
 export interface KirbyTagsSearch {
   /** Maximum items to display in dropdown. */
   display?: number;
+  /**
+   * Whether the search also matches the options' info text.
+   *
+   * @since 5.1.0
+   */
+  info?: boolean;
   /** Minimum characters before search starts. */
   min?: number;
+  placeholder?: string;
 }
 
 /**
