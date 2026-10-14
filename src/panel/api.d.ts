@@ -367,6 +367,9 @@ export interface PanelApiPageDuplicateOptions {
 
 /**
  * @source panel/src/api/pages.ts
+ * @source config/api/routes/pages.php
+ * @source src/Cms/Page.php
+ * @source config/sections/pages.php
  */
 export interface PanelApiPages {
   /**
@@ -384,7 +387,10 @@ export interface PanelApiPages {
    * @param field - Field name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
    * @returns Array of blueprints
    */
-  blueprints: (parent: string, field?: string) => Promise<any[]>;
+  blueprints: (
+    parent: string,
+    field?: string,
+  ) => Promise<{ name: string; title: string }[]>;
 
   /**
    * Changes a page's slug.
@@ -571,6 +577,8 @@ export interface PanelApiRoles {
 /**
  * @source panel/src/api/site.ts
  * @source config/api/routes/site.php
+ * @source src/Cms/ModelWithContent.php
+ * @source config/sections/pages.php
  */
 export interface PanelApiSite {
   /**
@@ -585,7 +593,7 @@ export interface PanelApiSite {
    *
    * @returns Array of blueprints
    */
-  blueprints: () => Promise<any[]>;
+  blueprints: () => Promise<{ name: string; title: string }[]>;
 
   /**
    * Changes the site title.
@@ -736,6 +744,8 @@ export interface PanelApiUserCreateData {
 /**
  * @source panel/src/api/users.ts
  * @source config/api/routes/users.php
+ * @source src/Cms/ModelWithContent.php
+ * @source config/sections/pages.php
  */
 export interface PanelApiUsers {
   /**
@@ -753,7 +763,10 @@ export interface PanelApiUsers {
    * @param field - Field name to narrow the blueprints to; all fields when omitted
    * @returns Array of blueprints
    */
-  blueprints: (id: string, field?: string) => Promise<any[]>;
+  blueprints: (
+    id: string,
+    field?: string,
+  ) => Promise<{ name: string; title: string }[]>;
 
   /**
    * Changes a user's email.

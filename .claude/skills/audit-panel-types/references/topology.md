@@ -4,6 +4,8 @@ Each entry lists the symbols the agent owns, the source **modules** (extension-f
 
 Clusters, modules, and watchpoints hold for both lines; an entry tagged **(main)** applies only on the `main` line, one tagged **(K6 line)** only on `feat/kirby-6`.
 
+PHP paths name the `main` files. **(K6 line)** Kirby 6 moved them: the `src/Panel/View.php` resolvers to `src/Panel/State.php`, the Fiber responses `src/Panel/{View,Dialog,Drawer,Json,Document}.php` to `src/Panel/Response/{View,Dialog,Drawer,Json,ViewDocument}Response.php`, `src/Cms/*Blueprint.php` to `src/Blueprint/`, and `src/Panel/Ui/Buttons/` to `src/Panel/Ui/Button/`.
+
 ## base.d.ts
 
 ### `base`
@@ -11,7 +13,7 @@ Clusters, modules, and watchpoints hold for both lines; an entry tagged **(main)
 - **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
 - **PHP**: `src/Panel/{View,Dialog,Drawer}.php`, `src/Panel/Json.php` (Fiber response keys)
-- **Watch**: request emits **(main)** `x-fiber`, `x-fiber-globals`, `x-fiber-referrer`; **(K6 line)** `x-panel`, `x-panel-globals`, `x-panel-referrer`. `NotificationType`: only `"error"`/`"fatal"` are ever assigned to `state.type`; the wider `success`/`info` union is unreachable – file it under `intentional`.
+- **Watch**: request emits **(main)** `x-fiber`, `x-fiber-globals`, `x-fiber-referrer`; **(K6 line)** `x-panel`, `x-panel-globals`, `x-panel-referrer`.
 
 ## features.d.ts
 
@@ -22,7 +24,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 - **Symbols**: PanelTimer, PanelActivation*, PanelDrag*, PanelTheme*, PanelThemeValue, PanelLanguage*, PanelMenu*, PanelSystem*, PanelTranslation*, PanelUser*
 - **Modules**: `panel/src/panel/{activation,drag,theme,language,menu,system,translation,user}`, `panel/src/helpers/timer`
 - **PHP**: `src/Panel/View.php` (`$translation`, `$system`, `$language`, `$user`, `$menu` resolvers)
-- **Watch**: `PanelSystem.title` stays `string` (PHP overrules Panel TS). **(main)** Menu state is `entries`; **(K6 line)** `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` re-lists fields manually (no Defaults intersection); `locale`/`url` are stripped by `state.set()` before reaching `panel.language` – they belong on `PanelLanguageInfo`, not here.
+- **Watch**: `PanelSystem.title` stays `string` (PHP overrules Panel TS). **(main)** Menu state is `entries`; **(K6 line)** `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` lacks `locale`/`url`: `state.set()` strips them before they reach `panel.language` – they belong on `PanelLanguageInfo`, not here.
 
 ### `features-notification`
 
@@ -52,7 +54,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 ### `features-modals`
 
-- **Symbols**: PanelDropdownOption, PanelDropdownDefaults, PanelDropdown, PanelDialogDefaults, PanelDialog, PanelDrawerDefaults, PanelDrawer, PanelEventEmitter, PanelEvents
+- **Symbols**: PanelDropdownOption, PanelDropdown, PanelDialogDefaults, PanelDialog, PanelDrawerDefaults, PanelDrawer, PanelEventEmitter, PanelEvents
 - **Modules**: `panel/src/panel/{dropdown,dialog,drawer,events,modal,feature}`
 - **PHP**: `src/Panel/View.php` (`$dialogs`/`$drawers`/`$dropdowns` config endpoints), `src/Panel/{Dialog,Drawer}.php`
 - **Watch**: **(main)** `legacy`/`ref`/`openComponent` stay for Vue-2 plugin compat; the K6 line has none of them.
@@ -87,7 +89,7 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 
 ### `helpers-data`
 
-- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps
+- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
 - **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), **(K6 line)** `items`
 - **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index}`, **(K6 line)** `panel/src/helpers/items`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 

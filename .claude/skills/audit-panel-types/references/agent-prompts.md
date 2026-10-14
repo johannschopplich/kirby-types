@@ -24,7 +24,7 @@ SYMBOLS YOU OWN:
 
 MODULES (extension-free):
 <MODULE LIST FROM TOPOLOGY>
-PHP: <PHP paths from topology, or "silent">. A path KIRBY ROOT lacks has moved: find its counterpart by resolver or method name and cite that.
+PHP: <PHP paths from topology, or "silent">. A path KIRBY ROOT lacks has moved: take its counterpart from topology's preamble, else find it by resolver or method name, and cite that.
 WATCH: <from topology: the file section's preamble, the cluster's preamble, and every cluster bullet besides Symbols, Modules and PHP – or "none">
 
 JOB:
@@ -49,7 +49,7 @@ OUTPUT (written to OUTPUT PATH; the reply carries only the summary and the count
   "summary": "1-3 sentences."
 }
 
-`anchor` identifies the declaration line uniquely. Source paths are file-only, without a `:line` suffix.
+`annotations` lists only declarations that lack an `@source` for one of their authoritative files; `anchor` identifies the declaration line uniquely; `sources` lists only the missing files. Source paths are file-only, without a `:line` suffix.
 ```
 
 ## Pass 2

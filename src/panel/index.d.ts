@@ -585,7 +585,8 @@ export interface PanelPluginExtensions {
   fields?: Record<string, PanelComponentExtension>;
 
   /**
-   * SVG icon definitions.
+   * Inner SVG markup of a 24×24 icon, without the wrapping `<svg>`, keyed by
+   * icon name.
    */
   icons?: Record<string, string>;
 

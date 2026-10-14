@@ -1,6 +1,6 @@
 /**
  * Languages the code block offers.
- * @see https://github.com/getkirby/kirby/blob/main/config/blocks/code/code.yml
+ * @source config/blocks/code/code.yml
  */
 export type KirbyCodeLanguage =
   | "bash"
@@ -58,6 +58,19 @@ export type KirbyCodeLanguage =
  * type CodeContent = KirbyDefaultBlocks["code"];
  * // Result: { code: string; language: KirbyCodeLanguage | "" | (string & {}) }
  * ```
+ *
+ * @source config/blocks/code/code.yml
+ * @source config/blocks/gallery/gallery.yml
+ * @source config/blocks/heading/heading.yml
+ * @source config/blocks/image/image.yml
+ * @source config/blocks/line/line.yml
+ * @source config/blocks/list/list.yml
+ * @source config/blocks/markdown/markdown.yml
+ * @source config/blocks/quote/quote.yml
+ * @source config/blocks/table/table.yml
+ * @source config/blocks/text/text.yml
+ * @source config/blocks/video/video.yml
+ * @source src/Parsley/Schema/Blocks.php
  */
 export interface KirbyDefaultBlocks {
   /** @see https://getkirby.com/docs/reference/panel/blocks/code */
@@ -216,6 +229,8 @@ export interface KirbyDefaultBlocks {
  *   content: { title: "Welcome", image: "hero.jpg" }
  * };
  * ```
+ *
+ * @source src/Cms/Block.php
  */
 export interface KirbyBlock<
   T extends string = string,
