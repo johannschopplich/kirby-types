@@ -369,7 +369,8 @@ export interface PanelApiPageDuplicateOptions {
  * @source panel/src/api/pages.ts
  * @source config/api/routes/pages.php
  * @source src/Cms/Page.php
- * @source config/sections/pages.php
+ * @source src/Cms/ModelWithContent.php
+ * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiPages {
   /**
@@ -578,7 +579,7 @@ export interface PanelApiRoles {
  * @source panel/src/api/site.ts
  * @source config/api/routes/site.php
  * @source src/Cms/ModelWithContent.php
- * @source config/sections/pages.php
+ * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiSite {
   /**
@@ -745,7 +746,7 @@ export interface PanelApiUserCreateData {
  * @source panel/src/api/users.ts
  * @source config/api/routes/users.php
  * @source src/Cms/ModelWithContent.php
- * @source config/sections/pages.php
+ * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiUsers {
   /**

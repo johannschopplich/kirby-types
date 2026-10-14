@@ -1221,7 +1221,7 @@ interface PanelViewPropsLock {
 
 /**
  * Content permissions for a view.
- * @source src/Cms/ModelPermissions.php
+ * @source src/Guards/ModelGuards.php
  * @source src/Blueprint/PageBlueprint.php
  * @source src/Blueprint/FileBlueprint.php
  * @source src/Blueprint/UserBlueprint.php

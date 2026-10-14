@@ -617,7 +617,7 @@ export interface WriterExtensionContext {
  * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
- * @source panel/src/components/Forms/Input/WriterInput.props.js
+ * @source panel/src/components/Forms/Input/WriterInput.props.ts
  */
 export interface WriterExtension {
   /** Unique name of the extension. */
@@ -951,6 +951,7 @@ export interface WriterMarkExtension {
  * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/helpers/writer.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
+ * @source panel/src/components/Forms/Input/WriterInput.props.ts
  */
 export interface WriterNodeExtension {
   // #region Instance Properties (available via `this` in extension methods)
