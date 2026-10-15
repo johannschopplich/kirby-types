@@ -2,7 +2,7 @@
   "name": "kirby-types",
   "type": "module",
   "version": "1.8.1",
-  "packageManager": "pnpm@11.10.0",
+  "packageManager": "pnpm@12.11.2",
   "description": "TypeScript types for Kirby Panel plugins and headless CMS usage",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
   "license": "MIT",
@@ -80,11 +80,11 @@
     }
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.1.0",
-    "bumpp": "^11.1.0",
-    "dayjs": "^1.11.21",
-    "eslint": "^10.6.0",
-    "prettier": "^3.9.4",
+    "@antfu/eslint-config": "^9.5.1",
+    "bumpp": "^12.3.0",
+    "dayjs": "^1.11.23",
+    "eslint": "^10.12.0",
+    "prettier": "^3.9.10",
     "tsd": "^0.33.0",
     "typescript": "^6.0.3"
   }
