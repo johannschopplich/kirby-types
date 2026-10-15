@@ -85,8 +85,8 @@ export interface PanelEventListeners<TEvents extends string = string> {
   on: PanelEventListenerMap<TEvents>;
 
   /**
-   * Registers a single event listener, replacing an existing one for the
-   * event with a console warning.
+   * Registers the listener for `event`, replacing any other one with a
+   * console warning.
    *
    * @param event - Event name to listen for
    * @param callback - Function to call when event fires
