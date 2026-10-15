@@ -1206,6 +1206,7 @@ interface PanelViewPropsLockUser {
 /**
  * Content lock state.
  * @source src/Content/Lock.php
+ * @source src/Panel/Controller/View/ModelViewController.php
  * @source panel/src/panel/content.ts
  */
 interface PanelViewPropsLock {

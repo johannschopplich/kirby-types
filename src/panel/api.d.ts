@@ -758,7 +758,7 @@ export interface PanelApiUsers {
   blueprint: (id: string) => Promise<any>;
 
   /**
-   * Gets the blueprints accepted by a user's fields.
+   * Gets the page blueprints a user's `pagelist` fields accept.
    *
    * @param id - User ID
    * @param field - Field name to narrow the blueprints to; all fields when omitted

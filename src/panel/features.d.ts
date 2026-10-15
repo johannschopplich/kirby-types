@@ -887,6 +887,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
 /**
  * Field values of one content version, keyed by field name.
  * @source panel/src/panel/content.ts
+ * @source src/Panel/Controller/View/ModelViewController.php
  */
 export interface PanelContentVersion {
   [field: string]: any;
@@ -1068,7 +1069,7 @@ export interface PanelContent {
 
   /** Sends a content API request. */
   request: (
-    method?: "save" | "publish" | "discard" | "unlock",
+    method?: "save" | "publish" | "discard",
     values?: Record<string, any>,
     env?: PanelContentEnv,
   ) => Promise<void>;
