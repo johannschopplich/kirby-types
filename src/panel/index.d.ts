@@ -289,6 +289,13 @@ export interface PanelConfig {
    * @since 5.0.0
    */
   upload: number;
+  /**
+   * Maximum number of files uploaded in parallel, from the `panel.uploads`
+   * option (`3` unless configured).
+   *
+   * @since 5.6.2
+   */
+  uploads: number;
 }
 // #endregion
 
