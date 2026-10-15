@@ -69,7 +69,7 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 
 ## JSDoc style
 
-- **Body describes runtime behavior.** What a plugin author observes. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths – none belong in JSDoc prose.
+- **Body describes runtime behavior.** What a plugin author observes and must do, never how Kirby produces it: no data flow, no "as … reflects", no reason Kirby has for a value. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths, and internal constants such as intervals or batch sizes – none belong in JSDoc prose. The default of an option the user sets stays. Provenance belongs in `@source`.
 - **A doc that repeats the name and the type is not written.** `/** Icon name */` above `icon?: string` earns nothing, and neither does `/** Files API */` above `files: PanelApiFiles`. Add the member bare.
 - **Prose ends with a period**, one line or twenty: `/** Text shown after the input. */`. A block-tag description that continues the signature ends at its last word and takes none – `@param event - Event name to listen for`, `@since 5.5.0`, `@source panel/src/panel/state.ts`. Once a tag's text runs to a sentence it is prose and is punctuated as prose.
 - **Values take backticks wherever a doc names them** – body, `@param`, `@returns`: ``@returns `true` if empty``.

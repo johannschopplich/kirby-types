@@ -244,8 +244,7 @@ export type PanelComponentExtension =
 // #region Panel Configuration
 
 /**
- * Panel settings the backend derives from the site options and the
- * server's upload limits.
+ * Panel settings from the site config.
  *
  * @source panel/src/panel/panel.ts
  * @source src/Panel/State.php
@@ -276,9 +275,8 @@ export interface PanelConfig {
    */
   translation: string;
   /**
-   * Chunk size in bytes for chunked file uploads – 95% of the smallest
-   * upload limit: the server's, or Cloudflare's 100 MB when the site is
-   * proxied through it.
+   * Chunk size in bytes for chunked file uploads, kept below the server's
+   * upload limit.
    */
   upload: number;
   /**
@@ -401,8 +399,9 @@ interface PanelPermissionsUser {
 }
 
 /**
- * Permission set of the logged-in user. On views without one, such as the
- * login view, the Panel holds an empty array instead.
+ * Permissions of the logged-in user's role, an empty array without a
+ * logged-in user. A model's blueprint `options` can override them – read a
+ * model view's `permissions` prop for that model.
  *
  * @source panel/src/panel/panel.ts
  * @source src/Cms/Permissions.php
@@ -713,8 +712,9 @@ export interface PanelPlugins {
   use: Plugin[];
 
   /**
-   * Reserved bucket for view-button plugins, left empty: they register under
-   * `components` as `k-${name}-view-button`.
+   * Reserved bucket for view-button plugins (initialized empty;
+   * `panel.plugin()` registers them under `components` as
+   * `k-${name}-view-button`).
    */
   viewButtons: Record<
     string,

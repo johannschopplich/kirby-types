@@ -540,7 +540,7 @@ export interface PanelApiPages {
   /**
    * Returns the API path of a page.
    *
-   * @param id - Page ID, or `null` for the `pages` collection. Like `link` and unlike the other methods, it takes no UUID or permalink.
+   * @param id - Page ID (`null` for the `pages` collection), never a UUID or permalink
    * @param path - Additional path
    * @returns API path, relative to the API endpoint
    */

@@ -803,11 +803,11 @@ export interface PanelHelpers {
   /**
    * Tries the first `field` input, `autofocus` element, input, submit button,
    * and button inside the element, in that order, and focuses the first of
-   * them that is focusable, or else the element itself. Without `field`,
-   * leaves the focus alone when it already sits inside the element.
+   * them that is enabled, or else the element itself. Without `field`, leaves
+   * the focus alone when it already sits inside the element.
    *
    * @param element - Selector, element, or `null` (returns `false`)
-   * @param field - Specific input name to focus
+   * @param field - Name of the input to focus first
    * @returns The focused element, or `false` if nothing was focused
    */
   focus: (
