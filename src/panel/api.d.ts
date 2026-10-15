@@ -929,7 +929,9 @@ export interface PanelApiUsers {
  * @source panel/src/panel/request.ts
  */
 export interface PanelApi {
-  csrf: string;
+  /** CSRF token for requests, read live from the system. */
+  readonly csrf: string;
+
   endpoint: string;
   methodOverride: boolean;
 
