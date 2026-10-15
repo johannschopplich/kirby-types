@@ -100,8 +100,8 @@ export interface WriterEditor {
   // #region Properties
 
   /**
-   * Reactive store behind `activeMarks`, `activeNodes`, `activeMarkAttrs`,
-   * and `activeNodeAttrs`, refreshed after every transaction.
+   * Marks and nodes active in the selection, with their attributes;
+   * reactive, refreshed after every transaction.
    */
   active: {
     marks: string[];

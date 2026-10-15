@@ -828,13 +828,11 @@ export interface PanelHelpers {
   isUploadEvent: (event: DragEvent) => boolean;
 
   /**
-   * Requests item props by model ID. Calls from the same tick share requests
-   * of up to 100 IDs per endpoint and query, and an ID already in flight
-   * joins the pending request. A blank ID, an unknown ID, a model the user
-   * may not list, or a failed request resolves to `undefined` – the promise
-   * never rejects. A failed request still reaches the Panel's error
-   * handling, so an expired session or a lost connection surfaces to the
-   * user.
+   * Requests item props by model ID. Calls in the same tick are batched into
+   * shared requests. A blank ID, an unknown ID, a model the user may not
+   * list, or a failed request resolves to `undefined` – the promise never
+   * rejects. A failed request still reaches the Panel's error handling, so an
+   * expired session or a lost connection surfaces to the user.
    *
    * @param endpoint - API endpoint, e.g. `"items/files"`
    * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs

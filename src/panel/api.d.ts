@@ -941,19 +941,15 @@ export interface PanelApi {
   /** Interval ID of the auth heartbeat that `ping()` schedules. */
   pingId: ReturnType<typeof setInterval>;
 
-  /**
-   * Clears any existing heartbeat and schedules a new auth ping every 5 minutes.
-   * Runs on setup and after each request. The heartbeat skips the ping while
-   * the Panel is offline.
-   */
+  /** Restarts the auth heartbeat, which pings while the Panel is online. */
   ping: () => void;
 
   /** Number of API requests in flight. The loading indicator stops once it drops to `0`. */
   requests: number;
 
   /**
-   * Current language code, or `null` when no language is active; set from
-   * the Panel's active language on construction and refreshed on each request.
+   * Code of the Panel's active language, sent with each request; `null`
+   * without an active language.
    */
   language: string | null;
 

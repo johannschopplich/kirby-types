@@ -1385,10 +1385,7 @@ export interface PanelViewProps {
   link: string;
   lock: PanelViewPropsLock;
   permissions: PanelViewPropsPermissions;
-  /**
-   * Tab bar entries. `fields` lists the lowercase names of the tab's fields,
-   * used to count unsaved changes per tab.
-   */
+  /** Tab bar entries. `fields` lists the lowercase names of the tab's fields. */
   tabs: {
     fields: string[];
     icon: string | null;
@@ -1396,7 +1393,7 @@ export interface PanelViewProps {
     link: string;
     name: string;
   }[];
-  /** UUID of the model. Absent when the `content.uuid` option is `false`. */
+  /** Absent when the `content.uuid` option is `false`. */
   uuid?: string;
   versions: PanelViewPropsVersions;
   /**

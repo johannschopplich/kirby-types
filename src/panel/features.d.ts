@@ -243,7 +243,7 @@ export interface PanelMenuButtonProps {
 }
 
 /**
- * Menu item, rendered by the backend as a UI component.
+ * Menu item: a component and its props.
  *
  * @source panel/src/panel/menu.ts
  * @source src/Panel/Menu.php
