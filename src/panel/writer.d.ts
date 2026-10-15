@@ -637,10 +637,8 @@ export interface WriterExtension {
   name?: string | null;
 
   /**
-   * Discriminator value. Among plain extensions, the editor collects
-   * `inputRules`, `keys`, `pasteRules`, and `plugins` only from those typed
-   * `"extension"`; built-ins such as the toolbar extension use their own
-   * value, `"toolbar"`.
+   * Discriminator value. A plain extension contributes `inputRules`, `keys`,
+   * `pasteRules`, and `plugins` only when typed `"extension"`.
    */
   type?: string;
 
@@ -749,12 +747,9 @@ export interface WriterMarkExtension {
   editor?: WriterEditor;
 
   /**
-   * Options merged from `defaults` and the mark's object entry in the field's
-   * `marks` setting.
-   *
-   * Only built-in marks are constructed. A mark registered through
-   * `writerMarks` is created without its constructor, so this stays unset
-   * unless the definition provides it.
+   * Options of a built-in mark, merged from `defaults` and the mark's object
+   * entry in the field's `marks` setting. Unset for a `writerMarks` mark unless
+   * the definition provides it.
    */
   options?: Record<string, any>;
   // #endregion
@@ -978,12 +973,9 @@ export interface WriterNodeExtension {
   editor?: WriterEditor;
 
   /**
-   * Options merged from `defaults` and the node's object entry in the field's
-   * `nodes` setting.
-   *
-   * Only built-in nodes are constructed. A node registered through
-   * `writerNodes` is created without its constructor, so this stays unset
-   * unless the definition provides it.
+   * Options of a built-in node, merged from `defaults` and the node's object
+   * entry in the field's `nodes` setting. Unset for a `writerNodes` node unless
+   * the definition provides it.
    */
   options?: Record<string, any>;
   // #endregion

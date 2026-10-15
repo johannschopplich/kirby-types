@@ -195,8 +195,7 @@ export interface PanelLanguage
 /**
  * Sidebar menu entry, bound as props onto a `k-button`.
  *
- * An entry may arrive sparse: the backend drops falsy fields from area
- * entries, and the fixed bottom entries set only the fields they use.
+ * Any field may be missing; falsy ones are left out.
  *
  * @source panel/src/panel/menu.ts
  * @source src/Panel/Menu.php
@@ -395,11 +394,9 @@ export interface PanelNotification
   info: (info?: string | PanelNotificationOptions) => PanelNotificationDefaults;
 
   /**
-   * Opens a notification. When passed a string, delegates to `success()`.
-   * Otherwise resets every field the options omit to its default, takes the
-   * current Panel context unless the options carry their own, replaces a
-   * falsy `timeout` with `4000` ms for types other than `error` and `fatal`,
-   * opens the notification, and starts the auto-close timer.
+   * Opens a notification; a string opens a success notification. Fields the
+   * options omit reset to their defaults, and `context` defaults to the
+   * current one.
    *
    * @param notification - Message string or options object
    */
@@ -737,8 +734,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   options: () => (PanelDropdownOption | "-")[];
 
   /**
-   * Sets the dropdown state. A top-level `options` array, the shape dropdown
-   * routes respond with, replaces `props` as `props.options`.
+   * Sets the dropdown state; a top-level `options` array moves into
+   * `props.options`.
    */
   set: (
     state: Partial<PanelFeatureDefaults> & {
@@ -1175,10 +1172,8 @@ export interface PanelSearchOptions {
 }
 
 /**
- * Search response from the Panel backend. Server responses also carry the
- * request envelope (`code`, `path`, `query`, `referrer`); the responses
- * `query()` builds itself for short queries and failures carry only
- * `results` and `pagination`.
+ * Search response. Responses to queries under two characters and to failed
+ * requests carry only `results` and `pagination`.
  *
  * @source panel/src/panel/search.ts
  * @source src/Panel/Controller/Search.php
@@ -1249,9 +1244,7 @@ export interface PanelSearcher {
 /**
  * Server-side file model passed to `PanelUpload.replace()` and stored in
  * `PanelUploadDefaults.replacing`. Distinct from `PanelUploadFile` (the
- * client-side queued upload). `link`, `extension`, and `mime` set the upload
- * target and the picker's accept filter; `filename`, `url`, `mime`, and
- * `image` render the replace dialog.
+ * client-side queued upload).
  *
  * @source panel/src/panel/upload.js
  * @source panel/src/components/Dialogs/UploadReplaceDialog.vue
@@ -1347,7 +1340,7 @@ export interface PanelUploadDefaults {
   preview: Record<string, any> | boolean;
   /**
    * Server file model being replaced. While set, `open()` shows the replace
-   * dialog and `model.update` carries its `link` as `path`.
+   * dialog.
    */
   replacing: PanelUploadReplaceFile | null;
   /** Upload endpoint URL. */
@@ -1645,8 +1638,7 @@ export interface PanelEvents extends PanelEventEmitter {
   subscribe: () => void;
 
   /**
-   * Removes nothing: it passes the unbound handlers, so the listeners
-   * `subscribe()` added stay attached.
+   * Removes nothing: the listeners `subscribe()` added stay attached.
    */
   unsubscribe: () => void;
 }

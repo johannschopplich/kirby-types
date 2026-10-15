@@ -18,10 +18,7 @@
  * @source panel/src/panel/state.ts
  */
 export interface PanelState<TDefaults extends object = Record<string, any>> {
-  /**
-   * Returns the state key identifier.
-   * Used by backend responses to target the correct state object.
-   */
+  /** Returns the state key, such as `"view"` or `"dialog"`. */
   key: () => string;
 
   defaults: () => TDefaults;
@@ -161,7 +158,10 @@ export interface PanelFeatureDefaults {
   /** Previous path for navigation and redirects. */
   referrer: string | null;
 
-  /** Timestamp from the backend for cache invalidation. */
+  /**
+   * Server time in milliseconds when the view was sent; `null` on other
+   * features.
+   */
   timestamp: number | null;
 }
 
@@ -647,9 +647,8 @@ export type NotificationType = "error" | "fatal";
  * - `passive`: Gray, for muted, secondary content.
  * - `text`: White, for plain, unstyled content.
  *
- * Kirby accepts any string as the theme and matches the stylesheet by prefix,
- * so plain color names (`red`, `green`, ...) and suffixed variants such as
- * `positive-icon` are styled as well.
+ * Any other string is accepted too: plain color names (`red`, `green`, …) and
+ * suffixed variants such as `positive-icon` are styled as well.
  * @source panel/src/panel/notification.ts
  * @source panel/src/styles/utilities/theme.css
  */

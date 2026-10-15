@@ -643,7 +643,7 @@ export interface PanelApiSystemInstallData extends PanelApiUserCreateData {
   password: string;
   /**
    * Role of the first user, `default` when omitted, or `nobody` if no
-   * `default` role exists – the Panel's installer sends `admin`.
+   * `default` role exists – pass `admin` for an admin account.
    */
   role?: string;
 }
@@ -947,9 +947,7 @@ export interface PanelApi {
   methodOverride: boolean;
 
   /**
-   * Interval ID of the auth heartbeat that pings every 5 minutes; scheduled
-   * on setup and restarted after each request. The heartbeat skips the ping
-   * while the Panel is offline.
+   * Interval ID of the auth heartbeat, which pings while the Panel is online.
    */
   ping: ReturnType<typeof setInterval>;
 
@@ -960,8 +958,8 @@ export interface PanelApi {
   running: number;
 
   /**
-   * Current language code, or `null` when no language is active; `undefined`
-   * until the first request sets it from the Panel's active language.
+   * Code of the Panel's active language, sent with each request; `null`
+   * without an active language, `undefined` before the first request.
    */
   language: string | null | undefined;
 

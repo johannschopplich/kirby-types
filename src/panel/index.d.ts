@@ -246,8 +246,7 @@ export type PanelComponentExtension =
 // #region Panel Configuration
 
 /**
- * Panel settings the backend derives from the site options and the
- * server's upload limits.
+ * Panel settings from the site config.
  *
  * @source panel/src/panel/panel.js
  * @source src/Panel/View.php
@@ -282,9 +281,8 @@ export interface PanelConfig {
    */
   translation: string;
   /**
-   * Chunk size in bytes for chunked file uploads – 95% of the smallest
-   * upload limit: the server's, or Cloudflare's 100 MB when the site is
-   * proxied through it.
+   * Chunk size in bytes for chunked file uploads, kept below the server's
+   * upload limit.
    *
    * @since 5.0.0
    */
@@ -413,8 +411,9 @@ interface PanelPermissionsUser {
 }
 
 /**
- * Permissions of the current user's role. Blueprint `options` can override
- * them per model, as a model view's `permissions` prop reflects.
+ * Permissions of the logged-in user's role, an empty array without a
+ * logged-in user. A model's blueprint `options` can override them – read a
+ * model view's `permissions` prop for that model.
  *
  * @source panel/src/panel/panel.js
  * @source src/Cms/Permissions.php
