@@ -1,37 +1,37 @@
 /** Types for the Panel API client and its resource modules. */
 
+import type { PanelRequestOptions } from "./base";
+import type { Panel } from "./index";
+
 // #region Request Types
 
 /**
- * Options for `request()` and the verb helpers, passed on to `fetch()`.
- * @source panel/src/api/request.js
- * @source panel/src/api/index.js
- * @source panel/src/api/get.js
- * @source panel/src/api/post.js
+ * @source panel/src/api/index.ts
  */
-export interface PanelApiRequestOptions extends Omit<RequestInit, "headers"> {
+export interface PanelApiRequestOptions extends Omit<
+  PanelRequestOptions,
+  "csrf" | "on"
+> {
   /**
-   * Request body, sent as-is by `request()`. `post()`, `patch()`, and
-   * `delete()` replace it with their JSON-encoded `data`.
+   * Content language code sent as the `x-language` header. Omitted or empty,
+   * it falls back to the current content language.
    */
-  body?: BodyInit | null;
+  language?: string | null;
   /**
-   * Headers merged over the default `content-type`, `x-csrf`, and
-   * `x-language` headers. A `null` value drops a default header.
-   */
-  headers?: Record<string, string | null>;
-  /**
-   * HTTP method. The verb helpers set their own. While method override is
-   * on – its default (`api.methodOverride`) – any method other than `GET`
-   * and `POST` goes out as `POST`, with the real method in the
-   * `x-http-method-override` header. A request without a method goes out as
-   * `GET`, or as `POST` while method override is on.
+   * HTTP method, `GET` when omitted. The verb helpers set their own. While
+   * method override is on – its default (`api.methodOverride`) – any method
+   * other than `GET` and `POST` goes out as `POST`, with the real method in
+   * the `x-http-method-override` header.
    */
   method?: string;
   /**
+   * Referrer path sent as the `x-panel-referrer` header. API requests send
+   * none unless one is passed.
+   */
+  referrer?: string | false;
+  /**
    * Whether to skip the loading indicator, like the `silent` argument of
    * `request()` and the verb helpers.
-   * @since 5.0.0
    */
   silent?: boolean;
 }
@@ -49,7 +49,7 @@ export interface PanelApiPagination {
 
 /**
  * Search request body.
- * @source src/Cms/Api.php
+ * @source src/Api/Api.php
  * @source config/api/routes/users.php
  * @source config/api/routes/files.php
  * @source src/Cms/Collection.php
@@ -88,7 +88,7 @@ export interface PanelApiSearchQuery {
  *   status: "draft" | "unlisted" | "listed";
  * }
  * ```
- * @source panel/src/api/request.js
+ * @source panel/src/api/index.ts
  * @source config/api/models/Page.php
  * @source config/api/models/Site.php
  * @source config/api/models/File.php
@@ -107,7 +107,7 @@ export interface PanelModelData<TContent = Record<string, any>> {
 // #region Auth API
 
 /**
- * @source panel/src/api/auth.js
+ * @source panel/src/api/auth.ts
  * @source config/api/routes/auth.php
  */
 export interface PanelApiLoginData {
@@ -123,7 +123,7 @@ export interface PanelApiLoginData {
 }
 
 /**
- * @source panel/src/api/auth.js
+ * @source panel/src/api/auth.ts
  * @source config/api/routes/auth.php
  */
 export interface PanelApiAuth {
@@ -167,7 +167,7 @@ export interface PanelApiAuth {
  * `pages/blog+post`, or `users/abc` – or `null` to address the file by its
  * UUID or permalink alone, or a site file by its filename.
  *
- * @source panel/src/api/files.js
+ * @source panel/src/api/files.ts
  */
 export interface PanelApiFiles {
   /**
@@ -278,7 +278,7 @@ export interface PanelApiLanguageData {
  * Methods for a multi-language site. Every call rejects unless the
  * `languages` option is enabled.
  *
- * @source panel/src/api/languages.js
+ * @source panel/src/api/languages.ts
  * @source config/api/routes.php
  * @source config/api/routes/languages.php
  */
@@ -343,7 +343,6 @@ export interface PanelApiPageCreateData {
   /**
    * Content per language on a multi-language site. Each translation's
    * content runs through the fields' save handlers.
-   * @since 5.0.0
    */
   translations?: {
     /** Language code, the default language when omitted. */
@@ -357,7 +356,7 @@ export interface PanelApiPageCreateData {
 }
 
 /**
- * @source panel/src/api/pages.js
+ * @source panel/src/api/pages.ts
  */
 export interface PanelApiPageDuplicateOptions {
   /** Whether to copy the page's children, `false` by default. */
@@ -367,10 +366,11 @@ export interface PanelApiPageDuplicateOptions {
 }
 
 /**
- * @source panel/src/api/pages.js
+ * @source panel/src/api/pages.ts
  * @source config/api/routes/pages.php
  * @source src/Cms/Page.php
- * @source config/sections/pages.php
+ * @source src/Cms/ModelWithContent.php
+ * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiPages {
   /**
@@ -385,12 +385,12 @@ export interface PanelApiPages {
    * Gets available blueprints for a page.
    *
    * @param parent - Page ID
-   * @param section - Section name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
+   * @param field - Field name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
    * @returns Array of blueprints
    */
   blueprints: (
     parent: string,
-    section?: string,
+    field?: string,
   ) => Promise<{ name: string; title: string }[]>;
 
   /**
@@ -472,7 +472,7 @@ export interface PanelApiPages {
   duplicate: (
     id: string,
     slug: string | null,
-    options: PanelApiPageDuplicateOptions,
+    options?: PanelApiPageDuplicateOptions,
   ) => Promise<any>;
 
   /**
@@ -551,7 +551,7 @@ export interface PanelApiPages {
 // #region Roles API
 
 /**
- * @source panel/src/api/roles.js
+ * @source panel/src/api/roles.ts
  * @source config/api/routes/roles.php
  */
 export interface PanelApiRoles {
@@ -576,10 +576,10 @@ export interface PanelApiRoles {
 // #region Site API
 
 /**
- * @source panel/src/api/site.js
+ * @source panel/src/api/site.ts
  * @source config/api/routes/site.php
  * @source src/Cms/ModelWithContent.php
- * @source config/sections/pages.php
+ * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiSite {
   /**
@@ -590,7 +590,7 @@ export interface PanelApiSite {
   blueprint: () => Promise<any>;
 
   /**
-   * Gets the page blueprints the site's `pages` sections accept.
+   * Gets the page blueprints the site's `pagelist` fields accept.
    *
    * @returns Array of blueprints
    */
@@ -634,18 +634,15 @@ export interface PanelApiSite {
 
 /**
  * System installation data: the first user's create data, with a required
- * password.
+ * password and the `admin` role.
  * @source config/api/routes/system.php
  * @source src/Cms/UserActions.php
+ * @source src/Guards/UserValidators.php
  * @source panel/src/components/Views/Installation/InstallationView.vue
  */
 export interface PanelApiSystemInstallData extends PanelApiUserCreateData {
   password: string;
-  /**
-   * Role of the first user, `default` when omitted, or `nobody` if no
-   * `default` role exists – pass `admin` for an admin account.
-   */
-  role?: string;
+  role: "admin";
 }
 
 /**
@@ -658,7 +655,7 @@ export interface PanelApiSystemRegisterData {
 }
 
 /**
- * @source panel/src/api/system.js
+ * @source panel/src/api/system.ts
  * @source config/api/routes/system.php
  */
 export interface PanelApiSystem {
@@ -692,7 +689,7 @@ export interface PanelApiSystem {
 // #region Translations API
 
 /**
- * @source panel/src/api/translations.js
+ * @source panel/src/api/translations.ts
  * @source config/api/routes/translations.php
  */
 export interface PanelApiTranslations {
@@ -737,7 +734,6 @@ export interface PanelApiUserCreateData {
   /**
    * Content per language on a multi-language site. Each translation's
    * content runs through the fields' save handlers.
-   * @since 5.0.0
    */
   translations?: {
     /** Language code, the default language when omitted. */
@@ -747,10 +743,10 @@ export interface PanelApiUserCreateData {
 }
 
 /**
- * @source panel/src/api/users.js
+ * @source panel/src/api/users.ts
  * @source config/api/routes/users.php
  * @source src/Cms/ModelWithContent.php
- * @source config/sections/pages.php
+ * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiUsers {
   /**
@@ -762,15 +758,15 @@ export interface PanelApiUsers {
   blueprint: (id: string) => Promise<any>;
 
   /**
-   * Gets the blueprints accepted by a user's sections.
+   * Gets the page blueprints a user's `pagelist` fields accept.
    *
    * @param id - User ID
-   * @param section - Section name to narrow the blueprints to; all sections when omitted
+   * @param field - Field name to narrow the blueprints to; all fields when omitted
    * @returns Array of blueprints
    */
   blueprints: (
     id: string,
-    section?: string,
+    field?: string,
   ) => Promise<{ name: string; title: string }[]>;
 
   /**
@@ -929,12 +925,7 @@ export interface PanelApiUsers {
  * });
  * ```
  *
- * @source panel/src/api/index.js
- * @source panel/src/api/request.js
- * @source panel/src/api/get.js
- * @source panel/src/api/post.js
- * @source panel/src/api/patch.js
- * @source panel/src/api/delete.js
+ * @source panel/src/api/index.ts
  * @source panel/src/panel/request.ts
  */
 export interface PanelApi {
@@ -942,26 +933,25 @@ export interface PanelApi {
   readonly csrf: string;
 
   endpoint: string;
-
-  /** @since 5.0.0 */
   methodOverride: boolean;
 
-  /**
-   * Interval ID of the auth heartbeat, which pings while the Panel is online.
-   */
-  ping: ReturnType<typeof setInterval>;
+  /** Panel instance the client belongs to, the same object as `window.panel`. */
+  panel: Panel;
 
-  /** Active request IDs. */
-  requests: string[];
+  /** Interval ID of the auth heartbeat that `ping()` schedules. */
+  pingId: ReturnType<typeof setInterval>;
 
-  /** Number of running requests (initialized to `0`, never updated at runtime). */
-  running: number;
+  /** Restarts the auth heartbeat, which pings while the Panel is online. */
+  ping: () => void;
+
+  /** Number of API requests in flight. The loading indicator stops once it drops to `0`. */
+  requests: number;
 
   /**
    * Code of the Panel's active language, sent with each request; `null`
-   * without an active language, `undefined` before the first request.
+   * without an active language.
    */
-  language: string | null | undefined;
+  language: string | null;
 
   /**
    * Sends a request to the API. A model response resolves to its `data`, any

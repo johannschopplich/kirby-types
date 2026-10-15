@@ -39,7 +39,7 @@ import type {
 /**
  * Payload of the editor's `transaction` and `update` events.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  */
 export interface WriterEditorTransactionPayload {
   editor: WriterEditor;
@@ -52,7 +52,7 @@ export interface WriterEditorTransactionPayload {
 /**
  * Payload of the editor's `select` and `deselect` events.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  */
 export interface WriterEditorSelectPayload extends WriterEditorTransactionPayload {
   from: number;
@@ -67,9 +67,9 @@ export interface WriterEditorSelectPayload extends WriterEditorTransactionPayloa
  * as the only argument. `drop` is left out: it passes the view,
  * the event, the slice, and the `moved` flag as separate arguments.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
- * @source panel/src/components/Forms/Writer/Marks/Link.js
- * @source panel/src/components/Forms/Writer/Marks/Email.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
+ * @source panel/src/components/Forms/Writer/Marks/Link.ts
+ * @source panel/src/components/Forms/Writer/Marks/Email.ts
  */
 export interface WriterEditorEvents {
   blur: { event: FocusEvent; state: EditorState; view: EditorView };
@@ -93,12 +93,22 @@ export interface WriterEditorEvents {
  * The Writer editor instance, reached as `this.editor` inside extension
  * methods and as `this` inside event listeners.
  *
- * @source panel/src/components/Forms/Writer/Editor.js
- * @source panel/src/components/Forms/Writer/Emitter.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
+ * @source panel/src/components/Forms/Writer/Emitter.ts
  */
 export interface WriterEditor {
   // #region Properties
 
+  /**
+   * Marks and nodes active in the selection, with their attributes;
+   * reactive, refreshed after every transaction.
+   */
+  active: {
+    marks: string[];
+    nodes: string[];
+    markAttrs: Record<string, Record<string, any>>;
+    nodeAttrs: Record<string, Record<string, any>>;
+  };
   activeMarks: string[];
   /**
    * Attributes of every schema mark, keyed by name; `{}` for a mark the
@@ -116,8 +126,6 @@ export interface WriterEditor {
    * view before it runs and returns `false` while the editor is not editable.
    */
   commands: Record<string, (attrs?: any) => any>;
-  /** Default options that `options` is merged over. */
-  defaults: Required<WriterEditorOptions>;
   /** The DOM element the editor is mounted to. */
   element: HTMLElement | null;
   /** Event handlers passed via `options.events`. */
@@ -125,11 +133,6 @@ export interface WriterEditor {
   extensions: WriterExtensions;
   focused: boolean;
   inputRules: InputRule[];
-  /**
-   * Keyed by array index rather than by mark or node name, and every entry
-   * throws when called – read `activeMarks` and `activeNodes` instead.
-   */
-  isActive: Record<string, (attrs?: Record<string, any>) => boolean>;
   keymaps: Plugin[];
   /** Raw mark specs; `schema.marks` holds the `MarkType` instances. */
   marks: Record<string, MarkSpec>;
@@ -146,12 +149,12 @@ export interface WriterEditor {
   selectionAtStart: ProseMirrorSelection;
   selectionIsAtEnd: boolean;
   selectionIsAtStart: boolean;
-  /** Current state of the view, `undefined` wherever `view` is not set. */
+  /** Current state of the view, `undefined` wherever `view` is `null`. */
   state: EditorState;
   /**
-   * ProseMirror view, created after the extensions are set up, so not yet set
-   * inside their `init()`, `keys()`, `inputRules()`, `pasteRules()`, or
-   * `plugins()`.
+   * ProseMirror view, created after the extensions are set up, so `null`
+   * inside their `init()`, `keys()`, `inputRules()`, `pasteRules()`, and
+   * `plugins()`, and again after `destroy()`.
    */
   view: EditorView;
   // #endregion
@@ -210,10 +213,6 @@ export interface WriterEditor {
   getMarkAttrs: <T extends object = Record<string, any>>(
     type?: string | null,
   ) => T | undefined;
-  getSchemaJSON: () => {
-    nodes: Record<string, any>;
-    marks: Record<string, any>;
-  };
   /** Inserts text at the current selection. */
   insertText: (text: string, selected?: boolean) => void;
   isEditable: () => boolean;
@@ -244,7 +243,7 @@ export interface WriterEditor {
   ) => this) &
     ((event: string, fn: (...args: any[]) => any) => this);
   /** Removes a mark from the current selection. */
-  removeMark: (mark: string) => void;
+  removeMark: (mark: string) => boolean | undefined;
   /**
    * Returns the selection for a position: the current selection for `null`
    * or no position, the document start for `"start"` or `true`, its end for
@@ -263,14 +262,15 @@ export interface WriterEditor {
   toggleMark: (mark: string) => boolean | undefined;
   /**
    * Sets the mark with the given attributes on the selection, or on the
-   * mark's range around a collapsed cursor.
+   * mark's range around a collapsed cursor. Returns `false` when the cursor
+   * is outside the mark and `undefined` for a name the schema lacks.
    */
-  updateMark: (mark: string, attrs: Record<string, any>) => void;
+  updateMark: (mark: string, attrs: Record<string, any>) => boolean | undefined;
   // #endregion
 }
 
 /**
- * @source panel/src/components/Forms/Writer/Editor.js
+ * @source panel/src/components/Forms/Writer/Editor.ts
  */
 export interface WriterEditorOptions {
   autofocus?: boolean | "start" | "end" | number;
@@ -305,12 +305,11 @@ export interface WriterEditorOptions {
 /**
  * Extensions manager holding the editor's mark, node, and generic extensions.
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensions {
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  /** ProseMirror view, set once the editor has fired its `init` event. */
-  view: EditorView;
+  editor: WriterEditor;
 
   /** Returns toolbar buttons for the given type, `mark` by default. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
@@ -323,10 +322,9 @@ export interface WriterExtensions {
   /** Views of the node extensions that define one, keyed by node name. */
   nodeViews: Record<string, NodeViewConstructor>;
   /**
-   * Options of each extension, keyed by extension name; extensions whose
-   * `name` is `null` share the `"null"` key. Assigning a changed value updates
-   * the editor view. Reading it throws unless every extension defines
-   * `options`.
+   * Options of each extension, keyed by extension name. Assigning a changed
+   * value updates the editor view. Reading it throws unless every extension
+   * defines `options`.
    */
   options: Record<string, Record<string, any>>;
 }
@@ -335,9 +333,10 @@ export interface WriterExtensions {
 // #region Writer Toolbar
 
 /**
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Toolbar.vue
- * @source panel/src/components/Forms/Writer/Nodes/Heading.js
+ * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
  */
 export interface WriterToolbarButton {
   /**
@@ -366,8 +365,6 @@ export interface WriterToolbarButton {
   separator?: boolean;
   /**
    * Whether a node button shows inline in the toolbar instead of in the block dropdown.
-   *
-   * @since 5.0.0
    */
   inline?: boolean;
   /** Node names whose dropdown buttons stay enabled while this button's node is active. */
@@ -381,7 +378,7 @@ export interface WriterToolbarButton {
  * ProseMirror commands and custom helpers for marks, nodes, and editor state,
  * passed to extension methods as the context's `utils`.
  *
- * @source panel/src/components/Forms/Writer/Utils/index.js
+ * @source panel/src/components/Forms/Writer/Utils/index.ts
  */
 export interface WriterUtils {
   // #region ProseMirror Commands
@@ -430,13 +427,7 @@ export interface WriterUtils {
   /** Returns the attributes of the active node of the given type, or `{}`. */
   getNodeAttrs: (state: EditorState, type: NodeType) => Attrs;
 
-  /**
-   * Creates a command that inserts a node of the given type.
-   *
-   * @returns A ProseMirror command. It needs `dispatch` and returns nothing
-   *          even when it applies, so `chainCommands` and key bindings move on
-   *          to the next command.
-   */
+  /** Creates a command that inserts a node of the given type. */
   insertNode: (
     type: NodeType,
     attrs?: Attrs | null,
@@ -477,14 +468,14 @@ export interface WriterUtils {
   ) => Plugin;
 
   /**
-   * Parses a value as an integer and clamps it between a minimum and maximum.
+   * Clamps a value between a minimum and maximum.
    *
-   * @param value - The number or numeric string to clamp, `0` when omitted
+   * @param value - The value to clamp, `0` when omitted
    * @param min - The minimum allowed value, `0` when omitted
    * @param max - The maximum allowed value, `0` when omitted
-   * @returns The clamped integer, `NaN` when `value` does not parse as one
+   * @returns The clamped value
    */
-  minMax: (value?: number | string, min?: number, max?: number) => number;
+  minMax: (value?: number, min?: number, max?: number) => number;
 
   /** Creates an input rule that inserts a node when the pattern matches. */
   nodeInputRule: (
@@ -504,6 +495,7 @@ export interface WriterUtils {
    *
    * @param regexp - Pattern with the `g` flag; without it a match hangs the
    *                 paste.
+   * @deprecated Use `markPasteRule` instead.
    */
   pasteRule: (
     regexp: RegExp,
@@ -511,13 +503,7 @@ export interface WriterUtils {
     getAttrs?: Attrs | ((match: string) => Attrs),
   ) => Plugin;
 
-  /**
-   * Creates a command that removes a mark from the current selection.
-   *
-   * @returns A ProseMirror command. It needs `dispatch` and returns nothing
-   *          even when it applies, so `chainCommands` and key bindings move on
-   *          to the next command.
-   */
+  /** Creates a command that removes a mark from the current selection. */
   removeMark: (type: MarkType) => Command;
 
   /**
@@ -540,11 +526,8 @@ export interface WriterUtils {
 
   /**
    * Creates a command that sets the mark with the given attributes on every
-   * selected range, or on the mark's range around a collapsed cursor.
-   *
-   * @returns A ProseMirror command. It needs `dispatch` and returns nothing
-   *          even when it applies, so `chainCommands` and key bindings move on
-   *          to the next command.
+   * selected range, or on the mark's range around a collapsed cursor. The
+   * command returns `false` when the cursor is outside the mark.
    */
   updateMark: (type: MarkType, attrs: Attrs) => Command;
   // #endregion
@@ -572,7 +555,8 @@ export interface WriterUtils {
  * }
  * ```
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Mark.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterMarkContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -594,7 +578,8 @@ export interface WriterMarkContext {
  * }
  * ```
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Node.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterNodeContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -608,7 +593,8 @@ export interface WriterNodeContext {
  * Context passed to the methods of a generic extension, one that is neither a
  * mark nor a node.
  *
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterExtensionContext {
   /** The ProseMirror schema with all registered nodes and marks. */
@@ -628,13 +614,14 @@ export interface WriterExtensionContext {
  * extensions reach the editor as instances passed to the `extensions` prop of
  * `k-writer-input`, and custom shortcuts through its `keys` prop.
  *
- * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extensions.js
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
+ * @source panel/src/components/Forms/Input/WriterInput.props.ts
  */
 export interface WriterExtension {
-  /** Unique name of the extension, `null` on built-ins that define none. */
-  name?: string | null;
+  /** Unique name of the extension. */
+  name: string;
 
   /**
    * Discriminator value. A plain extension contributes `inputRules`, `keys`,
@@ -661,10 +648,13 @@ export interface WriterExtension {
   bindEditor: (editor: WriterEditor) => void;
 
   /** Runs after the editor is bound to the extension. */
-  init: () => null | void;
+  init: () => void;
 
-  /** Returns the commands this extension provides. */
-  commands?: (
+  /**
+   * Returns the commands this extension provides. The editor calls it on
+   * every extension, so an extension without commands returns `{}`.
+   */
+  commands: (
     context: WriterExtensionContext,
   ) => ((attrs?: any) => any) | Record<string, (attrs?: any) => any>;
 
@@ -725,10 +715,10 @@ export interface WriterExtension {
  * });
  * ```
  *
- * @source panel/src/components/Forms/Writer/Mark.js
- * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/helpers/writer.js
+ * @source panel/src/components/Forms/Writer/Mark.ts
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/helpers/writer.ts
  */
 export interface WriterMarkExtension {
   // #region Instance Properties (available via `this` in extension methods)
@@ -768,8 +758,9 @@ export interface WriterMarkExtension {
   /**
    * Mark spec registered in the editor schema under the mark's `name` –
    * attributes, DOM parsing and serialization, inclusivity, and exclusions.
+   * The editor fails to build its schema when a mark has none.
    */
-  schema?: MarkSpec;
+  schema: MarkSpec;
 
   /**
    * Returns the commands this extension provides.
@@ -881,7 +872,7 @@ export interface WriterMarkExtension {
    * Runs after the editor is bound to the extension and before the editor
    * builds its schema, view, and commands.
    */
-  init?: () => null | void;
+  init?: () => void;
   // #endregion
 
   // #region Mark Helper Methods (inherited by every mark)
@@ -891,7 +882,7 @@ export interface WriterMarkExtension {
    *
    * Shorthand for `this.editor.toggleMark(this.name)`.
    */
-  toggle?: () => boolean | undefined;
+  toggle?: () => void;
 
   /**
    * Removes this mark from the current selection.
@@ -950,11 +941,12 @@ export interface WriterMarkExtension {
  * });
  * ```
  *
- * @source panel/src/components/Forms/Writer/Node.js
- * @source panel/src/components/Forms/Writer/Extension.js
- * @source panel/src/components/Forms/Writer/Extensions.js
- * @source panel/src/helpers/writer.js
+ * @source panel/src/components/Forms/Writer/Node.ts
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/helpers/writer.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
+ * @source panel/src/components/Forms/Input/WriterInput.props.ts
  */
 export interface WriterNodeExtension {
   // #region Instance Properties (available via `this` in extension methods)
@@ -996,7 +988,7 @@ export interface WriterNodeExtension {
    *
    * An inline writer installs only nodes whose spec sets `inline: true`.
    */
-  schema?: NodeSpec;
+  schema: NodeSpec;
 
   /**
    * Returns the commands this extension provides.
@@ -1045,7 +1037,7 @@ export interface WriterNodeExtension {
    * Runs after the editor is bound to the extension and before the editor
    * builds its schema, view, and commands.
    */
-  init?: () => null | void;
+  init?: () => void;
   // #endregion
 }
 // #endregion

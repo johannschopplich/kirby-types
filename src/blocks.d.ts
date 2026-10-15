@@ -85,7 +85,7 @@ export interface KirbyDefaultBlocks {
     images: string[];
     caption: string;
     ratio: string;
-    crop: "true" | "false";
+    crop: boolean;
   };
 
   /** @see https://getkirby.com/docs/reference/panel/blocks/heading */
@@ -115,7 +115,7 @@ export interface KirbyDefaultBlocks {
         /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. */
         ratio: string;
         /** Whether to crop the image to fit the ratio. */
-        crop: "true" | "false";
+        crop: boolean;
       }
     | {
         /** External image. */
@@ -129,7 +129,7 @@ export interface KirbyDefaultBlocks {
         /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. Missing for parsed HTML. */
         ratio?: string;
         /** Whether to crop the image to fit the ratio. Missing for parsed HTML. */
-        crop?: "true" | "false";
+        crop?: boolean;
       };
 
   /**
@@ -194,10 +194,10 @@ export interface KirbyDefaultBlocks {
         poster: string[];
         /** Caption, may contain inline HTML. */
         caption: string;
-        autoplay: "true" | "false";
-        muted: "true" | "false";
-        loop: "true" | "false";
-        controls: "true" | "false";
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+        controls: boolean;
         preload: "auto" | "metadata" | "none" | "";
       };
 }

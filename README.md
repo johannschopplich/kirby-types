@@ -178,19 +178,29 @@ type PaginatedResponse = KirbyQueryResponse<BlogPostSummary[], true>;
 
 ## Panel Types
 
-> [!NOTE]
-> The Panel types describe the latest Kirby 5 release: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Panel source – PHP wins where they disagree. Members added after Kirby 4 carry a git-verified `@since` tag. Kirby 6 types ship in kirby-types v2.
+| kirby-types | Kirby   | Panel   |
+| ----------- | ------- | ------- |
+| v2          | 6       | Vue 3   |
+| v1          | 4 and 5 | Vue 2.7 |
 
-For Panel plugin development, type the global `window.panel` object:
+> [!NOTE]
+> The Panel types describe the latest Kirby 6 release: every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Panel source – PHP wins where they disagree.
+
+For Panel plugin development, import the opt-in globals once, e.g. in your plugin's entry file. The import types `window.panel` and the Panel's global properties on every Vue component (`this.$panel`, `this.$t`, `this.$helper`, …):
 
 ```ts
-import type { Panel } from "kirby-types";
+import "kirby-types/panel-globals";
 
-declare global {
-  interface Window {
-    panel: Panel;
-  }
-}
+window.panel.plugin("my/plugin", {
+  fields: {
+    color: {
+      extends: "k-text-field",
+    },
+  },
+  created(instance) {
+    instance.$panel.notification.info("Plugin ready");
+  },
+});
 ```
 
 Common Panel operations:
@@ -307,23 +317,24 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 <details>
 <summary>View all Blueprint field types</summary>
 
-| Type                                              | Description                      |
-| ------------------------------------------------- | -------------------------------- |
-| [`KirbyTextFieldProps`](./src/blueprint.d.ts)     | Text field props                 |
-| [`KirbyTextareaFieldProps`](./src/blueprint.d.ts) | Textarea field props             |
-| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)   | Number field props               |
-| [`KirbyDateFieldProps`](./src/blueprint.d.ts)     | Date and time field props        |
-| [`KirbyFilesFieldProps`](./src/blueprint.d.ts)    | Files/pages/users picker props   |
-| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)  | Select/radio/checkboxes/toggles  |
-| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)   | Toggle (boolean) field props     |
-| [`KirbyColorFieldProps`](./src/blueprint.d.ts)    | Color picker field props         |
-| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)    | Range slider field props         |
-| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)     | Tags and multiselect field props |
-| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)     | Link field props                 |
-| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)   | Object field props               |
-| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)   | Writer (rich text) field props   |
-| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)  | Entries field props              |
-| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)    | Stats field props                |
+| Type                                               | Description                      |
+| -------------------------------------------------- | -------------------------------- |
+| [`KirbyTextFieldProps`](./src/blueprint.d.ts)      | Text field props                 |
+| [`KirbyTextareaFieldProps`](./src/blueprint.d.ts)  | Textarea field props             |
+| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)    | Number field props               |
+| [`KirbyDateFieldProps`](./src/blueprint.d.ts)      | Date and time field props        |
+| [`KirbyPickerFieldProps`](./src/blueprint.d.ts)    | Files/pages/users picker props   |
+| [`KirbyModelListFieldProps`](./src/blueprint.d.ts) | File and page list field props   |
+| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)   | Select/radio/checkboxes/toggles  |
+| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)    | Toggle (boolean) field props     |
+| [`KirbyColorFieldProps`](./src/blueprint.d.ts)     | Color picker field props         |
+| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)     | Range slider field props         |
+| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)      | Tags and multiselect field props |
+| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)      | Link field props                 |
+| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)    | Object field props               |
+| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)    | Writer (rich text) field props   |
+| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)   | Entries field props              |
+| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)     | Stats field props                |
 
 </details>
 
@@ -332,10 +343,10 @@ pnpm add -D prosemirror-commands prosemirror-inputrules prosemirror-model prosem
 Vue is an optional peer dependency for Panel types:
 
 ```bash
-pnpm add -D vue@^2.7.0
+pnpm add -D vue@^3.5.0
 ```
 
-`dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `interpret`, `pattern`, …):
+`dayjs` is another optional peer dependency – it powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `parse`, `pattern`, …):
 
 ```bash
 pnpm add -D dayjs

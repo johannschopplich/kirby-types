@@ -16,6 +16,7 @@
  * - `arrayItem` – Current array item while options are built from a query.
  * - `structureItem` – Current structure entry while options are built from a query.
  * - `block` – Current block while options are built from a query.
+ * - `this` – The whole data context, for keys that are not valid identifiers, as in `this["my-key"]`.
  *
  * @example
  * ```ts
@@ -31,7 +32,7 @@
  * @template CustomModel - Additional custom root names to include
  *
  * @source src/Query/Query.php
- * @source src/Query/Segment.php
+ * @source src/Query/Runners/Scope.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Option/OptionsQuery.php
  * @source src/Option/OptionsApi.php
@@ -42,7 +43,6 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "site"
   | "page"
   | "user"
-  /** @since 5.1.2 */
   | "users"
   | "file"
   | "model"
@@ -52,6 +52,7 @@ export type KirbyQueryModel<CustomModel extends string = never> =
   | "arrayItem"
   | "structureItem"
   | "block"
+  | "this"
   | CustomModel;
 
 /**
@@ -76,17 +77,19 @@ type AccessibleQueryModel<M extends string = never> =
 type CallableQueryModel<M extends string = never> =
   | Exclude<
       KirbyQueryModel,
-      "model" | "item" | "arrayItem" | "structureItem" | "block"
+      "model" | "item" | "arrayItem" | "structureItem" | "block" | "this"
     >
   | M;
 
 /**
- * Dot notation query, such as `root.property.method` or `root?.property`.
+ * Dot notation query, such as `root.property.method`, `root?.property`, or
+ * `root[key]`.
  * @internal
  */
 type DotNotationQuery<M extends string = never> =
   | `${AccessibleQueryModel<M>}.${string}`
-  | `${AccessibleQueryModel<M>}?.${string}`;
+  | `${AccessibleQueryModel<M>}?.${string}`
+  | `${AccessibleQueryModel<M>}[${string}`;
 
 /**
  * Function notation query, such as `page(params)` or `page(params).chain`.
@@ -108,7 +111,7 @@ type OperatorQuery<M extends string = never> =
  * Query that starts with a root and continues with property access, method
  * calls, or an operator:
  *
- * - **Dot notation**: `root.property.method()` or `root?.property`.
+ * - **Dot notation**: `root.property.method()`, `root?.property`, or `root[key]`.
  * - **Function calls**: `page(params)`, calling a global function or custom
  *   root.
  * - **Mixed chains**: `page(params).property.method()`.
@@ -131,9 +134,8 @@ type OperatorQuery<M extends string = never> =
  *
  * @template M - Optional custom root names to include in validation
  *
- * @source src/Query/Expression.php
- * @source src/Query/Segments.php
- * @source src/Query/Segment.php
+ * @source src/Query/Parser/Parser.php
+ * @source src/Query/Parser/Tokenizer.php
  */
 export type KirbyQueryChain<M extends string = never> =
   DotNotationQuery<M> | FunctionNotationQuery<M> | OperatorQuery<M>;
@@ -146,9 +148,11 @@ export type KirbyQueryChain<M extends string = never> =
  * - Method calls (e.g., `'page("home")'`, `'page.children.filterBy("status", "listed")'`)
  * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`).
  *
- * An unknown root is a type error. `collection`, `t`, and `qr` only work as
- * calls; `model`, `item`, `arrayItem`, `structureItem`, and `block` never take
- * `(`. The rest of the chain is not checked.
+ * A query is a type error unless it starts with a known root, alone or followed
+ * by `.`, `?.`, `[`, `(`, or a spaced `??`, `?:`, or `?` – `!page.isListed`,
+ * `page == site`, and `page??fallback` fail. `collection`, `t`, and `qr` only
+ * work as calls; `model`, `item`, `arrayItem`, `structureItem`, `block`, and
+ * `this` never take `(`. The rest of the chain is not checked.
  *
  * @example
  * ```ts
@@ -227,9 +231,9 @@ type ParseQuerySegment<T extends string> =
  * `model` (e.g., `site`, `page`, `user`), and a `chain` of property accesses
  * and method calls. The chain splits at every dot, including dots inside method
  * arguments other than the root call's, and `?.` reads as `.` everywhere, inside
- * arguments too. Operators such as `??`, `?:`, and `? :` are not parsed: on a
- * bare root the result is `never`; after a chain they stay inside the segment
- * names, split at any dot they contain.
+ * arguments too. `[key]` access and operators such as `??`, `?:`, `==`, or `!`
+ * are not parsed: on a bare root the result is `never`; after a chain they stay
+ * inside the segment names, split at any dot they contain.
  *
  * @example
  * ```ts

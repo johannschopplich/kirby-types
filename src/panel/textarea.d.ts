@@ -2,7 +2,7 @@
  * Types for custom textarea toolbar buttons.
  */
 
-import type { PanelApp, PanelDropdownOption } from "./index";
+import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
 
 // #region Textarea Toolbar Context
 
@@ -13,7 +13,7 @@ import type { PanelApp, PanelDropdownOption } from "./index";
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
-export interface TextareaToolbarContext extends PanelApp {
+export interface TextareaToolbarContext extends PanelGlobalProperties {
   /**
    * Emits a command to the textarea input component:
    * - `"dialog"`: Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
@@ -22,7 +22,7 @@ export interface TextareaToolbarContext extends PanelApp {
    * - `"toggle"`: Toggles wrapping of the current selection in the given `before` text and the optional `after` text, which defaults to `before`.
    * - `"upload"`: Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
    * - `"wrap"`: Wraps the current selection in the given `before` text and the optional `after` text, which defaults to `before`.
-   * - `"file"`: Opens a dialog to select an existing file and inserts its tag.
+   * - `"file"`: Opens a dialog to select existing files and inserts their tags.
    *
    * @example
    * ```js
@@ -132,12 +132,6 @@ export interface TextareaButton {
    * ```
    */
   shortcut?: string;
-
-  /**
-   * Handles `keydown` events while the button itself has focus, unlike
-   * `shortcut`, which fires while the textarea has focus.
-   */
-  key?: (event: KeyboardEvent) => void;
 
   /**
    * Dropdown menu items. A `"-"` entry renders a separator.

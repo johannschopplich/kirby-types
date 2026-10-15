@@ -1,10 +1,13 @@
 // Tests representative plugin-author types (writer + textarea + plugin extensions) – not exhaustive.
 import type { Node as ProseMirrorNode } from "prosemirror-model";
 import type { EditorView } from "prosemirror-view";
+import type { ComponentPublicInstance } from "vue";
 import type {
   Panel,
   PanelApp,
   PanelComponentExtension,
+  PanelHelpers,
+  PanelLibrary,
   PanelPluginExtensions,
   TextareaButton,
   TextareaToolbarContext,
@@ -15,6 +18,7 @@ import type {
   WriterNodeExtension,
   WriterToolbarButton,
 } from "../src/panel";
+import type { PanelDayjsInstance } from "../src/panel/libraries";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 import { defineComponent } from "vue";
 
@@ -41,6 +45,16 @@ expectAssignable<WriterToolbarButton>({
 
 // Minimal
 expectAssignable<WriterExtension>({
+  name: "history",
+  type: "extension",
+  bindEditor() {},
+  init() {},
+  commands() {
+    return {};
+  },
+});
+
+expectNotAssignable<WriterExtension>({
   name: "history",
   type: "extension",
   bindEditor() {},
@@ -78,6 +92,9 @@ expectAssignable<WriterExtension>({
   name: "customKeys",
   bindEditor() {},
   init() {},
+  commands() {
+    return {};
+  },
   keys() {
     return {
       "Ctrl-s": () => {
@@ -159,6 +176,10 @@ expectAssignable<WriterMarkExtension>({
     { id: "h1", icon: "h1", label: "Heading 1" },
     { id: "h2", icon: "h2", label: "Heading 2" },
   ],
+  schema: {
+    parseDOM: [{ tag: "mark" }],
+    toDOM: () => ["mark", 0],
+  },
 });
 // #endregion
 
@@ -315,18 +336,13 @@ expectAssignable<PanelPluginExtensions>({
   icons: {
     custom: `<svg>...</svg>`,
   },
-  sections: {
-    stats: {
-      template: `<div>{{ data }}</div>`,
-    },
-  },
   viewButtons: {
     "my-button": {
       template: `<k-button>Click me</k-button>`,
     },
   },
-  created(app) {
-    expectType<PanelApp>(app);
+  created(instance) {
+    expectType<ComponentPublicInstance>(instance);
   },
   textareaButtons: {
     timestamp: {
@@ -416,4 +432,19 @@ expectNotAssignable<WriterToolbarButton>({
   icon: "bold",
   // Missing label
 });
+// #endregion
+
+// #region Panel App
+// The index signature of `globalProperties` must not widen the helpers to `any`.
+declare const app: PanelApp;
+expectType<PanelHelpers>(app.config.globalProperties.$helper);
+expectType<PanelLibrary>(app.config.globalProperties.$library);
+expectType<(string: unknown) => string>(app.config.globalProperties.$esc);
+// #endregion
+
+// #region Panel Libraries
+// dayjs takes a `locale` option as its second argument, not a format string.
+declare const library: PanelLibrary;
+expectType<PanelDayjsInstance>(library.dayjs("2024-01-15", { locale: "de" }));
+expectNotAssignable<Parameters<PanelLibrary["dayjs"]>[1]>("DD.MM.YYYY");
 // #endregion
