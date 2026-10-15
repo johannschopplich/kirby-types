@@ -13,14 +13,12 @@
   },
   "bugs": "https://github.com/johannschopplich/kirby-types/issues",
   "keywords": [
-    "getkirby",
-    "kirby-cms",
     "kirby",
+    "kirby-cms",
+    "getkirby",
     "kirby-panel",
-    "kql",
-    "query-language",
-    "query",
-    "typescript"
+    "typescript",
+    "kql"
   ],
   "sideEffects": false,
   "exports": {
