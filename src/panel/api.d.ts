@@ -540,7 +540,7 @@ export interface PanelApiPages {
   /**
    * Returns the API path of a page.
    *
-   * @param id - Page ID
+   * @param id - Page ID (`null` for the `pages` collection), never a UUID or permalink
    * @param path - Additional path
    * @returns API path, relative to the API endpoint
    */
@@ -590,7 +590,7 @@ export interface PanelApiSite {
   blueprint: () => Promise<any>;
 
   /**
-   * Gets available blueprints for the site.
+   * Gets the page blueprints the site's `pages` sections accept.
    *
    * @returns Array of blueprints
    */
@@ -671,7 +671,8 @@ export interface PanelApiSystem {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Creates the first user on an uninstalled site and signs them in.
+   * Creates the first user and logs them in. Rejects once the Panel is
+   * installed or when it cannot be installed.
    *
    * @param data - Installation data
    * @returns Created user

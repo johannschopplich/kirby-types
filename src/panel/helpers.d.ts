@@ -65,8 +65,10 @@ export interface PanelHelpersArray {
 // #region String Helpers
 
 /**
- * Ordered character maps applied before slugging; a key lists `|`-separated
- * strings, each replaced literally by the key's value.
+ * Ordered character maps applied to the trimmed, lowercased string before
+ * slugging; a key lists `|`-separated strings, each replaced literally by the
+ * key's value, so a string with uppercase letters never matches. A key
+ * starting with `/` has its first and last characters stripped first.
  *
  * @source panel/src/helpers/string.ts
  */
@@ -183,7 +185,8 @@ export interface PanelHelpersString {
   ucwords: (string: string) => string;
 
   /**
-   * Reverts the entities `escapeHTML()` produces.
+   * Reverses the entities `escapeHTML()` produces; any other entity stays
+   * as-is.
    */
   unescapeHTML: (string: string) => string;
 
@@ -823,15 +826,14 @@ export interface PanelHelpers {
   file: PanelHelpersFile;
 
   /**
-   * Tries in order the `field` input, an `autofocus` element, an input, a
-   * submit button, and a button inside the element, checking only the first
-   * match of each, and focuses the first one that is enabled. Falls back to
-   * the element itself. Without `field`, does
-   * nothing while focus already sits inside the element.
+   * Tries the first `field` input, `autofocus` element, input, submit button,
+   * and button inside the element, in that order, and focuses the first of
+   * them that is enabled, or else the element itself. Without `field`, leaves
+   * the focus alone when it already sits inside the element.
    *
    * @param element - Selector, element, or `null` (returns `false`)
    * @param field - Name of the input to focus first
-   * @returns The focused element, or `false` if nothing could be focused
+   * @returns The focused element, or `false` if nothing was focused
    */
   focus: (
     element: string | HTMLElement | null,

@@ -738,7 +738,9 @@ export interface PanelPlugins {
   use: (PluginObject<any> | PluginFunction<any>)[];
 
   /**
-   * Reserved bucket for view-button plugins (initialized empty; entries are actually stored under `components` as `k-${name}-view-button`).
+   * Reserved bucket for view-button plugins (initialized empty;
+   * `panel.plugin()` registers them under `components` as
+   * `k-${name}-view-button`).
    *
    * @since 5.0.0
    */

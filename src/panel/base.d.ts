@@ -135,6 +135,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
 /**
  * @source panel/src/panel/feature.ts
  * @source src/Panel/Json.php
+ * @source src/Panel/View.php
  */
 export interface PanelFeatureDefaults {
   /** Current Vue component name to render. */

@@ -615,6 +615,7 @@ export interface PanelDropdownOption {
   /** Text shown in place of `text`. */
   label?: string;
 
+  /** Text shown without `label`; also the option's accessible label. */
   text?: string | number;
 
   icon?: string;
@@ -770,7 +771,7 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
 }
 
 /**
- * Panel dialog, loaded from the backend or opened from a component object.
+ * Panel dialog, loaded from the backend or opened from a state object.
  *
  * @source panel/src/panel/dialog.js
  * @source panel/src/panel/modal.js

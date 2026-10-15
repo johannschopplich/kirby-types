@@ -40,8 +40,8 @@ export interface KirbyOption {
 /**
  * Props of a field as the backend sends them; the field-specific types extend
  * them. `info` and `headline` omit `disabled`, `required`, and `translate`,
- * but receive `disabled` when the user may not update the model or the field
- * is not translatable into the current language.
+ * but receive `disabled` when the current user may not update the model or
+ * the field is not translatable into the current language.
  *
  * @example
  * ```ts
@@ -134,7 +134,7 @@ export interface KirbyTextFieldProps extends KirbyFieldProps {
   pattern?: string;
   /** Whether the browser spellcheck is on (text and email only). */
   spellcheck?: boolean;
-  /** Field whose value the slug follows while it changes (slug only). */
+  /** Field the slug is generated from while it changes (slug only). */
   sync?: string;
   /** Button that fills the slug from another field (slug only). */
   wizard?: boolean | { field?: string; text?: string };
@@ -319,7 +319,10 @@ export interface KirbyFilesFieldProps extends KirbyFieldProps {
   min?: number;
   /** Whether multiple selection is allowed. */
   multiple: boolean;
-  /** API path of the model whose files the picker lists (files field only). */
+  /**
+   * API path of the model the blueprint's `parent` query resolves to, else of
+   * the field's own model (files field only).
+   */
   parent?: string;
   /** Query for available items. */
   query?: string;

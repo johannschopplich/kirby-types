@@ -183,6 +183,12 @@ export interface WriterEditor {
     payload: WriterEditorEvents[K],
   ) => this) &
     ((event: string, ...args: any[]) => this);
+  /**
+   * Focuses the editor and moves the cursor: `"start"` or `true` to the
+   * start, `"end"` to the end, a number to that position. Without a position
+   * it keeps the selection and does nothing while the editor has focus;
+   * `false` does nothing.
+   */
   focus: (position?: "start" | "end" | number | boolean | null) => void;
   /**
    * Returns content as HTML. An inline editor returns only the first
@@ -197,8 +203,9 @@ export interface WriterEditor {
   getHTMLStartToSelectionToEnd: () => [string, string];
   getJSON: () => Record<string, any>;
   /**
-   * Returns attributes for a mark type: `{}` when no text in the selection
-   * carries the mark, `undefined` for a name the schema lacks.
+   * Returns the attributes of the named mark in the selection: `{}` when no
+   * text in the selection carries the mark, `undefined` without a name or for
+   * a name the schema lacks.
    */
   getMarkAttrs: <T extends object = Record<string, any>>(
     type?: string | null,
@@ -210,6 +217,10 @@ export interface WriterEditor {
   /** Inserts text at the current selection. */
   insertText: (text: string, selected?: boolean) => void;
   isEditable: () => boolean;
+  /**
+   * Checks if the document has no text, so a document holding only non-text
+   * nodes such as a horizontal rule counts as empty.
+   */
   isEmpty: () => boolean;
   /**
    * Unsubscribes from events.
@@ -234,6 +245,11 @@ export interface WriterEditor {
     ((event: string, fn: (...args: any[]) => any) => this);
   /** Removes a mark from the current selection. */
   removeMark: (mark: string) => void;
+  /**
+   * Returns the selection for a position: the current selection for `null`
+   * or no position, the document start for `"start"` or `true`, its end for
+   * `"end"`, and a collapsed `{ from, to }` range for a number.
+   */
   selectionAtPosition: (
     position?: "start" | "end" | number | true | null,
   ) => ProseMirrorSelection | { from: number; to: number };
@@ -245,6 +261,10 @@ export interface WriterEditor {
   setSelection: (from?: number, to?: number) => void;
   /** Toggles a mark on the current selection. */
   toggleMark: (mark: string) => boolean | undefined;
+  /**
+   * Sets the mark with the given attributes on the selection, or on the
+   * mark's range around a collapsed cursor.
+   */
   updateMark: (mark: string, attrs: Record<string, any>) => void;
   // #endregion
 }
@@ -759,10 +779,9 @@ export interface WriterMarkExtension {
   /**
    * Returns the commands this extension provides.
    *
-   * @returns A command function, registered under the mark's `name`, or an
-   *          object mapping command names to functions. A command that returns
-   *          a ProseMirror command has it run against the editor view; any
-   *          other return value is passed through.
+   * A single function registers under the mark's `name`, an object under its
+   * keys. A command that returns a function has it run as a ProseMirror
+   * command against the view; any other return value passes through.
    *
    * @example
    * ```js
