@@ -896,7 +896,7 @@ export interface WriterMarkExtension {
    *
    * Shorthand for `this.editor.updateMark(this.name, attrs)`.
    */
-  update?: (attrs: Attrs) => void;
+  update?: (attrs: Record<string, any>) => void;
   // #endregion
 }
 // #endregion

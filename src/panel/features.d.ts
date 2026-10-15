@@ -656,17 +656,17 @@ export interface PanelView
 /**
  * Dropdown option. Other button props pass through to the rendered item.
  *
- * @source panel/src/panel/dropdown.ts
  * @source panel/src/components/Dropdowns/Dropdown.vue
  * @source panel/src/components/Navigation/Button.vue
  * @source panel/src/components/Navigation/Link.vue
  */
 export interface PanelDropdownOption {
-  /** Text shown for the option, in place of `text`. */
+  /** Text shown in place of `text`. */
   label?: string;
 
   /** Text shown without `label`; also the option's accessible label. */
   text?: string | number;
+
   icon?: string;
 
   /**
@@ -678,13 +678,18 @@ export interface PanelDropdownOption {
    */
   click?:
     (() => void) | string | { name?: string; payload?: any; global?: string };
+
   /** Whether the option is shown; `false` hides it. */
   when?: boolean;
+
   disabled?: boolean;
+
   /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
+
   /** URL or Panel path the option links to. */
   link?: string;
+
   /** Link target, such as `"_blank"`. Applies only with `link`. */
   target?: string;
 
@@ -693,30 +698,37 @@ export interface PanelDropdownOption {
    * `"_blank"` target replaces it with `"noreferrer noopener"`.
    */
   rel?: string;
+
   /**
    * Downloads the linked file instead of opening it. Applies only with
    * `link`.
    */
   download?: boolean;
+
   /** Tooltip text. Also the option's accessible label when `text` is unset. */
   title?: string;
+
   /**
-   * Dialog to open on click instead of running `click`, as a Panel path or
-   * a dialog state object.
+   * Dialog to open on click instead of running `click`: a Panel path, or an
+   * object `panel.dialog.open()` accepts.
    */
   dialog?: string | Record<string, any>;
+
   /**
-   * Drawer to open on click instead of running `click`, as a Panel path or
-   * a drawer state object.
+   * Drawer to open on click instead of running `click`: a Panel path, or an
+   * object `panel.drawer.open()` accepts.
    */
   drawer?: string | Record<string, any>;
+
   /** Design theme, such as `"negative"` for a destructive entry. */
   theme?: string;
+
   /**
    * Colored badge on the option. Its `theme` falls back to the option's
    * `theme`.
    */
   badge?: { text: string | number; theme?: string };
+
   [key: string]: any;
 }
 
@@ -1605,8 +1617,8 @@ export interface PanelEvents extends PanelEventEmitter {
   // #endregion
 
   /**
-   * Attaches the document and window listeners that re-emit their events on
-   * the bus.
+   * Adds the document and window listeners that re-emit their events on the
+   * bus.
    */
   subscribe: () => void;
 

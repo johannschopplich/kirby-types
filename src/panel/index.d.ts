@@ -252,8 +252,8 @@ export type PanelComponentExtension =
 export interface PanelConfig {
   api: {
     /**
-     * Whether requests other than `GET` and `POST` are sent as `POST` with an
-     * `X-HTTP-Method-Override` header.
+     * Whether API requests other than `GET` and `POST` are sent as `POST` with
+     * an `X-HTTP-Method-Override` header.
      */
     methodOverride: boolean;
   };

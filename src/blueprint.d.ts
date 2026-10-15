@@ -121,7 +121,7 @@ export interface KirbyTextFieldProps extends KirbyFieldProps {
    * only).
    */
   allow?: string;
-  /** Browser autocomplete hint, e.g. `email` or `url`. */
+  /** HTML `autocomplete` attribute of the input. */
   autocomplete?: string;
   /** Converter applied to the value before it is saved. */
   converter?: "label" | "lower" | "upper" | "ucfirst" | "slug";
@@ -132,7 +132,7 @@ export interface KirbyTextFieldProps extends KirbyFieldProps {
   maxlength?: number;
   /** Minimum character length. */
   minlength?: number;
-  /** Path shown with the slug below the field (slug only). */
+  /** Prefix of the slug preview below the field (slug only). */
   path?: string;
   /** Validation regex pattern. */
   pattern?: string;
@@ -164,10 +164,7 @@ export interface KirbyTextareaFieldProps extends KirbyFieldProps {
   minlength?: number;
   size?: "small" | "medium" | "large" | "huge";
   spellcheck?: boolean;
-  /**
-   * Upload settings like the accepted file types, or `false` when uploads are
-   * off.
-   */
+  /** Upload options with an `accept` attribute, or `false` without uploads. */
   uploads: false | Record<string, any>;
 }
 
@@ -259,6 +256,11 @@ export interface KirbyPickerItem {
    * Model ID; the stored reference for an item the current user may not list.
    */
   id: string;
+  /**
+   * Model UUID, `null` with UUIDs disabled; the stored reference for an item
+   * the current user may not list.
+   */
+  uuid: string | null;
   /** Display text. */
   text: string;
   /** Info text, `null` for an item the current user may not list. */
@@ -273,11 +275,6 @@ export interface KirbyPickerItem {
    * current user may not list.
    */
   permissions: Record<string, boolean> | [];
-  /**
-   * Model UUID, `null` with UUIDs disabled; the stored reference for an item
-   * the current user may not list.
-   */
-  uuid: string | null;
   [key: string]: any;
 }
 
@@ -327,8 +324,8 @@ export interface KirbyPickerFieldProps extends KirbyFieldProps {
   /** Text template for each item. */
   text?: string;
   /**
-   * Upload settings like the accepted file types, or `false` when uploads are
-   * off (`filepicker` only).
+   * Upload options with an `accept` attribute, or `false` without uploads
+   * (`filepicker` only).
    */
   uploads?: false | Record<string, any>;
 }
@@ -404,7 +401,7 @@ export interface KirbyColorFieldProps extends KirbyFieldProps {
  */
 export interface KirbyRangeFieldProps extends KirbyFieldProps {
   type: "range";
-  /** Maximum value, `100` by default. */
+  /** Maximum value (default: `100`). */
   max: number;
   min?: number;
   /** Step increment, or `"any"` for any decimal value. */
