@@ -582,7 +582,8 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
    * object keyed by node where `false` excludes one.
    */
   nodes?: string[] | boolean | Record<string, any>;
-  toolbar?: Record<string, any>;
+  /** Toolbar options `inline`, `marks`, and `nodes`; a boolean has no effect. */
+  toolbar?: boolean | Record<string, any>;
 }
 
 /**

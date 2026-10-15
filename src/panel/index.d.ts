@@ -1164,11 +1164,7 @@ export interface Panel {
    * `{placeholder}` values from `data`. A missing key falls back to
    * `fallback`.
    */
-  t: (
-    key: string,
-    data?: Record<string, any>,
-    fallback?: string | null,
-  ) => string;
+  t: (key: string, data?: Record<string, any>, fallback?: string) => string;
 
   /** @deprecated Alias of `t()`; use `t()` instead. */
   $t: Panel["t"];

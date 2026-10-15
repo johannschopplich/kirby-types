@@ -262,7 +262,7 @@ export interface WriterEditorOptions {
   editable?: boolean;
   element?: HTMLElement | null;
   extensions?: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
-  emptyDocument?: Record<string, any>;
+  emptyDocument?: { type: string; content?: Record<string, any>[] };
   /**
    * Listeners registered with `on()` at init, keyed by event name. `paste` is
    * never emitted: the view calls it with the clipboard event and its HTML and
