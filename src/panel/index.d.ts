@@ -20,6 +20,7 @@ import type {
   PanelContext,
   PanelFeatureDefaults,
   PanelRequestOptions,
+  PanelResponseActions,
 } from "./base";
 import type * as PanelFeatures from "./features";
 import type { PanelHelpers } from "./helpers";
@@ -65,6 +66,7 @@ export type {
   PanelFeature,
   PanelModalEvent,
   PanelModalListeners,
+  PanelResponseActions,
   PanelModalSubmitResponse,
   PanelModal,
   PanelHistoryMilestone,
@@ -490,7 +492,10 @@ export interface PanelUrls {
  * @source panel/src/panel/html.ts
  */
 export interface PanelRequestResponse {
-  /** Request built from the URL, the query, and the Panel's headers. */
+  /**
+   * Request built from the URL and the query, with the Panel's headers unless
+   * `external` is set.
+   */
   request: Request;
   /**
    * Parsed response: a plain object that exposes the pre-resolved body
@@ -499,8 +504,9 @@ export interface PanelRequestResponse {
   response: {
     headers: Headers;
     /**
-     * Parsed JSON body. Each `<key>` entry arrives renamed to `key`, its
-     * strings wrapped as `HtmlString`.
+     * Parsed JSON body. On a Panel request, each `<key>` entry arrives renamed
+     * to `key`, its strings wrapped as `HtmlString`. On an external request,
+     * `null` unless the response is valid JSON.
      */
     json: any;
     ok: boolean;
@@ -697,9 +703,6 @@ export interface PanelPlugins {
   /** Registered SVG icons. */
   icons: Record<string, string>;
 
-  /** Reserved bucket for plugin-registered routes (initialized empty; not currently written to by `panel.plugin()`). */
-  routes: Record<string, any>[];
-
   /**
    * Registered textarea toolbar buttons.
    */
@@ -710,20 +713,6 @@ export interface PanelPlugins {
 
   /** Vue plugins installed via `app.use()`. */
   use: Plugin[];
-
-  /**
-   * Reserved bucket for view-button plugins (initialized empty;
-   * `panel.plugin()` registers them under `components` as
-   * `k-${name}-view-button`).
-   */
-  viewButtons: Record<
-    string,
-    | DefineComponent<any, any, any, any, any, any, any, any, any, any, any>
-    | Record<string, any>
-  >;
-
-  /** Reserved bucket for plugin-registered views (initialized empty; not currently written to by `panel.plugin()`). */
-  views: Record<string, Record<string, any>>;
 
   /**
    * Registered writer marks.
@@ -742,6 +731,7 @@ export interface PanelPlugins {
 
 /**
  * Language information for multi-language sites.
+ * @source panel/src/panel/panel.ts
  * @source src/Cms/Language.php
  * @source src/Panel/State.php
  */
@@ -883,6 +873,7 @@ export interface PanelHtml {
  * @source panel/src/panel/observers.ts
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/translation.ts
+ * @source panel/src/helpers/url.ts
  * @source panel/public/js/plugins.js
  * @source src/Panel/State.php
  * @source src/Cms/LicenseStatus.php
@@ -1014,6 +1005,16 @@ export interface Panel {
   // #region Methods
 
   /**
+   * Shows the response's `message`, emits its events, then opens its
+   * `redirect` or, with `reload` set, reloads the view.
+   */
+  act: (
+    response?: PanelResponseActions,
+  ) => Promise<
+    PanelGlobalState | PanelFeatures.PanelViewDefaults | false | undefined
+  >;
+
+  /**
    * Logs a deprecation warning.
    */
   deprecated: (message: string) => void;
@@ -1111,6 +1112,9 @@ export interface Panel {
    * Sends a request through the Panel router. A cross-origin URL or a
    * non-JSON response rejects with a redirect error, which `panel.error()`
    * turns into a page navigation.
+   *
+   * With `external: true`, sends a plain request to a third-party URL instead,
+   * rejecting on a non-OK status.
    *
    * @param options - Request options, including the `method`
    */
@@ -1286,6 +1290,7 @@ interface PanelViewPropsVersions {
 /**
  * Active blueprint tab, its columns carrying the resolved field props.
  * @source src/Blueprint/Tab.php
+ * @source src/Blueprint/Tabs.php
  */
 interface PanelViewPropsTab {
   label: string;
@@ -1340,7 +1345,7 @@ interface PanelViewPropsButton {
     drawer?: string;
     /** Whether the button opens a dropdown. */
     dropdown?: boolean;
-    /** Whether another translation has unsaved changes. Sent by the languages dropdown. */
+    /** Whether another translation has unsaved changes. Present on the languages button. */
     hasDiff?: boolean;
     icon?: string;
     link?: string;
@@ -1428,6 +1433,7 @@ export interface PanelFileViewProps extends PanelViewProps {
  * Props of a user view, also sent to the account view.
  *
  * @source src/Panel/Controller/View/UserViewController.php
+ * @source src/Panel/Model.php
  */
 export interface PanelUserViewProps extends PanelViewProps {
   avatar?: string;
