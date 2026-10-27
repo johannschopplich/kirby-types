@@ -32,7 +32,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 - **Symbols**: PanelBreadcrumbItem, PanelViewDefaults, PanelView, PanelSearchPagination, PanelSearchOptions, PanelSearchResponse, PanelSearcher
 - **Modules**: `panel/src/panel/{view,search,feature}`
-- **PHP**: `src/Panel/{State,Page,File,User,Site}.php` (`$view` resolver + per-model props)
+- **PHP**: `src/Panel/{State,Page,File,User,Site}.php` (`$view` resolver + per-model props), `src/Panel/Controller/View/*ViewController.php` (breadcrumbs)
 
 ### `features-upload`
 
@@ -85,8 +85,8 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 ### `helpers-data`
 
 - **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
-- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), `items`
-- **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index,items}`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
+- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), `items`, `number`
+- **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index,items,number}`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 
 ### `helpers-string`
 

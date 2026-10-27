@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Roots
 
-Take three absolute paths from the user:
+Take three absolute paths from the user; without them, default to this checkout, the `/tmp/kirby-v6` clone of `v6/develop`, and `~/Projects/kirbyuse`:
 
 - `<KIRBY_TYPES_ROOT>`: the kirby-types checkout being audited
 - `<KIRBY_ROOT>`: the Kirby checkout at its latest release per [rubric.md – Line](references/rubric.md#line), PHP and Panel source
@@ -30,7 +30,7 @@ It writes `<KIRBY_TYPES_ROOT>/.review/source-map.json`: the Kirby major and `@si
 
 ## Pass 1
 
-One agent per cluster in [topology.md](references/topology.md), launched in batches of about eight, with the [Pass 1 template](references/agent-prompts.md#pass-1). Done when every cluster has a `.review/.raw/<cluster>.json` that parses, a clean one included, and `git status --short` lists no `.d.ts`. Relaunch a cluster whose file is missing or broken; revert a `.d.ts` an agent touched.
+One agent per cluster in [topology.md](references/topology.md), at most about eight running at once, with the [Pass 1 template](references/agent-prompts.md#pass-1). Done when every cluster has a `.review/.raw/<cluster>.json` that parses, a clean one included, and `git status --short` lists no `.d.ts`. Relaunch a cluster whose file is missing or broken; revert a `.d.ts` an agent touched.
 
 ## Rename Gate
 
@@ -38,16 +38,15 @@ Collect `renameCandidates` across clusters, a `tighten` that changes an identifi
 
 ## Pass 2
 
-One verifier per `.d.ts` in the topology, with the [Pass 2 template](references/agent-prompts.md#pass-2). Done when every `.d.ts` has a `.review/.raw/<file>.pass2.json` that parses; relaunch a verifier whose file is missing or broken.
+One verifier per `.d.ts` in the topology, with the [Pass 2 template](references/agent-prompts.md#pass-2) and the pass-1 `outOfScope` entries naming its file. Done when every `.d.ts` has a `.review/.raw/<file>.pass2.json` that parses; relaunch a verifier whose file is missing or broken.
 
 ## Apply
 
-Collect every `old_string`/`new_string` pair under an ACT and apply it with the Edit tool to the patch's `file`, else to the verifier's `.d.ts`; the first match wins:
+```
+node scripts/apply.mjs <KIRBY_TYPES_ROOT>
+```
 
-- `new_string` contains `old_string` and is present: an insertion already applied, skip.
-- `old_string` found once: apply.
-- `old_string` gone and `new_string` present: already applied, skip.
-- Anything else: skip, and keep it for the report.
+It applies every ACT patch of `.review/.raw/*.pass2.json` and lists the ones it skipped, for the report.
 
 Run the checks on `<KIRBY_TYPES_ROOT>`'s own install. Done when `pnpm exec tsc --noEmit`, `pnpm test`, `pnpm lint`, and `node scripts/check-line.mjs <KIRBY_TYPES_ROOT>` exit clean, with the `test/*.test-d.ts` assertions the new types broke updated in the same pass. A narrowed member fails `tsc` on an interface that extends it and overrides it wider: narrow that override too, or `Omit` the member there.
 
@@ -58,7 +57,7 @@ kirbyuse builds on these types. Install them into `<KIRBYUSE_ROOT>` as a tarball
 - **Grep** its `src/` and README for every member pass 2 deleted, renamed, or retyped, and for comments naming kirby-types (`//.*kirby-types`), the marker of a workaround for a types gap.
 - **Check** `pnpm test:types`, `pnpm lint`, and `pnpm build`.
 
-Then restore `package.json` and the lockfile that `pnpm add` rewrote, and `pnpm install`. Done when every hit is fixed or reported, the checks passed against the tarball, `dist/index.d.ts` still declares what `src/index.ts` hands its users (`window.panel` or the `kirby-types/panel-globals` re-export), and `git status --short` in `<KIRBYUSE_ROOT>` lists only the fixes.
+Then restore every file `pnpm add` rewrote – `git status --short` lists them – and `pnpm install`. Done when every hit is fixed or reported, the checks passed against the tarball, `dist/index.d.ts` still declares what `src/index.ts` hands its users (`window.panel` or the `kirby-types/panel-globals` re-export), and `git status --short` in `<KIRBYUSE_ROOT>` lists only the fixes.
 
 ## Report
 

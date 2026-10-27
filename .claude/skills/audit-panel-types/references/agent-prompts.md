@@ -21,8 +21,8 @@ SYMBOLS YOU OWN:
 <COMMA-SEPARATED LIST FROM TOPOLOGY>
 
 MODULES (extension-free):
-<MODULE LIST FROM TOPOLOGY>
-PHP: <PHP paths from topology, or "silent">. A path KIRBY ROOT lacks has moved: take its counterpart from topology's preamble, else find it by resolver or method name, and cite that.
+<MODULE LIST FROM TOPOLOGY, or "none – PHP-rooted">
+PHP: <PHP paths from topology, or "silent">. A path KIRBY ROOT lacks has moved: find it by resolver or method name, and cite that.
 WATCH: <from topology: the file section's preamble, the cluster's preamble, and every cluster bullet besides Symbols, Modules and PHP – or "none">
 
 JOB:
@@ -44,10 +44,11 @@ OUTPUT (written to OUTPUT PATH; the reply carries only the summary and the count
     "soft": []
   },
   "intentional": [{ "symbol": "...", "name": "...", "note": "..." }],
+  "outOfScope": [{ "file": "<the .d.ts it belongs to>", "note": "..." }],
   "summary": "1-3 sentences."
 }
 
-`annotations` lists only declarations that lack an `@source` for one of their authoritative files; `anchor` identifies the declaration line uniquely; `sources` lists only the missing files. Source paths are file-only, without a `:line` suffix.
+`outOfScope` holds what you noticed outside your symbols, for that file's pass-2 verifier. `annotations` lists only declarations that lack an `@source` for one of their authoritative files; `anchor` identifies the declaration line uniquely; `sources` lists only the missing files. Source paths are file-only, without a `:line` suffix.
 ```
 
 ## Pass 2
@@ -69,9 +70,11 @@ PASS-1 FINDINGS, read each:
 - <KIRBY_TYPES_ROOT>/.review/.raw/<cluster1>.json
 - ...
 
+OUT OF SCOPE: <the other clusters' `outOfScope` entries naming this file, or "none">
+
 APPROVED RENAMES: <list of {current → proposed}, or "none">
 
-JOB, for every pass-1 finding:
+JOB, for every pass-1 finding and out-of-scope entry:
 
 1. Re-verify against PHP first, the Panel source second. Re-read the cited source for each ACT, and DEFER when one check leaves it ambiguous.
 2. Decide:
@@ -79,11 +82,11 @@ JOB, for every pass-1 finding:
    - **DEFER**: real, but costs more than it gives (deep PHP types, server-hydrated nullability no consumer observes).
    - **DISMISS**: pass 1 was wrong.
 3. A rename is ACT only when approved; otherwise DEFER with `user did not approve rename`.
-4. Merge findings several clusters report for the same member into one patch.
+4. Merge findings several clusters report for the same member into one patch. A new type two `.d.ts` files need is declared in the file whose cluster lists its source module; the other file imports it.
 5. For each ACT, emit `{old_string, new_string}`:
    - `old_string` is an exact substring found once in the current file. Widen it to the wrapping declaration when a member name repeats, as `slug:` or `uuid:` do on a sub-interface and as a shortcut. Patches never overlap; merge neighbours.
    - Keep indentation and the existing JSDoc the finding leaves true; rewrite or drop the lines it falsifies – a phantom `@source`, a version in prose, a shape the type rejects, a deleted member's doc. A JSDoc's indent is that of its inner `*` lines, one more than `/**`; expand a one-line `/** … */` before adding a line to it.
-   - New members follow the rubric's JSDoc style, and a patch changes only its finding.
+   - New members follow the rubric's JSDoc style. A patch changes only its finding and the lines the same claim needs elsewhere, such as the matching `@source` on a sibling declaration.
    - A broken `test/*.test-d.ts` assertion or a companion edit in another file, such as a re-export, gets its own patch with `"file"` set to that path. A fixed assertion keeps exercising the same call against the new type.
 
 Soft items: tighten when the type is statically known and breaks nothing; otherwise DEFER.
