@@ -95,6 +95,7 @@ export interface WriterEditorEvents {
  *
  * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/components/Forms/Writer/Emitter.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterEditor {
   // #region Properties
@@ -121,6 +122,11 @@ export interface WriterEditor {
    * selection lacks.
    */
   activeNodeAttrs: Record<string, Record<string, any>>;
+  /**
+   * Fresh `doc`, `text`, and `paragraph` nodes on every read, not bound to the
+   * editor; `[]` with `useBuiltInExtensions: false`.
+   */
+  builtInExtensions: WriterNodeExtension[];
   /**
    * Commands from all extensions, keyed by command name. Each focuses the
    * view before it runs and returns `false` while the editor is not editable.
@@ -181,6 +187,11 @@ export interface WriterEditor {
       parseOptions?: ParseOptions,
     ) => ProseMirrorNode | false);
   destroy: () => void;
+  /**
+   * Applies a transaction to the view and emits the matching editor events;
+   * a transaction with the `preventUpdate` meta emits no `update`.
+   */
+  dispatchTransaction: (transaction: Transaction) => void;
   emit: (<K extends keyof WriterEditorEvents>(
     event: K,
     payload: WriterEditorEvents[K],
@@ -252,6 +263,8 @@ export interface WriterEditor {
   selectionAtPosition: (
     position?: "start" | "end" | number | true | null,
   ) => ProseMirrorSelection | { from: number; to: number };
+  /** Recomputes `active` from the current state. */
+  setActiveNodesAndMarks: () => void;
   setContent: (
     content?: string | Record<string, any> | null,
     emitUpdate?: boolean,
@@ -379,6 +392,21 @@ export interface WriterToolbarButton {
  * passed to extension methods as the context's `utils`.
  *
  * @source panel/src/components/Forms/Writer/Utils/index.ts
+ * @source panel/src/components/Forms/Writer/Utils/getMarkAttrs.ts
+ * @source panel/src/components/Forms/Writer/Utils/getNodeAttrs.ts
+ * @source panel/src/components/Forms/Writer/Utils/insertNode.ts
+ * @source panel/src/components/Forms/Writer/Utils/markInputRule.ts
+ * @source panel/src/components/Forms/Writer/Utils/markIsActive.ts
+ * @source panel/src/components/Forms/Writer/Utils/markPasteRule.ts
+ * @source panel/src/components/Forms/Writer/Utils/minMax.ts
+ * @source panel/src/components/Forms/Writer/Utils/nodeInputRule.ts
+ * @source panel/src/components/Forms/Writer/Utils/nodeIsActive.ts
+ * @source panel/src/components/Forms/Writer/Utils/pasteRule.ts
+ * @source panel/src/components/Forms/Writer/Utils/removeMark.ts
+ * @source panel/src/components/Forms/Writer/Utils/toggleBlockType.ts
+ * @source panel/src/components/Forms/Writer/Utils/toggleList.ts
+ * @source panel/src/components/Forms/Writer/Utils/toggleWrap.ts
+ * @source panel/src/components/Forms/Writer/Utils/updateMark.ts
  */
 export interface WriterUtils {
   // #region ProseMirror Commands
@@ -556,6 +584,7 @@ export interface WriterUtils {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Mark.ts
+ * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterMarkContext {
@@ -579,6 +608,7 @@ export interface WriterMarkContext {
  * ```
  *
  * @source panel/src/components/Forms/Writer/Node.ts
+ * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterNodeContext {
@@ -718,6 +748,7 @@ export interface WriterExtension {
  * @source panel/src/components/Forms/Writer/Mark.ts
  * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/helpers/writer.ts
  */
 export interface WriterMarkExtension {
@@ -896,7 +927,7 @@ export interface WriterMarkExtension {
    *
    * Shorthand for `this.editor.updateMark(this.name, attrs)`.
    */
-  update?: (attrs: Record<string, any>) => void;
+  update?: (attrs: Attrs) => void;
   // #endregion
 }
 // #endregion
@@ -944,6 +975,7 @@ export interface WriterMarkExtension {
  * @source panel/src/components/Forms/Writer/Node.ts
  * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/helpers/writer.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
  * @source panel/src/components/Forms/Input/WriterInput.props.ts
