@@ -7,6 +7,7 @@ import type { Panel } from "./index";
 
 /**
  * @source panel/src/api/index.ts
+ * @source panel/src/panel/request.ts
  */
 export interface PanelApiRequestOptions extends Omit<
   PanelRequestOptions,
@@ -168,6 +169,8 @@ export interface PanelApiAuth {
  * UUID or permalink alone, or a site file by its filename.
  *
  * @source panel/src/api/files.ts
+ * @source config/api/routes/files.php
+ * @source src/Cms/Find.php
  */
 export interface PanelApiFiles {
   /**
@@ -371,6 +374,7 @@ export interface PanelApiPageDuplicateOptions {
  * @source src/Cms/Page.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Form/Field/PageListField.php
+ * @source src/Cms/PageActions.php
  */
 export interface PanelApiPages {
   /**
@@ -553,6 +557,7 @@ export interface PanelApiPages {
 /**
  * @source panel/src/api/roles.ts
  * @source config/api/routes/roles.php
+ * @source src/Cms/Roles.php
  */
 export interface PanelApiRoles {
   /**
@@ -647,6 +652,7 @@ export interface PanelApiSystemInstallData extends PanelApiUserCreateData {
 
 /**
  * @source config/api/routes/system.php
+ * @source src/Cms/License.php
  */
 export interface PanelApiSystemRegisterData {
   license: string;
@@ -747,6 +753,7 @@ export interface PanelApiUserCreateData {
  * @source config/api/routes/users.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Form/Field/PageListField.php
+ * @source src/Cms/User.php
  */
 export interface PanelApiUsers {
   /**
@@ -996,7 +1003,7 @@ export interface PanelApi {
    */
   post: <T = any>(
     path: string,
-    data?: any,
+    data?: Record<string, any>,
     options?: PanelApiRequestOptions,
     method?: string,
     silent?: boolean,
@@ -1013,7 +1020,7 @@ export interface PanelApi {
    */
   patch: <T = any>(
     path: string,
-    data?: any,
+    data?: Record<string, any>,
     options?: PanelApiRequestOptions,
     silent?: boolean,
   ) => Promise<T>;
@@ -1029,7 +1036,7 @@ export interface PanelApi {
    */
   delete: <T = any>(
     path: string,
-    data?: any,
+    data?: Record<string, any>,
     options?: PanelApiRequestOptions,
     silent?: boolean,
   ) => Promise<T>;
