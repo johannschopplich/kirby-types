@@ -194,6 +194,7 @@ export interface PanelLanguage
  * are left out.
  *
  * @source src/Panel/Ui/Button.php
+ * @source src/Panel/Ui/Component.php
  * @source src/Panel/Menu.php
  */
 export interface PanelMenuButtonProps {
@@ -253,6 +254,7 @@ export interface PanelMenuItem {
   /** Component name, e.g. `"k-button"`. */
   component: string;
   key: string;
+  /** Props of a button item; a custom component item sends only its own attributes. */
   props: PanelMenuButtonProps;
 }
 
@@ -487,6 +489,8 @@ export interface PanelSystem
 /**
  * @source panel/src/panel/translation.ts
  * @source src/Panel/State.php
+ * @source src/Cms/Translation.php
+ * @source src/Toolkit/Date.php
  */
 export interface PanelTranslationDefaults {
   /** Translation code (e.g., `"en"`, `"de"`). */
@@ -506,6 +510,7 @@ export interface PanelTranslationDefaults {
  * Interface translation of the current user.
  *
  * @source panel/src/panel/translation.ts
+ * @source panel/src/panel/html.ts
  * @source src/Panel/State.php
  */
 export interface PanelTranslation
@@ -619,8 +624,12 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
   link: string | null;
   /** Relative path to this view. */
   path: string;
+  /** Previous path for navigation and redirects. */
+  referrer: string;
   /** Default search type. */
   search: string;
+  /** Server time in milliseconds when the view was sent. */
+  timestamp: number;
   title: string | null;
 }
 
@@ -632,7 +641,10 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
  */
 export interface PanelView
   extends
-    Omit<PanelFeature<PanelViewDefaults>, "set" | "path">,
+    Omit<
+      PanelFeature<PanelViewDefaults>,
+      "set" | "path" | "referrer" | "timestamp"
+    >,
     PanelViewDefaults {
   /** Loads a view, canceling any previous request first. */
   load: (
@@ -770,8 +782,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
   options: () => (PanelDropdownOption | "-")[];
 
   /**
-   * Sets the dropdown state; a top-level `options` array moves into
-   * `props.options`.
+   * Sets the dropdown state; a top-level `options` array replaces `props`
+   * with `{ options }`.
    */
   set: (
     state: Partial<PanelFeatureDefaults> & {
@@ -799,6 +811,7 @@ export interface PanelDialogDefaults extends PanelFeatureDefaults {
  *
  * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/modal.ts
+ * @source src/Panel/Response/DialogResponse.php
  */
 export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
   /**
@@ -834,6 +847,7 @@ export interface PanelDrawerDefaults extends PanelFeatureDefaults {
  *
  * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.ts
+ * @source src/Panel/Response/DrawerResponse.php
  */
 export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Drawer states stacked in the history, oldest first. */
@@ -1158,11 +1172,13 @@ export interface PanelSearchPagination {
 
 /**
  * @source panel/src/panel/search.ts
+ * @source src/Panel/Controller/SearchController.php
  * @source src/Panel/Routes/SearchRoutes.php
  */
 export interface PanelSearchOptions {
+  /** Page to return; `1` by default. */
   page?: number;
-  /** Results per page. */
+  /** Results per page; the `panel.search.limit` option, `10` by default. */
   limit?: number;
 }
 
@@ -1243,9 +1259,15 @@ export interface PanelSearcher {
  *
  * @source panel/src/panel/upload.ts
  * @source panel/src/components/Dialogs/UploadReplaceDialog.vue
+ * @source panel/src/components/Views/Files/FileView.vue
+ * @source panel/src/components/Forms/Field/FileListField.vue
  * @source src/Panel/Ui/Item/FileItem.php
+ * @source src/Panel/Ui/Item/ModelItem.php
  * @source src/Panel/Controller/View/FileViewController.php
+ * @source src/Panel/Controller/View/ModelViewController.php
+ * @source src/Panel/Ui/FilePreview.php
  * @source src/Panel/File.php
+ * @source src/Panel/Model.php
  */
 export interface PanelUploadReplaceFile {
   /**
@@ -1290,9 +1312,9 @@ export interface PanelUploadFile {
   filename: string;
   /** File size in bytes. */
   size: number;
-  /** Formatted file size (e.g., `"1.2MB"`). */
+  /** Formatted file size (e.g., `"1.5 MB"`). */
   niceSize: string;
-  /** MIME type. */
+  /** MIME type; an empty string when the browser cannot detect it. */
   type: string;
   /** Blob URL for preview, revoked once the file leaves the queue. */
   url: string;
@@ -1315,6 +1337,7 @@ export interface PanelUploadFile {
 /**
  * @source panel/src/panel/upload.ts
  * @source src/Panel/Ui/Upload.php
+ * @source src/Form/Field/ModelListField.php
  */
 export interface PanelUploadDefaults {
   /** Accepted file types. */
@@ -1326,7 +1349,10 @@ export interface PanelUploadDefaults {
   max: number | null;
   /** Whether multiple files are allowed. */
   multiple: boolean;
-  /** Event listeners, replacing the previous ones on every `set()` call. */
+  /**
+   * Listeners for the `cancel`, `complete`, `done`, `open`, and `select`
+   * events, replacing the previous ones on every `set()` call.
+   */
   on: PanelEventListenerMap;
   /**
    * Preview settings, such as `back`, `color`, `cover`, `icon`, or `query`,
@@ -1430,7 +1456,10 @@ export interface PanelUpload
    */
   remove: (id: string) => void;
 
-  /** Opens the file picker to replace an existing file. */
+  /**
+   * Opens the file picker to replace `file`, ignoring any `url`, `accept`,
+   * `multiple`, or `replacing` in `options`.
+   */
   replace: (
     file: PanelUploadReplaceFile,
     options?: PanelUploadOptions & { immediate?: boolean },
@@ -1457,7 +1486,7 @@ export interface PanelUpload
   set: (state?: PanelUploadOptions) => PanelUploadDefaults | undefined;
 
   /**
-   * Uploads all files not yet completed and throws when `url` is missing. A
+   * Uploads all files not yet completed and rejects when `url` is missing. A
    * file sharing its name and extension with another queued file gets an
    * `error` instead of uploading. A set `attributes.sort` increments once per
    * file, and `done()` runs once every file has completed.
@@ -1507,6 +1536,9 @@ export interface PanelEventEmitter {
  * - `clipboard.write` copies its payload and shows a success notification.
  *
  * @source panel/src/panel/events.ts
+ * @source panel/src/panel/dialog.ts
+ * @source panel/src/panel/drawer.ts
+ * @source panel/src/panel/modal.ts
  */
 export interface PanelEvents extends PanelEventEmitter {
   /**
