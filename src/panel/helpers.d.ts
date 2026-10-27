@@ -424,16 +424,25 @@ export interface PanelHelpersField {
    * of the field component's `value` prop (called when a function), else
    * `null`. Returns `undefined` when the field component has no `value` prop,
    * which makes `form()` skip the field.
+   *
+   * @unstable
    */
   defaultValue: (field: PanelFieldDefinition) => any;
 
-  /** Collects the default value of each field, keyed by field name. */
+  /**
+   * Collects the default value of each field, keyed by field name.
+   *
+   * @unstable
+   */
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
    * Checks if a field is visible. Returns `false` for hidden fields,
    * otherwise evaluates the `when` conditions against `values`, the current
-   * form values.
+   * form values. `values` needs lowercase keys and matching value types; a
+   * `""` or `[]` condition also matches a missing value.
+   *
+   * @unstable
    */
   isVisible: (
     field: PanelFieldDefinition,
@@ -449,6 +458,7 @@ export interface PanelHelpersField {
    * @param field - Parent field
    * @param fields - Subfield definitions
    * @returns The mutated subfield definitions
+   * @unstable
    */
   subfields: (
     field: PanelFieldDefinition,
@@ -476,10 +486,12 @@ export interface PanelHelpersFile {
   name: (filename: string) => string;
 
   /**
-   * Formats byte size as human-readable string.
+   * Formats a byte size in the interface language, with a non-breaking space
+   * before the unit.
    *
    * @param size - Size in bytes
-   * @returns Formatted size (e.g., `"1KB"`, `"1.3MB"`)
+   * @returns Formatted size (e.g., `"1 KB"`, `"1.5 MB"`), `"0 KB"` for a size
+   *   of `0` or less
    */
   niceSize: (size: number) => string;
 }
@@ -571,6 +583,17 @@ export interface PanelHelpersLink {
 }
 // #endregion
 
+// #region Number Helpers
+
+/**
+ * @source panel/src/helpers/number.ts
+ */
+export interface PanelHelpersNumber {
+  /** Formats a number in the interface language. */
+  format: (value: number, options?: Intl.NumberFormatOptions) => string;
+}
+// #endregion
+
 // #region Page Helpers
 
 /**
@@ -609,6 +632,7 @@ export interface PanelHelpersPage {
    * @param disabled - Whether the button is disabled; also appends the
    *   translated `disabled` label to the title
    * @param flag - Blueprint overrides for the status icon, label, and theme
+   * @unstable
    */
   status: (
     status: string,
@@ -834,9 +858,11 @@ export interface PanelHelpers {
    * rejects. A failed request still reaches the Panel's error handling, so an
    * expired session or a lost connection surfaces to the user.
    *
-   * @param endpoint - API endpoint, e.g. `"items/files"`
+   * @param endpoint - API endpoint: `"items/files"`, `"items/pages"`, or
+   *   `"items/users"`
    * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs
-   * @param query - Query passed on to the endpoint
+   * @param query - Query passed on to the endpoint; the item endpoints read
+   *   `image` (a JSON string of image options), `info`, `layout`, and `text`
    * @returns Item props, or an array of them in the order of the IDs
    */
   items: {
@@ -856,6 +882,8 @@ export interface PanelHelpers {
 
   link: PanelHelpersLink;
 
+  number: PanelHelpersNumber;
+
   object: PanelHelpersObject;
 
   /**
@@ -867,7 +895,8 @@ export interface PanelHelpers {
   page: PanelHelpersPage;
 
   /**
-   * Converts aspect ratio to percentage.
+   * Converts aspect ratio to percentage; a zero part returns `"100%"` and a
+   * non-numeric part `"NaN%"`, whatever the `fallback`.
    *
    * @param fraction - Ratio string (default: `"3/2"`)
    * @param fallback - Value returned when the fraction does not split into two
@@ -889,7 +918,9 @@ export interface PanelHelpers {
 
   /**
    * Creates a natural-order comparator: numeric runs compare as numbers, hex
-   * strings and dates by value, and empty values sort as the smallest.
+   * strings and dates by value, and empty values sort as the smallest. The
+   * comparator caches every value it compares, so create a new one for each
+   * sort.
    */
   sort: (options?: PanelSortOptions) => PanelComparator;
 
