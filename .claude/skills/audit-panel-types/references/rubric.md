@@ -11,6 +11,7 @@ Types and docs describe Kirby 6's **latest release** and nothing beyond it. Unti
 - A value only an older release returns leaves the union.
 - The prose names no version.
 - A member the latest release deprecates keeps `@deprecated` with what to use instead, or what happens without it; a member it accepts but ignores is deleted.
+- A member the latest release marks `@unstable` carries a bare `@unstable` tag.
 
 ## Authority order
 
