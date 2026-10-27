@@ -297,7 +297,7 @@ declare const context: TextareaToolbarContext;
 
 expectType<void>(context.command("toggle", "**"));
 expectType<void>(
-  context.command("insert", (input: string, selection: string) =>
+  context.command("insert", (input: HTMLTextAreaElement, selection: string) =>
     selection.toUpperCase(),
   ),
 );

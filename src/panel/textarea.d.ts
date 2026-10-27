@@ -11,12 +11,13 @@ import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
  * The Panel's global properties, such as `$panel` and `$helper`, are available too.
  *
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
+ * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
 export interface TextareaToolbarContext extends PanelGlobalProperties {
   /**
    * Emits a command to the textarea input component:
-   * - `"dialog"`: Opens the toolbar dialog of the given name, such as `"link"` or `"email"`.
+   * - `"dialog"`: Opens the toolbar dialog of the given name, such as `"link"`, `"email"`, or a plugin's `k-toolbar-<name>-dialog`; the submitted text replaces the selection.
    * - `"insert"`: Replaces the current selection with the given text, or with the return value of an `(input, selection)` callback.
    * - `"prepend"`: Prepends the given text and a space to the current selection.
    * - `"toggle"`: Toggles wrapping of the current selection in the given `before` text and the optional `after` text, which defaults to `before`.
@@ -84,6 +85,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
  *
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
+ * @source panel/src/components/Dropdowns/Dropdown.vue
  * @source panel/src/components/Navigation/Button.vue
  */
 export interface TextareaButton {
