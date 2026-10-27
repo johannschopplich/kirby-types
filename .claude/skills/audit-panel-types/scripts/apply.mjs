@@ -2,7 +2,8 @@
 // Apply the ACT patches of every `.review/.raw/*.pass2.json`, first match wins:
 // an insertion already present is skipped, an `old_string` found once is
 // replaced, an `old_string` gone with its `new_string` present is skipped as
-// applied, and anything else is skipped and listed for the report.
+// applied, and anything else – an ACT without a patch included – is skipped and
+// listed for the report.
 //
 // Usage: node apply.mjs <KIRBY_TYPES_ROOT>
 import fs from "node:fs";
@@ -33,7 +34,11 @@ for (const report of fs
   );
 
   for (const entry of [...verifications, ...annotations]) {
-    if (entry.decision !== "ACT" || !entry.patch) continue;
+    if (entry.decision !== "ACT") continue;
+    if (!entry.patch) {
+      skipped.push(`${tsFile}: ${entry.finding} (ACT without a patch)`);
+      continue;
+    }
     const {
       file = tsFile,
       old_string: oldString,

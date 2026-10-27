@@ -1,19 +1,17 @@
-# Topology – stable cluster → source map
-
-Each entry lists the symbols the agent owns, the source **modules** (extension-free), and the PHP authority.
+# Topology
 
 ## base.d.ts
 
 ### `base`
 
-- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
+- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelResponseActions, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
 - **PHP**: `src/Panel/Response/{View,Dialog,Drawer,Json}Response.php` (response keys)
 - **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer`.
 
 ## features.d.ts
 
-Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape, not PHP authority (defaults-as-runtime fallacy).
+Hybrid clusters: defaults-as-runtime fallacy.
 
 ### `features-stateonly`
 
@@ -39,7 +37,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 - **Symbols**: PanelUploadFile, PanelUploadReplaceFile, PanelUploadDefaults, PanelUpload
 - **Modules**: `panel/src/panel/upload` (+ `panel/src/helpers/upload` for context)
 - **PHP**: `src/Panel/File.php` (server file model for `replacing` / `completed`)
-- **Watch**: the Panel TS reuses its queued-upload type for `replacing`, which is WRONG against PHP – PHP is authority for the `replacing` shape.
+- **Watch**: the Panel TS reuses its queued-upload type for `replacing`; the `replacing` shape follows `File.php`.
 
 ### `features-content`
 
@@ -56,7 +54,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 ## api.d.ts
 
-JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulted only when JSDoc on the wrapper is missing. Query bags and response data are intentional looseness.
+JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulted only when JSDoc on the wrapper is missing.
 
 ### `api-core`
 
@@ -84,7 +82,7 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 
 ### `helpers-data`
 
-- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
+- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer,Number}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
 - **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), `items`, `number`
 - **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index,items,number}`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 

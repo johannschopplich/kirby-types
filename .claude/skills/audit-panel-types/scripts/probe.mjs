@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
-import { LINE } from "./line.mjs";
+import { TARGET } from "./kirby.mjs";
 
 const [KIRBY, TYPES] = process.argv.slice(2);
 if (!KIRBY || !TYPES) {
@@ -198,9 +198,9 @@ function unownedTypes() {
 const kirbyVersion = version();
 const flags = [];
 
-if (!kirbyVersion.startsWith(`${LINE.major}.`)) {
+if (!kirbyVersion.startsWith(`${TARGET.major}.`)) {
   flags.push(
-    `KIRBY-MISMATCH: kirby-types types Kirby ${LINE.major}, but the Kirby root is ${kirbyVersion} -> ask for the matching root.`,
+    `KIRBY-MISMATCH: kirby-types types Kirby ${TARGET.major}, but the Kirby root is ${kirbyVersion} -> ask for the matching root.`,
   );
 }
 
@@ -249,7 +249,7 @@ fs.writeFileSync(
   path.join(TYPES, ".review", "source-map.json"),
   JSON.stringify(
     {
-      ...LINE,
+      ...TARGET,
       base: run(`git -C "${TYPES}" rev-parse HEAD`).trim(),
       kirbyVersion,
       historyReach: reach,

@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 // Check the comments in the kirby-types declarations for misplaced versions: a
-// `@since` outside the line's major or not newer than the baseline; and any
+// `@since` outside Kirby's major or not newer than the baseline; and any
 // Kirby version in prose, since the docs describe the latest release.
 // Exits 1 with one `file:line` per hit.
 //
-// Usage: node check-line.mjs <KIRBY_TYPES_ROOT>
+// Usage: node check-versions.mjs <KIRBY_TYPES_ROOT>
 import fs from "node:fs";
 import path from "node:path";
-import { LINE } from "./line.mjs";
+import { TARGET } from "./kirby.mjs";
 
 const [TYPES] = process.argv.slice(2);
 if (!TYPES) {
-  process.stderr.write("Usage: node check-line.mjs <KIRBY_TYPES_ROOT>\n");
+  process.stderr.write("Usage: node check-versions.mjs <KIRBY_TYPES_ROOT>\n");
   process.exit(1);
 }
 
-// A missing or `x` patch, as in `4.8` or `5.3.x`, counts as 0.
+// A missing or `x` patch, as in `6.1` or `6.1.x`, counts as 0.
 const compare = (a, b) => {
   const [x, y] = [a, b].map((v) =>
     v.split(".").map((part) => Number(part) || 0),
@@ -24,7 +24,7 @@ const compare = (a, b) => {
 };
 const versions = (text) =>
   (text.match(/(?<![\d.])\d+\.\d+(?:\.(?:\d+|x))?\b/g) ?? []).filter((v) =>
-    v.startsWith(`${LINE.major}.`),
+    v.startsWith(`${TARGET.major}.`),
   );
 
 const files = [
@@ -44,11 +44,13 @@ for (const file of files) {
     const since = text.match(/@since\s+(?:Kirby\s+)?((\d+)\.[\w.]+)/);
     const prose = since ? text.replace(since[0], "") : text;
     const dated = versions(prose);
-    if (since && since[2] !== LINE.major) {
-      hits.push(`${at}: \`@since ${since[1]}\` is outside Kirby ${LINE.major}`);
-    } else if (since && compare(since[1], LINE.baseline) <= 0) {
+    if (since && since[2] !== TARGET.major) {
       hits.push(
-        `${at}: \`@since ${since[1]}\` is not newer than the baseline ${LINE.baseline} – ${text.trim()}`,
+        `${at}: \`@since ${since[1]}\` is outside Kirby ${TARGET.major}`,
+      );
+    } else if (since && compare(since[1], TARGET.baseline) <= 0) {
+      hits.push(
+        `${at}: \`@since ${since[1]}\` is not newer than the baseline ${TARGET.baseline} – ${text.trim()}`,
       );
     }
     if (/\bKirby \d/.test(prose)) {
