@@ -1,31 +1,28 @@
 ---
 name: audit-panel-types
-description: Audit kirby-types panel augmentation types against the Kirby PHP and Panel source of the release line the branch targets, via a two-pass agent swarm.
+description: Audit kirby-types panel augmentation types against the Kirby 6 PHP and Panel source, via a two-pass agent swarm.
 disable-model-invocation: true
 ---
 
 # Audit Panel Types
 
-Each kirby-types branch types one Kirby release line, per [rubric.md – Lines](references/rubric.md#lines).
-
 ## Roots
 
 Take three absolute paths from the user:
 
-- `<KIRBY_TYPES_ROOT>`: the kirby-types checkout being audited; its branch names the line
-- `<KIRBY_ROOT>`: the Kirby checkout of that line at its latest release per [rubric.md – Lines](references/rubric.md#lines), PHP and Panel source
-- `<KIRBYUSE_ROOT>`: the kirbyuse checkout on the same line, for [Downstream](#downstream)
+- `<KIRBY_TYPES_ROOT>`: the kirby-types checkout being audited
+- `<KIRBY_ROOT>`: the Kirby checkout at its latest release per [rubric.md – Line](references/rubric.md#line), PHP and Panel source
+- `<KIRBYUSE_ROOT>`: the kirbyuse checkout, for [Downstream](#downstream)
 
 ## Probe
 
 ```
-node scripts/probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
+node scripts/probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>
 ```
 
-It writes `<KIRBY_TYPES_ROOT>/.review/source-map.json`: the line with its majors and `@since` baseline, the audit's `base` commit, each module's file types, the registrations, dead `@source` paths, and exported types no cluster owns. Done when `modules` is non-empty. Then branch on `flags`:
+It writes `<KIRBY_TYPES_ROOT>/.review/source-map.json`: the Kirby major and `@since` baseline, the audit's `base` commit, each module's file types, the registrations, dead `@source` paths, and exported types no cluster owns. Done when `modules` is non-empty. Then branch on `flags`:
 
-- **`LINE-UNKNOWN`**: ask which line the work targets and re-probe with it as `LINE`.
-- **`LINE-MISMATCH` or `NOT-GIT`**: get a matching, full-history root from the user.
+- **`KIRBY-MISMATCH` or `NOT-GIT`**: get a matching, full-history root from the user.
 - **`DIRTY-TREE`**: have the user commit or stash the changes `git status --short` lists, then re-probe.
 - **`SHALLOW-HISTORY`**: run the command the flag names and re-probe.
 - **`UNOWNED-TYPES`**: add each listed type to the [topology](references/topology.md) cluster whose symbols reference it, then re-probe.
@@ -52,7 +49,7 @@ Collect every `old_string`/`new_string` pair under an ACT and apply it with the 
 - `old_string` gone and `new_string` present: already applied, skip.
 - Anything else: skip, and keep it for the report.
 
-Run the checks on `<KIRBY_TYPES_ROOT>`'s own install. Done when `pnpm exec tsc --noEmit`, `pnpm test`, `pnpm lint`, and `node scripts/check-line.mjs <KIRBY_TYPES_ROOT> <LINE>` exit clean, with the `test/*.test-d.ts` assertions the new types broke updated in the same pass. A narrowed member fails `tsc` on an interface that extends it and overrides it wider: narrow that override too, or `Omit` the member there.
+Run the checks on `<KIRBY_TYPES_ROOT>`'s own install. Done when `pnpm exec tsc --noEmit`, `pnpm test`, `pnpm lint`, and `node scripts/check-line.mjs <KIRBY_TYPES_ROOT>` exit clean, with the `test/*.test-d.ts` assertions the new types broke updated in the same pass. A narrowed member fails `tsc` on an interface that extends it and overrides it wider: narrow that override too, or `Omit` the member there.
 
 ## Downstream
 
@@ -65,8 +62,8 @@ Then restore `package.json` and the lockfile that `pnpm add` rewrote, and `pnpm 
 
 ## Report
 
-Per `.d.ts`: the ACTs applied, the patches skipped, the DEFERs that need a user decision, and the check results; then the kirbyuse hits and the source map's `base`. On a line other than `main`, list the ACTs that may hold on `main`'s latest release too, as unchecked candidates. Name a dropped agent as unchecked. Delete `.review/`.
+Per `.d.ts`: the ACTs applied, the patches skipped, the DEFERs that need a user decision, and the check results; then the kirbyuse hits and the source map's `base`. Name a dropped agent as unchecked. Delete `.review/`.
 
 ## Commit
 
-On the user's word: one commit per `.d.ts` with the test and companion edits its checks need – stage a shared test file's hunks with `git apply --cached` – and a skill edit in its own commit. A change that holds on both lines' latest releases lands on `main`, which merges into `feat/kirby-6`. Done when `scripts/check-commits.sh <KIRBY_TYPES_ROOT> <base>` passes every commit on its own. Releases follow the order in the `kirby` skill.
+On the user's word: one commit per `.d.ts` with the test and companion edits its checks need – stage a shared test file's hunks with `git apply --cached` – and a skill edit in its own commit. Done when `scripts/check-commits.sh <KIRBY_TYPES_ROOT> <base>` passes every commit on its own. Releases follow the order in the `kirby` skill.

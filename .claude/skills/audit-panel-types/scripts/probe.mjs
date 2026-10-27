@@ -3,16 +3,16 @@
 // <KIRBY_TYPES_ROOT>/.review/source-map.json (emptying .review/.raw/ for pass 1).
 // Volatile facts are discovered here, so topology.md holds only stable ones.
 //
-// Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]
+// Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
-import { LINES } from "./lines.mjs";
+import { LINE } from "./line.mjs";
 
-const [KIRBY, TYPES, LINE_ARG] = process.argv.slice(2);
+const [KIRBY, TYPES] = process.argv.slice(2);
 if (!KIRBY || !TYPES) {
   process.stderr.write(
-    "Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> [LINE]\n",
+    "Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>\n",
   );
   process.exit(1);
 }
@@ -198,21 +198,9 @@ function unownedTypes() {
 const kirbyVersion = version();
 const flags = [];
 
-let line = LINE_ARG ?? "";
-if (!line) {
-  try {
-    line = run(`git -C "${TYPES}" branch --show-current`).trim();
-  } catch {}
-}
-const lineLabel = line ? `\`${line}\`` : "a detached HEAD";
-const expectedMajor = LINES[line]?.majors.at(-1);
-if (!expectedMajor) {
+if (!kirbyVersion.startsWith(`${LINE.major}.`)) {
   flags.push(
-    `LINE-UNKNOWN: the line is ${lineLabel}, none of ${Object.keys(LINES).join(", ")} -> ask which line this audit targets.`,
-  );
-} else if (!kirbyVersion.startsWith(`${expectedMajor}.`)) {
-  flags.push(
-    `LINE-MISMATCH: ${lineLabel} audits Kirby ${expectedMajor}, but the Kirby root is ${kirbyVersion} -> ask for the matching root.`,
+    `KIRBY-MISMATCH: kirby-types types Kirby ${LINE.major}, but the Kirby root is ${kirbyVersion} -> ask for the matching root.`,
   );
 }
 
@@ -261,8 +249,7 @@ fs.writeFileSync(
   path.join(TYPES, ".review", "source-map.json"),
   JSON.stringify(
     {
-      line,
-      ...LINES[line],
+      ...LINE,
       base: run(`git -C "${TYPES}" rev-parse HEAD`).trim(),
       kirbyVersion,
       historyReach: reach,
@@ -277,6 +264,4 @@ fs.writeFileSync(
     2,
   ) + "\n",
 );
-process.stdout.write(
-  `source-map.json written (${lineLabel}, Kirby ${kirbyVersion}).\n`,
-);
+process.stdout.write(`source-map.json written (Kirby ${kirbyVersion}).\n`);

@@ -1,15 +1,10 @@
 # Rubric
 
-## Lines
+## Line
 
-Each kirby-types branch types one Kirby release line. Its Kirby majors and `@since` baseline live in `scripts/lines.mjs`, and the probe copies them into the source map.
+kirby-types types Kirby 6, for Vue 3 plugins. Its `@since` baseline lives in `scripts/line.mjs`, and the probe copies it into the source map.
 
-| Branch         | Package | Plugin shape |
-| -------------- | ------- | ------------ |
-| `main`         | v1.x    | Vue 2.7      |
-| `feat/kirby-6` | v2      | Vue 3        |
-
-Types and docs describe the line's **latest release** and nothing beyond it: a member another line adds, removes, or reshapes belongs to that line's branch. Until the line's first stable release, its develop branch stands in for the latest release; a prerelease tag is no release. An older release of the line shows only as `@since` on a member or declaration it lacked. The latest release's shape is the whole type:
+Types and docs describe Kirby 6's **latest release** and nothing beyond it. Until its first stable release, `v6/develop` stands in for the latest release; a prerelease tag is no release. An older Kirby 6 release shows only as `@since` on a member or declaration it lacked. The latest release's shape is the whole type:
 
 - A member a later release removed is deleted.
 - A member the latest release always sets is required, even where older releases omitted it.
@@ -25,7 +20,6 @@ PHP is the response-shape contract for everything Features render. Panel TS is t
 
 Panel TS is **evidence-strength, not absolute**. PHP overrules it when they disagree:
 
-- **(main)** `PanelSystem.csrf` – the Panel TS types `string | null`, PHP `csrfFromSession()` always returns `string`. Keep `string`.
 - `PanelSystem.slugs` – the Panel TS types `string[]`, PHP emits `Record<string, string>`. Keep the record.
 
 ## Anti-pattern: defaults-as-runtime fallacy
@@ -64,7 +58,7 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 ## `@since`
 
 - **Git from a full-history root.** Never assign a version from a topology hint. `git log -S <symbol>` for the introducing commit, then `git tag --contains <commit> | grep -E '^[0-9]' | sort -V | head -1` for the earliest release. Read the file at that tag and at the previous release tag (`git show <tag>:<path>`) before writing the version: a patch release often carries the change (`5.4.1`, not `5.4.0` or `5.5.0`). A prerelease tag, or an untagged commit on the develop branch standing in for the latest release, dates to its release: a member first tagged `6.0.0-alpha.2` is present at the 6.0.0 baseline.
-- **Nothing present at the line's baseline carries `@since`.**
+- **Nothing present at the baseline carries `@since`.**
 - **`@since` dates a member's or declaration's introduction.**
 
 ## JSDoc style

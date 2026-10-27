@@ -2,18 +2,14 @@
 
 Each entry lists the symbols the agent owns, the source **modules** (extension-free), and the PHP authority.
 
-Clusters, modules, and watchpoints hold for both lines; an entry tagged **(main)** applies only on the `main` line, one tagged **(K6 line)** only on `feat/kirby-6`.
-
-PHP paths name the `main` files. **(K6 line)** Kirby 6 moved them: the `src/Panel/View.php` resolvers to `src/Panel/State.php`, the Fiber responses `src/Panel/{View,Dialog,Drawer,Json,Document}.php` to `src/Panel/Response/{View,Dialog,Drawer,Json,ViewDocument}Response.php`, `src/Cms/*Blueprint.php` to `src/Blueprint/`, and `src/Panel/Ui/Buttons/` to `src/Panel/Ui/Button/`.
-
 ## base.d.ts
 
 ### `base`
 
 - **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
-- **PHP**: `src/Panel/{View,Dialog,Drawer}.php`, `src/Panel/Json.php` (Fiber response keys)
-- **Watch**: request emits **(main)** `x-fiber`, `x-fiber-globals`, `x-fiber-referrer`; **(K6 line)** `x-panel`, `x-panel-globals`, `x-panel-referrer`.
+- **PHP**: `src/Panel/Response/{View,Dialog,Drawer,Json}Response.php` (response keys)
+- **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer`.
 
 ## features.d.ts
 
@@ -23,8 +19,8 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 - **Symbols**: PanelTimer, PanelActivation*, PanelDrag*, PanelTheme*, PanelThemeValue, PanelLanguage*, PanelMenu*, PanelSystem*, PanelTranslation*, PanelUser*
 - **Modules**: `panel/src/panel/{activation,drag,theme,language,menu,system,translation,user}`, `panel/src/helpers/timer`
-- **PHP**: `src/Panel/View.php` (`$translation`, `$system`, `$language`, `$user`, `$menu` resolvers)
-- **Watch**: `PanelSystem.title` stays `string` (PHP overrules Panel TS). **(main)** Menu state is `entries`; **(K6 line)** `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` lacks `locale`/`url`: `state.set()` strips them before they reach `panel.language` – they belong on `PanelLanguageInfo`, not here.
+- **PHP**: `src/Panel/State.php` (`$translation`, `$system`, `$language`, `$user`, `$menu` resolvers)
+- **Watch**: `PanelSystem.title` stays `string` (PHP overrules Panel TS). Menu state is `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` lacks `locale`/`url`: `state.set()` strips them before they reach `panel.language` – they belong on `PanelLanguageInfo`, not here.
 
 ### `features-notification`
 
@@ -36,19 +32,19 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 - **Symbols**: PanelBreadcrumbItem, PanelViewDefaults, PanelView, PanelSearchPagination, PanelSearchOptions, PanelSearchResponse, PanelSearcher
 - **Modules**: `panel/src/panel/{view,search,feature}`
-- **PHP**: `src/Panel/{View,Page,File,User,Site}.php` (`$view` resolver + per-model props)
+- **PHP**: `src/Panel/{State,Page,File,User,Site}.php` (`$view` resolver + per-model props)
 
 ### `features-upload`
 
 - **Symbols**: PanelUploadFile, PanelUploadReplaceFile, PanelUploadDefaults, PanelUpload
 - **Modules**: `panel/src/panel/upload` (+ `panel/src/helpers/upload` for context)
 - **PHP**: `src/Panel/File.php` (server file model for `replacing` / `completed`)
-- **Watch**: **(K6 line)** the Panel TS reuses its queued-upload type for `replacing`, which is WRONG against PHP – PHP is authority for the `replacing` shape.
+- **Watch**: the Panel TS reuses its queued-upload type for `replacing`, which is WRONG against PHP – PHP is authority for the `replacing` shape.
 
 ### `features-content`
 
 - **Symbols**: PanelContentVersion, PanelContentVersions, PanelContentLock, PanelContentEnv, PanelContent
-- **Modules**: `panel/src/panel/content` (**(K6 line)** `renewLock`)
+- **Modules**: `panel/src/panel/content` (`renewLock`)
 - **PHP**: `src/Content/{Lock,Version}.php`
 - **Watch**: PanelContent is a plain `reactive({...})` returned by `Content(panel)`, outside the PanelFeature hierarchy.
 
@@ -56,8 +52,7 @@ Hybrid clusters – PHP rules nullability. Panel `*State` is JS-bootstrap shape,
 
 - **Symbols**: PanelDropdownOption, PanelDropdown, PanelDialogDefaults, PanelDialog, PanelDrawerDefaults, PanelDrawer, PanelEventEmitter, PanelEvents
 - **Modules**: `panel/src/panel/{dropdown,dialog,drawer,events,modal,feature}`
-- **PHP**: `src/Panel/View.php` (`$dialogs`/`$drawers`/`$dropdowns` config endpoints), `src/Panel/{Dialog,Drawer}.php`
-- **Watch**: **(main)** `legacy`/`ref`/`openComponent` stay for Vue-2 plugin compat; the K6 line has none of them.
+- **PHP**: `src/Panel/State.php` (`$dialogs`/`$drawers`/`$dropdowns` config endpoints), `src/Panel/Response/{Dialog,Drawer}Response.php`
 
 ## api.d.ts
 
@@ -66,7 +61,7 @@ JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulte
 ### `api-core`
 
 - **Symbols**: PanelApi, PanelApiRequestOptions, PanelApiPagination, PanelApiSearchQuery, PanelModelData, PanelApiAuth, PanelApiLoginData
-- **Modules**: `panel/src/api/{index,auth}`, `panel/src/panel/request`. Verb helpers (`get/post/patch/delete/request`) are **(main)** separate files, **(K6 line)** methods on the `Api` class in `index`. `auth.ping()` posts `auth/ping`. **(main)** `api.ping` is the heartbeat interval ID; **(K6 line)** the `api.pingId` field and `api.ping()` method coexist.
+- **Modules**: `panel/src/api/{index,auth}`, `panel/src/panel/request`. Verb helpers (`get/post/patch/delete/request`) are methods on the `Api` class in `index`. `auth.ping()` posts `auth/ping`. The `api.pingId` field and `api.ping()` method coexist.
 
 ### `api-content`
 
@@ -90,8 +85,8 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 ### `helpers-data`
 
 - **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
-- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), **(K6 line)** `items`
-- **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index}`, **(K6 line)** `panel/src/helpers/items`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
+- **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), `items`
+- **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index,items}`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 
 ### `helpers-string`
 
@@ -105,14 +100,14 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 - **Symbols**: PanelUpload{Params,ProgressCallback,ResultCallback}, PanelDebounce*, PanelThrottle*
 - **Sub-properties on `PanelHelpers`**: `debounce`, `throttle`, `isComponent`, `isUploadEvent`, `upload`
 - **Modules**: `panel/src/helpers/{debounce,throttle,isComponent,isUploadEvent,upload}`
-- **Watch**: `queue` and `regex` live outside `$helper` (regex is a side-effect augment of `RegExp.escape`). **(K6 line)** `isComponent` takes the Vue `app`.
+- **Watch**: `queue` and `regex` live outside `$helper` (regex is a side-effect augment of `RegExp.escape`). `isComponent` takes the Vue `app`.
 
 ## libraries.d.ts
 
 ### `libraries`
 
 - **Symbols**: PanelLibrary*, PanelColor*, PanelDayjs*
-- **Modules**: `panel/src/libraries/{index,colors,colors-checks,colors-func,dayjs,dayjs-iso,dayjs-pattern,dayjs-round,dayjs-validate}`, **(main)** also `dayjs-interpret` and `dayjs-merge`, **(K6 line)** `panel/src/libraries/{dayjs-locale,dayjs-parse}` (+ `@types/autosize`)
+- **Modules**: `panel/src/libraries/{index,colors,colors-checks,colors-func,dayjs,dayjs-iso,dayjs-pattern,dayjs-round,dayjs-validate,dayjs-locale,dayjs-parse}` (+ `@types/autosize`)
 - **Watch**: the Panel uses `declare module 'dayjs'` to globally augment `Dayjs`; kirby-types intentionally keeps a `Dayjs & PanelDayjsExtensions` intersection on chainable returns – note it as intentional divergence.
 
 ## writer.d.ts
@@ -139,23 +134,23 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 ### `textarea`
 
 - **Symbols**: TextareaButton, TextareaToolbarContext
-- **Modules**: `panel/src/components/Forms/Toolbar/{TextareaToolbar,Toolbar,index,EmailDialog,LinkDialog}` (Vue components + index), `panel/src/components/Forms/Input/TextareaInput`, `panel/src/components/Dropdowns/DropdownContent` (**(K6 line)** `panel/src/components/Dropdowns/Dropdown` instead; renders the dropdown items), `panel/src/components/Navigation/{Button,Link}` (render the buttons and their links)
+- **Modules**: `panel/src/components/Forms/Toolbar/{TextareaToolbar,Toolbar,index,EmailDialog,LinkDialog}` (Vue components + index), `panel/src/components/Forms/Input/TextareaInput`, `panel/src/components/Dropdowns/Dropdown` (renders the dropdown items), `panel/src/components/Navigation/{Button,Link}` (render the buttons and their links)
 - **Watch**: the Toolbar is Vue, not migrated to TS – the `.vue` source is the contract. `plugins` only widens `textareaButtons` to `Record<string, unknown>` (no button-shape opinion).
 
 ## index.d.ts
 
 ### `index-panel`
 
-- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls (+ **(K6 line)** PanelGlobalProperties, PanelHtml, HtmlString)
-- **Modules**: `panel/src/panel/{panel,app,legacy,plugins,request,search}`, `panel/src/types/{vue,global}`, `panel/src/index`, **(K6 line)** `panel/src/panel/{html,observers}`
-- **PHP**: `src/Panel/{Panel,View}.php` (urls/globals/searches)
-- **Watch**: `PanelApp`/`PanelComponentExtension`/`PanelPlugins`/`PanelPluginExtensions`/`created` follow the line's Vue version – **(main)** Vue 2; **(K6 line)** Vue 3 `App`/`Plugin`/`ComponentPublicInstance`, plus `panel.html`, which binds only the default factory while `HtmlString` is a separate export, and `panel.observers`, a `reactive({ resize: ResizeObserver })`. Every `panelSingletons` entry of the source map is a `Panel` member, else a `missing` finding. The component globals – **(main)** `PanelApp`'s shortcuts, **(K6 line)** `PanelGlobalProperties`, which `panel-globals.d.ts` augments onto every component – mirror Kirby's own `ComponentCustomProperties` in `panel/src/types/vue`: a shortcut Kirby adds, drops, or deprecates there moves the same way here. **(K6 line)** `PanelComponentExtension` follows the `Component` type in `plugins`.
+- **Symbols**: Panel, PanelApp, PanelComponentExtension, PanelPlugins, PanelPluginExtensions, PanelGlobalState, PanelRequestResponse, PanelSearchType, PanelSearches, PanelUrls, PanelGlobalProperties, PanelHtml, HtmlString
+- **Modules**: `panel/src/panel/{panel,app,legacy,plugins,request,search}`, `panel/src/types/{vue,global}`, `panel/src/index`, `panel/src/panel/{html,observers}`
+- **PHP**: `src/Panel/{Panel,State}.php` (urls/globals/searches)
+- **Watch**: `PanelApp`/`PanelComponentExtension`/`PanelPlugins`/`PanelPluginExtensions`/`created` follow Vue 3 `App`/`Plugin`/`ComponentPublicInstance`. `panel.html` binds only the default factory while `HtmlString` is a separate export; `panel.observers` is a `reactive({ resize: ResizeObserver })`. Every `panelSingletons` entry of the source map is a `Panel` member, else a `missing` finding. The component globals – `PanelGlobalProperties`, which `panel-globals.d.ts` augments onto every component – mirror Kirby's own `ComponentCustomProperties` in `panel/src/types/vue`: a shortcut Kirby adds, drops, or deprecates there moves the same way here. `PanelComponentExtension` follows the `Component` type in `plugins`.
 
 ### `index-config`
 
 - **Symbols**: PanelConfig, PanelLanguageInfo
 - **Modules**: `panel/src/panel/panel` (the `Config` type + `config` defaults)
-- **PHP**: `src/Panel/{View,Document}.php`, `src/Cms/Language.php`
+- **PHP**: `src/Panel/State.php`, `src/Panel/Response/ViewDocumentResponse.php`, `src/Cms/Language.php`
 - **Watch**: defaults-as-runtime fallacy.
 
 ### `index-permissions`
@@ -163,12 +158,12 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 PHP-rooted. PHP `toArray()` is the shape; JS only consumes the JSON.
 
 - **Symbols**: PanelPermissions, PanelPermissions{Access,Files,Languages,Pages,Site,Users,User}
-- **PHP**: `src/Cms/{Permissions,UserPermissions,FilePermissions,PagePermissions,SitePermissions,LanguagePermissions}.php`, `src/Panel/View.php`
+- **PHP**: `src/Cms/{Permissions,UserPermissions,FilePermissions,PagePermissions,SitePermissions,LanguagePermissions}.php`, `src/Panel/State.php`
 
 ### `index-viewprops`
 
 PHP-rooted. PHP `props()` / `toArray()` is the response shape.
 
-- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,Navigation,Model,Button} (+ **(K6 line)** PanelFileViewProps, PanelUserViewProps)
-- **PHP**: `src/Panel/{Model,View,Page,File,User,Site}.php`, `src/Cms/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Buttons/ViewButton{,s}.php`, `src/Content/Lock.php`
-- **Watch**: **(K6 line)** `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. The Panel's `ViewState` in `view` is JS-side state; the props type follows the server payload.
+- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,Navigation,Model,Button}, PanelFileViewProps, PanelUserViewProps
+- **PHP**: `src/Panel/{Model,Page,File,User,Site}.php`, `src/Panel/Controller/View/ModelViewController.php`, `src/Blueprint/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Button/ViewButton{,s}.php`, `src/Content/Lock.php`
+- **Watch**: `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. The Panel's `ViewState` in `view` is JS-side state; the props type follows the server payload.

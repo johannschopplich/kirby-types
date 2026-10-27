@@ -1,6 +1,6 @@
 # Agent Prompt Templates
 
-Substitute the `<placeholders>`: the roots from the user, `<SKILL_DIR>` as this skill's directory, `LINE` from `source-map.json`, and the cluster slots from [topology.md](topology.md).
+Substitute the `<placeholders>`: the roots from the user, `<SKILL_DIR>` as this skill's directory, and the cluster slots from [topology.md](topology.md).
 
 ## Pass 1
 
@@ -10,8 +10,6 @@ ROLE: You review TypeScript augmentation types that describe Kirby Panel's runti
 OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<CLUSTER>.json
 
 TS FILE TO REVIEW: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
-
-LINE: <LINE>. The rubric's Lines table gives its plugin shape, the source map its `@since` baseline.
 
 RUBRIC: <SKILL_DIR>/references/rubric.md. Read it in full before step 1.
 
@@ -60,8 +58,6 @@ ROLE: Pass-2 verifier for kirby-types Panel types. Re-verify the pass-1 findings
 OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<TS_FILE>.pass2.json
 
 TS FILE: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
-
-LINE: <LINE>
 
 RUBRIC: <SKILL_DIR>/references/rubric.md. Read it in full before step 1.
 

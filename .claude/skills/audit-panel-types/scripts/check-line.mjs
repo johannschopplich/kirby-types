@@ -1,42 +1,19 @@
 #!/usr/bin/env node
 // Check the comments in the kirby-types declarations for misplaced versions: a
-// `@since` outside the line's majors or not newer than the baseline; and any
-// version in prose – another line's or the line's own – since the docs describe
-// the line's latest release.
+// `@since` outside the line's major or not newer than the baseline; and any
+// Kirby version in prose, since the docs describe the latest release.
 // Exits 1 with one `file:line` per hit.
 //
-// Usage: node check-line.mjs <KIRBY_TYPES_ROOT> [LINE]
+// Usage: node check-line.mjs <KIRBY_TYPES_ROOT>
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
-import { LINES } from "./lines.mjs";
+import { LINE } from "./line.mjs";
 
-const [TYPES, LINE_ARG] = process.argv.slice(2);
+const [TYPES] = process.argv.slice(2);
 if (!TYPES) {
-  process.stderr.write(
-    "Usage: node check-line.mjs <KIRBY_TYPES_ROOT> [LINE]\n",
-  );
+  process.stderr.write("Usage: node check-line.mjs <KIRBY_TYPES_ROOT>\n");
   process.exit(1);
 }
-const line =
-  LINE_ARG ||
-  execSync(`git -C "${TYPES}" branch --show-current`, {
-    encoding: "utf8",
-  }).trim();
-const rules = LINES[line];
-if (!rules) {
-  process.stderr.write(
-    `Unknown line \`${line}\` – pass one of: ${Object.keys(LINES).join(", ")}\n`,
-  );
-  process.exit(1);
-}
-const foreignMajors = Object.values(LINES)
-  .flatMap((other) => other.majors)
-  .filter((major) => !rules.majors.includes(major))
-  .join("");
-const foreign = new RegExp(
-  `\\bKirby [${foreignMajors}]\\b|(?<![\\d.])[${foreignMajors}]\\.\\d+\\b`,
-);
 
 // A missing or `x` patch, as in `4.8` or `5.3.x`, counts as 0.
 const compare = (a, b) => {
@@ -47,7 +24,7 @@ const compare = (a, b) => {
 };
 const versions = (text) =>
   (text.match(/(?<![\d.])\d+\.\d+(?:\.(?:\d+|x))?\b/g) ?? []).filter((v) =>
-    rules.majors.includes(v.split(".")[0]),
+    v.startsWith(`${LINE.major}.`),
   );
 
 const files = [
@@ -67,17 +44,15 @@ for (const file of files) {
     const since = text.match(/@since\s+(?:Kirby\s+)?((\d+)\.[\w.]+)/);
     const prose = since ? text.replace(since[0], "") : text;
     const dated = versions(prose);
-    if (since && !rules.majors.includes(since[2])) {
+    if (since && since[2] !== LINE.major) {
+      hits.push(`${at}: \`@since ${since[1]}\` is outside Kirby ${LINE.major}`);
+    } else if (since && compare(since[1], LINE.baseline) <= 0) {
       hits.push(
-        `${at}: \`@since ${since[1]}\` is outside the line's majors (${rules.majors.join(", ")})`,
-      );
-    } else if (since && compare(since[1], rules.baseline) <= 0) {
-      hits.push(
-        `${at}: \`@since ${since[1]}\` is not newer than the line's baseline ${rules.baseline} – ${text.trim()}`,
+        `${at}: \`@since ${since[1]}\` is not newer than the baseline ${LINE.baseline} – ${text.trim()}`,
       );
     }
-    if (foreign.test(prose)) {
-      hits.push(`${at}: names another line's Kirby version – ${text.trim()}`);
+    if (/\bKirby \d/.test(prose)) {
+      hits.push(`${at}: names a Kirby version – ${text.trim()}`);
     } else if (dated.length > 0) {
       hits.push(
         `${at}: \`${dated[0]}\` dates the prose – describe the latest release – ${text.trim()}`,
@@ -90,6 +65,4 @@ if (hits.length > 0) {
   process.stdout.write(`${hits.join("\n")}\n`);
   process.exit(1);
 }
-process.stdout.write(
-  `No misplaced versions in ${files.length} files (\`${line}\`).\n`,
-);
+process.stdout.write(`No misplaced versions in ${files.length} files.\n`);

@@ -2,18 +2,17 @@
 # Run tsc, tsd, lint, and the line check on every first-parent commit in
 # <BASE>..HEAD, each in isolation, so a commit that only passes together with a
 # later one shows up. A merge counts as one commit: the commits it brings in
-# belong to the other line and were checked there.
+# were checked on their own branch.
 # Each commit is judged by the check-line.mjs it ships, else by this script's,
 # so a rule tightened later fails no commit that ships its own. Borrows the
 # checkout's own node_modules – install the branch's dependencies first.
 #
-# Usage: check-commits.sh <KIRBY_TYPES_ROOT> <BASE> [LINE]
+# Usage: check-commits.sh <KIRBY_TYPES_ROOT> <BASE>
 set -euo pipefail
 scripts=$(cd "$(dirname "$0")" && pwd)
 
-root=${1:?Usage: check-commits.sh <KIRBY_TYPES_ROOT> <BASE> [LINE]}
-base=${2:?Usage: check-commits.sh <KIRBY_TYPES_ROOT> <BASE> [LINE]}
-line=${3:-$(git -C "$root" branch --show-current)}
+root=${1:?Usage: check-commits.sh <KIRBY_TYPES_ROOT> <BASE>}
+base=${2:?Usage: check-commits.sh <KIRBY_TYPES_ROOT> <BASE>}
 commits=$(git -C "$root" rev-list --reverse --first-parent "$base..HEAD")
 [ -n "$commits" ] || { echo "No commits in $base..HEAD."; exit 1; }
 tmp=$(mktemp -d)
@@ -29,7 +28,7 @@ for commit in $commits; do
   git -C "$worktree" checkout --quiet "$commit"
   check_line=$worktree/$shipped_check_line
   [ -f "$check_line" ] || check_line=$scripts/check-line.mjs
-  if output=$( (cd "$worktree" && pnpm exec tsc --noEmit -p . && pnpm -s test && pnpm -s lint && node "$check_line" . "$line") 2>&1); then
+  if output=$( (cd "$worktree" && pnpm exec tsc --noEmit -p . && pnpm -s test && pnpm -s lint && node "$check_line" .) 2>&1); then
     echo "OK   $(git -C "$root" log --oneline -1 "$commit")"
   else
     echo "FAIL $(git -C "$root" log --oneline -1 "$commit")"
