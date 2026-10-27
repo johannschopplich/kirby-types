@@ -368,9 +368,13 @@ export interface PanelDayjsStaticExtensions {
  *
  * @source panel/src/libraries/dayjs.ts
  * @source panel/src/libraries/dayjs-locale.ts
+ * @source dayjs/index.d.ts
  */
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
-  (date?: ConfigType, options?: { locale?: string }): PanelDayjsInstance;
+  (
+    date?: ConfigType,
+    options?: { locale?: string; utc?: boolean },
+  ): PanelDayjsInstance;
 
   /** Registers a plugin once and returns the dayjs function for chaining. */
   extend: <T = unknown>(plugin: PluginFunc<T>, option?: T) => PanelLibraryDayjs;
