@@ -1,10 +1,5 @@
 /**
- * Type definitions for Kirby Writer (ProseMirror-based rich text editor).
- *
- * This module provides types for the Writer component, including:
- * - Editor instance and options
- * - Mark and node extensions for plugins
- * - Utility functions and contexts.
+ * Types for the Kirby Writer, the ProseMirror-based rich text editor.
  */
 
 import type { InputRule } from "prosemirror-inputrules";
@@ -253,7 +248,12 @@ export interface WriterEditor {
     fn: (payload: WriterEditorEvents[K]) => void,
   ) => this) &
     ((event: string, fn: (...args: any[]) => any) => this);
-  /** Removes a mark from the current selection. */
+  /**
+   * Removes a mark from the current selection. With a collapsed cursor, it
+   * removes the whole run of that mark around the cursor, and returns `false`
+   * when the cursor sits outside one. Returns `undefined` for a mark name the
+   * schema lacks.
+   */
   removeMark: (mark: string) => boolean | undefined;
   /**
    * Returns the selection for a position: the current selection for `null`
@@ -455,7 +455,10 @@ export interface WriterUtils {
   /** Returns the attributes of the active node of the given type, or `{}`. */
   getNodeAttrs: (state: EditorState, type: NodeType) => Attrs;
 
-  /** Creates a command that inserts a node of the given type. */
+  /**
+   * Creates a command that replaces the selection with a new node of the given
+   * type and scrolls it into view.
+   */
   insertNode: (
     type: NodeType,
     attrs?: Attrs | null,
@@ -501,7 +504,6 @@ export interface WriterUtils {
    * @param value - The value to clamp, `0` when omitted
    * @param min - The minimum allowed value, `0` when omitted
    * @param max - The maximum allowed value, `0` when omitted
-   * @returns The clamped value
    */
   minMax: (value?: number, min?: number, max?: number) => number;
 
@@ -531,7 +533,11 @@ export interface WriterUtils {
     getAttrs?: Attrs | ((match: string) => Attrs),
   ) => Plugin;
 
-  /** Creates a command that removes a mark from the current selection. */
+  /**
+   * Creates a command that removes a mark from the current selection. With a
+   * collapsed cursor, it removes the whole run of that mark around the cursor,
+   * and fails when the cursor sits outside one.
+   */
   removeMark: (type: MarkType) => Command;
 
   /**
@@ -546,7 +552,11 @@ export interface WriterUtils {
     attrs?: Attrs,
   ) => Command;
 
-  /** Creates a command that toggles a list. */
+  /**
+   * Creates a command that lifts the selection out of a list of the given type,
+   * switches another list whose items fit that type in place, or wraps the
+   * selection in a new list.
+   */
   toggleList: (type: NodeType, itemType: NodeType) => Command;
 
   /** Creates a command that toggles wrapping the selection in a node. */
@@ -754,12 +764,7 @@ export interface WriterExtension {
 export interface WriterMarkExtension {
   // #region Instance Properties (available via `this` in extension methods)
 
-  /**
-   * Unique name of the mark extension.
-   *
-   * Defaults to the mark's key in `writerMarks`; a `name` in the definition
-   * overrides it.
-   */
+  /** Unique mark name, the mark's key in `writerMarks` unless the definition sets one. */
   name?: string;
 
   type?: "mark";
@@ -787,9 +792,8 @@ export interface WriterMarkExtension {
   defaults?: Record<string, any>;
 
   /**
-   * Mark spec registered in the editor schema under the mark's `name` –
-   * attributes, DOM parsing and serialization, inclusivity, and exclusions.
-   * The editor fails to build its schema when a mark has none.
+   * Mark spec registered in the editor schema under the mark's `name`; the
+   * editor fails to build its schema without one.
    */
   schema: MarkSpec;
 
@@ -983,12 +987,7 @@ export interface WriterMarkExtension {
 export interface WriterNodeExtension {
   // #region Instance Properties (available via `this` in extension methods)
 
-  /**
-   * Unique name of the node extension.
-   *
-   * Defaults to the node's key in `writerNodes`; a `name` in the definition
-   * overrides it.
-   */
+  /** Unique node name, the node's key in `writerNodes` unless the definition sets one. */
   name?: string;
 
   type?: "node";

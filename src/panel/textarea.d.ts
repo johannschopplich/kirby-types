@@ -16,7 +16,7 @@ import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
  */
 export interface TextareaToolbarContext extends PanelGlobalProperties {
   /**
-   * Emits a command to the textarea input component:
+   * Runs a command on the textarea:
    * - `"dialog"`: Opens the toolbar dialog of the given name, such as `"link"`, `"email"`, or a plugin's `k-toolbar-<name>-dialog`; the submitted text replaces the selection.
    * - `"insert"`: Replaces the current selection with the given text, or with the return value of an `(input, selection)` callback.
    * - `"prepend"`: Prepends the given text and a space to the current selection.
@@ -89,7 +89,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
  * @source panel/src/components/Navigation/Button.vue
  */
 export interface TextareaButton {
-  /** Button label, shown as its tooltip. Falls back to `title` when unset. */
+  /** Button label, shown as its tooltip. */
   label?: string;
 
   /**
@@ -101,7 +101,7 @@ export interface TextareaButton {
   icon?: string;
 
   /**
-   * Runs when the button is clicked or its `shortcut` is pressed. `this` is bound to the toolbar component (see {@link TextareaToolbarContext}), so `this.command(...)` is available.
+   * Runs when the button is clicked or its `shortcut` is pressed.
    *
    * @example
    * ```js

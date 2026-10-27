@@ -1,7 +1,4 @@
-/**
- * Feature type definitions for Kirby Panel: state objects, features, and
- * modals.
- */
+/** Types for the Panel's state objects, features, and modals. */
 
 import type {
   NotificationTheme,
@@ -46,7 +43,6 @@ export interface PanelTimer {
  * @source panel/src/panel/activation.ts
  */
 export interface PanelActivationDefaults {
-  /** Whether the activation card is visible. */
   isOpen: boolean;
 }
 
@@ -58,10 +54,10 @@ export interface PanelActivationDefaults {
  */
 export interface PanelActivation
   extends PanelState<PanelActivationDefaults>, PanelActivationDefaults {
-  /** Closes the activation card and persists state to session storage. */
+  /** Closes the activation card; it stays closed after reloads in this tab. */
   close: () => void;
 
-  /** Opens the activation card and clears session storage state. */
+  /** Opens the activation card, so it shows again after reloads. */
   open: () => void;
 }
 // #endregion
@@ -105,7 +101,7 @@ export interface PanelDrag
  * @source panel/src/panel/theme.ts
  */
 export interface PanelThemeDefaults {
-  /** User's theme preference from localStorage. */
+  /** User's theme preference, stored in this browser; `null` without one. */
   setting: string | null;
   /** Color scheme the system prefers, updated when it changes. */
   system: "light" | "dark";
@@ -147,7 +143,7 @@ export interface PanelTheme
    */
   reset: () => void;
 
-  /** Sets the user's theme preference and stores it in localStorage. */
+  /** Sets the user's theme preference. */
   set: (theme: PanelThemeValue) => void;
 }
 // #endregion
@@ -263,9 +259,7 @@ export interface PanelMenuItem {
  * @source src/Panel/State.php
  */
 export interface PanelMenuDefaults {
-  /** Whether menu is being hovered. */
   hover: boolean;
-  /** Whether menu is expanded. */
   isOpen: boolean;
   /** Menu items and `"-"` separators. */
   items: (PanelMenuItem | "-")[];
@@ -285,10 +279,7 @@ export interface PanelMenu
    */
   blur: (event?: Event) => void;
 
-  /**
-   * Collapses the sidebar menu.
-   * Persists state to localStorage on desktop.
-   */
+  /** Collapses the sidebar menu; on desktop, it stays collapsed after reloads. */
   close: () => void;
 
   /**
@@ -297,10 +288,7 @@ export interface PanelMenu
    */
   escape: () => void;
 
-  /**
-   * Expands the sidebar menu.
-   * Removes localStorage state on desktop.
-   */
+  /** Expands the sidebar menu; on desktop, it stays expanded after reloads. */
   open: () => void;
 
   /**
@@ -314,7 +302,6 @@ export interface PanelMenu
    */
   set: (items: (PanelMenuItem | "-")[]) => PanelMenuDefaults;
 
-  /** Toggles the sidebar menu state. */
   toggle: () => void;
 }
 // #endregion
@@ -385,7 +372,6 @@ export interface PanelErrorObject {
  */
 export interface PanelNotification
   extends PanelState<PanelNotificationDefaults>, PanelNotificationDefaults {
-  /** Auto-close timer. */
   timer: PanelTimer;
 
   readonly isFatal: boolean;
@@ -960,8 +946,7 @@ export interface PanelContentEnv {
 
 /**
  * Content state of the current model view: versions, saving, publishing,
- * and lock handling. `saveLazy` and `updateLazy` throttle saves while
- * typing.
+ * and lock handling.
  *
  * @source panel/src/panel/content.ts
  * @source panel/src/helpers/throttle.ts
@@ -974,8 +959,8 @@ export interface PanelContent {
   isProcessing: boolean;
 
   /**
-   * Saves throttled at `500` ms: the first call saves at once, further
-   * calls within the delay collapse into one trailing save.
+   * Saves throttled: the first call saves at once, and the calls during each
+   * cooldown collapse into one save at its end, with the latest values.
    */
   saveLazy: ((values?: Record<string, any>, env?: PanelContentEnv) => void) & {
     cancel: () => void;
@@ -1074,8 +1059,7 @@ export interface PanelContent {
   ) => Promise<void>;
 
   /**
-   * Sets the lock's `modified` timestamp to a fresh `Date`. `save()` calls
-   * it after each successful save of the current view.
+   * Sets the lock's `modified` timestamp to a fresh `Date`.
    *
    * @throws Error if called for another view
    */
@@ -1220,10 +1204,9 @@ export interface PanelSearcher {
    */
   controller: AbortController | undefined;
 
-  /** Number of active requests. */
+  /** Number of searches in flight. */
   requests: number;
 
-  /** Whether any search is loading. */
   readonly isLoading: boolean;
 
   /**
@@ -1253,9 +1236,8 @@ export interface PanelSearcher {
 // #region Upload
 
 /**
- * Server-side file model passed to `PanelUpload.replace()` and stored in
- * `PanelUploadDefaults.replacing`. Distinct from `PanelUploadFile` (the
- * client-side queued upload).
+ * Server-side file model to replace, as opposed to a queued
+ * `PanelUploadFile`.
  *
  * @source panel/src/panel/upload.ts
  * @source panel/src/components/Dialogs/UploadReplaceDialog.vue
@@ -1270,27 +1252,18 @@ export interface PanelSearcher {
  * @source src/Panel/Model.php
  */
 export interface PanelUploadReplaceFile {
-  /**
-   * Relative Panel path of the file, appended to the API URL for the upload
-   * and sent as `path` with the `model.update` event.
-   */
+  /** Relative Panel path of the file. */
   link: string;
-  /** File extension without dot, used for the picker `accept` filter. */
+  /** File extension without dot. */
   extension: string;
-  /**
-   * MIME type, used for the picker `accept` filter; `null` when undetectable.
-   */
+  /** MIME type; `null` when undetectable. */
   mime: string | null;
-  /** Filename with extension, shown in the replace dialog. */
+  /** Filename with extension. */
   filename: string;
-  /** Public URL of the current file, previewed in the replace dialog. */
+  /** Public URL of the current file. */
   url: string;
-  /**
-   * Preview image settings whose `color` and `icon` style the replace dialog;
-   * `null` when the image is switched off.
-   */
+  /** Preview image settings; `null` when the image is switched off. */
   image?: { color?: string; icon?: string; [key: string]: any } | null;
-  /** Additional server-side fields. */
   [key: string]: any;
 }
 
@@ -1347,7 +1320,6 @@ export interface PanelUploadDefaults {
   files: PanelUploadFile[];
   /** Maximum number of files. */
   max: number | null;
-  /** Whether multiple files are allowed. */
   multiple: boolean;
   /**
    * Listeners for the `cancel`, `complete`, `done`, `open`, and `select`
@@ -1458,7 +1430,8 @@ export interface PanelUpload
 
   /**
    * Opens the file picker to replace `file`, ignoring any `url`, `accept`,
-   * `multiple`, or `replacing` in `options`.
+   * `multiple`, or `replacing` in `options`. The picker accepts only the file's
+   * extension and MIME type.
    */
   replace: (
     file: PanelUploadReplaceFile,
@@ -1621,16 +1594,10 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   keyup: (event: KeyboardEvent) => void;
 
-  /**
-   * Re-emits `offline` on the bus, whose built-in handler sets
-   * `panel.isOffline`.
-   */
+  /** Re-emits `offline` on the bus. */
   offline: (event: Event) => void;
 
-  /**
-   * Re-emits `online` on the bus, whose built-in handler clears
-   * `panel.isOffline`.
-   */
+  /** Re-emits `online` on the bus. */
   online: (event: Event) => void;
 
   /**

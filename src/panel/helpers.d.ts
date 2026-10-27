@@ -1,8 +1,5 @@
 /**
- * Helper type definitions for Kirby Panel.
- *
- * Provides types for the `$helper` utilities registered as a global property
- * on the Panel app.
+ * Types for the Panel's `$helper` utilities.
  */
 
 import type { App } from "vue";
@@ -354,9 +351,8 @@ export interface PanelHelpersClipboard {
   read: (event?: Event | string | null, plain?: boolean) => string | null;
 
   /**
-   * Writes to the clipboard; every non-string value is JSON-stringified. Sets
-   * the plain text of a `ClipboardEvent`, otherwise copies through a temporary
-   * textarea.
+   * Writes to the clipboard, or to the plain text of a passed `ClipboardEvent`,
+   * preventing its default; every non-string value is JSON-stringified.
    *
    * @param event - Clipboard event to write to
    * @returns Always `true` (no failure detection)
@@ -420,17 +416,17 @@ export interface PanelFieldDefinition {
  */
 export interface PanelHelpersField {
   /**
-   * Resolves a field's default value: a clone of `default`, else the default
-   * of the field component's `value` prop (called when a function), else
-   * `null`. Returns `undefined` when the field component has no `value` prop,
-   * which makes `form()` skip the field.
+   * Returns a clone of the field's `default`, else the default of its field
+   * component's `value` prop, else `null`; `undefined` when no `default` is set
+   * and the field component is missing or has no `value` prop.
    *
    * @unstable
    */
   defaultValue: (field: PanelFieldDefinition) => any;
 
   /**
-   * Collects the default value of each field, keyed by field name.
+   * Collects the default value of each field, keyed by field name; a field
+   * whose `defaultValue()` is `undefined` is left out.
    *
    * @unstable
    */
@@ -450,10 +446,9 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
-   * Sets each subfield's endpoints when the parent has them: `field` to the
-   * parent's `field` endpoint suffixed with `+` and the subfield name, `model`
-   * to the parent's `model` endpoint.
-   * Mutates the passed subfield definitions.
+   * Gives each subfield the parent's `model` endpoint and, as its `field`
+   * endpoint, the parent's `field` endpoint plus `+` and the subfield name.
+   * Without parent endpoints, the subfields keep theirs.
    *
    * @param field - Parent field
    * @param fields - Subfield definitions

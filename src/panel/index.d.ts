@@ -1,8 +1,7 @@
 /* eslint-disable perfectionist/sort-named-exports */
 
 /**
- * Kirby Panel type definitions: the `Panel` interface and the re-exports of
- * every Panel module.
+ * Types for the `Panel` interface, plus the re-exports of every Panel module.
  */
 
 import type {
@@ -292,7 +291,6 @@ export interface PanelConfig {
 // #region Panel Permissions
 
 /**
- * Access permissions for Panel areas.
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsAccess {
@@ -360,9 +358,6 @@ interface PanelPermissionsPages {
 interface PanelPermissionsSite {
   access: boolean;
   changeTitle: boolean;
-  /**
-   * Whether the user may open the site preview.
-   */
   preview: boolean;
   update: boolean;
 }
@@ -470,7 +465,6 @@ export interface PanelSearches {
 // #region Panel URLs
 
 /**
- * Base URLs for Panel operations.
  * @source panel/src/panel/panel.ts
  * @source src/Panel/State.php
  */
@@ -512,7 +506,6 @@ export interface PanelRequestResponse {
     ok: boolean;
     status: number;
     statusText: string;
-    /** Raw response text. */
     text: string;
     /** Final response URL (after redirects). */
     url: string;
@@ -621,9 +614,6 @@ export interface PanelPluginExtensions {
    */
   created?: (instance: ComponentPublicInstance) => void;
 
-  /**
-   * Custom textarea toolbar buttons.
-   */
   textareaButtons?: Record<string, TextareaButton>;
 
   /**
@@ -646,9 +636,7 @@ export interface PanelPluginExtensions {
 // #region Panel Plugins
 
 /**
- * Panel plugin system.
- *
- * Manages Vue components, icons, and extensions registered by plugins.
+ * Components, icons, and extensions registered by plugins.
  *
  * @source panel/src/panel/plugins.ts
  * @source panel/public/js/plugins.js
@@ -694,34 +682,22 @@ export interface PanelPlugins {
 
   // #region Plugin Data
 
-  /** Registered Vue components. */
   components: Record<string, PanelComponentExtension>;
 
   /** Callbacks to run in the `created` hook of the root component. */
   created: ((instance: ComponentPublicInstance) => void)[];
 
-  /** Registered SVG icons. */
   icons: Record<string, string>;
 
-  /**
-   * Registered textarea toolbar buttons.
-   */
   textareaButtons: Record<string, TextareaButton>;
 
-  /** Registered third-party plugin data. */
   thirdParty: Record<string, any>;
 
   /** Vue plugins installed via `app.use()`. */
   use: Plugin[];
 
-  /**
-   * Registered writer marks.
-   */
   writerMarks: Record<string, WriterMarkExtension>;
 
-  /**
-   * Registered writer nodes.
-   */
   writerNodes: Record<string, WriterNodeExtension>;
   // #endregion
 }
@@ -1032,7 +1008,8 @@ export interface Panel {
   /**
    * Sends a GET request through the Panel router.
    *
-   * @returns Response data
+   * @returns Response data; `{}` for a `null` body, or for an external
+   *   request whose response is not JSON
    */
   get: (url: string | URL, options?: PanelRequestOptions) => Promise<any>;
 
@@ -1170,7 +1147,6 @@ export interface Panel {
    * returns trusted HTML. Values already wrapped by `html()` pass through
    * unescaped.
    *
-   * @param key - Translation key
    * @param data - Placeholder values
    * @param fallback - Text used when the key is missing
    */
@@ -1356,7 +1332,6 @@ interface PanelViewPropsButton {
     options?: string | (Record<string, any> | "-")[];
     responsive: boolean | string;
     size?: string;
-    /** Inline CSS style string. */
     style?: string;
     target?: string;
     /** Visible button label. */

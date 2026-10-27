@@ -29,8 +29,7 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
   reset: () => void;
 
   /**
-   * Sets a new state, merging with defaults.
-   * Missing and `null` properties are filled from defaults.
+   * Sets a new state, filling missing and `null` properties from defaults.
    *
    * @param state - Partial state to merge
    * @returns The complete merged state
@@ -109,7 +108,6 @@ export interface PanelEventListeners<TEvents extends string = string> {
   /** Checks if a listener is registered for `event`. */
   hasEventListener: (event: TEvents) => boolean;
 
-  /** Returns all registered listeners. */
   listeners: () => PanelEventListenerMap<TEvents>;
 
   /** Removes the listener registered for `event`. */
@@ -134,10 +132,7 @@ export interface PanelFeatureDefaults {
   /** Current Vue component name to render. */
   component: string | null;
 
-  /**
-   * Whether the feature is currently loading data.
-   * Set to `true` during `load()`, `get()`, and `post()` calls.
-   */
+  /** Whether a `get()`, `post()`, or non-silent `load()` call is running. */
   isLoading: boolean;
 
   on: PanelEventListenerMap;
@@ -188,7 +183,6 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
 
   /**
    * Sends a GET request and returns the response.
-   * Sets `isLoading` during the request.
    *
    * @param url - URL to fetch
    * @returns Response data or `false` on error
@@ -378,8 +372,6 @@ export interface PanelModal<
   /**
    * Updates the form value and emits the `"input"` event.
    * Ignored while the modal is closed.
-   *
-   * @param value - New form value
    */
   input: (value: any) => void;
 
@@ -409,11 +401,6 @@ export interface PanelModal<
    */
   reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
-  /**
-   * Sets modal state, auto-generating an ID if not provided.
-   *
-   * @returns The complete state
-   */
   set: (state: Partial<TDefaults>) => TDefaults;
 
   /**
@@ -448,7 +435,6 @@ export interface PanelModal<
  */
 export interface PanelHistoryMilestone {
   id: string;
-  /** Additional state properties. */
   [key: string]: any;
 }
 
@@ -561,10 +547,7 @@ export interface PanelRequestOptions extends Omit<
    */
   query?: Record<string, any>;
   signal?: AbortSignal;
-  /**
-   * If `true`, `load()` skips setting the feature's `isLoading` state.
-   * Useful for background requests.
-   */
+  /** If `true`, `load()` skips setting the feature's `isLoading` state. */
   silent?: boolean;
   on?: PanelEventListenerMap;
   /**

@@ -19,10 +19,10 @@ export interface PanelApiRequestOptions extends Omit<
    */
   language?: string | null;
   /**
-   * HTTP method, `GET` when omitted. The verb helpers set their own. While
-   * method override is on – its default (`api.methodOverride`) – any method
-   * other than `GET` and `POST` goes out as `POST`, with the real method in
-   * the `x-http-method-override` header.
+   * HTTP method, `GET` when omitted; the verb helpers overwrite it. While the
+   * `api.methodOverride` option is on, as it is by default, any method other
+   * than `GET` and `POST` goes out as `POST` with the method in the
+   * `x-http-method-override` header.
    */
   method?: string;
   /**
@@ -30,10 +30,7 @@ export interface PanelApiRequestOptions extends Omit<
    * none unless one is passed.
    */
   referrer?: string | false;
-  /**
-   * Whether to skip the loading indicator, like the `silent` argument of
-   * `request()` and the verb helpers.
-   */
+  /** Whether to skip the loading indicator. */
   silent?: boolean;
 }
 
@@ -100,7 +97,6 @@ export interface PanelModelData<TContent = Record<string, any>> {
   id?: string;
   /** Title of a page or the site – files and users carry `name` instead. */
   title?: string;
-  /** Content field values. */
   content: TContent;
 }
 // #endregion
@@ -142,12 +138,7 @@ export interface PanelApiAuth {
   /** Pings the server to keep the session alive. */
   ping: () => Promise<any>;
 
-  /**
-   * Gets the current user.
-   *
-   * @param query - Query parameters
-   * @returns User data
-   */
+  /** Gets the current user. */
   user: (query?: Record<string, any>) => Promise<any>;
 
   /**
@@ -191,7 +182,6 @@ export interface PanelApiFiles {
    * Deletes a file.
    *
    * @param parent - Parent API path
-   * @param filename - Filename to delete
    */
   delete: (parent: string | null, filename: string) => Promise<any>;
 
@@ -199,9 +189,6 @@ export interface PanelApiFiles {
    * Gets a file.
    *
    * @param parent - Parent API path
-   * @param filename - Filename
-   * @param query - Query parameters
-   * @returns File data
    */
   get: (
     parent: string | null,
@@ -214,7 +201,6 @@ export interface PanelApiFiles {
    * returns any other value unchanged.
    *
    * @param id - Filename, UUID, or permalink
-   * @returns API-formatted ID
    */
   id: (id: string) => string;
 
@@ -222,9 +208,7 @@ export interface PanelApiFiles {
    * Gets Panel link for a file.
    *
    * @param parent - Parent path
-   * @param filename - Filename
    * @param path - Additional path
-   * @returns Panel link
    */
   link: (parent: string | null, filename: string, path?: string) => string;
 
@@ -232,7 +216,6 @@ export interface PanelApiFiles {
    * Updates a file's content.
    *
    * @param parent - Parent path
-   * @param filename - Filename
    * @param data - Content data
    * @returns Updated file data
    */
@@ -246,7 +229,6 @@ export interface PanelApiFiles {
    * Returns the API path of a file.
    *
    * @param parent - Parent path
-   * @param filename - Filename
    * @param path - Additional path
    * @returns API path, relative to the API endpoint
    */
@@ -289,7 +271,6 @@ export interface PanelApiLanguages {
   /**
    * Creates a new language.
    *
-   * @param data - Language data
    * @returns Created language
    */
   create: (data: PanelApiLanguageData) => Promise<any>;
@@ -305,7 +286,6 @@ export interface PanelApiLanguages {
    * Gets a language.
    *
    * @param code - Language code
-   * @returns Language data
    */
   get: (code: string) => Promise<any>;
 
@@ -320,7 +300,6 @@ export interface PanelApiLanguages {
    * Updates a language.
    *
    * @param code - Language code
-   * @param data - Updated data
    * @returns Updated language
    */
   update: (
@@ -381,7 +360,6 @@ export interface PanelApiPages {
    * Gets a page's blueprint.
    *
    * @param parent - Page ID
-   * @returns Blueprint data
    */
   blueprint: (parent: string) => Promise<any>;
 
@@ -390,7 +368,6 @@ export interface PanelApiPages {
    *
    * @param parent - Page ID
    * @param field - Field name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
-   * @returns Array of blueprints
    */
   blueprints: (
     parent: string,
@@ -401,7 +378,6 @@ export interface PanelApiPages {
    * Changes a page's slug.
    *
    * @param id - Page ID
-   * @param slug - New slug
    * @returns Updated page
    */
   changeSlug: (id: string, slug: string) => Promise<any>;
@@ -410,7 +386,6 @@ export interface PanelApiPages {
    * Changes a page's status.
    *
    * @param id - Page ID
-   * @param status - New status
    * @param position - Sort position of a `listed` page
    * @returns Updated page
    */
@@ -424,7 +399,6 @@ export interface PanelApiPages {
    * Changes a page's template.
    *
    * @param id - Page ID
-   * @param template - New template
    * @returns Updated page
    */
   changeTemplate: (id: string, template: string) => Promise<any>;
@@ -433,7 +407,6 @@ export interface PanelApiPages {
    * Changes a page's title.
    *
    * @param id - Page ID
-   * @param title - New title
    * @returns Updated page
    */
   changeTitle: (id: string, title: string) => Promise<any>;
@@ -442,8 +415,6 @@ export interface PanelApiPages {
    * Searches a page's children.
    *
    * @param id - Parent page ID
-   * @param query - Search query
-   * @returns Search results
    */
   children: (id: string, query?: PanelApiSearchQuery) => Promise<any>;
 
@@ -451,7 +422,6 @@ export interface PanelApiPages {
    * Creates a new page.
    *
    * @param parent - Parent page ID (`null` or `/` for the site root)
-   * @param data - Page data
    * @returns Created page
    */
   create: (parent: string | null, data: PanelApiPageCreateData) => Promise<any>;
@@ -470,7 +440,6 @@ export interface PanelApiPages {
    *
    * @param id - Page ID
    * @param slug - New slug, or `null` to append the duplicate suffix to the current one
-   * @param options - Duplicate options
    * @returns Duplicated page
    */
   duplicate: (
@@ -483,8 +452,6 @@ export interface PanelApiPages {
    * Gets a page.
    *
    * @param id - Page ID
-   * @param query - Query parameters
-   * @returns Page data
    */
   get: (id: string, query?: Record<string, any>) => Promise<any>;
 
@@ -494,7 +461,6 @@ export interface PanelApiPages {
    * `@<uuid>`.
    *
    * @param id - Page ID, UUID, or permalink
-   * @returns API-formatted ID
    */
   id: (id: string) => string;
 
@@ -502,8 +468,6 @@ export interface PanelApiPages {
    * Searches files in a page.
    *
    * @param id - Page ID
-   * @param query - Search query
-   * @returns Search results
    */
   files: (id: string, query?: PanelApiSearchQuery) => Promise<any>;
 
@@ -511,7 +475,6 @@ export interface PanelApiPages {
    * Gets Panel link for a page.
    *
    * @param id - Page ID
-   * @returns Panel link
    */
   link: (id: string) => string;
 
@@ -527,7 +490,6 @@ export interface PanelApiPages {
    * Searches direct children of a parent page (or the site root).
    *
    * @param parent - Parent page ID (`null` for root)
-   * @param query - Search query
    * @returns Search results with only `id`, `title`, and `hasChildren` per page
    */
   search: (parent: string | null, query?: PanelApiSearchQuery) => Promise<any>;
@@ -562,9 +524,6 @@ export interface PanelApiPages {
 export interface PanelApiRoles {
   /**
    * Gets a role.
-   *
-   * @param name - Role name
-   * @returns Role data
    */
   get: (name: string) => Promise<any>;
 
@@ -587,41 +546,26 @@ export interface PanelApiRoles {
  * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiSite {
-  /**
-   * Gets the site blueprint.
-   *
-   * @returns Blueprint data
-   */
+  /** Gets the site blueprint. */
   blueprint: () => Promise<any>;
 
-  /**
-   * Gets the page blueprints the site's `pagelist` fields accept.
-   *
-   * @returns Array of blueprints
-   */
+  /** Gets the page blueprints the site's `pagelist` fields accept. */
   blueprints: () => Promise<{ name: string; title: string }[]>;
 
   /**
    * Changes the site title.
    *
-   * @param title - New title
    * @returns Updated site
    */
   changeTitle: (title: string) => Promise<any>;
 
-  /**
-   * Searches the site's children.
-   *
-   * @param query - Search query
-   * @returns Search results
-   */
+  /** Searches the site's children. */
   children: (query?: PanelApiSearchQuery) => Promise<any>;
 
   /**
    * Gets the site.
    *
    * @param query - Query parameters, `{ view: "panel" }` when omitted
-   * @returns Site data
    */
   get: (query?: Record<string, any>) => Promise<any>;
 
@@ -669,7 +613,6 @@ export interface PanelApiSystem {
    * Gets system information.
    *
    * @param query - Query parameters, `{ view: "panel" }` when omitted
-   * @returns System data
    */
   get: (query?: Record<string, any>) => Promise<any>;
 
@@ -677,7 +620,6 @@ export interface PanelApiSystem {
    * Creates the first user and logs them in. Rejects once the Panel is
    * installed or when it cannot be installed.
    *
-   * @param data - Installation data
    * @returns Created user
    */
   install: (data: PanelApiSystemInstallData) => Promise<any>;
@@ -685,7 +627,6 @@ export interface PanelApiSystem {
   /**
    * Registers a license.
    *
-   * @param data - Registration data
    * @returns `{ status: "ok", message: "ok", code: 200 }` once the license is registered
    */
   register: (data: PanelApiSystemRegisterData) => Promise<any>;
@@ -703,7 +644,6 @@ export interface PanelApiTranslations {
    * Gets a translation.
    *
    * @param locale - Translation code, e.g. `de` or `pt_BR`
-   * @returns Translation data
    */
   get: (locale: string) => Promise<any>;
 
@@ -760,7 +700,6 @@ export interface PanelApiUsers {
    * Gets a user's blueprint.
    *
    * @param id - User ID
-   * @returns Blueprint data
    */
   blueprint: (id: string) => Promise<any>;
 
@@ -769,7 +708,6 @@ export interface PanelApiUsers {
    *
    * @param id - User ID
    * @param field - Field name to narrow the blueprints to; all fields when omitted
-   * @returns Array of blueprints
    */
   blueprints: (
     id: string,
@@ -780,7 +718,6 @@ export interface PanelApiUsers {
    * Changes a user's email.
    *
    * @param id - User ID
-   * @param email - New email
    * @returns Updated user
    */
   changeEmail: (id: string, email: string) => Promise<any>;
@@ -798,7 +735,6 @@ export interface PanelApiUsers {
    * Changes a user's name.
    *
    * @param id - User ID
-   * @param name - New name
    * @returns Updated user
    */
   changeName: (id: string, name: string) => Promise<any>;
@@ -807,7 +743,6 @@ export interface PanelApiUsers {
    * Changes a user's password.
    *
    * @param id - User ID
-   * @param password - New password
    * @param currentPassword - Password of the acting user, required unless they reset their own password after a password-reset login
    * @returns Updated user
    */
@@ -821,7 +756,6 @@ export interface PanelApiUsers {
    * Changes a user's role.
    *
    * @param id - User ID
-   * @param role - New role
    * @returns Updated user
    */
   changeRole: (id: string, role: string) => Promise<any>;
@@ -829,7 +763,6 @@ export interface PanelApiUsers {
   /**
    * Creates a new user.
    *
-   * @param data - User data
    * @returns Created user
    */
   create: (data: PanelApiUserCreateData) => Promise<any>;
@@ -852,8 +785,6 @@ export interface PanelApiUsers {
    * Gets a user.
    *
    * @param id - User ID
-   * @param query - Query parameters
-   * @returns User data
    */
   get: (id: string, query?: Record<string, any>) => Promise<any>;
 
@@ -862,14 +793,12 @@ export interface PanelApiUsers {
    *
    * @param id - User ID
    * @param path - Additional path
-   * @returns Panel link
    */
   link: (id: string, path?: string) => string;
 
   /**
    * Queries users through the `users/search` endpoint.
    *
-   * @param query - Search query
    * @returns Paginated users response
    */
   list: (query?: PanelApiSearchQuery) => Promise<any>;
@@ -879,7 +808,6 @@ export interface PanelApiUsers {
    * their current role when the current user may not change it.
    *
    * @param id - User ID
-   * @returns Array of role options shaped for select inputs
    */
   roles: (
     id: string,
@@ -888,7 +816,6 @@ export interface PanelApiUsers {
   /**
    * Searches users – the same request as `list()`.
    *
-   * @param query - Search query
    * @returns Paginated users response
    */
   search: (query?: PanelApiSearchQuery) => Promise<any>;
@@ -965,9 +892,7 @@ export interface PanelApi {
    * other response to the full JSON.
    *
    * @param path - API path
-   * @param options - Request options
    * @param silent - Skip loading indicator
-   * @returns Response JSON, or the model data of a model response
    */
   request: <T = any>(
     path: string,
@@ -979,10 +904,7 @@ export interface PanelApi {
    * Makes a `GET` request.
    *
    * @param path - API path
-   * @param query - Query parameters
-   * @param options - Request options
    * @param silent - Skip loading indicator
-   * @returns Response data
    */
   get: <T = any>(
     path: string,
@@ -996,10 +918,8 @@ export interface PanelApi {
    *
    * @param path - API path
    * @param data - Request body
-   * @param options - Request options
    * @param method - HTTP method, `POST` by default
    * @param silent - Skip loading indicator
-   * @returns Response data
    */
   post: <T = any>(
     path: string,
@@ -1014,9 +934,7 @@ export interface PanelApi {
    *
    * @param path - API path
    * @param data - Request body
-   * @param options - Request options
    * @param silent - Skip loading indicator
-   * @returns Response data
    */
   patch: <T = any>(
     path: string,
@@ -1030,9 +948,7 @@ export interface PanelApi {
    *
    * @param path - API path
    * @param data - Request body
-   * @param options - Request options
    * @param silent - Skip loading indicator
-   * @returns Response data
    */
   delete: <T = any>(
     path: string,

@@ -1,9 +1,4 @@
-/**
- * Library type definitions for Kirby Panel.
- *
- * Provides types for the `$library` utilities available to every component.
- * Includes color manipulation, date handling (dayjs), and textarea autosize.
- */
+/** Types for the Panel's `$library` utilities. */
 
 import type { ConfigType, Dayjs, PluginFunc, UnitTypeLong } from "dayjs";
 
@@ -144,10 +139,8 @@ export interface PanelLibraryColors {
   /**
    * Formats a color as a CSS string.
    *
-   * @param color - Color to format (string or object)
-   * @param format - Target format (optional, converts if needed)
+   * @param format - Target format, the color's own when omitted
    * @param alpha - Include alpha channel (default: `true`)
-   * @returns CSS color string
    * @throws Error if unsupported color or format (HSV cannot be output as CSS)
    */
   toString: (
