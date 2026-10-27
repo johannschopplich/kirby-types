@@ -276,25 +276,37 @@ export interface PanelModalListeners {
 }
 
 /**
+ * Actions a response asks the Panel to take; `panel.act()` runs them.
+ * @source panel/src/panel/panel.ts
+ */
+export interface PanelResponseActions {
+  /** Global events to emit, each with the response as payload. */
+  event?: string | string[];
+  /** Text of the success notification. */
+  message?: string;
+  /** URL to open. */
+  redirect?: string | { url: string; options?: PanelRequestOptions } | null;
+  /**
+   * Whether to reload the view, or its reload options, when no `redirect` is
+   * set.
+   */
+  reload?: boolean | PanelRequestOptions;
+}
+
+/**
  * Success response from modal submission.
  * @source panel/src/panel/modal.ts
  */
-export interface PanelModalSubmitResponse {
-  /** Text of the success notification. */
-  message?: string;
-  /** Global events to emit, each with the response as payload. */
-  event?: string | string[];
+export interface PanelModalSubmitResponse extends PanelResponseActions {
   /** Whether to emit the global `"success"` event (default: `true`). */
   emit?: boolean;
-  /** URL to navigate to. */
-  route?: string | { url: string; options?: PanelRequestOptions };
-  /** Alternative to `route`; `null` when there is nowhere to go. */
-  redirect?: string | { url: string; options?: PanelRequestOptions } | null;
+  /** URL to navigate to, taking precedence over `redirect`. */
+  route?: PanelResponseActions["redirect"];
   /**
-   * Options for the view reload that follows when neither `route` nor
-   * `redirect` is set. The view reloads either way.
+   * Whether to reload the view, or its reload options, when neither `route`
+   * nor `redirect` is set (default: `true`).
    */
-  reload?: PanelRequestOptions;
+  reload?: boolean | PanelRequestOptions;
   [key: string]: any;
 }
 
@@ -425,29 +437,6 @@ export interface PanelModal<
    * @returns The `success` listener's result if one is registered, `undefined` for a string message, otherwise the given response
    */
   success: (success: PanelModalSubmitResponse | string) => any;
-
-  /**
-   * Emits the response's events on the global event bus, then the global
-   * `"success"` event unless `emit` is `false`.
-   *
-   * @param state - Success response with event data
-   */
-  successEvents: (state: PanelModalSubmitResponse) => void;
-
-  /**
-   * Shows a success notification if the response has a `message`.
-   *
-   * @param state - Success response with optional message
-   */
-  successNotification: (state: PanelModalSubmitResponse) => void;
-
-  /**
-   * Opens the response's `route`, else its `redirect`, via `panel.open()`.
-   *
-   * @param state - Success response with `route` or `redirect`
-   * @returns `false` if there is none, otherwise the `panel.open()` promise
-   */
-  successRedirect: (state: PanelModalSubmitResponse) => false | Promise<any>;
 }
 // #endregion
 
@@ -599,6 +588,11 @@ export interface PanelRequestOptions extends Omit<
    * Defaults to the current view path; `false` omits the header.
    */
   referrer?: string | false;
+  /**
+   * If `true`, sends the request to a third-party URL with only the given
+   * `headers`; a failure does not mark the Panel offline.
+   */
+  external?: boolean;
 }
 
 /**

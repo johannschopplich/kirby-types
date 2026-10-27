@@ -187,7 +187,7 @@ expectType<void>(modal.input({ field: "value" }));
 expectType<PanelModalListeners>(modal.listeners());
 expectType<any>(modal.success("Done"));
 expectType<any>(modal.success({ message: "Success", redirect: "/home" }));
-expectType<false | Promise<any>>(modal.successRedirect({ redirect: "/" }));
+expectType<any>(modal.success({ reload: false }));
 // #endregion
 
 // #region Dialog & Drawer
