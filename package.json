@@ -1,7 +1,7 @@
 {
   "name": "kirby-types",
   "type": "module",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "packageManager": "pnpm@12.11.2",
   "description": "TypeScript types for Kirby Panel plugins and headless CMS usage",
   "author": "Johann Schopplich <hello@johannschopplich.com>",
