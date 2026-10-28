@@ -739,7 +739,7 @@ export interface PanelLanguageInfo {
   /** PHP locale settings keyed by `LC_*` integer constants (e.g., `LC_ALL`, `LC_CTYPE`). */
   locale: Record<number, string>;
   name: string;
-  /** Slug transliteration rules, mapping a character to its replacement. */
+  /** Slug transliteration rules, keyed by the text they replace. */
   rules: Record<string, string>;
   /**
    * Language URL: the configured custom domain as is, else the language's
