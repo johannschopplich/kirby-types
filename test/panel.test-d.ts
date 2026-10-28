@@ -150,8 +150,8 @@ expectType<string | null>({} as PanelUser["username"]);
 
 declare const feature: PanelFeature<PanelFeatureDefaults>;
 
-expectType<Promise<any | false>>(feature.get("/api/test"));
-expectType<Promise<any | false>>(feature.post({}));
+expectType<Promise<Record<string, any> | false>>(feature.get("/api/test"));
+expectType<Promise<Record<string, any> | false>>(feature.post({}));
 expectType<Promise<PanelFeatureDefaults>>(feature.load("/pages/home"));
 expectType<Promise<PanelFeatureDefaults>>(feature.open("/pages/home"));
 expectType<Promise<PanelFeatureDefaults | false>>(feature.reload());

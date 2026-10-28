@@ -173,7 +173,9 @@ export interface PanelFeatureDefaults {
  *
  * @source panel/src/panel/feature.ts
  */
-export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
+export interface PanelFeature<
+  TDefaults extends PanelFeatureDefaults = PanelFeatureDefaults,
+>
   extends PanelState<TDefaults>, PanelEventListeners, PanelFeatureDefaults {
   /**
    * Controller for canceling the pending request, created anew on each
@@ -190,7 +192,7 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
   get: (
     url: string | URL,
     options?: PanelRequestOptions,
-  ) => Promise<any | false>;
+  ) => Promise<Record<string, any> | false>;
 
   /**
    * Loads a feature from the server and opens it through `panel.open()`.
@@ -223,7 +225,10 @@ export interface PanelFeature<TDefaults extends object = PanelFeatureDefaults>
    * @returns Response data or `false` on error
    * @throws Error if feature has no path
    */
-  post: (value?: any, options?: PanelRequestOptions) => Promise<any | false>;
+  post: (
+    value?: Record<string, any>,
+    options?: PanelRequestOptions,
+  ) => Promise<Record<string, any> | false>;
 
   /**
    * Reloads the props from the server, updating them only when the response
@@ -263,8 +268,11 @@ export type PanelModalEvent =
 export interface PanelModalListeners {
   cancel: () => Promise<void>;
   close: (id?: string | true) => Promise<void>;
-  input: (value: any) => void;
-  submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
+  input: (value: Record<string, any>) => void;
+  submit: (
+    value?: Record<string, any>,
+    options?: PanelRequestOptions,
+  ) => Promise<any>;
   success: (response: PanelModalSubmitResponse | string) => any;
   [key: string]: ((...args: any[]) => any) | undefined;
 }
@@ -290,6 +298,7 @@ export interface PanelResponseActions {
 /**
  * Success response from modal submission.
  * @source panel/src/panel/modal.ts
+ * @source src/Panel/Response/DialogResponse.php
  */
 export interface PanelModalSubmitResponse extends PanelResponseActions {
   /** Whether to emit the global `"success"` event (default: `true`). */
@@ -302,6 +311,16 @@ export interface PanelModalSubmitResponse extends PanelResponseActions {
    */
   reload?: boolean | PanelRequestOptions;
   [key: string]: any;
+}
+
+/**
+ * @source panel/src/panel/modal.ts
+ */
+export interface PanelModalDefaults extends PanelFeatureDefaults {
+  /**
+   * ID that tells nested modals apart, generated when the state brings none.
+   */
+  id: string | null;
 }
 
 /**
@@ -324,20 +343,16 @@ export interface PanelModalSubmitResponse extends PanelResponseActions {
  * ```
  *
  * @source panel/src/panel/modal.ts
+ * @source panel/src/helpers/focus.ts
  */
 export interface PanelModal<
-  TDefaults extends object = PanelFeatureDefaults & { id: string | null },
-> extends PanelFeature<TDefaults> {
-  /**
-   * Unique ID for identifying nested modals.
-   * Auto-generated via UUID if not provided.
-   */
-  id: string | null;
-
+  TDefaults extends PanelModalDefaults = PanelModalDefaults,
+>
+  extends PanelFeature<TDefaults>, PanelModalDefaults {
   isOpen: boolean;
 
   /** State snapshots of nested modals, for back navigation. */
-  history: PanelHistory;
+  history: PanelHistory<TDefaults & { id: string }>;
 
   /** Form value, read from `props.value`, or an empty object when unset. */
   readonly value: Record<string, any>;
@@ -373,7 +388,7 @@ export interface PanelModal<
    * Updates the form value and emits the `"input"` event.
    * Ignored while the modal is closed.
    */
-  input: (value: any) => void;
+  input: (value: Record<string, any>) => void;
 
   /**
    * Returns the listeners to bind on the modal component via `v-on`:
@@ -401,8 +416,6 @@ export interface PanelModal<
    */
   reload: (options?: PanelRequestOptions) => Promise<TDefaults | false>;
 
-  set: (state: Partial<TDefaults>) => TDefaults;
-
   /**
    * Submits the modal form to the `submit` listener if one is registered,
    * otherwise as a POST request to the modal's path. Does nothing while
@@ -413,7 +426,10 @@ export interface PanelModal<
    *   the request fails, otherwise the `success()` result; `undefined` while
    *   loading or when closing without a path
    */
-  submit: (value?: any, options?: PanelRequestOptions) => Promise<any>;
+  submit: (
+    value?: Record<string, any>,
+    options?: PanelRequestOptions,
+  ) => Promise<any>;
 
   /**
    * Handles the submit response: closes the modal, shows the success
@@ -442,6 +458,8 @@ export interface PanelHistoryMilestone {
  * Navigation history of nested dialogs and drawers, each milestone a
  * complete state snapshot.
  *
+ * @typeParam TMilestone - Shape of a stored state snapshot
+ *
  * @example
  * ```ts
  * // Navigate back in drawer history
@@ -453,8 +471,10 @@ export interface PanelHistoryMilestone {
  *
  * @source panel/src/helpers/history.ts
  */
-export interface PanelHistory {
-  milestones: PanelHistoryMilestone[];
+export interface PanelHistory<
+  TMilestone extends { id: string } = PanelHistoryMilestone,
+> {
+  milestones: TMilestone[];
 
   /**
    * Adds a state to history. A state whose `id` is already stored is
@@ -464,13 +484,13 @@ export interface PanelHistory {
    * @param replace - If `true`, replaces the last milestone instead of adding
    * @throws Error if state has no `id`
    */
-  add: (state: PanelHistoryMilestone, replace?: boolean) => void;
+  add: (state: TMilestone, replace?: boolean) => void;
 
   /**
    * Returns the milestone at an index, or `undefined`. Negative indices
    * count from the end, `-1` being the last.
    */
-  at: (index: number) => PanelHistoryMilestone | undefined;
+  at: (index: number) => TMilestone | undefined;
 
   clear: () => void;
 
@@ -478,9 +498,7 @@ export interface PanelHistory {
    * Returns all milestones when `id` is `null` or omitted, otherwise the
    * milestone with that ID, or `undefined` if none matches.
    */
-  get: (
-    id?: string | null,
-  ) => PanelHistoryMilestone | PanelHistoryMilestone[] | undefined;
+  get: (id?: string | null) => TMilestone | TMilestone[] | undefined;
 
   /**
    * Navigates to a milestone, removing all items after it.
@@ -488,7 +506,7 @@ export interface PanelHistory {
    * @param id - Milestone ID to navigate to
    * @returns The milestone, or `undefined` if not found
    */
-  goto: (id: string) => PanelHistoryMilestone | undefined;
+  goto: (id: string) => TMilestone | undefined;
 
   /** Checks if a milestone with the given ID exists in history. */
   has: (id: string) => boolean;
@@ -506,7 +524,7 @@ export interface PanelHistory {
 
   isEmpty: () => boolean;
 
-  last: () => PanelHistoryMilestone | undefined;
+  last: () => TMilestone | undefined;
 
   /**
    * Removes the milestone with the given ID, or the last one when `id` is
@@ -514,13 +532,13 @@ export interface PanelHistory {
    *
    * @returns Updated milestones array
    */
-  remove: (id?: string | null) => PanelHistoryMilestone[];
+  remove: (id?: string | null) => TMilestone[];
 
   /** Removes the last milestone and returns the remaining ones. */
-  removeLast: () => PanelHistoryMilestone[];
+  removeLast: () => TMilestone[];
 
   /** Replaces the milestone at an index; `-1` replaces the last one. */
-  replace: (index: number, state: PanelHistoryMilestone) => void;
+  replace: (index: number, state: TMilestone) => void;
 }
 // #endregion
 
@@ -530,6 +548,7 @@ export interface PanelHistory {
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/feature.ts
  * @source panel/src/panel/panel.ts
+ * @source panel/src/helpers/url.ts
  */
 export interface PanelRequestOptions extends Omit<
   RequestInit,
@@ -546,7 +565,6 @@ export interface PanelRequestOptions extends Omit<
    * removes the param, even one already in the URL.
    */
   query?: Record<string, any>;
-  signal?: AbortSignal;
   /** If `true`, `load()` skips setting the feature's `isLoading` state. */
   silent?: boolean;
   on?: PanelEventListenerMap;
@@ -600,7 +618,8 @@ export type PanelContext = "view" | "dialog" | "drawer";
 /**
  * Notification type, which decides behavior and persistence. The `success()`
  * and `info()` shortcuts set `theme` and `icon` instead of a type.
- * - `error`: Operation failed, persists until dismissed.
+ * - `error`: Operation failed, persists until dismissed unless a `timeout`
+ *   is passed.
  * - `fatal`: Critical error, displayed in an isolated iframe.
  * @source panel/src/panel/notification.ts
  */
