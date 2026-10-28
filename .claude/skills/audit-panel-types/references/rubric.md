@@ -48,7 +48,9 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 
 - `Record<string, any>` for query bags (e.g. `query?: Record<string, any>`)
 - `Promise<any>` for dynamic backend response data
-- Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants, blueprint-driven view tabs)
+- Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants)
+
+The looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them.
 
 ## Panel TS evidence
 
