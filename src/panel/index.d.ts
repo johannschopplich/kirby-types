@@ -1183,12 +1183,62 @@ export interface Panel {
 // #region View Props
 
 /**
+ * Button in the view header.
+ * @source src/Panel/Ui/Button/ViewButton.php
+ * @source src/Panel/Ui/Button/ModelButton.php
+ * @source src/Panel/Ui/Button.php
+ * @source src/Panel/Ui/Button/ViewButtons.php
+ * @source src/Panel/Ui/Component.php
+ * @source src/Panel/Ui/Button/LanguagesButton.php
+ */
+export interface PanelViewPropsButton {
+  component: string;
+  key: string;
+  props: {
+    /** Badge on the button's top-right corner, like `{ text: 5, theme: "positive" }`. */
+    badge?: Record<string, any>;
+    class?: string;
+    /** Value of the button's `aria-current` attribute. */
+    current?: string | boolean;
+    /** Dialog endpoint to open on click. */
+    dialog?: string;
+    disabled: boolean;
+    /** Drawer endpoint to open on click. */
+    drawer?: string;
+    /** Whether the button opens a dropdown. */
+    dropdown?: boolean;
+    /** Whether another translation has unsaved changes. Present on the languages button. */
+    hasDiff?: boolean;
+    icon?: string;
+    link?: string;
+    /**
+     * Dropdown options: an inline list, or the path of a dropdown endpoint
+     * that loads them.
+     */
+    options?: string | (Record<string, any> | "-")[];
+    responsive: boolean | string;
+    size?: string;
+    style?: string;
+    target?: string;
+    /** Visible button label. */
+    text?: string;
+    /** Visual theme variant (e.g., `"positive"`, `"negative"`). */
+    theme?: string;
+    title?: string;
+    type: string;
+    variant?: string;
+    /** Extra props a plugin or config button passes through. */
+    [key: string]: any;
+  };
+}
+
+/**
  * User who last edited the content, or the current user when there are no
  * unsaved changes. Both fields are `null` when that user is unknown or not
  * listable.
  * @source src/Content/Lock.php
  */
-interface PanelViewPropsLockUser {
+export interface PanelViewPropsLockUser {
   id: string | null;
   email: string | null;
 }
@@ -1199,7 +1249,7 @@ interface PanelViewPropsLockUser {
  * @source src/Panel/Controller/View/ModelViewController.php
  * @source panel/src/panel/content.ts
  */
-interface PanelViewPropsLock {
+export interface PanelViewPropsLock {
   isLegacy: boolean;
   isLocked: boolean;
   /**
@@ -1219,7 +1269,7 @@ interface PanelViewPropsLock {
  * @source src/Blueprint/SiteBlueprint.php
  * @source src/Panel/Controller/View/SiteViewController.php
  */
-interface PanelViewPropsPermissions {
+export interface PanelViewPropsPermissions {
   access: boolean;
   /** Present on User views. */
   changeEmail?: boolean;
@@ -1268,7 +1318,7 @@ interface PanelViewPropsPermissions {
  * the current language. `changes` equals `latest` when nothing is unsaved.
  * @source src/Panel/Controller/View/ModelViewController.php
  */
-interface PanelViewPropsVersions {
+export interface PanelViewPropsVersions {
   latest: Record<string, any>;
   changes: Record<string, any>;
 }
@@ -1277,7 +1327,7 @@ interface PanelViewPropsVersions {
  * @source src/Blueprint/Normalizer.php
  * @source src/Blueprint/Tab.php
  */
-interface PanelViewPropsTabColumn {
+export interface PanelViewPropsTabColumn {
   /** @default '1/1' */
   width: string;
   /** Resolved field props, keyed by the lowercase field name. */
@@ -1291,7 +1341,7 @@ interface PanelViewPropsTabColumn {
  * @source src/Blueprint/Tab.php
  * @source src/Blueprint/Tabs.php
  */
-interface PanelViewPropsTab {
+export interface PanelViewPropsTab {
   label: string;
   /** `null` when the blueprint omits an icon. */
   icon: string | null;
@@ -1314,59 +1364,9 @@ interface PanelViewPropsTab {
  * @source src/Panel/Controller/View/FileViewController.php
  * @source src/Panel/Controller/View/UserViewController.php
  */
-interface PanelViewPropsNavigation {
+export interface PanelViewPropsNavigation {
   link: string;
   title: string;
-}
-
-/**
- * Button in the view header.
- * @source src/Panel/Ui/Button/ViewButton.php
- * @source src/Panel/Ui/Button/ModelButton.php
- * @source src/Panel/Ui/Button.php
- * @source src/Panel/Ui/Button/ViewButtons.php
- * @source src/Panel/Ui/Component.php
- * @source src/Panel/Ui/Button/LanguagesButton.php
- */
-interface PanelViewPropsButton {
-  component: string;
-  key: string;
-  props: {
-    /** Badge on the button's top-right corner, like `{ text: 5, theme: "positive" }`. */
-    badge?: Record<string, any>;
-    class?: string;
-    /** Value of the button's `aria-current` attribute. */
-    current?: string | boolean;
-    /** Dialog endpoint to open on click. */
-    dialog?: string;
-    disabled: boolean;
-    /** Drawer endpoint to open on click. */
-    drawer?: string;
-    /** Whether the button opens a dropdown. */
-    dropdown?: boolean;
-    /** Whether another translation has unsaved changes. Present on the languages button. */
-    hasDiff?: boolean;
-    icon?: string;
-    link?: string;
-    /**
-     * Dropdown options: an inline list, or the path of a dropdown endpoint
-     * that loads them.
-     */
-    options?: string | (Record<string, any> | "-")[];
-    responsive: boolean | string;
-    size?: string;
-    style?: string;
-    target?: string;
-    /** Visible button label. */
-    text?: string;
-    /** Visual theme variant (e.g., `"positive"`, `"negative"`). */
-    theme?: string;
-    title?: string;
-    type: string;
-    variant?: string;
-    /** Extra props a plugin or config button passes through. */
-    [key: string]: any;
-  };
 }
 
 /**
