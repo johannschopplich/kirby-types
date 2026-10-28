@@ -14,7 +14,7 @@ import type {
   DefineComponent,
   Plugin,
 } from "vue";
-import type { KirbyAnyFieldProps } from "../blueprint";
+import type { KirbyAnyFieldProps, KirbyModelImage } from "../blueprint";
 import type { PanelApi } from "./api";
 import type {
   PanelContext,
@@ -400,11 +400,11 @@ interface PanelPermissionsUser {
 }
 
 /**
- * Permissions of the logged-in user's role, an empty array without a
- * logged-in user. A model's blueprint `options` can override them – read a
- * model view's `permissions` prop for that model.
+ * Permissions of the logged-in user's role. A model's blueprint `options`
+ * can override them – read a model view's `permissions` prop for that model.
  *
  * @source panel/src/panel/panel.ts
+ * @source src/Cms/AppPlugins.php
  * @source src/Cms/Permissions.php
  * @source src/Panel/State.php
  */
@@ -427,13 +427,14 @@ export interface PanelPermissions {
 // #region Panel Search
 
 /**
- * Search type an accessible area registers. `icon` defaults to `"search"`,
- * `label` to the id turned into a label.
+ * Search type an accessible area registers.
  * @source src/Panel/State.php
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearchType {
+  /** `"search"` unless the area's search sets an icon. */
   icon: string;
+  /** Search id turned into a label unless the area's search sets one. */
   label: string;
   id: string;
 }
@@ -563,6 +564,8 @@ export interface PanelRequestResponse {
  * ```
  *
  * @source panel/public/js/plugins.js
+ * @source panel/src/panel/plugins.ts
+ * @source panel/src/panel/app.ts
  */
 export interface PanelPluginExtensions {
   /**
@@ -575,7 +578,9 @@ export interface PanelPluginExtensions {
   blocks?: Record<string, string | PanelComponentExtension>;
 
   /**
-   * Vue components to register globally in the Panel.
+   * Vue components to register globally in the Panel. A name an existing
+   * component already has, core components included, replaces that component
+   * with a console warning.
    */
   components?: Record<string, PanelComponentExtension>;
 
@@ -605,7 +610,8 @@ export interface PanelPluginExtensions {
   /**
    * Runs in the `created` hook of the Panel's root component and receives
    * that component instance. The application itself is available as
-   * `window.panel.app`.
+   * `window.panel.app`. A callback that throws shows an error notification,
+   * and the other plugins' callbacks still run.
    *
    * @example
    * ```ts
@@ -852,6 +858,7 @@ export interface PanelHtml {
  * @source panel/src/panel/legacy.ts
  * @source panel/src/panel/observers.ts
  * @source panel/src/panel/request.ts
+ * @source panel/src/panel/search.ts
  * @source panel/src/panel/translation.ts
  * @source panel/src/helpers/url.ts
  * @source panel/public/js/plugins.js
@@ -1123,9 +1130,8 @@ export interface Panel {
   };
 
   /**
-   * Applies a new Panel state: updates the globals, calls each feature's
-   * `set()`, opens or closes the modals and the dropdown, and opens the view
-   * when present.
+   * Applies a new Panel state and opens the view, modals, and dropdown it
+   * carries.
    */
   set: (state?: PanelStateInput) => void;
 
@@ -1373,6 +1379,7 @@ interface PanelViewPropsButton {
  * @source src/Panel/Ui/View.php
  * @source src/Panel/Ui/Component.php
  * @source src/Blueprint/Tab.php
+ * @source src/Blueprint/Tabs.php
  */
 export interface PanelViewProps {
   api: string;
@@ -1410,13 +1417,29 @@ export interface PanelViewProps {
 /**
  * @source src/Panel/Controller/View/FileViewController.php
  * @source src/Panel/Ui/FilePreview.php
+ * @source src/Panel/Ui/FilePreview/ImageFilePreview.php
  */
 export interface PanelFileViewProps extends PanelViewProps {
   extension: string;
   filename: string;
   mime?: string;
   /** Preview component the view renders above its tabs. */
-  preview: { component: string; key: string; props: Record<string, any> };
+  preview: {
+    component: string;
+    key: string;
+    props: {
+      /** Rows of the details table; `text` is `null` for an unknown MIME type. */
+      details: { title: string; text: string | null; link?: string }[];
+      image?: KirbyModelImage;
+      url: string;
+      /** Whether the editor can set a focus point. Present on image previews. */
+      focusable?: boolean;
+      /** Aspect ratio, present only for an SVG without a natural size. */
+      ratio?: number;
+      /** Extra props a plugin's file preview passes. */
+      [key: string]: any;
+    };
+  };
   type?: string;
   url: string;
 }
@@ -1429,8 +1452,20 @@ export interface PanelFileViewProps extends PanelViewProps {
  */
 export interface PanelUserViewProps extends PanelViewProps {
   avatar?: string;
+  /**
+   * Whether the logged-in user may change this user's email; also `false`
+   * while another user has unsaved changes to the content.
+   */
   canChangeEmail: boolean;
+  /**
+   * Whether the logged-in user may change this user's language; also `false`
+   * while another user has unsaved changes to the content.
+   */
   canChangeLanguage: boolean;
+  /**
+   * Whether the logged-in user may change this user's name; also `false`
+   * while another user has unsaved changes to the content.
+   */
   canChangeName: boolean;
   /** Whether the logged-in user may move this user to another role. */
   canChangeRole: boolean;
