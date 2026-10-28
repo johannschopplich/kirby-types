@@ -251,6 +251,16 @@ export interface KirbyBlock<
 }
 
 /**
+ * @example
+ * ```ts
+ * function isDefaultBlock(type: string): type is KirbyDefaultBlockType {
+ *   return ["code", "gallery", "heading", "image", "line", "list", "markdown", "quote", "table", "text", "video"].includes(type);
+ * }
+ * ```
+ */
+export type KirbyDefaultBlockType = keyof KirbyDefaultBlocks;
+
+/**
  * Any default block, discriminated by `type`, so checking `type` narrows
  * `content`.
  *
@@ -264,13 +274,3 @@ export interface KirbyBlock<
 export type KirbyDefaultBlock = {
   [K in KirbyDefaultBlockType]: KirbyBlock<K>;
 }[KirbyDefaultBlockType];
-
-/**
- * @example
- * ```ts
- * function isDefaultBlock(type: string): type is KirbyDefaultBlockType {
- *   return ["code", "gallery", "heading", "image", "line", "list", "markdown", "quote", "table", "text", "video"].includes(type);
- * }
- * ```
- */
-export type KirbyDefaultBlockType = keyof KirbyDefaultBlocks;

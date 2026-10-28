@@ -105,6 +105,95 @@ export interface KirbyFieldProps {
 }
 // #endregion
 
+// #region Fieldset (Block Type Definition)
+
+/**
+ * Tab within a fieldset.
+ *
+ * @source src/Cms/Fieldset.php
+ */
+export interface KirbyFieldsetTab {
+  /** Field definitions in this tab. */
+  fields: Record<string, KirbyFieldProps>;
+  /** Tab label; absent when the fieldset defines no `tabs`. */
+  label?: string | null;
+  /** Tab identifier; absent when the fieldset defines no `tabs`. */
+  name?: string;
+}
+
+/**
+ * Block type definition with its fields organized in tabs, used by the
+ * blocks and layout fields.
+ *
+ * @example
+ * ```ts
+ * const fieldset: KirbyFieldsetProps = {
+ *   disabled: false,
+ *   editable: true,
+ *   icon: "title",
+ *   label: null,
+ *   name: "Heading",
+ *   preview: "heading",
+ *   tabs: {
+ *     content: {
+ *       fields: { level: {...}, text: {...} }
+ *     }
+ *   },
+ *   translate: true,
+ *   type: "heading",
+ *   unset: false,
+ *   wysiwyg: true
+ * };
+ * ```
+ *
+ * @source src/Cms/Fieldset.php
+ */
+export interface KirbyFieldsetProps {
+  disabled: boolean;
+  /** Whether the block can be edited (has fields). */
+  editable: boolean;
+  icon: string | null;
+  /** Block title template filled from the block content, e.g. `{{ text }}`. */
+  label: string | null;
+  /** Human-readable block name. */
+  name: string;
+  /**
+   * Block preview to render, e.g. `fields` or `heading`; `false` disables it,
+   * and without one the block type's preview applies.
+   */
+  preview: string | boolean | null;
+  /** Tabs containing field definitions. */
+  tabs: Record<string, KirbyFieldsetTab>;
+  /** Whether the block is translatable. */
+  translate: boolean;
+  /** Block type, e.g. `text`, `heading`, or `image`. */
+  type: string;
+  /**
+   * Blueprint flag, forced to `true` together with `disabled` for a
+   * non-translatable block in a secondary language; the Panel acts on
+   * `disabled` only.
+   */
+  unset: boolean;
+  /** Whether the block uses WYSIWYG editing. */
+  wysiwyg: boolean;
+}
+
+/**
+ * Fieldset group for organizing block types.
+ *
+ * @source src/Cms/Fieldsets.php
+ */
+export interface KirbyFieldsetGroup {
+  label: string;
+  /** Group identifier. */
+  name: string;
+  /** Whether the group is open by default. */
+  open: boolean;
+  /** Block types in this group. */
+  sets: string[];
+}
+// #endregion
+
 // #region Field Props (Type-Specific)
 
 /**
@@ -748,95 +837,6 @@ export interface KirbyLayoutValue {
   columns: KirbyLayoutColumnValue[];
   /** Unique layout identifier. */
   id: string;
-}
-// #endregion
-
-// #region Fieldset (Block Type Definition)
-
-/**
- * Block type definition with its fields organized in tabs, used by the
- * blocks and layout fields.
- *
- * @example
- * ```ts
- * const fieldset: KirbyFieldsetProps = {
- *   disabled: false,
- *   editable: true,
- *   icon: "title",
- *   label: null,
- *   name: "Heading",
- *   preview: "heading",
- *   tabs: {
- *     content: {
- *       fields: { level: {...}, text: {...} }
- *     }
- *   },
- *   translate: true,
- *   type: "heading",
- *   unset: false,
- *   wysiwyg: true
- * };
- * ```
- *
- * @source src/Cms/Fieldset.php
- */
-export interface KirbyFieldsetProps {
-  disabled: boolean;
-  /** Whether the block can be edited (has fields). */
-  editable: boolean;
-  icon: string | null;
-  /** Block title template filled from the block content, e.g. `{{ text }}`. */
-  label: string | null;
-  /** Human-readable block name. */
-  name: string;
-  /**
-   * Block preview to render, e.g. `fields` or `heading`; `false` disables it,
-   * and without one the block type's preview applies.
-   */
-  preview: string | boolean | null;
-  /** Tabs containing field definitions. */
-  tabs: Record<string, KirbyFieldsetTab>;
-  /** Whether the block is translatable. */
-  translate: boolean;
-  /** Block type, e.g. `text`, `heading`, or `image`. */
-  type: string;
-  /**
-   * Blueprint flag, forced to `true` together with `disabled` for a
-   * non-translatable block in a secondary language; the Panel acts on
-   * `disabled` only.
-   */
-  unset: boolean;
-  /** Whether the block uses WYSIWYG editing. */
-  wysiwyg: boolean;
-}
-
-/**
- * Tab within a fieldset.
- *
- * @source src/Cms/Fieldset.php
- */
-export interface KirbyFieldsetTab {
-  /** Field definitions in this tab. */
-  fields: Record<string, KirbyFieldProps>;
-  /** Tab label; absent when the fieldset defines no `tabs`. */
-  label?: string | null;
-  /** Tab identifier; absent when the fieldset defines no `tabs`. */
-  name?: string;
-}
-
-/**
- * Fieldset group for organizing block types.
- *
- * @source src/Cms/Fieldsets.php
- */
-export interface KirbyFieldsetGroup {
-  label: string;
-  /** Group identifier. */
-  name: string;
-  /** Whether the group is open by default. */
-  open: boolean;
-  /** Block types in this group. */
-  sets: string[];
 }
 // #endregion
 

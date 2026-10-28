@@ -340,6 +340,17 @@ export interface PanelNotificationDefaults {
 }
 
 /**
+ * Plain error object that `error()` and `fatal()` accept. Its `message` is
+ * shown, or `Something went wrong` without one.
+ * @source panel/src/panel/notification.ts
+ */
+export interface PanelErrorObject {
+  message?: string;
+  /** Extra details, listed by the error dialog that opens in view context. */
+  details?: Record<string, any>;
+}
+
+/**
  * @source panel/src/panel/notification.ts
  */
 export interface PanelNotificationOptions {
@@ -357,17 +368,6 @@ export interface PanelNotificationOptions {
    */
   timeout?: number;
   type?: NotificationType | null;
-}
-
-/**
- * Plain error object that `error()` and `fatal()` accept. Its `message` is
- * shown, or `Something went wrong` without one.
- * @source panel/src/panel/notification.ts
- */
-export interface PanelErrorObject {
-  message?: string;
-  /** Extra details, listed by the error dialog that opens in view context. */
-  details?: Record<string, any>;
 }
 
 /**
@@ -658,6 +658,99 @@ export interface PanelView
 }
 // #endregion
 
+// #region Dialog
+
+/**
+ * @source panel/src/panel/dialog.ts
+ */
+export interface PanelDialogDefaults extends PanelModalDefaults {}
+
+/**
+ * Panel dialog, loaded from the backend or opened from a state object.
+ *
+ * @source panel/src/panel/dialog.ts
+ * @source panel/src/panel/modal.ts
+ * @source src/Panel/Response/DialogResponse.php
+ */
+export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
+  /**
+   * Opens a dialog by path, `URL`, or state object. A string path loads from
+   * `/dialogs/`; an object with `component` and `props` opens inline. An
+   * object with `url` loads that path and passes its other keys as options
+   * in place of `options`. `replace: true` on a state object swaps the
+   * current dialog in the history instead of stacking on top of it.
+   */
+  open: (
+    dialog:
+      | string
+      | URL
+      | (Partial<PanelDialogDefaults> & { url?: string; replace?: boolean }),
+    options?: PanelRequestOptions | PanelEventCallback,
+  ) => Promise<PanelDialogDefaults>;
+}
+// #endregion
+
+// #region Drawer
+
+/**
+ * @source panel/src/panel/drawer.ts
+ */
+export interface PanelDrawerDefaults extends PanelModalDefaults {}
+
+/**
+ * Panel drawer. Nested drawers stack up with breadcrumb navigation.
+ *
+ * @source panel/src/panel/drawer.ts
+ * @source panel/src/panel/modal.ts
+ * @source src/Panel/Response/DrawerResponse.php
+ */
+export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
+  /** Drawer states stacked in the history, oldest first. */
+  readonly breadcrumb: (PanelDrawerDefaults & { id: string })[];
+
+  /** Drawer icon, defaults to `"box"`. */
+  readonly icon: string;
+
+  /**
+   * Opens a drawer by path, `URL`, or state object, switches to `tab` of a
+   * state object, the first tab otherwise, and focuses the drawer. A string
+   * path loads from `/drawers/`. An object with `url` loads that path and
+   * passes its other keys as options in place of `options`. `replace: true`
+   * on a state object swaps the current drawer in the history instead of
+   * stacking on top of it.
+   */
+  open: (
+    drawer:
+      | string
+      | URL
+      | (Partial<PanelDrawerDefaults> & {
+          url?: string;
+          replace?: boolean;
+          tab?: string;
+        }),
+    options?: PanelRequestOptions | PanelEventCallback,
+  ) => Promise<PanelDrawerDefaults>;
+
+  /**
+   * Switches drawer tabs.
+   * If `tab` is omitted, falls back to the first key of `props.tabs`.
+   * A `tab` name missing from `props.tabs` throws.
+   *
+   * @param tab - Tab name to switch to
+   */
+  tab: (tab?: string) => void;
+
+  /**
+   * Returns the modal listeners plus the drawer's `crumb` handler, which
+   * navigates the history, and its `tab` handler.
+   */
+  listeners: () => PanelModalListeners & {
+    crumb: (id: string) => void;
+    tab: (tab?: string) => void;
+  };
+}
+// #endregion
+
 // #region Dropdown
 
 /**
@@ -784,123 +877,20 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 }
 // #endregion
 
-// #region Dialog
-
-/**
- * @source panel/src/panel/dialog.ts
- */
-export interface PanelDialogDefaults extends PanelModalDefaults {}
-
-/**
- * Panel dialog, loaded from the backend or opened from a state object.
- *
- * @source panel/src/panel/dialog.ts
- * @source panel/src/panel/modal.ts
- * @source src/Panel/Response/DialogResponse.php
- */
-export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
-  /**
-   * Opens a dialog by path, `URL`, or state object. A string path loads from
-   * `/dialogs/`; an object with `component` and `props` opens inline. An
-   * object with `url` loads that path and passes its other keys as options
-   * in place of `options`. `replace: true` on a state object swaps the
-   * current dialog in the history instead of stacking on top of it.
-   */
-  open: (
-    dialog:
-      | string
-      | URL
-      | (Partial<PanelDialogDefaults> & { url?: string; replace?: boolean }),
-    options?: PanelRequestOptions | PanelEventCallback,
-  ) => Promise<PanelDialogDefaults>;
-}
-// #endregion
-
-// #region Drawer
-
-/**
- * @source panel/src/panel/drawer.ts
- */
-export interface PanelDrawerDefaults extends PanelModalDefaults {}
-
-/**
- * Panel drawer. Nested drawers stack up with breadcrumb navigation.
- *
- * @source panel/src/panel/drawer.ts
- * @source panel/src/panel/modal.ts
- * @source src/Panel/Response/DrawerResponse.php
- */
-export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
-  /** Drawer states stacked in the history, oldest first. */
-  readonly breadcrumb: (PanelDrawerDefaults & { id: string })[];
-
-  /** Drawer icon, defaults to `"box"`. */
-  readonly icon: string;
-
-  /**
-   * Opens a drawer by path, `URL`, or state object, switches to `tab` of a
-   * state object, the first tab otherwise, and focuses the drawer. A string
-   * path loads from `/drawers/`. An object with `url` loads that path and
-   * passes its other keys as options in place of `options`. `replace: true`
-   * on a state object swaps the current drawer in the history instead of
-   * stacking on top of it.
-   */
-  open: (
-    drawer:
-      | string
-      | URL
-      | (Partial<PanelDrawerDefaults> & {
-          url?: string;
-          replace?: boolean;
-          tab?: string;
-        }),
-    options?: PanelRequestOptions | PanelEventCallback,
-  ) => Promise<PanelDrawerDefaults>;
-
-  /**
-   * Switches drawer tabs.
-   * If `tab` is omitted, falls back to the first key of `props.tabs`.
-   * A `tab` name missing from `props.tabs` throws.
-   *
-   * @param tab - Tab name to switch to
-   */
-  tab: (tab?: string) => void;
-
-  /**
-   * Returns the modal listeners plus the drawer's `crumb` handler, which
-   * navigates the history, and its `tab` handler.
-   */
-  listeners: () => PanelModalListeners & {
-    crumb: (id: string) => void;
-    tab: (tab?: string) => void;
-  };
-}
-// #endregion
-
 // #region Content
 
 /**
- * Field values of one content version, keyed by field name.
+ * Target of a content operation; each omitted key defaults to the current
+ * view.
  * @source panel/src/panel/content.ts
+ * @source src/Panel/State.php
  * @source src/Panel/Controller/View/ModelViewController.php
  */
-export interface PanelContentVersion {
-  [field: string]: any;
-}
-
-/**
- * Published content and unpublished changes of the current model view.
- * @source panel/src/panel/content.ts
- * @source src/Panel/Controller/View/ModelViewController.php
- */
-export interface PanelContentVersions {
-  /** Published content. */
-  latest: PanelContentVersion;
-  /**
-   * Content including unpublished changes; equals `latest` when there are
-   * none.
-   */
-  changes: PanelContentVersion;
+export interface PanelContentEnv {
+  /** Panel path of the model, such as `/pages/blog+post`. */
+  api?: string;
+  /** Content language code; `null` on single-language sites. */
+  language?: string | null;
 }
 
 /**
@@ -926,17 +916,27 @@ export interface PanelContentLock {
 }
 
 /**
- * Target of a content operation; each omitted key defaults to the current
- * view.
+ * Field values of one content version, keyed by field name.
  * @source panel/src/panel/content.ts
- * @source src/Panel/State.php
  * @source src/Panel/Controller/View/ModelViewController.php
  */
-export interface PanelContentEnv {
-  /** Panel path of the model, such as `/pages/blog+post`. */
-  api?: string;
-  /** Content language code; `null` on single-language sites. */
-  language?: string | null;
+export interface PanelContentVersion {
+  [field: string]: any;
+}
+
+/**
+ * Published content and unpublished changes of the current model view.
+ * @source panel/src/panel/content.ts
+ * @source src/Panel/Controller/View/ModelViewController.php
+ */
+export interface PanelContentVersions {
+  /** Published content. */
+  latest: PanelContentVersion;
+  /**
+   * Content including unpublished changes; equals `latest` when there are
+   * none.
+   */
+  changes: PanelContentVersion;
 }
 
 /**

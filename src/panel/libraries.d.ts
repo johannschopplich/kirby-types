@@ -7,11 +7,6 @@ import type { ConfigType, Dayjs, PluginFunc, UnitTypeLong } from "dayjs";
 /**
  * @source panel/src/libraries/colors.ts
  */
-export type PanelColorFormat = "hex" | "rgb" | "hsl" | "hsv";
-
-/**
- * @source panel/src/libraries/colors.ts
- */
 export interface PanelColorRGB {
   /** Red channel (0-255). */
   r: number;
@@ -62,6 +57,11 @@ export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
  * @source panel/src/libraries/colors.ts
  */
 export type PanelColor = string | PanelColorObject;
+
+/**
+ * @source panel/src/libraries/colors.ts
+ */
+export type PanelColorFormat = "hex" | "rgb" | "hsl" | "hsv";
 
 /**
  * CSS color parsing and conversion between HEX, RGB, HSL, and HSV.
@@ -154,6 +154,67 @@ export interface PanelLibraryColors {
 // #region Dayjs Types
 
 /**
+ * @source panel/src/libraries/dayjs-parse.ts
+ */
+export interface PanelDayjsParseOptions {
+  /** Display pattern the input is matched against first, e.g. `DD.MM.YYYY`. */
+  pattern?: string;
+  /** Whether to skip the informed guesses when the input does not match the pattern exactly. */
+  strict?: boolean;
+  /** Datetime type to guess, the pattern's own type by default. `datetime` guesses like `date`. */
+  type?: "date" | "time" | "datetime";
+}
+
+/**
+ * Kirby plugin extensions for dayjs instances.
+ * @source panel/src/libraries/dayjs-iso.ts
+ * @source panel/src/libraries/dayjs-validate.ts
+ * @source panel/src/libraries/dayjs-round.ts
+ */
+export interface PanelDayjsExtensions {
+  /**
+   * Formats the datetime as an ISO string.
+   *
+   * @param type - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"` (default: `"datetime"`)
+   */
+  toISO: (type?: "date" | "time" | "datetime") => string;
+
+  /**
+   * Validates the datetime against a lower or upper boundary, compared at
+   * full precision.
+   *
+   * Returns `false` for an invalid datetime or a boundary that is not an ISO
+   * string.
+   *
+   * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
+   * @param type - `"min"` or `"max"` (default: `"min"`)
+   * @returns Whether the datetime lies within the boundary
+   */
+  validate: (boundary?: string, type?: "min" | "max") => boolean;
+
+  /**
+   * Rounds to the nearest step of a unit, e.g. to the nearest 15 minutes.
+   *
+   * `day` is read as `date`. All sub-units of the step unit are cleared,
+   * down to the milliseconds.
+   *
+   * Only the next smaller unit is rounded, and it can carry over: `13:45`
+   * rounded to a 4-hour step carries over to `14:00` first and lands on
+   * `16:00`, not on the nearer `12:00`.
+   *
+   * @param unit - Unit to round to (default: `"date"`)
+   * @param size - Step size (default: `1`). Has to divide the unit evenly, e.g. `15` of 60 minutes; `date`, `month`, and `year` only take `1`.
+   * @throws If the unit or the step size is not supported
+   */
+  round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
+}
+
+/**
+ * @source panel/src/libraries/dayjs.ts
+ */
+export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
+
+/**
  * Date or time unit a pattern token refers to, e.g. `YYYY` to `year`.
  *
  * @source panel/src/libraries/dayjs-pattern.ts
@@ -175,43 +236,6 @@ export interface PanelDayjsPatternPart {
   start: number;
   /** End position (inclusive) in the pattern, or in the rendered string when the parts are positioned against a datetime. */
   end: number;
-}
-
-/**
- * Month names of a locale the Panel builds. Called with a datetime and a
- * format pattern, returns the name in the form the pattern asks for: declined
- * when a day directly precedes the month, e.g. `D. MMMM`, standalone otherwise.
- *
- * @source panel/src/libraries/dayjs-locale.ts
- */
-export interface PanelDayjsLocaleMonths {
-  (dt: Dayjs, pattern: string): string;
-  /** Month names as a full date uses them, January first. */
-  f: string[];
-  /** Standalone month names, January first. */
-  s: string[];
-}
-
-/**
- * Locale data loaded into dayjs. A locale the Panel activates by Kirby
- * translation code has no `formats` or `relativeTime`, and its `months`
- * and `monthsShort` are callables instead of arrays.
- *
- * @source panel/src/libraries/dayjs-locale.ts
- * @source dayjs/locale/types.d.ts
- */
-export interface PanelDayjsLocale extends Partial<
-  Omit<ILocale, "months" | "monthsShort">
-> {
-  name: string;
-  /**
-   * Returns the day period for a time, e.g. `午前` or `午後` for `ja`.
-   *
-   * @param isLowercase - Whether to return the period in lower case
-   */
-  meridiem?: (hour: number, minute: number, isLowercase: boolean) => string;
-  months?: PanelDayjsLocaleMonths | string[];
-  monthsShort?: PanelDayjsLocaleMonths | string[];
 }
 
 /**
@@ -277,67 +301,6 @@ export interface PanelDayjsPattern {
 }
 
 /**
- * Kirby plugin extensions for dayjs instances.
- * @source panel/src/libraries/dayjs-iso.ts
- * @source panel/src/libraries/dayjs-validate.ts
- * @source panel/src/libraries/dayjs-round.ts
- */
-export interface PanelDayjsExtensions {
-  /**
-   * Formats the datetime as an ISO string.
-   *
-   * @param type - `"date"` → `"YYYY-MM-DD"`, `"time"` → `"HH:mm:ss"`, `"datetime"` → `"YYYY-MM-DD HH:mm:ss"` (default: `"datetime"`)
-   */
-  toISO: (type?: "date" | "time" | "datetime") => string;
-
-  /**
-   * Validates the datetime against a lower or upper boundary, compared at
-   * full precision.
-   *
-   * Returns `false` for an invalid datetime or a boundary that is not an ISO
-   * string.
-   *
-   * @param boundary - Boundary as ISO string. If falsy, returns `true` when the dayjs instance is valid.
-   * @param type - `"min"` or `"max"` (default: `"min"`)
-   * @returns Whether the datetime lies within the boundary
-   */
-  validate: (boundary?: string, type?: "min" | "max") => boolean;
-
-  /**
-   * Rounds to the nearest step of a unit, e.g. to the nearest 15 minutes.
-   *
-   * `day` is read as `date`. All sub-units of the step unit are cleared,
-   * down to the milliseconds.
-   *
-   * Only the next smaller unit is rounded, and it can carry over: `13:45`
-   * rounded to a 4-hour step carries over to `14:00` first and lands on
-   * `16:00`, not on the nearer `12:00`.
-   *
-   * @param unit - Unit to round to (default: `"date"`)
-   * @param size - Step size (default: `1`). Has to divide the unit evenly, e.g. `15` of 60 minutes; `date`, `month`, and `year` only take `1`.
-   * @throws If the unit or the step size is not supported
-   */
-  round: (unit?: UnitTypeLong, size?: number) => Dayjs & PanelDayjsExtensions;
-}
-
-/**
- * @source panel/src/libraries/dayjs.ts
- */
-export type PanelDayjsInstance = Dayjs & PanelDayjsExtensions;
-
-/**
- * @source panel/src/libraries/dayjs-parse.ts
- */
-export interface PanelDayjsParseOptions {
-  /** Display pattern the input is matched against first, e.g. `DD.MM.YYYY`. */
-  pattern?: string;
-  /** Whether to skip the informed guesses when the input does not match the pattern exactly. */
-  strict?: boolean;
-  /** Datetime type to guess, the pattern's own type by default. `datetime` guesses like `date`. */
-  type?: "date" | "time" | "datetime";
-}
-
-/**
  * Kirby plugin extensions for the dayjs function (static methods).
  * @source panel/src/libraries/dayjs-iso.ts
  * @source panel/src/libraries/dayjs-parse.ts
@@ -391,6 +354,43 @@ export interface PanelDayjsStaticExtensions {
    * @param pattern - Display pattern, e.g. `DD.MM.YYYY`. A missing pattern reads as an empty one.
    */
   pattern: (pattern?: string | null) => PanelDayjsPattern;
+}
+
+/**
+ * Month names of a locale the Panel builds. Called with a datetime and a
+ * format pattern, returns the name in the form the pattern asks for: declined
+ * when a day directly precedes the month, e.g. `D. MMMM`, standalone otherwise.
+ *
+ * @source panel/src/libraries/dayjs-locale.ts
+ */
+export interface PanelDayjsLocaleMonths {
+  (dt: Dayjs, pattern: string): string;
+  /** Month names as a full date uses them, January first. */
+  f: string[];
+  /** Standalone month names, January first. */
+  s: string[];
+}
+
+/**
+ * Locale data loaded into dayjs. A locale the Panel activates by Kirby
+ * translation code has no `formats` or `relativeTime`, and its `months`
+ * and `monthsShort` are callables instead of arrays.
+ *
+ * @source panel/src/libraries/dayjs-locale.ts
+ * @source dayjs/locale/types.d.ts
+ */
+export interface PanelDayjsLocale extends Partial<
+  Omit<ILocale, "months" | "monthsShort">
+> {
+  name: string;
+  /**
+   * Returns the day period for a time, e.g. `午前` or `午後` for `ja`.
+   *
+   * @param isLowercase - Whether to return the period in lower case
+   */
+  meridiem?: (hour: number, minute: number, isLowercase: boolean) => string;
+  months?: PanelDayjsLocaleMonths | string[];
+  monthsShort?: PanelDayjsLocaleMonths | string[];
 }
 
 /**

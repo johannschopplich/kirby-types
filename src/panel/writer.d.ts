@@ -29,6 +29,48 @@ import type {
   NodeViewConstructor,
 } from "prosemirror-view";
 
+// #region Writer Toolbar
+
+/**
+ * @source panel/src/components/Forms/Writer/Extension.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/components/Forms/Writer/Toolbar.vue
+ * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
+ */
+export interface WriterToolbarButton {
+  /**
+   * Key of a button in an extension's button array, `name` when omitted. The
+   * block dropdown also marks an entry as current when its `id` matches the
+   * active node's entry, so node buttons there need a unique `id`.
+   */
+  id?: string;
+  /** Command name to execute, the button's key when omitted. */
+  command?: string;
+  /** Icon name from Kirby's icon set. */
+  icon: string;
+  /** Display label (usually translated via `window.panel.t()`). */
+  label: string;
+  /** Extension name this button belongs to. */
+  name?: string;
+  /**
+   * Node attributes that mark this button as current when they match the
+   * active node's, for nodes with several buttons such as headings.
+   */
+  attrs?: Record<string, any>;
+  /**
+   * Whether a separator line follows this button in the block dropdown.
+   * Ignored for inline buttons and after the last entry.
+   */
+  separator?: boolean;
+  /**
+   * Whether a node button shows inline in the toolbar instead of in the block dropdown.
+   */
+  inline?: boolean;
+  /** Node names whose dropdown buttons stay enabled while this button's node is active. */
+  when?: string[];
+}
+// #endregion
+
 // #region Writer Editor
 
 /**
@@ -340,48 +382,6 @@ export interface WriterExtensions {
    * defines `options`.
    */
   options: Record<string, Record<string, any>>;
-}
-// #endregion
-
-// #region Writer Toolbar
-
-/**
- * @source panel/src/components/Forms/Writer/Extension.ts
- * @source panel/src/components/Forms/Writer/Extensions.ts
- * @source panel/src/components/Forms/Writer/Toolbar.vue
- * @source panel/src/components/Forms/Writer/Nodes/Heading.ts
- */
-export interface WriterToolbarButton {
-  /**
-   * Key of a button in an extension's button array, `name` when omitted. The
-   * block dropdown also marks an entry as current when its `id` matches the
-   * active node's entry, so node buttons there need a unique `id`.
-   */
-  id?: string;
-  /** Command name to execute, the button's key when omitted. */
-  command?: string;
-  /** Icon name from Kirby's icon set. */
-  icon: string;
-  /** Display label (usually translated via `window.panel.t()`). */
-  label: string;
-  /** Extension name this button belongs to. */
-  name?: string;
-  /**
-   * Node attributes that mark this button as current when they match the
-   * active node's, for nodes with several buttons such as headings.
-   */
-  attrs?: Record<string, any>;
-  /**
-   * Whether a separator line follows this button in the block dropdown.
-   * Ignored for inline buttons and after the last entry.
-   */
-  separator?: boolean;
-  /**
-   * Whether a node button shows inline in the toolbar instead of in the block dropdown.
-   */
-  inline?: boolean;
-  /** Node names whose dropdown buttons stay enabled while this button's node is active. */
-  when?: string[];
 }
 // #endregion
 

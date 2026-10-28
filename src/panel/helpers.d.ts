@@ -64,6 +64,117 @@ export interface PanelHelpersArray {
 }
 // #endregion
 
+// #region Writer Helpers
+
+/**
+ * Extensions a Writer configuration enables: `false` for none, an array of
+ * names and extension instances, or an object map whose keys set to `false`
+ * are left out and whose object values are options for the built-in extension
+ * of that name; any other value, including `true`, `null`, and `undefined`,
+ * enables all.
+ *
+ * @source panel/src/helpers/writer.ts
+ */
+export type PanelWriterAllowed<T = never> =
+  boolean | (string | T)[] | Record<string, unknown> | null | undefined;
+
+/**
+ * Helpers that resolve the marks and nodes a Writer field allows and build
+ * their extension instances, plugin extensions included.
+ *
+ * @source panel/src/helpers/writer.ts
+ */
+export interface PanelHelpersWriter {
+  /**
+   * Resolves the names of the allowed extensions, plus any instances passed
+   * in the `allowed` array. An array comes back as-is, names of unavailable
+   * extensions included.
+   *
+   * @param available - Map of all available extensions keyed by name
+   */
+  allowedExtensions: <T = never>(
+    available: Record<string, unknown>,
+    allowed?: PanelWriterAllowed<T>,
+  ) => (string | T)[];
+
+  /**
+   * Returns the built-in mark instances merged with the plugin marks, keyed by
+   * mark name.
+   *
+   * @param options - Per-mark option overrides keyed by mark name
+   */
+  availableMarks: (
+    options?: Record<string, Record<string, any> | undefined>,
+  ) => Record<string, WriterMarkExtension>;
+
+  /**
+   * Returns the mark instances from `panel.plugins.writerMarks`, keyed by mark
+   * name.
+   */
+  availableMarksFromPlugins: () => Record<string, WriterMarkExtension>;
+
+  /**
+   * Returns the built-in node instances merged with the plugin nodes, keyed by
+   * node name.
+   *
+   * @param options - Per-node option overrides keyed by node name
+   */
+  availableNodes: (
+    options?: Record<string, Record<string, any> | undefined>,
+  ) => Record<string, WriterNodeExtension>;
+
+  /**
+   * Returns the node instances from `panel.plugins.writerNodes`, keyed by node
+   * name.
+   */
+  availableNodesFromPlugins: () => Record<string, WriterNodeExtension>;
+
+  /**
+   * Builds the map of mark instances to install for a Writer field from the
+   * `marks` configuration, always adding the `required` marks.
+   */
+  createMarks: (
+    marks?: PanelWriterAllowed<WriterMarkExtension>,
+    required?: string[],
+  ) => Record<string, WriterMarkExtension>;
+
+  /**
+   * Builds the map of node instances to install for a Writer field from the
+   * `nodes` configuration, always adding the `required` nodes, and `listItem`
+   * whenever `bulletList` or `orderedList` is installed.
+   */
+  createNodes: (
+    nodes?: PanelWriterAllowed<WriterNodeExtension>,
+    required?: string[],
+  ) => Record<string, WriterNodeExtension>;
+
+  /**
+   * Extracts per-extension options, keyed by extension name, from an
+   * object-map `allowed` configuration, keeping only entries whose value is a
+   * non-null object.
+   */
+  extensionOptions: (
+    allowed?: PanelWriterAllowed<unknown>,
+  ) => Record<string, Record<string, any>>;
+
+  /**
+   * Filters a map of available extensions down to those listed in `allowed`.
+   * Keeps the order of `allowed`; for marks, that order sets the nesting
+   * priority. An extension instance in the array is installed under its own
+   * name.
+   */
+  filterExtensions: <T extends { name?: string }>(
+    available: Record<string, T>,
+    allowed?: PanelWriterAllowed<T>,
+  ) => Record<string, T>;
+
+  /** Keeps the node instances whose schema sets `inline: true`. */
+  keepInlineNodes: <T extends { schema: { inline?: boolean } }>(
+    nodes: T[],
+  ) => T[];
+}
+// #endregion
+
 // #region String Helpers
 
 /**
@@ -584,6 +695,18 @@ export interface PanelHelpersNumber {
 // #region Page Helpers
 
 /**
+ * Icon, label, and theme a page blueprint sets for a status, each replacing
+ * the status default.
+ *
+ * @source panel/src/helpers/page.ts
+ */
+export interface PanelPageStatusFlag {
+  icon?: string | null;
+  label?: string | null;
+  theme?: string | null;
+}
+
+/**
  * @source panel/src/helpers/page.ts
  */
 export interface PanelPageStatusProps {
@@ -594,18 +717,6 @@ export interface PanelPageStatusProps {
   size: string;
   /** Inline CSS declarations. */
   style: string;
-}
-
-/**
- * Icon, label, and theme a page blueprint sets for a status, each replacing
- * the status default.
- *
- * @source panel/src/helpers/page.ts
- */
-export interface PanelPageStatusFlag {
-  icon?: string | null;
-  label?: string | null;
-  theme?: string | null;
 }
 
 /**
@@ -939,116 +1050,5 @@ export interface PanelHelpers {
   uuid: PanelHelpersString["uuid"];
 
   writer: PanelHelpersWriter;
-}
-// #endregion
-
-// #region Writer Helpers
-
-/**
- * Extensions a Writer configuration enables: `false` for none, an array of
- * names and extension instances, or an object map whose keys set to `false`
- * are left out and whose object values are options for the built-in extension
- * of that name; any other value, including `true`, `null`, and `undefined`,
- * enables all.
- *
- * @source panel/src/helpers/writer.ts
- */
-export type PanelWriterAllowed<T = never> =
-  boolean | (string | T)[] | Record<string, unknown> | null | undefined;
-
-/**
- * Helpers that resolve the marks and nodes a Writer field allows and build
- * their extension instances, plugin extensions included.
- *
- * @source panel/src/helpers/writer.ts
- */
-export interface PanelHelpersWriter {
-  /**
-   * Resolves the names of the allowed extensions, plus any instances passed
-   * in the `allowed` array. An array comes back as-is, names of unavailable
-   * extensions included.
-   *
-   * @param available - Map of all available extensions keyed by name
-   */
-  allowedExtensions: <T = never>(
-    available: Record<string, unknown>,
-    allowed?: PanelWriterAllowed<T>,
-  ) => (string | T)[];
-
-  /**
-   * Returns the built-in mark instances merged with the plugin marks, keyed by
-   * mark name.
-   *
-   * @param options - Per-mark option overrides keyed by mark name
-   */
-  availableMarks: (
-    options?: Record<string, Record<string, any> | undefined>,
-  ) => Record<string, WriterMarkExtension>;
-
-  /**
-   * Returns the mark instances from `panel.plugins.writerMarks`, keyed by mark
-   * name.
-   */
-  availableMarksFromPlugins: () => Record<string, WriterMarkExtension>;
-
-  /**
-   * Returns the built-in node instances merged with the plugin nodes, keyed by
-   * node name.
-   *
-   * @param options - Per-node option overrides keyed by node name
-   */
-  availableNodes: (
-    options?: Record<string, Record<string, any> | undefined>,
-  ) => Record<string, WriterNodeExtension>;
-
-  /**
-   * Returns the node instances from `panel.plugins.writerNodes`, keyed by node
-   * name.
-   */
-  availableNodesFromPlugins: () => Record<string, WriterNodeExtension>;
-
-  /**
-   * Builds the map of mark instances to install for a Writer field from the
-   * `marks` configuration, always adding the `required` marks.
-   */
-  createMarks: (
-    marks?: PanelWriterAllowed<WriterMarkExtension>,
-    required?: string[],
-  ) => Record<string, WriterMarkExtension>;
-
-  /**
-   * Builds the map of node instances to install for a Writer field from the
-   * `nodes` configuration, always adding the `required` nodes, and `listItem`
-   * whenever `bulletList` or `orderedList` is installed.
-   */
-  createNodes: (
-    nodes?: PanelWriterAllowed<WriterNodeExtension>,
-    required?: string[],
-  ) => Record<string, WriterNodeExtension>;
-
-  /**
-   * Extracts per-extension options, keyed by extension name, from an
-   * object-map `allowed` configuration, keeping only entries whose value is a
-   * non-null object.
-   */
-  extensionOptions: (
-    allowed?: PanelWriterAllowed<unknown>,
-  ) => Record<string, Record<string, any>>;
-
-  /**
-   * Filters a map of available extensions down to those listed in `allowed`.
-   * Keeps the order of `allowed`; for marks, that order sets the nesting
-   * priority. An extension instance in the array is installed under its own
-   * name.
-   */
-  filterExtensions: <T extends { name?: string }>(
-    available: Record<string, T>,
-    allowed?: PanelWriterAllowed<T>,
-  ) => Record<string, T>;
-
-  /** Keeps the node instances whose schema sets `inline: true`. */
-  keepInlineNodes: <T extends { schema: { inline?: boolean } }>(
-    nodes: T[],
-  ) => T[];
 }
 // #endregion

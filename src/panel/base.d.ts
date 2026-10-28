@@ -262,22 +262,6 @@ export type PanelModalEvent =
   "cancel" | "close" | "closed" | "input" | "open" | "submit" | "success";
 
 /**
- * Bound listener functions returned by `modal.listeners()`.
- * @source panel/src/panel/modal.ts
- */
-export interface PanelModalListeners {
-  cancel: () => Promise<void>;
-  close: (id?: string | true) => Promise<void>;
-  input: (value: Record<string, any>) => void;
-  submit: (
-    value?: Record<string, any>,
-    options?: PanelRequestOptions,
-  ) => Promise<any>;
-  success: (response: PanelModalSubmitResponse | string) => any;
-  [key: string]: ((...args: any[]) => any) | undefined;
-}
-
-/**
  * Actions a response asks the Panel to take; `panel.act()` runs them.
  * @source panel/src/panel/panel.ts
  */
@@ -321,6 +305,22 @@ export interface PanelModalDefaults extends PanelFeatureDefaults {
    * ID that tells nested modals apart, generated when the state brings none.
    */
   id: string | null;
+}
+
+/**
+ * Bound listener functions returned by `modal.listeners()`.
+ * @source panel/src/panel/modal.ts
+ */
+export interface PanelModalListeners {
+  cancel: () => Promise<void>;
+  close: (id?: string | true) => Promise<void>;
+  input: (value: Record<string, any>) => void;
+  submit: (
+    value?: Record<string, any>,
+    options?: PanelRequestOptions,
+  ) => Promise<any>;
+  success: (response: PanelModalSubmitResponse | string) => any;
+  [key: string]: ((...args: any[]) => any) | undefined;
 }
 
 /**

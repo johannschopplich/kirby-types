@@ -181,26 +181,6 @@ export type KirbyQuery<CustomModel extends string = never> =
       : KirbyQueryChain<CustomModel>);
 
 /**
- * Recursively parses a chain of query segments separated by dots.
- *
- * @example
- * ```ts
- * type Chain = ParseQueryChain<"children.listed.first">;
- * // Result: [
- * //   { type: "property"; name: "children" },
- * //   { type: "property"; name: "listed" },
- * //   { type: "property"; name: "first" }
- * // ]
- * ```
- *
- * @internal
- */
-type ParseQueryChain<T extends string> =
-  T extends `${infer First}.${infer Rest}`
-    ? [ParseQuerySegment<First>, ...ParseQueryChain<Rest>]
-    : [ParseQuerySegment<T>];
-
-/**
  * Parses a query segment as a property access or a method call.
  *
  * @example
@@ -225,6 +205,26 @@ type ParseQuerySegment<T extends string> =
         type: "property";
         name: T;
       };
+
+/**
+ * Recursively parses a chain of query segments separated by dots.
+ *
+ * @example
+ * ```ts
+ * type Chain = ParseQueryChain<"children.listed.first">;
+ * // Result: [
+ * //   { type: "property"; name: "children" },
+ * //   { type: "property"; name: "listed" },
+ * //   { type: "property"; name: "first" }
+ * // ]
+ * ```
+ *
+ * @internal
+ */
+type ParseQueryChain<T extends string> =
+  T extends `${infer First}.${infer Rest}`
+    ? [ParseQuerySegment<First>, ...ParseQueryChain<Rest>]
+    : [ParseQuerySegment<T>];
 
 /**
  * Parses a Kirby Query Language (KQL) string into its root, returned as
