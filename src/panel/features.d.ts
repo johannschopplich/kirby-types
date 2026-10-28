@@ -1121,10 +1121,8 @@ export interface PanelContent {
    */
   updateLazy: (values?: Record<string, any>, env?: PanelContentEnv) => void;
 
-  /** Returns a specific version of content. */
   version: (versionId: "latest" | "changes") => PanelContentVersion;
 
-  /** Returns all content versions. */
   versions: () => PanelContentVersions;
 }
 // #endregion
@@ -1427,8 +1425,6 @@ export interface PanelUpload
   pick: (options?: PanelUploadOptions & { immediate?: boolean }) => void;
 
   /**
-   * Removes a file from the list.
-   *
    * @param id - File ID to remove
    */
   remove: (id: string) => void;

@@ -798,8 +798,6 @@ export interface WriterMarkExtension {
   schema: MarkSpec;
 
   /**
-   * Returns the commands this extension provides.
-   *
    * A single function registers under the mark's `name`, an object under its
    * keys. A command that returns a function has it run as a ProseMirror
    * command against the view; any other return value passes through.
@@ -927,7 +925,7 @@ export interface WriterMarkExtension {
   remove?: () => void;
 
   /**
-   * Updates the attributes of this mark.
+   * Updates this mark's attributes on the current selection.
    *
    * Shorthand for `this.editor.updateMark(this.name, attrs)`.
    */
@@ -1022,8 +1020,6 @@ export interface WriterNodeExtension {
   schema: NodeSpec;
 
   /**
-   * Returns the commands this extension provides.
-   *
    * A single function registers under the node's `name`, an object under its
    * keys. A command that returns a function has it run as a ProseMirror
    * command against the view; any other return value passes through.

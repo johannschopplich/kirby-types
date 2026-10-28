@@ -564,8 +564,6 @@ export interface PanelHelpersLink {
   isPageUUID: (value: string) => boolean;
 
   /**
-   * Returns available link types.
-   *
    * @param keys - Types to keep, in this order; unknown keys are skipped
    */
   types: (keys?: string[]) => Record<string, PanelLinkType>;

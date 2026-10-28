@@ -192,8 +192,6 @@ export interface PanelApiAuth {
  */
 export interface PanelApiFiles {
   /**
-   * Changes a file's name.
-   *
    * @param filename - Current filename
    * @param to - New name (without extension)
    * @returns Updated file data
@@ -228,8 +226,6 @@ export interface PanelApiFiles {
   link: (parent: string | null, filename: string, path?: string) => string;
 
   /**
-   * Updates a file's content.
-   *
    * @param data - Content data
    * @returns Updated file data
    */
@@ -278,22 +274,16 @@ export interface PanelApiLanguageData {
  */
 export interface PanelApiLanguages {
   /**
-   * Creates a new language.
-   *
    * @returns Created language
    */
   create: (data: PanelApiLanguageData) => Promise<any>;
 
   /**
-   * Deletes a language.
-   *
    * @param code - Language code
    */
   delete: (code: string) => Promise<any>;
 
   /**
-   * Gets a language.
-   *
    * @param code - Language code
    */
   get: (code: string) => Promise<any>;
@@ -301,8 +291,6 @@ export interface PanelApiLanguages {
   list: () => Promise<PanelApiCollectionResponse>;
 
   /**
-   * Updates a language.
-   *
    * @param code - Language code
    * @returns Updated language
    */
@@ -362,8 +350,6 @@ export interface PanelApiPageDuplicateOptions {
  */
 export interface PanelApiPages {
   /**
-   * Gets a page's blueprint.
-   *
    * @param parent - Page ID
    */
   blueprint: (parent: string) => Promise<any>;
@@ -380,16 +366,12 @@ export interface PanelApiPages {
   ) => Promise<{ name: string; title: string }[]>;
 
   /**
-   * Changes a page's slug.
-   *
    * @param id - Page ID
    * @returns Updated page
    */
   changeSlug: (id: string, slug: string) => Promise<any>;
 
   /**
-   * Changes a page's status.
-   *
    * @param id - Page ID
    * @param position - Sort position of a `listed` page
    * @returns Updated page
@@ -401,16 +383,12 @@ export interface PanelApiPages {
   ) => Promise<any>;
 
   /**
-   * Changes a page's template.
-   *
    * @param id - Page ID
    * @returns Updated page
    */
   changeTemplate: (id: string, template: string) => Promise<any>;
 
   /**
-   * Changes a page's title.
-   *
    * @param id - Page ID
    * @returns Updated page
    */
@@ -427,16 +405,12 @@ export interface PanelApiPages {
   ) => Promise<PanelApiCollectionResponse>;
 
   /**
-   * Creates a new page.
-   *
    * @param parent - Parent page ID (`null` or `/` for the site root)
    * @returns Created page
    */
   create: (parent: string | null, data: PanelApiPageCreateData) => Promise<any>;
 
   /**
-   * Deletes a page.
-   *
    * @param id - Page ID
    * @param data - Delete options
    * @param data.force - Force delete even if the page has children or drafts
@@ -444,8 +418,6 @@ export interface PanelApiPages {
   delete: (id: string, data?: { force?: boolean }) => Promise<any>;
 
   /**
-   * Duplicates a page.
-   *
    * @param id - Page ID
    * @param slug - New slug, or `null` to append the duplicate suffix to the current one
    * @returns Duplicated page
@@ -457,8 +429,6 @@ export interface PanelApiPages {
   ) => Promise<any>;
 
   /**
-   * Gets a page.
-   *
    * @param id - Page ID
    */
   get: (id: string, query?: Record<string, any>) => Promise<any>;
@@ -514,8 +484,6 @@ export interface PanelApiPages {
   >;
 
   /**
-   * Updates a page's content.
-   *
    * @param id - Page ID
    * @param data - Content data
    * @returns Updated page
@@ -541,14 +509,9 @@ export interface PanelApiPages {
  * @source src/Cms/Roles.php
  */
 export interface PanelApiRoles {
-  /**
-   * Gets a role.
-   */
   get: (name: string) => Promise<any>;
 
   /**
-   * Lists available roles.
-   *
    * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role.
    */
   list: (params?: Record<string, any>) => Promise<PanelApiCollectionResponse>;
@@ -564,15 +527,12 @@ export interface PanelApiRoles {
  * @source src/Form/Field/PageListField.php
  */
 export interface PanelApiSite {
-  /** Gets the site blueprint. */
   blueprint: () => Promise<any>;
 
   /** Gets the page blueprints the site's `pagelist` fields accept. */
   blueprints: () => Promise<{ name: string; title: string }[]>;
 
   /**
-   * Changes the site title.
-   *
    * @returns Updated site
    */
   changeTitle: (title: string) => Promise<any>;
@@ -583,8 +543,6 @@ export interface PanelApiSite {
   ) => Promise<PanelApiCollectionResponse>;
 
   /**
-   * Gets the site.
-   *
    * @param query - Query parameters, `{ view: "panel" }` when omitted
    */
   get: (query?: Record<string, any>) => Promise<any>;
@@ -632,8 +590,6 @@ export interface PanelApiSystemRegisterData {
  */
 export interface PanelApiSystem {
   /**
-   * Gets system information.
-   *
    * @param query - Query parameters, `{ view: "panel" }` when omitted
    */
   get: (query?: Record<string, any>) => Promise<any>;
@@ -734,8 +690,6 @@ export interface PanelApiUserCreateData {
  */
 export interface PanelApiUsers {
   /**
-   * Gets a user's blueprint.
-   *
    * @param id - User ID
    */
   blueprint: (id: string) => Promise<any>;
@@ -752,16 +706,12 @@ export interface PanelApiUsers {
   ) => Promise<{ name: string; title: string }[]>;
 
   /**
-   * Changes a user's email.
-   *
    * @param id - User ID
    * @returns Updated user
    */
   changeEmail: (id: string, email: string) => Promise<any>;
 
   /**
-   * Changes a user's language.
-   *
    * @param id - User ID
    * @param language - Panel interface language code, e.g. `de` or `pt_BR`
    * @returns Updated user
@@ -769,16 +719,12 @@ export interface PanelApiUsers {
   changeLanguage: (id: string, language: string) => Promise<any>;
 
   /**
-   * Changes a user's name.
-   *
    * @param id - User ID
    * @returns Updated user
    */
   changeName: (id: string, name: string) => Promise<any>;
 
   /**
-   * Changes a user's password.
-   *
    * @param id - User ID
    * @param currentPassword - Password of the acting user, required unless they reset their own password after a password-reset login
    * @returns Updated user
@@ -790,37 +736,27 @@ export interface PanelApiUsers {
   ) => Promise<any>;
 
   /**
-   * Changes a user's role.
-   *
    * @param id - User ID
    * @returns Updated user
    */
   changeRole: (id: string, role: string) => Promise<any>;
 
   /**
-   * Creates a new user.
-   *
    * @returns Created user
    */
   create: (data: PanelApiUserCreateData) => Promise<any>;
 
   /**
-   * Deletes a user.
-   *
    * @param id - User ID
    */
   delete: (id: string) => Promise<any>;
 
   /**
-   * Deletes a user's avatar.
-   *
    * @param id - User ID
    */
   deleteAvatar: (id: string) => Promise<any>;
 
   /**
-   * Gets a user.
-   *
    * @param id - User ID
    */
   get: (id: string, query?: Record<string, any>) => Promise<any>;
@@ -850,8 +786,6 @@ export interface PanelApiUsers {
   search: (query?: PanelApiSearchQuery) => Promise<PanelApiCollectionResponse>;
 
   /**
-   * Updates a user's content.
-   *
    * @param id - User ID
    * @param data - Content data
    * @returns Updated user
