@@ -13,7 +13,7 @@ Types and docs describe Kirby 6's **latest release** and nothing beyond it. Unti
 - A member the latest release deprecates keeps `@deprecated` with what to use instead, or what happens without it; a member it accepts but ignores is deleted.
 - A member the latest release marks `@unstable` carries a bare `@unstable` tag.
 
-## Authority order
+## Authority Order
 
 **PHP `toArray()` / `props()` > Panel source.**
 
@@ -23,11 +23,11 @@ Panel TS is **evidence-strength, not absolute**. PHP overrules it when they disa
 
 - `PanelSystem.slugs` – the Panel TS types `string[]`, PHP emits `Record<string, string>`. Keep the record.
 
-## Anti-pattern: defaults-as-runtime fallacy
+## Anti-Pattern: Defaults-as-Runtime Fallacy
 
 For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contract. Cite PHP for its nullability and never widen it to `T | null` on JS evidence alone: `PanelView.path` and `PanelTranslation.code` stay non-nullable. A browser-only property takes its nullability from the latest release's Panel source. Without PHP evidence for a nullability, DEFER the widening.
 
-## Finding categories
+## Finding Categories
 
 - **tighten**: the Panel's own TS type is stricter or clearer than ours, and PHP, where it emits the shape, agrees. Adopt it, unless it rejects a value the runtime accepts: `PanelComponentExtension.extends` keeps taking a `DefineComponent`.
 - **renameCandidate**: the source uses a different name that better reflects intent. An approved rename replaces the name outright: the old name leaves the types.
@@ -37,22 +37,25 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 - **soft**: JSDoc shape narrower than `any` / `Record<string, any>` widening allows; lower severity.
 - **Defaults members** are reported and patched on the `*Defaults` interface, their declaration site (`PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`).
 
-## Skip – never report
+## Skip – Never Report
 
 - `#`-prefixed JS class privates
 - Symbols marked `@internal` in JSDoc
 - Test-only references (`*.test.{js,ts}`)
 - Inherited members: a declaration that extends another is reviewed only for what it adds or overrides.
 
-## Intentional looseness – note, do not flag or widen
+## Intentional Looseness
+
+Each goes under `intentional` and stays as typed:
 
 - `Record<string, any>` for query bags (e.g. `query?: Record<string, any>`)
 - `Promise<any>` for a response whose keys the caller or a plugin picks: `panel.api.get()` on a free path, a `select` query, a plugin's route
+- A page, file, user, or site in any view but `compact` – `default`, `panel`, `auth`, `selector` – whatever keys PHP fixes
 - Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants)
 
-The looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value or an API response too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them; `users.list` returns each user in the `compact` view of `config/api/models/User.php`.
+Beyond these, the looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value or an API response too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them; `users.list` returns each user in the `compact` view of `config/api/models/User.php`. A model without a `default` view returns every field: `roles.get` includes `permissions`, which Role's `compact` view leaves out. Leave out a key the runtime may lack: where a resolver returns one of several models, type only the keys their views share.
 
-## Panel TS evidence
+## Panel TS Evidence
 
 - Drop `Prettify<T>` wrappers.
 - `type TODO = any` means "Kirby has no opinion". Skip it.
@@ -63,7 +66,7 @@ The looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` 
 - **Git from a full-history root.** `git log -S <symbol>` for the introducing commit, then `git tag --contains <commit> | grep -E '^[0-9]' | sort -V | head -1` for the earliest release. Read the file at that tag and at the previous release tag (`git show <tag>:<path>`) before writing the version: a patch release often carries the change (`6.1.1`, not `6.1.0` or `6.2.0`). A prerelease tag, or an untagged commit on the develop branch standing in for the latest release, dates to its release: a member first tagged `6.0.0-alpha.2` is present at the 6.0.0 baseline.
 - **Nothing present at the baseline carries `@since`.**
 
-## JSDoc style
+## JSDoc Style
 
 - **Body describes runtime behavior.** What a plugin author passes, gets, and must avoid, never how Kirby produces it: "pass `admin` for an admin account", not "the installer sends `admin`". A mechanism stays only as its consequence – "pings while the Panel is online", not when the ping is scheduled. No data flow, no step-by-step retelling of the implementation, no list of which fields Kirby reads for what, no "as … reflects", no reason Kirby has for a value. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths, and internal constants such as intervals or batch sizes – none belong in JSDoc prose. The default of an option the user sets stays. Provenance belongs in `@source`.
 - **A doc that repeats the name and the type is not written.** `/** Icon name */` above `icon?: string` earns nothing, and neither does `/** Files API */` above `files: PanelApiFiles`. Add the member bare.
