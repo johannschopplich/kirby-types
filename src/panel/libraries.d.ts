@@ -154,6 +154,14 @@ export interface PanelLibraryColors {
 // #region Dayjs Types
 
 /**
+ * Date or time unit a pattern token refers to, e.g. `YYYY` to `year`.
+ *
+ * @source panel/src/libraries/dayjs-pattern.ts
+ */
+export type PanelDayjsPatternUnit =
+  "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
+
+/**
  * @source panel/src/libraries/dayjs-pattern.ts
  */
 export interface PanelDayjsPatternPart {
@@ -162,11 +170,48 @@ export interface PanelDayjsPatternPart {
    * Unit the part refers to; `undefined` for a letter sequence that is not a
    * supported token, e.g. `Do`.
    */
-  unit?: "year" | "month" | "day" | "hour" | "minute" | "second" | "meridiem";
+  unit?: PanelDayjsPatternUnit;
   /** Start position in the pattern, or in the rendered string when the parts are positioned against a datetime. */
   start: number;
   /** End position (inclusive) in the pattern, or in the rendered string when the parts are positioned against a datetime. */
   end: number;
+}
+
+/**
+ * Month names of a locale the Panel builds. Called with a datetime and a
+ * format pattern, returns the name in the form the pattern asks for: declined
+ * when a day directly precedes the month, e.g. `D. MMMM`, standalone otherwise.
+ *
+ * @source panel/src/libraries/dayjs-locale.ts
+ */
+export interface PanelDayjsLocaleMonths {
+  (dt: Dayjs, pattern: string): string;
+  /** Month names as a full date uses them, January first. */
+  f: string[];
+  /** Standalone month names, January first. */
+  s: string[];
+}
+
+/**
+ * Locale data loaded into dayjs. A locale the Panel activates by Kirby
+ * translation code has no `formats` or `relativeTime`, and its `months`
+ * and `monthsShort` are callables instead of arrays.
+ *
+ * @source panel/src/libraries/dayjs-locale.ts
+ * @source dayjs/locale/types.d.ts
+ */
+export interface PanelDayjsLocale extends Partial<
+  Omit<ILocale, "months" | "monthsShort">
+> {
+  name: string;
+  /**
+   * Returns the day period for a time, e.g. `午前` or `午後` for `ja`.
+   *
+   * @param isLowercase - Whether to return the period in lower case
+   */
+  meridiem?: (hour: number, minute: number, isLowercase: boolean) => string;
+  months?: PanelDayjsLocaleMonths | string[];
+  monthsShort?: PanelDayjsLocaleMonths | string[];
 }
 
 /**
@@ -194,7 +239,7 @@ export interface PanelDayjsPattern {
    * Units the pattern is made up of, in the order they appear,
    * e.g. `["month", "day", "year"]` for `MM/DD/YYYY`.
    */
-  readonly units: NonNullable<PanelDayjsPatternPart["unit"]>[];
+  readonly units: PanelDayjsPatternUnit[];
 
   /**
    * Returns the parts of the pattern, one per letter sequence.
@@ -390,7 +435,7 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   ) => string;
 
   /** Loaded locales, keyed by locale name. */
-  Ls: Record<string, ILocale>;
+  Ls: Record<string, PanelDayjsLocale>;
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;
 
