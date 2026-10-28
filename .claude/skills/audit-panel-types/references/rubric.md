@@ -53,7 +53,7 @@ Each goes under `intentional` and stays as typed:
 - A page, file, user, or site in any view but `compact` – `default`, `panel`, `auth`, `selector` – whatever keys PHP fixes
 - Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants)
 
-Beyond these, the looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value or an API response too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them; `users.list` returns each user in the `compact` view of `config/api/models/User.php`. A model without a `default` view returns every field: `roles.get` includes `permissions`, which Role's `compact` view leaves out. Leave out a key the runtime may lack: where a resolver returns one of several models, type only the keys their views share.
+Beyond these, the looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value or an API response too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them; `users.list` returns each user in the `compact` view of `config/api/models/User.php`. A model without a `default` view returns every field: `roles.get` includes `permissions`, which Role's `compact` view leaves out. Leave out a key the runtime may lack: a user's `avatar` is a File or a FileVersion, so its type holds only the keys both views share.
 
 ## Panel TS Evidence
 
