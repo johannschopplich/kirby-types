@@ -5,6 +5,8 @@
  * @see https://getkirby.com/docs/reference/panel/blueprints
  */
 
+import type { HtmlString } from "./panel";
+
 // #region Field Options
 
 /**
@@ -144,6 +146,28 @@ export interface KirbyTextFieldProps extends KirbyFieldProps {
 }
 
 /**
+ * Upload options of a field. Options without a value are left out.
+ *
+ * @source src/Form/Mixin/Upload.php
+ */
+export interface KirbyFieldUploads {
+  /**
+   * Accepted file types; those of `template` when set, else the `accept` set
+   * in the blueprint, else `"*"`.
+   */
+  accept?: string;
+  /**
+   * Query for the model that stores the uploads; the field's model when unset.
+   */
+  parent?: string;
+  /** Image settings of the field's items (`filepicker` only). */
+  preview?: string | Record<string, any>;
+  /** File template assigned to uploaded files. */
+  template?: string;
+  [key: string]: any;
+}
+
+/**
  * @see https://getkirby.com/docs/reference/panel/fields/textarea
  * @source src/Form/Field/TextareaField.php
  */
@@ -164,8 +188,8 @@ export interface KirbyTextareaFieldProps extends KirbyFieldProps {
   minlength?: number;
   size?: "small" | "medium" | "large" | "huge";
   spellcheck?: boolean;
-  /** Upload options with an `accept` attribute, or `false` without uploads. */
-  uploads: false | Record<string, any>;
+  /** Upload options, or `false` without uploads. */
+  uploads: false | KirbyFieldUploads;
 }
 
 /**
@@ -245,6 +269,28 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
 }
 
 /**
+ * Panel preview image of a page, file, user, or site. `url`, `src`, and
+ * `srcset` are set only when the model has an image file.
+ *
+ * @source src/Panel/Model.php
+ */
+export interface KirbyModelImage {
+  /** Background behind the image or icon, such as `"pattern"` or `"black"`. */
+  back: string;
+  /** Icon color, such as `"gray-500"`. */
+  color: string;
+  /** Whether the image fills its frame instead of fitting into it. */
+  cover: boolean;
+  /** Icon shown without an image file, such as `"page"`. */
+  icon: string;
+  url?: string;
+  src?: string;
+  srcset?: string | null;
+  /** Further image options from the blueprint, such as `ratio`. */
+  [key: string]: any;
+}
+
+/**
  * Picker item data as returned by the Panel API.
  *
  * @source src/Panel/Ui/Item.php
@@ -261,15 +307,18 @@ export interface KirbyPickerItem {
    * the current user may not list.
    */
   uuid: string | null;
-  /** Display text. */
-  text: string;
-  /** Info text, `null` for an item the current user may not list. */
-  info: string | null;
-  image: Record<string, any> | null;
+  /** Display text, an `HtmlString` for every layout except `table`. */
+  text: string | HtmlString;
+  /**
+   * Info text, an `HtmlString` for every layout except `table`; `null` for an
+   * item the current user may not list.
+   */
+  info: string | HtmlString | null;
+  image: KirbyModelImage | null;
   /** Panel path, `false` for an item the current user may not list. */
   link: string | false;
   /** Layout of the field the item belongs to. */
-  layout: "list" | "cardlets" | "cards";
+  layout: "list" | "cardlets" | "cards" | "table";
   /**
    * Current user's permissions on the model; an empty array for an item the
    * current user may not list.
@@ -323,11 +372,8 @@ export interface KirbyPickerFieldProps extends KirbyFieldProps {
   subpages?: boolean;
   /** Text template for each item. */
   text?: string;
-  /**
-   * Upload options with an `accept` attribute, or `false` without uploads
-   * (`filepicker` only).
-   */
-  uploads?: false | Record<string, any>;
+  /** Upload options, or `false` without uploads (`filepicker` only). */
+  uploads?: false | KirbyFieldUploads;
 }
 
 /**
