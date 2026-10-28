@@ -4,7 +4,7 @@
 
 ### `base`
 
-- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelResponseActions, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
+- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalDefaults, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelResponseActions, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
 - **PHP**: `src/Panel/Response/{View,Dialog,Drawer,Json}Response.php` (response keys)
 - **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer`.
@@ -58,7 +58,7 @@ JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulte
 
 ### `api-core`
 
-- **Symbols**: PanelApi, PanelApiRequestOptions, PanelApiPagination, PanelApiSearchQuery, PanelModelData, PanelApiAuth, PanelApiLoginData
+- **Symbols**: PanelApi, PanelApiRequestOptions, PanelApiPagination, PanelApiCollectionResponse, PanelApiSearchQuery, PanelModelData, PanelApiAuth, PanelApiLoginData
 - **Modules**: `panel/src/api/{index,auth}`, `panel/src/panel/request`. Verb helpers (`get/post/patch/delete/request`) are methods on the `Api` class in `index`. `auth.ping()` posts `auth/ping`. The `api.pingId` field and `api.ping()` method coexist.
 
 ### `api-content`
@@ -68,12 +68,12 @@ JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulte
 
 ### `api-users`
 
-- **Symbols**: PanelApiUser*, PanelApiRoles, PanelApiLanguage*
+- **Symbols**: PanelApiUser*, PanelApiRole*, PanelApiLanguage*
 - **Modules**: `panel/src/api/{users,roles,languages}`
 
 ### `api-system`
 
-- **Symbols**: PanelApiTranslations, PanelApiSystem*
+- **Symbols**: PanelApiTranslation*, PanelApiSystem*
 - **Modules**: `panel/src/api/{translations,system}`
 
 ## helpers.d.ts
@@ -82,7 +82,7 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 
 ### `helpers-data`
 
-- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer,Number}, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
+- **Symbols**: PanelHelpers, PanelHelpers{Array,Object,Field,File,Page,Embed,Writer,Number}, PanelWriterAllowed, PanelArraySearchOptions, PanelSortOptions, PanelComparator, PanelFieldDefinition, PanelPageStatusProps, PanelPageStatusFlag
 - **Sub-properties on `PanelHelpers`**: `array`, `object`, `sort`, `field`, `file`, `page`, `ratio`, `embed`, `clone` (shortcut), `writer` (shortcut), `items`, `number`
 - **Modules**: `panel/src/helpers/{array,object,sort,field,file,page,ratio,embed,writer,index,items,number}`. `helper.writer` is registered in `index` (check `source-map.json` `helperRegistrations`) backed by the `writer` module.
 
@@ -162,6 +162,6 @@ PHP-rooted. PHP `toArray()` is the shape; JS only consumes the JSON.
 
 PHP-rooted. PHP `props()` / `toArray()` is the response shape.
 
-- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,Navigation,Model,Button}, PanelFileViewProps, PanelUserViewProps
+- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,TabColumn,Navigation,Model,Button}, PanelFileViewProps, PanelUserViewProps
 - **PHP**: `src/Panel/{Model,Page,File,User,Site}.php`, `src/Panel/Controller/View/ModelViewController.php`, `src/Blueprint/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Button/ViewButton{,s}.php`, `src/Content/Lock.php`
 - **Watch**: `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. The Panel's `ViewState` in `view` is JS-side state; the props type follows the server payload.
