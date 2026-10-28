@@ -32,6 +32,7 @@ import type { WriterMarkExtension, WriterNodeExtension } from "./writer";
 
 export type {
   PanelApiAuth,
+  PanelApiCollectionResponse,
   PanelApiFiles,
   PanelApiLanguageData,
   PanelApiLanguages,
@@ -47,6 +48,7 @@ export type {
   PanelApiSystem,
   PanelApiSystemInstallData,
   PanelApiSystemRegisterData,
+  PanelApiTranslation,
   PanelApiTranslations,
   PanelApiUserCreateData,
   PanelApiUsers,

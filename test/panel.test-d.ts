@@ -6,7 +6,11 @@ import type {
   PanelPermissions,
   PanelRequestResponse,
 } from "../src/panel";
-import type { PanelApi, PanelModelData } from "../src/panel/api";
+import type {
+  PanelApi,
+  PanelApiCollectionResponse,
+  PanelModelData,
+} from "../src/panel/api";
 import type {
   PanelEventListenerMap,
   PanelFeature,
@@ -237,13 +241,17 @@ expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
 expectType<void>(panel.api.ping());
+expectType<Promise<PanelApiCollectionResponse>>(panel.api.roles.list());
 expectAssignable<PanelApi["auth"]>({
-  login: async () => ({}),
-  logout: async () => {},
-  ping: async () => {},
+  login: async () => ({ code: 200, status: "ok", challenge: "email" }),
+  logout: async () => ({ status: "ok", message: "ok", code: 200 }),
+  ping: async () => ({ status: "ok", message: "ok", code: 200 }),
   user: async () => ({}),
-  verifyCode: async () => ({}),
+  verifyCode: async () => ({ code: 200, status: "ok", user: {} }),
 });
+expectNotAssignable<PanelApi["auth"]["logout"]>(async () => ({
+  status: "error",
+}));
 
 // Plugin-author surface on the Panel
 expectType<void>(panel.events.on("view.open", () => {}));

@@ -8,10 +8,11 @@ import type { Panel } from "./index";
 /**
  * @source panel/src/api/index.ts
  * @source panel/src/panel/request.ts
+ * @source src/Panel/State.php
  */
 export interface PanelApiRequestOptions extends Omit<
   PanelRequestOptions,
-  "csrf" | "on"
+  "csrf" | "external" | "on"
 > {
   /**
    * Content language code sent as the `x-language` header. Omitted or empty,
@@ -38,11 +39,27 @@ export interface PanelApiRequestOptions extends Omit<
  * Page and page size of a paginated collection.
  * @source src/Api/Collection.php
  * @source src/Toolkit/Pagination.php
+ * @source src/Cms/Pagination.php
  */
 export interface PanelApiPagination {
+  /**
+   * Page number, `1` when omitted; a page past either end returns the first or
+   * last page.
+   */
   page?: number;
-  /** Items per page. */
+  /** Items per page; the `pagination.limit` option, or `20`, when omitted. */
   limit?: number;
+}
+
+/**
+ * @source src/Api/Collection.php
+ */
+export interface PanelApiCollectionResponse<T = Record<string, any>> {
+  code: 200;
+  data: T[];
+  pagination: { page: number; total: number; offset: number; limit: number };
+  status: "ok";
+  type: "collection";
 }
 
 /**
@@ -122,21 +139,28 @@ export interface PanelApiLoginData {
 /**
  * @source panel/src/api/auth.ts
  * @source config/api/routes/auth.php
+ * @source src/Api/Api.php
+ * @source src/Auth/Status.php
  */
 export interface PanelApiAuth {
   /**
    * Logs in a user.
    *
    * @param data - Login credentials
-   * @returns `{ code: 200, status: "ok", user }` once logged in, or `{ code: 200, status: "ok", challenge }` when a code, password-reset, or 2FA challenge starts
+   * @returns `user` once logged in, or the `challenge` type when a code, password-reset, or 2FA challenge starts – `null` when no challenge type is enabled
    */
-  login: (data: PanelApiLoginData) => Promise<any>;
+  login: (
+    data: PanelApiLoginData,
+  ) => Promise<
+    | { code: 200; status: "ok"; user: Record<string, any> }
+    | { code: 200; status: "ok"; challenge: string | null }
+  >;
 
   /** Logs out the current user. */
-  logout: () => Promise<any>;
+  logout: () => Promise<{ status: "ok"; message: "ok"; code: 200 }>;
 
   /** Pings the server to keep the session alive. */
-  ping: () => Promise<any>;
+  ping: () => Promise<{ status: "ok"; message: "ok"; code: 200 }>;
 
   /** Gets the current user. */
   user: (query?: Record<string, any>) => Promise<any>;
@@ -146,9 +170,10 @@ export interface PanelApiAuth {
    * and logs the user in.
    *
    * @param code - Verification code
-   * @returns `{ code: 200, status: "ok", user }` with the logged-in user
    */
-  verifyCode: (code: string) => Promise<any>;
+  verifyCode: (
+    code: string,
+  ) => Promise<{ code: 200; status: "ok"; user: Record<string, any> }>;
 }
 // #endregion
 
@@ -162,12 +187,13 @@ export interface PanelApiAuth {
  * @source panel/src/api/files.ts
  * @source config/api/routes/files.php
  * @source src/Cms/Find.php
+ * @source src/Cms/App.php
+ * @source src/Cms/FileActions.php
  */
 export interface PanelApiFiles {
   /**
    * Changes a file's name.
    *
-   * @param parent - Parent API path
    * @param filename - Current filename
    * @param to - New name (without extension)
    * @returns Updated file data
@@ -178,18 +204,8 @@ export interface PanelApiFiles {
     to: string,
   ) => Promise<any>;
 
-  /**
-   * Deletes a file.
-   *
-   * @param parent - Parent API path
-   */
   delete: (parent: string | null, filename: string) => Promise<any>;
 
-  /**
-   * Gets a file.
-   *
-   * @param parent - Parent API path
-   */
   get: (
     parent: string | null,
     filename: string,
@@ -207,7 +223,6 @@ export interface PanelApiFiles {
   /**
    * Gets Panel link for a file.
    *
-   * @param parent - Parent path
    * @param path - Additional path
    */
   link: (parent: string | null, filename: string, path?: string) => string;
@@ -215,7 +230,6 @@ export interface PanelApiFiles {
   /**
    * Updates a file's content.
    *
-   * @param parent - Parent path
    * @param data - Content data
    * @returns Updated file data
    */
@@ -228,7 +242,6 @@ export interface PanelApiFiles {
   /**
    * Returns the API path of a file.
    *
-   * @param parent - Parent path
    * @param path - Additional path
    * @returns API path, relative to the API endpoint
    */
@@ -249,10 +262,6 @@ export interface PanelApiLanguageData {
   default?: boolean;
   /** Locale, or a locale per category keyed by `LC_*` constant name. */
   locale?: string | Record<string, string>;
-  /** Custom slug conversion rules, merged over the locale's default rules. */
-  slugs?: Record<string, string>;
-  /** SmartyPants options for this language. */
-  smartypants?: Record<string, any>;
   /** Language variables keyed by translation key. */
   translations?: Record<string, any>;
   /** Custom URL for this language, absolute or relative to the site URL. */
@@ -289,12 +298,7 @@ export interface PanelApiLanguages {
    */
   get: (code: string) => Promise<any>;
 
-  /**
-   * Lists all languages.
-   *
-   * @returns Wrapped Kirby collection response (`{ data, pagination }`)
-   */
-  list: () => Promise<any>;
+  list: () => Promise<PanelApiCollectionResponse>;
 
   /**
    * Updates a language.
@@ -354,6 +358,7 @@ export interface PanelApiPageDuplicateOptions {
  * @source src/Cms/ModelWithContent.php
  * @source src/Form/Field/PageListField.php
  * @source src/Cms/PageActions.php
+ * @source src/Guards/PageValidators.php
  */
 export interface PanelApiPages {
   /**
@@ -416,7 +421,10 @@ export interface PanelApiPages {
    *
    * @param id - Parent page ID
    */
-  children: (id: string, query?: PanelApiSearchQuery) => Promise<any>;
+  children: (
+    id: string,
+    query?: PanelApiSearchQuery,
+  ) => Promise<PanelApiCollectionResponse>;
 
   /**
    * Creates a new page.
@@ -469,12 +477,15 @@ export interface PanelApiPages {
    *
    * @param id - Page ID
    */
-  files: (id: string, query?: PanelApiSearchQuery) => Promise<any>;
+  files: (
+    id: string,
+    query?: PanelApiSearchQuery,
+  ) => Promise<PanelApiCollectionResponse>;
 
   /**
    * Gets Panel link for a page.
    *
-   * @param id - Page ID
+   * @param id - Page ID, never a UUID or permalink
    */
   link: (id: string) => string;
 
@@ -490,9 +501,17 @@ export interface PanelApiPages {
    * Searches direct children of a parent page (or the site root).
    *
    * @param parent - Parent page ID (`null` for root)
-   * @returns Search results with only `id`, `title`, and `hasChildren` per page
    */
-  search: (parent: string | null, query?: PanelApiSearchQuery) => Promise<any>;
+  search: (
+    parent: string | null,
+    query?: PanelApiSearchQuery,
+  ) => Promise<
+    PanelApiCollectionResponse<{
+      id: string;
+      title: string;
+      hasChildren: boolean;
+    }>
+  >;
 
   /**
    * Updates a page's content.
@@ -531,9 +550,8 @@ export interface PanelApiRoles {
    * Lists available roles.
    *
    * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role.
-   * @returns Wrapped Kirby collection response (`{ data, pagination }`)
    */
-  list: (params?: Record<string, any>) => Promise<any>;
+  list: (params?: Record<string, any>) => Promise<PanelApiCollectionResponse>;
 }
 // #endregion
 
@@ -560,7 +578,9 @@ export interface PanelApiSite {
   changeTitle: (title: string) => Promise<any>;
 
   /** Searches the site's children. */
-  children: (query?: PanelApiSearchQuery) => Promise<any>;
+  children: (
+    query?: PanelApiSearchQuery,
+  ) => Promise<PanelApiCollectionResponse>;
 
   /**
    * Gets the site.
@@ -607,6 +627,8 @@ export interface PanelApiSystemRegisterData {
 /**
  * @source panel/src/api/system.ts
  * @source config/api/routes/system.php
+ * @source src/Api/Api.php
+ * @source src/Cms/License.php
  */
 export interface PanelApiSystem {
   /**
@@ -625,34 +647,49 @@ export interface PanelApiSystem {
   install: (data: PanelApiSystemInstallData) => Promise<any>;
 
   /**
-   * Registers a license.
-   *
-   * @returns `{ status: "ok", message: "ok", code: 200 }` once the license is registered
+   * Registers a license. Rejects without access to the system area, or for
+   * an invalid license code or email.
    */
-  register: (data: PanelApiSystemRegisterData) => Promise<any>;
+  register: (
+    data: PanelApiSystemRegisterData,
+  ) => Promise<{ status: "ok"; message: "ok"; code: 200 }>;
 }
 // #endregion
 
 // #region Translations API
 
 /**
+ * @source config/api/models/Translation.php
+ * @source src/Cms/Translation.php
+ */
+export interface PanelApiTranslation {
+  author: string;
+  /** Translation strings by key, the English strings filling the gaps. */
+  data: Record<string, string>;
+  direction: "ltr" | "rtl";
+  /** Translation code. */
+  id: string;
+  name: string;
+}
+
+/**
  * @source panel/src/api/translations.ts
  * @source config/api/routes/translations.php
+ * @source src/Api/Api.php
  */
 export interface PanelApiTranslations {
   /**
-   * Gets a translation.
+   * Gets a translation. Rejects when no translation has the code.
    *
    * @param locale - Translation code, e.g. `de` or `pt_BR`
    */
-  get: (locale: string) => Promise<any>;
+  get: (locale: string) => Promise<PanelApiTranslation>;
 
-  /**
-   * Lists all translations.
-   *
-   * @returns Wrapped Kirby collection response (`{ data, pagination }`)
-   */
-  list: () => Promise<any>;
+  list: () => Promise<
+    PanelApiCollectionResponse<
+      Pick<PanelApiTranslation, "direction" | "id" | "name">
+    >
+  >;
 }
 // #endregion
 
@@ -796,12 +833,8 @@ export interface PanelApiUsers {
    */
   link: (id: string, path?: string) => string;
 
-  /**
-   * Queries users through the `users/search` endpoint.
-   *
-   * @returns Paginated users response
-   */
-  list: (query?: PanelApiSearchQuery) => Promise<any>;
+  /** Queries users through the `users/search` endpoint. */
+  list: (query?: PanelApiSearchQuery) => Promise<PanelApiCollectionResponse>;
 
   /**
    * Returns the roles the user can be switched to, as select options – only
@@ -813,12 +846,8 @@ export interface PanelApiUsers {
     id: string,
   ) => Promise<{ info: string; text: string; value: string }[]>;
 
-  /**
-   * Searches users – the same request as `list()`.
-   *
-   * @returns Paginated users response
-   */
-  search: (query?: PanelApiSearchQuery) => Promise<any>;
+  /** Searches users – the same request as `list()`. */
+  search: (query?: PanelApiSearchQuery) => Promise<PanelApiCollectionResponse>;
 
   /**
    * Updates a user's content.
