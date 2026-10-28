@@ -14,6 +14,7 @@ import type {
   DefineComponent,
   Plugin,
 } from "vue";
+import type { KirbyAnyFieldProps } from "../blueprint";
 import type { PanelApi } from "./api";
 import type {
   PanelContext,
@@ -1264,6 +1265,19 @@ interface PanelViewPropsVersions {
 }
 
 /**
+ * @source src/Blueprint/Normalizer.php
+ * @source src/Blueprint/Tab.php
+ */
+interface PanelViewPropsTabColumn {
+  /** @default '1/1' */
+  width: string;
+  /** Resolved field props, keyed by the lowercase field name. */
+  fields: Record<string, KirbyAnyFieldProps>;
+  /** Any other key the blueprint sets on the column. */
+  [key: string]: any;
+}
+
+/**
  * Active blueprint tab, its columns carrying the resolved field props.
  * @source src/Blueprint/Tab.php
  * @source src/Blueprint/Tabs.php
@@ -1276,7 +1290,7 @@ interface PanelViewPropsTab {
    * List of columns, or an object keyed by column name when the blueprint
    * names its columns.
    */
-  columns: Record<string, any>[] | Record<string, Record<string, any>>;
+  columns: PanelViewPropsTabColumn[] | Record<string, PanelViewPropsTabColumn>;
   link: string;
   name: string;
   /** Any other key the blueprint sets on the tab. */
