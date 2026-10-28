@@ -1,7 +1,7 @@
 /** Types for the Panel API client and its resource modules. */
 
 import type { PanelRequestOptions } from "./base";
-import type { Panel } from "./index";
+import type { Panel, PanelLanguageInfo, PanelPermissions } from "./index";
 
 // #region Request Types
 
@@ -251,7 +251,7 @@ export interface PanelApiFiles {
  * Language data for `create()` and `update()`.
  * @source src/Cms/Language.php
  */
-export interface PanelApiLanguageData {
+export interface PanelApiLanguageCreateData {
   code: string;
   name?: string;
   direction?: "ltr" | "rtl";
@@ -265,6 +265,11 @@ export interface PanelApiLanguageData {
 }
 
 /**
+ * @source config/api/models/Language.php
+ */
+export type PanelApiLanguage = Omit<PanelLanguageInfo, "hasCustomDomain">;
+
+/**
  * Methods for a multi-language site. Every call rejects unless the
  * `languages` option is enabled.
  *
@@ -273,10 +278,7 @@ export interface PanelApiLanguageData {
  * @source config/api/routes/languages.php
  */
 export interface PanelApiLanguages {
-  /**
-   * @returns Created language
-   */
-  create: (data: PanelApiLanguageData) => Promise<any>;
+  create: (data: PanelApiLanguageCreateData) => Promise<PanelApiLanguage>;
 
   /**
    * @param code - Language code
@@ -286,22 +288,35 @@ export interface PanelApiLanguages {
   /**
    * @param code - Language code
    */
-  get: (code: string) => Promise<any>;
+  get: (code: string) => Promise<PanelApiLanguage>;
 
-  list: () => Promise<PanelApiCollectionResponse>;
+  list: () => Promise<PanelApiCollectionResponse<PanelApiLanguage>>;
 
   /**
    * @param code - Language code
-   * @returns Updated language
    */
   update: (
     code: string,
-    data: Partial<Omit<PanelApiLanguageData, "code">>,
-  ) => Promise<any>;
+    data: Partial<Omit<PanelApiLanguageCreateData, "code">>,
+  ) => Promise<PanelApiLanguage>;
 }
 // #endregion
 
 // #region Pages API
+
+/**
+ * @source config/api/models/Page.php
+ * @source src/Cms/Page.php
+ */
+export interface PanelApiPageCompact {
+  id: string;
+  /** Sorting number, `null` for an unlisted page or a draft. */
+  num: number | null;
+  title: string;
+  url: string;
+  /** `null` when the `content.uuid` option is `false`. */
+  uuid: string | null;
+}
 
 /**
  * @source src/Cms/PageActions.php
@@ -402,7 +417,7 @@ export interface PanelApiPages {
   children: (
     id: string,
     query?: PanelApiSearchQuery,
-  ) => Promise<PanelApiCollectionResponse>;
+  ) => Promise<PanelApiCollectionResponse<PanelApiPageCompact>>;
 
   /**
    * @param parent - Parent page ID (`null` or `/` for the site root)
@@ -504,17 +519,42 @@ export interface PanelApiPages {
 // #region Roles API
 
 /**
+ * @source config/api/models/Role.php
+ * @source src/Cms/Role.php
+ */
+export interface PanelApiRoleCompact {
+  description: string | null;
+  name: string;
+  title: string;
+}
+
+/**
+ * @source config/api/models/Role.php
+ * @source src/Cms/Permissions.php
+ */
+export interface PanelApiRole extends PanelApiRoleCompact {
+  permissions: PanelPermissions;
+}
+
+/**
  * @source panel/src/api/roles.ts
  * @source config/api/routes/roles.php
  * @source src/Cms/Roles.php
  */
 export interface PanelApiRoles {
-  get: (name: string) => Promise<any>;
+  get: (name: string) => Promise<PanelApiRole>;
 
-  /**
-   * @param params - Query parameters; `canBe: "changed"` keeps the roles whose users the current user may change the role of, `canBe: "created"` the roles the current user may create users with; an admin gets every role.
-   */
-  list: (params?: Record<string, any>) => Promise<PanelApiCollectionResponse>;
+  list: (params?: {
+    /**
+     * `"changed"` keeps the roles whose users the current user may move to
+     * another role, `"created"` the roles the current user may create a user
+     * with; an admin gets every role.
+     */
+    canBe?: "changed" | "created";
+    page?: number;
+    /** Items per page, `100` when omitted. */
+    limit?: number;
+  }) => Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>;
 }
 // #endregion
 
@@ -540,7 +580,7 @@ export interface PanelApiSite {
   /** Searches the site's children. */
   children: (
     query?: PanelApiSearchQuery,
-  ) => Promise<PanelApiCollectionResponse>;
+  ) => Promise<PanelApiCollectionResponse<PanelApiPageCompact>>;
 
   /**
    * @param query - Query parameters, `{ view: "panel" }` when omitted
@@ -650,6 +690,36 @@ export interface PanelApiTranslations {
 // #endregion
 
 // #region Users API
+
+/**
+ * @source config/api/models/User.php
+ * @source config/api/models/File.php
+ * @source config/api/models/FileVersion.php
+ * @source src/Cms/User.php
+ */
+export interface PanelApiUserCompact {
+  /**
+   * Cropped to a 512px square, or the original file when it cannot be
+   * resized.
+   */
+  avatar: {
+    filename: string;
+    id: string;
+    type: string | null;
+    url: string;
+  } | null;
+  email: string | null;
+  id: string;
+  /** Panel language code. */
+  language: string;
+  name: string | null;
+  /** `null` when the logged-in user may not access the role. */
+  role: PanelApiRoleCompact | null;
+  /** The name, or the email when the user has no name. */
+  username: string | null;
+  /** `null` when the `content.uuid` option is `false`. */
+  uuid: string | null;
+}
 
 /**
  * @source src/Cms/UserActions.php
@@ -770,7 +840,9 @@ export interface PanelApiUsers {
   link: (id: string, path?: string) => string;
 
   /** Queries users through the `users/search` endpoint. */
-  list: (query?: PanelApiSearchQuery) => Promise<PanelApiCollectionResponse>;
+  list: (
+    query?: PanelApiSearchQuery,
+  ) => Promise<PanelApiCollectionResponse<PanelApiUserCompact>>;
 
   /**
    * Returns the roles the user can be switched to, as select options – only
@@ -783,7 +855,9 @@ export interface PanelApiUsers {
   ) => Promise<{ info: string; text: string; value: string }[]>;
 
   /** Searches users – the same request as `list()`. */
-  search: (query?: PanelApiSearchQuery) => Promise<PanelApiCollectionResponse>;
+  search: (
+    query?: PanelApiSearchQuery,
+  ) => Promise<PanelApiCollectionResponse<PanelApiUserCompact>>;
 
   /**
    * @param id - User ID

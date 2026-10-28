@@ -9,6 +9,7 @@ import type {
 import type {
   PanelApi,
   PanelApiCollectionResponse,
+  PanelApiRoleCompact,
   PanelModelData,
 } from "../src/panel/api";
 import type {
@@ -241,7 +242,12 @@ expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
 expectType<void>(panel.api.ping());
-expectType<Promise<PanelApiCollectionResponse>>(panel.api.roles.list());
+expectType<Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>>(
+  panel.api.roles.list(),
+);
+expectNotAssignable<Parameters<PanelApi["roles"]["list"]>[0]>({
+  canBe: "deleted",
+});
 expectAssignable<PanelApi["auth"]>({
   login: async () => ({ code: 200, status: "ok", challenge: "email" }),
   logout: async () => ({ status: "ok", message: "ok", code: 200 }),
