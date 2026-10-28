@@ -47,10 +47,10 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 ## Intentional looseness – note, do not flag or widen
 
 - `Record<string, any>` for query bags (e.g. `query?: Record<string, any>`)
-- `Promise<any>` for dynamic backend response data
+- `Promise<any>` for a response whose keys the caller or a plugin picks: `panel.api.get()` on a free path, a `select` query, a plugin's route
 - Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants)
 
-The looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them.
+The looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value or an API response too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them; `users.list` returns each user in the `compact` view of `config/api/models/User.php`.
 
 ## Panel TS evidence
 
