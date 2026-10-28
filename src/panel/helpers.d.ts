@@ -3,6 +3,8 @@
  */
 
 import type { App } from "vue";
+import type { KirbyPickerItem } from "../blueprint";
+import type { WriterMarkExtension, WriterNodeExtension } from "./writer";
 
 // #region Array Helpers
 
@@ -131,27 +133,17 @@ export interface PanelHelpersString {
    *
    * @param html - HTML to sanitize; a falsy value resolves to `""`
    * @param options - Allowed marks and nodes
-   * @param options.marks - Allowed marks: `true` for all, `false` for none, an
-   *   array of mark names and extension instances, or a map of mark name to
-   *   `true`, `false`, or mark options (default: `bold`, `code`, `italic`,
-   *   `link`, `strike`, `sub`, `sup`, `underline`)
-   * @param options.nodes - Allowed nodes, in the same forms as `marks`; `doc`,
-   *   `text`, and `paragraph` are always installed (default: inline content
-   *   only, which flattens block structure)
+   * @param options.marks - Allowed marks; omitted or `null`, `bold`, `code`,
+   *   `italic`, `link`, `strike`, `sub`, `sup`, and `underline`
+   * @param options.nodes - Allowed nodes; omitted or `null`, inline content
+   *   only, which flattens block structure. `doc`, `text`, and `paragraph`
+   *   are always installed.
    */
   sanitizeHTML: (
     html: unknown,
     options?: {
-      marks?:
-        | boolean
-        | (string | Record<string, any>)[]
-        | Record<string, unknown>
-        | null;
-      nodes?:
-        | boolean
-        | (string | Record<string, any>)[]
-        | Record<string, unknown>
-        | null;
+      marks?: PanelWriterAllowed<WriterMarkExtension>;
+      nodes?: PanelWriterAllowed<WriterNodeExtension>;
     },
   ) => Promise<string>;
 
@@ -433,10 +425,12 @@ export interface PanelHelpersField {
   form: (fields: Record<string, PanelFieldDefinition>) => Record<string, any>;
 
   /**
-   * Checks if a field is visible. Returns `false` for hidden fields,
-   * otherwise evaluates the `when` conditions against `values`, the current
-   * form values. `values` needs lowercase keys and matching value types; a
-   * `""` or `[]` condition also matches a missing value.
+   * Checks if a field is visible. Returns `false` for a field of type `hidden`
+   * or with `hidden: true`, otherwise evaluates the `when` conditions against
+   * `values`, the current form values. `values` needs lowercase keys and
+   * matching value types. A `""` condition also matches a missing value; a
+   * `[]` condition matches only a missing value, and any other array condition
+   * never matches.
    *
    * @unstable
    */
@@ -783,6 +777,7 @@ export type PanelComparator = (
  * @source panel/src/helpers/string.ts
  * @source panel/src/helpers/throttle.ts
  * @source panel/src/helpers/upload.ts
+ * @source src/Panel/Controller/Request/ModelItemsRequestController.php
  */
 export interface PanelHelpers {
   array: PanelHelpersArray;
@@ -791,9 +786,10 @@ export interface PanelHelpers {
 
   /**
    * Deep copies plain objects and arrays and unwraps reactive proxies into
-   * plain data. Shortcut for `object.clone()`.
+   * plain data. Every other value, including `Date`, `Map`, and class
+   * instances, comes back as-is.
    */
-  clone: { <T>(value: T): T; (): undefined };
+  clone: PanelHelpersObject["clone"];
 
   /**
    * Resolves a color name to its `--color-*` CSS variable when one is defined
@@ -865,12 +861,12 @@ export interface PanelHelpers {
       endpoint: string,
       id: string,
       query?: Record<string, any>,
-    ): Promise<Record<string, any> | undefined>;
+    ): Promise<KirbyPickerItem | undefined>;
     (
       endpoint: string,
       ids: string[],
       query?: Record<string, any>,
-    ): Promise<(Record<string, any> | undefined)[]>;
+    ): Promise<(KirbyPickerItem | undefined)[]>;
   };
 
   keyboard: PanelHelpersKeyboard;
@@ -882,10 +878,11 @@ export interface PanelHelpers {
   object: PanelHelpersObject;
 
   /**
-   * Left-pads value with zeros.
-   * Shortcut for `string.pad()`.
+   * Prefixes the value with zeros up to `length` characters.
+   *
+   * @param length - Target length (default: `2`)
    */
-  pad: (value: string | number, length?: number) => string;
+  pad: PanelHelpersString["pad"];
 
   page: PanelHelpersPage;
 
@@ -901,15 +898,13 @@ export interface PanelHelpers {
   ratio: (fraction?: string, fallback?: string, vertical?: boolean) => string;
 
   /**
-   * Converts string to slug.
-   * Shortcut for `string.slug()`.
+   * Converts string to ASCII slug.
+   *
+   * @param rules - Language/ASCII conversion rules
+   * @param allowed - Allowed characters (default: `"a-z0-9"`)
+   * @param separator - Separator character (default: `"-"`)
    */
-  slug: (
-    string: string,
-    rules?: PanelSlugRules,
-    allowed?: string,
-    separator?: string,
-  ) => string;
+  slug: PanelHelpersString["slug"];
 
   /**
    * Creates a natural-order comparator: numeric runs compare as numbers, hex
@@ -942,17 +937,26 @@ export interface PanelHelpers {
 
   url: PanelHelpersUrl;
 
-  /**
-   * Generates UUID v4 string.
-   * Shortcut for `string.uuid()`.
-   */
-  uuid: () => string;
+  /** Generates a UUID v4 string. */
+  uuid: PanelHelpersString["uuid"];
 
   writer: PanelHelpersWriter;
 }
 // #endregion
 
 // #region Writer Helpers
+
+/**
+ * Extensions a Writer configuration enables: `false` for none, an array of
+ * names and extension instances, or an object map whose keys set to `false`
+ * are left out and whose object values are options for the built-in extension
+ * of that name; any other value, including `true`, `null`, and `undefined`,
+ * enables all.
+ *
+ * @source panel/src/helpers/writer.ts
+ */
+export type PanelWriterAllowed<T = never> =
+  boolean | (string | T)[] | Record<string, unknown> | null | undefined;
 
 /**
  * Helpers that resolve the marks and nodes a Writer field allows and build
@@ -963,17 +967,14 @@ export interface PanelHelpers {
 export interface PanelHelpersWriter {
   /**
    * Resolves the names of the allowed extensions, plus any instances passed
-   * in the `allowed` array.
+   * in the `allowed` array. An array comes back as-is, names of unavailable
+   * extensions included.
    *
    * @param available - Map of all available extensions keyed by name
-   * @param allowed - `false` to allow none, an array of names and extension
-   *   instances (returned unfiltered), or an object map (keys set to `false`
-   *   are filtered out); any other value, including `true`, `null`, and
-   *   `undefined`, allows all
    */
   allowedExtensions: <T = never>(
     available: Record<string, unknown>,
-    allowed?: boolean | (string | T)[] | Record<string, unknown> | null,
+    allowed?: PanelWriterAllowed<T>,
   ) => (string | T)[];
 
   /**
@@ -982,13 +983,15 @@ export interface PanelHelpersWriter {
    *
    * @param options - Per-mark option overrides keyed by mark name
    */
-  availableMarks: (options?: Record<string, any>) => Record<string, any>;
+  availableMarks: (
+    options?: Record<string, Record<string, any> | undefined>,
+  ) => Record<string, WriterMarkExtension>;
 
   /**
    * Returns the mark instances from `panel.plugins.writerMarks`, keyed by mark
    * name.
    */
-  availableMarksFromPlugins: () => Record<string, any>;
+  availableMarksFromPlugins: () => Record<string, WriterMarkExtension>;
 
   /**
    * Returns the built-in node instances merged with the plugin nodes, keyed by
@@ -996,44 +999,34 @@ export interface PanelHelpersWriter {
    *
    * @param options - Per-node option overrides keyed by node name
    */
-  availableNodes: (options?: Record<string, any>) => Record<string, any>;
+  availableNodes: (
+    options?: Record<string, Record<string, any> | undefined>,
+  ) => Record<string, WriterNodeExtension>;
 
   /**
    * Returns the node instances from `panel.plugins.writerNodes`, keyed by node
    * name.
    */
-  availableNodesFromPlugins: () => Record<string, any>;
+  availableNodesFromPlugins: () => Record<string, WriterNodeExtension>;
 
   /**
    * Builds the map of mark instances to install for a Writer field from the
    * `marks` configuration, always adding the `required` marks.
-   *
-   * @param marks - Allowed marks configuration (see `allowedExtensions`)
    */
   createMarks: (
-    marks?:
-      | boolean
-      | (string | Record<string, any>)[]
-      | Record<string, unknown>
-      | null,
+    marks?: PanelWriterAllowed<WriterMarkExtension>,
     required?: string[],
-  ) => Record<string, any>;
+  ) => Record<string, WriterMarkExtension>;
 
   /**
    * Builds the map of node instances to install for a Writer field from the
    * `nodes` configuration, always adding the `required` nodes, and `listItem`
    * whenever `bulletList` or `orderedList` is installed.
-   *
-   * @param nodes - Allowed nodes configuration (see `allowedExtensions`)
    */
   createNodes: (
-    nodes?:
-      | boolean
-      | (string | Record<string, any>)[]
-      | Record<string, unknown>
-      | null,
+    nodes?: PanelWriterAllowed<WriterNodeExtension>,
     required?: string[],
-  ) => Record<string, any>;
+  ) => Record<string, WriterNodeExtension>;
 
   /**
    * Extracts per-extension options, keyed by extension name, from an
@@ -1041,7 +1034,7 @@ export interface PanelHelpersWriter {
    * non-null object.
    */
   extensionOptions: (
-    allowed?: boolean | unknown[] | Record<string, unknown> | null,
+    allowed?: PanelWriterAllowed<unknown>,
   ) => Record<string, Record<string, any>>;
 
   /**
@@ -1049,12 +1042,10 @@ export interface PanelHelpersWriter {
    * Keeps the order of `allowed`; for marks, that order sets the nesting
    * priority. An extension instance in the array is installed under its own
    * name.
-   *
-   * @param allowed - Allowed extension configuration (see `allowedExtensions`)
    */
-  filterExtensions: <T extends { name: string }>(
+  filterExtensions: <T extends { name?: string }>(
     available: Record<string, T>,
-    allowed?: boolean | (string | T)[] | Record<string, unknown> | null,
+    allowed?: PanelWriterAllowed<T>,
   ) => Record<string, T>;
 
   /** Keeps the node instances whose schema sets `inline: true`. */
