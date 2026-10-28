@@ -2,6 +2,7 @@
  * Types for custom textarea toolbar buttons.
  */
 
+import type { KirbyFieldUploads } from "../blueprint";
 import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
 
 // #region Textarea Toolbar Context
@@ -10,9 +11,13 @@ import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
  * The toolbar component context available as `this` in button click handlers.
  * The Panel's global properties, such as `$panel` and `$helper`, are available too.
  *
+ * @unstable
+ *
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  * @source panel/src/components/Forms/Input/TextareaInput.vue
+ * @source src/Form/Field/TextareaField.php
+ * @source src/Form/Mixin/Upload.php
  */
 export interface TextareaToolbarContext extends PanelGlobalProperties {
   /**
@@ -53,7 +58,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    * uploads are disabled. The built-in file button offers its select and
    * upload dropdown only when `uploads` is not `false`.
    */
-  uploads: false | Record<string, any>;
+  uploads: false | KirbyFieldUploads;
 }
 // #endregion
 
@@ -87,6 +92,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  * @source panel/src/components/Dropdowns/Dropdown.vue
  * @source panel/src/components/Navigation/Button.vue
+ * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
 export interface TextareaButton {
   /** Button label, shown as its tooltip. */
