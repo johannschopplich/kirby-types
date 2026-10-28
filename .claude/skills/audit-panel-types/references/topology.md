@@ -54,27 +54,31 @@ Hybrid clusters: defaults-as-runtime fallacy.
 
 ## api.d.ts
 
-JS/TS client is source of truth. PHP routes (`config/api/routes/*.php`) consulted only when JSDoc on the wrapper is missing.
+Signatures come from the JS/TS client, response shapes from each cluster's PHP: the route returns a model or collection, and its view sets the keys.
 
 ### `api-core`
 
 - **Symbols**: PanelApi, PanelApiRequestOptions, PanelApiPagination, PanelApiCollectionResponse, PanelApiSearchQuery, PanelModelData, PanelApiAuth, PanelApiLoginData
 - **Modules**: `panel/src/api/{index,auth}`, `panel/src/panel/request`. Verb helpers (`get/post/patch/delete/request`) are methods on the `Api` class in `index`. `auth.ping()` posts `auth/ping`. The `api.pingId` field and `api.ping()` method coexist.
+- **PHP**: `src/Api/{Collection,Model}.php` (envelope, pagination, `select`/`view`), `config/api/collections.php` (collection views), `config/api/routes/auth.php`
 
 ### `api-content`
 
 - **Symbols**: PanelApiPage*, PanelApiSite, PanelApiFiles
 - **Modules**: `panel/src/api/{pages,site,files}`
+- **PHP**: `config/api/routes/{pages,site,files}.php`, `config/api/models/{Page,Site,File,FileVersion}.php`
 
 ### `api-users`
 
 - **Symbols**: PanelApiUser*, PanelApiRole*, PanelApiLanguage*
 - **Modules**: `panel/src/api/{users,roles,languages}`
+- **PHP**: `config/api/routes/{users,roles,languages}.php`, `config/api/models/{User,Role,Language}.php`
 
 ### `api-system`
 
 - **Symbols**: PanelApiTranslation*, PanelApiSystem*
 - **Modules**: `panel/src/api/{translations,system}`
+- **PHP**: `config/api/routes/{translations,system}.php`, `config/api/models/{Translation,System}.php`
 
 ## helpers.d.ts
 
