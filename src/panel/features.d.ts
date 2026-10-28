@@ -1,5 +1,7 @@
 /** Types for the Panel's state objects, features, and modals. */
 
+import type { ComponentPublicInstance } from "vue";
+import type { KirbyModelImage } from "../blueprint";
 import type {
   NotificationTheme,
   NotificationType,
@@ -10,6 +12,7 @@ import type {
   PanelFeature,
   PanelFeatureDefaults,
   PanelModal,
+  PanelModalDefaults,
   PanelModalListeners,
   PanelRequestOptions,
   PanelState,
@@ -250,7 +253,10 @@ export interface PanelMenuItem {
   /** Component name, e.g. `"k-button"`. */
   component: string;
   key: string;
-  /** Props of a button item; a custom component item sends only its own attributes. */
+  /**
+   * Props of a button item; a custom component item sends only its `class`,
+   * `style`, and own attributes.
+   */
   props: PanelMenuButtonProps;
 }
 
@@ -321,8 +327,8 @@ export interface PanelNotificationDefaults {
   details: Record<string, any>;
   icon: string | null;
   /**
-   * Whether the notification is open. In view context an error shows as a
-   * dialog instead of the notification bar.
+   * Whether the notification is open; also `true` for a view-context error,
+   * which shows as a dialog instead of the notification bar.
    */
   isOpen: boolean;
   message: string | null;
@@ -408,7 +414,8 @@ export interface PanelNotification
   ) => PanelNotificationDefaults;
 
   /**
-   * Creates an info notification.
+   * Creates an info notification with the `info` icon and theme, which the
+   * options override.
    *
    * @param info - Message string or options object
    */
@@ -426,7 +433,8 @@ export interface PanelNotification
   ) => PanelNotificationDefaults;
 
   /**
-   * Creates a success notification.
+   * Creates a success notification with the `check` icon and the `positive`
+   * theme, which the options override.
    *
    * @param success - Message string or options object
    */
@@ -640,7 +648,8 @@ export interface PanelView
 
   /**
    * Sets view state, updates document title and browser URL, and returns the
-   * merged state.
+   * merged state. When the URL changes, it pushes a history entry and scrolls
+   * to the top.
    */
   set: (state: Partial<PanelViewDefaults>) => PanelViewDefaults;
 
@@ -675,7 +684,9 @@ export interface PanelDropdownOption {
    *   event bus, each with `payload`.
    */
   click?:
-    (() => void) | string | { name?: string; payload?: any; global?: string };
+    | ((this: ComponentPublicInstance) => void)
+    | string
+    | { name?: string; payload?: any; global?: string };
 
   /** Whether the option is shown; `false` hides it. */
   when?: boolean;
@@ -706,17 +717,11 @@ export interface PanelDropdownOption {
   /** Tooltip text. Also the option's accessible label when `text` is unset. */
   title?: string;
 
-  /**
-   * Dialog to open on click instead of running `click`: a Panel path, or an
-   * object `panel.dialog.open()` accepts.
-   */
-  dialog?: string | Record<string, any>;
+  /** Dialog to open on click instead of running `click`. */
+  dialog?: Parameters<PanelDialog["open"]>[0];
 
-  /**
-   * Drawer to open on click instead of running `click`: a Panel path, or an
-   * object `panel.drawer.open()` accepts.
-   */
-  drawer?: string | Record<string, any>;
+  /** Drawer to open on click instead of running `click`. */
+  drawer?: Parameters<PanelDrawer["open"]>[0];
 
   /** Design theme, such as `"negative"` for a destructive entry. */
   theme?: string;
@@ -783,14 +788,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 
 /**
  * @source panel/src/panel/dialog.ts
- * @source panel/src/panel/modal.ts
  */
-export interface PanelDialogDefaults extends PanelFeatureDefaults {
-  /**
-   * ID that tells nested dialogs apart, generated when the state brings none.
-   */
-  id: string | null;
-}
+export interface PanelDialogDefaults extends PanelModalDefaults {}
 
 /**
  * Panel dialog, loaded from the backend or opened from a state object.
@@ -821,12 +820,8 @@ export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
 
 /**
  * @source panel/src/panel/drawer.ts
- * @source panel/src/panel/modal.ts
  */
-export interface PanelDrawerDefaults extends PanelFeatureDefaults {
-  /** ID that tells nested drawers apart, generated when the state brings none. */
-  id: string | null;
-}
+export interface PanelDrawerDefaults extends PanelModalDefaults {}
 
 /**
  * Panel drawer. Nested drawers stack up with breadcrumb navigation.
@@ -1217,11 +1212,9 @@ export interface PanelSearcher {
   open: (type: string) => void;
 
   /**
-   * Queries a Panel search type, aborting the previous query first. For
-   * queries shorter than 2 characters returns
-   * `{ results: null, pagination: {} }` without hitting the server. Resolves
-   * to `undefined` when the request was aborted by a subsequent search, and
-   * to `{ results: [], pagination: {} }` when it fails for any other reason.
+   * Queries a Panel search type, aborting the previous query first. A query
+   * shorter than two characters resolves without hitting the server. Resolves
+   * to `undefined` when a later search aborts the request.
    *
    * @param options - Pagination options
    */
@@ -1245,6 +1238,7 @@ export interface PanelSearcher {
  * @source panel/src/components/Forms/Field/FileListField.vue
  * @source src/Panel/Ui/Item/FileItem.php
  * @source src/Panel/Ui/Item/ModelItem.php
+ * @source src/Panel/Ui/Item.php
  * @source src/Panel/Controller/View/FileViewController.php
  * @source src/Panel/Controller/View/ModelViewController.php
  * @source src/Panel/Ui/FilePreview.php
@@ -1263,7 +1257,7 @@ export interface PanelUploadReplaceFile {
   /** Public URL of the current file. */
   url: string;
   /** Preview image settings; `null` when the image is switched off. */
-  image?: { color?: string; icon?: string; [key: string]: any } | null;
+  image?: KirbyModelImage | null;
   [key: string]: any;
 }
 
@@ -1285,7 +1279,10 @@ export interface PanelUploadFile {
   filename: string;
   /** File size in bytes. */
   size: number;
-  /** Formatted file size (e.g., `"1.5 MB"`). */
+  /**
+   * Formatted file size, such as `"1.5 MB"`, with a non-breaking space
+   * before the unit.
+   */
   niceSize: string;
   /** MIME type; an empty string when the browser cannot detect it. */
   type: string;
@@ -1316,9 +1313,16 @@ export interface PanelUploadDefaults {
   /** Accepted file types. */
   accept: string;
   /** Additional file attributes. */
-  attributes: Record<string, any>;
+  attributes: {
+    sort?: number | null;
+    template?: string | null;
+    [key: string]: any;
+  };
   files: PanelUploadFile[];
-  /** Maximum number of files. */
+  /**
+   * Maximum number of files, `null` for no limit. Selecting more keeps only
+   * the newest `max` files.
+   */
   max: number | null;
   multiple: boolean;
   /**
@@ -1347,6 +1351,7 @@ type PanelUploadOptions = Partial<PanelUploadDefaults>;
  * chunks.
  *
  * @source panel/src/panel/upload.ts
+ * @source panel/src/helpers/upload.ts
  */
 export interface PanelUpload
   extends
@@ -1363,7 +1368,7 @@ export interface PanelUpload
   readonly completed: any[];
 
   /**
-   * Shows a success notification and emits `model.update`.
+   * Shows a success notification and emits `model.update` on `panel.events`.
    */
   announce: () => void;
 
@@ -1452,9 +1457,9 @@ export interface PanelUpload
   ) => void;
 
   /**
-   * Sets state and replaces the event listeners with those in `on`.
-   * `max: 1` forces `multiple: false`, and `multiple: false` forces `max: 1`.
-   * Returns `undefined` when called without a `state` argument.
+   * Sets the state. `max: 1` forces `multiple: false`, and `multiple: false`
+   * forces `max: 1`. Returns `undefined` when called without a `state`
+   * argument.
    */
   set: (state?: PanelUploadOptions) => PanelUploadDefaults | undefined;
 
@@ -1469,17 +1474,17 @@ export interface PanelUpload
   /**
    * Uploads a single file in chunks with the given form `attributes`. On
    * success it marks the file `completed`, stores the server file model in
-   * `model`, and emits `file.upload`. On failure, including a call before
-   * `submit()` has set `abort`, it resets `progress` to `0` and emits
-   * `file.upload.error`. A thrown `Error` also stores its message in
-   * `error`; a server-rejected upload leaves `error` unset.
+   * `model`, and emits `file.upload` on `panel.events`. On failure, including
+   * a call before `submit()` has set `abort`, it resets `progress` to `0` and
+   * emits `file.upload.error` there. A thrown `Error` also stores its message
+   * in `error`; a server-rejected upload leaves `error` unset.
    *
    * @param file - File to upload
    * @param attributes - Form data sent with the file
    */
   upload: (
     file: PanelUploadFile,
-    attributes?: Record<string, any>,
+    attributes?: PanelUploadDefaults["attributes"],
   ) => Promise<void>;
 }
 // #endregion
@@ -1494,6 +1499,10 @@ export interface PanelEventEmitter {
   /** Emits an event with a single payload; further arguments are dropped. */
   emit: (event: string, payload?: any) => void;
   on: (event: string, handler: (...args: any[]) => void) => void;
+  /**
+   * Removes `handler` from `event`; without `handler`, removes every handler
+   * for `event`, the built-in ones included.
+   */
   off: (event: string, handler?: (...args: any[]) => void) => void;
 }
 
