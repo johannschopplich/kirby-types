@@ -316,7 +316,7 @@ export interface KirbyOptionsFieldProps extends KirbyFieldProps {
   min?: number;
   options: KirbyOption[];
   /** Whether a toggle can be deactivated on click (toggles only). */
-  resettable?: boolean;
+  reset?: boolean;
 }
 
 /**
