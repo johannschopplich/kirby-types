@@ -259,10 +259,12 @@ export interface PanelHelpersString {
   ) => Promise<string>;
 
   /**
-   * Converts string to ASCII slug.
+   * Converts string to ASCII slug. Leading and trailing characters outside
+   * `a-z0-9` are always trimmed, whatever `allowed` and `separator` permit.
    *
    * @param rules - Language/ASCII conversion rules
-   * @param allowed - Allowed characters (default: `"a-z0-9"`)
+   * @param allowed - Body of a regex character class, matched
+   *   case-insensitively (default: `"a-z0-9"`)
    * @param separator - Separator character (default: `"-"`)
    */
   slug: (
@@ -624,6 +626,10 @@ export interface PanelLinkType {
   placeholder?: string;
   /** Input validation pattern. */
   pattern?: string;
+  /**
+   * Panel input component the link field renders for the value, as
+   * `k-<input>-input`, such as `"email"` for `k-email-input`.
+   */
   input?: string;
   /** Converts input to stored value. */
   value: (value: string) => string;
@@ -649,7 +655,8 @@ export interface PanelHelpersLink {
    * Detects link type and extracts link value.
    *
    * @param types - Link types to match against (default: all link types)
-   * @returns Detection result or `undefined` if no match
+   * @returns Detection result, or `undefined` when no type matches – never
+   *   with the default types
    */
   detect: (
     value: string,
@@ -675,7 +682,11 @@ export interface PanelHelpersLink {
   isPageUUID: (value: string) => boolean;
 
   /**
-   * @param keys - Types to keep, in this order; unknown keys are skipped
+   * Returns the built-in link types keyed by name: `url`, `page`, `file`,
+   * `email`, `tel`, `anchor`, and `custom`.
+   *
+   * @param keys - Types to keep, in this order; unknown keys are skipped, and
+   *   an omitted or empty array keeps all
    */
   types: (keys?: string[]) => Record<string, PanelLinkType>;
 }
@@ -699,6 +710,7 @@ export interface PanelHelpersNumber {
  * the status default.
  *
  * @source panel/src/helpers/page.ts
+ * @source src/Panel/Ui/Item/PageItem.php
  */
 export interface PanelPageStatusFlag {
   icon?: string | null;
@@ -780,7 +792,7 @@ export interface PanelUploadParams {
   attributes?: Record<string, string | number>;
   /**
    * Signal that cancels the request when it aborts during the upload; no
-   * further callback runs and the returned promise stays pending.
+   * further callback runs.
    */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
@@ -1007,10 +1019,12 @@ export interface PanelHelpers {
   ratio: (fraction?: string, fallback?: string, vertical?: boolean) => string;
 
   /**
-   * Converts string to ASCII slug.
+   * Converts string to ASCII slug. Leading and trailing characters outside
+   * `a-z0-9` are always trimmed, whatever `allowed` and `separator` permit.
    *
    * @param rules - Language/ASCII conversion rules
-   * @param allowed - Allowed characters (default: `"a-z0-9"`)
+   * @param allowed - Body of a regex character class, matched
+   *   case-insensitively (default: `"a-z0-9"`)
    * @param separator - Separator character (default: `"-"`)
    */
   slug: PanelHelpersString["slug"];
@@ -1039,8 +1053,7 @@ export interface PanelHelpers {
    *
    * @returns Promise resolving to the parsed JSON response; rejects with the
    *   server's error response, or a generic `{ status: "error", message }`
-   *   object when the body is not JSON; stays pending on a network error or
-   *   abort.
+   *   object when the body is not JSON; stays pending once `abort` fires.
    */
   upload: (file: File, params: PanelUploadParams) => Promise<unknown>;
 
