@@ -200,6 +200,15 @@ function unownedTypes() {
     );
 }
 
+// Whether a version range allows the major as its lower bound in any `||`
+// alternative: `^6.0`, `~6.0`, `>=6.0 <7`, or `6.*` does, `<6.0` does not.
+const allowsMajor = (range, major) =>
+  range
+    .split("||")
+    .some((alternative) =>
+      new RegExp(`^\\s*(\\^|~|>=?|=)?\\s*v?${major}(?!\\d)`).test(alternative),
+    );
+
 // Every repo under the siblings root that depends on kirby-types 2. An
 // unreadable entry is skipped.
 function siblingRepos() {
@@ -214,7 +223,7 @@ function siblingRepos() {
         const range = { ...pkg.dependencies, ...pkg.devDependencies }[
           "kirby-types"
         ];
-        return Boolean(range) && /(^|[^\d.])2\./.test(range);
+        return Boolean(range) && allowsMajor(range, "2");
       } catch {
         return false;
       }
@@ -263,10 +272,10 @@ function siblingImports(repos) {
   );
 }
 
-const repos = siblingRepos();
+const siblings = siblingRepos();
 const kirbyVersion =
   readJson(path.join(KIRBY, "composer.json")).version || "unknown";
-const kqlCms =
+const kqlKirbyRange =
   readJson(path.join(KQL, "composer.json")).require?.["getkirby/cms"] ?? "";
 const flags = [];
 
@@ -291,9 +300,9 @@ if (reach.unreadable) {
   );
 }
 
-if (!new RegExp(`\\^${TARGET.major}\\b`).test(kqlCms)) {
+if (!allowsMajor(kqlKirbyRange, TARGET.major)) {
   flags.push(
-    `KQL-MISMATCH: the KQL root requires getkirby/cms "${kqlCms || "nothing"}", not Kirby ${TARGET.major} -> ask for the KQL branch that does.`,
+    `KQL-MISMATCH: the KQL root requires getkirby/cms "${kqlKirbyRange || "nothing"}", not Kirby ${TARGET.major} -> ask for the KQL branch that does.`,
   );
 }
 
@@ -330,15 +339,15 @@ fs.writeFileSync(
       ...TARGET,
       base: run(`git -C "${TYPES}" rev-parse HEAD`).trim(),
       kirbyVersion,
-      kqlCms,
+      kqlKirbyRange,
       historyReach: reach,
       flags,
       helperRegistrations: helperRegistrations(),
       panelSingletons: panelSingletons(),
       deadSources: dead,
       unownedTypes: unowned,
-      siblingRepos: repos,
-      siblingImports: siblingImports(repos),
+      siblingRepos: siblings,
+      siblingImports: siblingImports(siblings),
       modules: moduleMap(),
     },
     null,
