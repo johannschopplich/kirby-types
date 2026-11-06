@@ -104,6 +104,7 @@ export type {
   PanelThemeValue,
   PanelTheme,
   PanelLanguage,
+  PanelBadge,
   PanelMenuButtonProps,
   PanelMenuItem,
   PanelMenu,
@@ -227,7 +228,9 @@ export interface PanelGlobalProperties {
  */
 export type PanelApp = Omit<App, "config"> & {
   config: Omit<AppConfig, "globalProperties"> & {
-    globalProperties: ComponentCustomProperties & PanelGlobalProperties;
+    globalProperties: ComponentCustomProperties &
+      PanelGlobalProperties &
+      Record<string, any>;
   };
 };
 // #endregion
@@ -1088,7 +1091,7 @@ export interface Panel {
    */
   post: (
     url: string | URL,
-    data?: any,
+    data?: PanelRequestOptions["body"],
     options?: PanelRequestOptions,
   ) => Promise<any>;
 
@@ -1208,8 +1211,7 @@ export interface PanelViewPropsButton {
   component: string;
   key: string;
   props: {
-    /** Badge on the button's top-right corner, like `{ text: 5, theme: "positive" }`. */
-    badge?: Record<string, any>;
+    badge?: PanelFeatures.PanelBadge;
     class?: string;
     /** Value of the button's `aria-current` attribute. */
     current?: string | boolean;

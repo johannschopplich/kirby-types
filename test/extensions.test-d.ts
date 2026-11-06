@@ -435,11 +435,13 @@ expectNotAssignable<WriterToolbarButton>({
 // #endregion
 
 // #region Panel App
-// The index signature of `globalProperties` must not widen the helpers to `any`.
+// The index signature of `globalProperties` stays open to custom keys without
+// widening the helpers to `any`.
 declare const app: PanelApp;
 expectType<PanelHelpers>(app.config.globalProperties.$helper);
 expectType<PanelLibrary>(app.config.globalProperties.$library);
 expectType<(string: unknown) => string>(app.config.globalProperties.$esc);
+app.config.globalProperties.$myHelper = () => 1;
 // #endregion
 
 // #region Panel Libraries
