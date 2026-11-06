@@ -63,7 +63,7 @@ Then restore every file `pnpm add` rewrote â€“ `git status --short` lists them â
 
 ## Report
 
-Per `.d.ts`: the ACTs applied, the patches skipped, and the DEFERs; then the check results, the kirbyuse hits and the fixes left uncommitted there, and the source map's `base`. Name a dropped agent as unchecked. Delete `.review/`.
+Per `.d.ts`: the ACTs applied, the patches skipped, and the DEFERs; then every pass-2 rationale opening with `Kirby bug`, ACTs included, with the call that triggers it; then the check results, the kirbyuse hits and the fixes left uncommitted there, and the source map's `base`. Name a dropped agent as unchecked. Delete `.review/`.
 
 ## Commit
 
