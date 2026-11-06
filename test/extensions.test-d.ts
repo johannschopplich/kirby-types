@@ -299,8 +299,7 @@ expectType<void>(context.command("toggle", "**"));
 expectType<void>(
   context.command("insert", (input, selection) => selection.toUpperCase()),
 );
-// @ts-expect-error `prepend` takes a string.
-context.command("prepend", () => "#");
+expectType<void>(context.command("toggle" as "toggle" | "prepend", "**"));
 expectType<void>(context.close());
 expectType<string>(context.$t("toolbar.button.bold"));
 expectType<string>(context.$t("key", { n: 1 }));

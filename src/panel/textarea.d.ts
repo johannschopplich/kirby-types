@@ -48,6 +48,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
     (name: "prepend", text: string): void;
     (name: "toggle" | "wrap", before: string, after?: string): void;
     (name: "upload" | "file"): void;
+    (name: string, ...args: any[]): void;
   };
 
   /** Closes all dropdowns. */
