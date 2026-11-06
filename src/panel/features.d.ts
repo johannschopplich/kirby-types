@@ -127,7 +127,8 @@ export interface PanelTheme
     Omit<PanelState<PanelThemeDefaults>, "reset" | "set">,
     PanelThemeDefaults {
   /**
-   * Default theme from the `panel.theme` option; `"system"` unless configured.
+   * Default theme from the `panel.theme` option (`"system"` unless
+   * configured).
    */
   readonly config: string;
 
@@ -246,7 +247,7 @@ export interface PanelMenuButtonProps {
   theme?: string;
   /** Tooltip text. */
   title?: string;
-  /** Button `type` attribute, `"button"` by default. */
+  /** Button `type` attribute, `"button"` when unset. */
   type: string;
   /** Styling variant, e.g. `"filled"` or `"dimmed"`. */
   variant?: string;
@@ -437,8 +438,8 @@ export interface PanelNotification
 
   /**
    * Opens a notification; a string opens a success notification. Fields the
-   * options omit reset to their defaults, and `context` defaults to the
-   * current one.
+   * options omit reset to their defaults, and `context` is the current one
+   * when omitted.
    *
    * @param notification - Message string or options object
    */
@@ -607,7 +608,7 @@ export interface PanelBreadcrumbItem {
    */
   link?: string;
   /**
-   * Tooltip text, e.g. why a page's crumb is redacted. Falls back to `label`.
+   * Tooltip text, e.g. why a page's crumb is redacted; `label` when omitted.
    */
   title?: string;
   icon?: string;
@@ -727,7 +728,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   /** Drawer states stacked in the history, oldest first. */
   readonly breadcrumb: (PanelDrawerDefaults & { id: string })[];
 
-  /** Drawer icon, defaults to `"box"`. */
+  /** Drawer icon, `"box"` when unset. */
   readonly icon: string;
 
   /**
@@ -896,8 +897,8 @@ export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
 // #region Content
 
 /**
- * Target of a content operation; each omitted key defaults to the current
- * view.
+ * Target of a content operation; each key is the current view's when
+ * omitted.
  * @source panel/src/panel/content.ts
  * @source src/Panel/State.php
  * @source src/Panel/Controller/View/ModelViewController.php
@@ -1177,9 +1178,12 @@ export interface PanelSearchPagination {
  * @source src/Panel/Routes/SearchRoutes.php
  */
 export interface PanelSearchOptions {
-  /** Page to return; `1` by default. */
+  /** Page to return, `1` when omitted. */
   page?: number;
-  /** Results per page; the `panel.search.limit` option, `10` by default. */
+  /**
+   * Results per page, the `panel.search.limit` option when omitted (`10`
+   * unless configured).
+   */
   limit?: number;
 }
 

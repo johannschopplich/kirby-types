@@ -211,7 +211,7 @@ export interface WriterEditor {
   // #region Methods
 
   blur: () => void;
-  /** Returns toolbar buttons for the given type, `mark` by default. */
+  /** Returns toolbar buttons for the given type, `mark` when omitted. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
   clearContent: (emitUpdate?: boolean) => void;
   command: (command: string, ...args: any[]) => void;
@@ -251,7 +251,7 @@ export interface WriterEditor {
    * Returns content as HTML. An inline editor returns only the first
    * paragraph's inner HTML.
    *
-   * @param fragment - Fragment to serialize, the whole document when omitted
+   * @param fragment - Fragment to serialize (default: the whole document)
    */
   getHTML: (fragment?: Fragment) => string;
   getHTMLStartToSelection: () => string;
@@ -278,8 +278,8 @@ export interface WriterEditor {
   /**
    * Unsubscribes from events.
    *
-   * @param event - Event name, every event when omitted
-   * @param fn - Handler to remove, every handler of `event` when omitted
+   * @param event - Event name (default: every event)
+   * @param fn - Handler to remove (default: every handler of `event`)
    */
   off: (<K extends keyof WriterEditorEvents>(
     event: K,
@@ -372,7 +372,7 @@ export interface WriterExtensions {
   extensions: (WriterExtension | WriterMarkExtension | WriterNodeExtension)[];
   editor: WriterEditor;
 
-  /** Returns toolbar buttons for the given type, `mark` by default. */
+  /** Returns toolbar buttons for the given type, `mark` when omitted. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
   /** Raw mark schema definitions from all mark extensions. */
   marks: Record<string, MarkSpec>;
@@ -508,9 +508,9 @@ export interface WriterUtils {
   /**
    * Clamps a value between a minimum and maximum.
    *
-   * @param value - The value to clamp, `0` when omitted
-   * @param min - The minimum allowed value, `0` when omitted
-   * @param max - The maximum allowed value, `0` when omitted
+   * @param value - The value to clamp (default: `0`)
+   * @param min - The minimum allowed value (default: `0`)
+   * @param max - The maximum allowed value (default: `0`)
    */
   minMax: (value?: number, min?: number, max?: number) => number;
 

@@ -139,7 +139,7 @@ export interface PanelLibraryColors {
   /**
    * Formats a color as a CSS string.
    *
-   * @param format - Target format, the color's own when omitted
+   * @param format - Target format (default: the color's own)
    * @param alpha - Include alpha channel (default: `true`)
    * @throws Error if unsupported color or format (HSV cannot be output as CSS)
    */
@@ -161,7 +161,10 @@ export interface PanelDayjsParseOptions {
   pattern?: string;
   /** Whether to skip the informed guesses when the input does not match the pattern exactly. */
   strict?: boolean;
-  /** Datetime type to guess, the pattern's own type by default. `datetime` guesses like `date`. */
+  /**
+   * Datetime type to guess, the pattern's own type when omitted. `datetime`
+   * guesses like `date`.
+   */
   type?: "date" | "time" | "datetime";
 }
 

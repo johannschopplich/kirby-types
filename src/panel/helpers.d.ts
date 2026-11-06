@@ -13,11 +13,11 @@ import type { WriterMarkExtension, WriterNodeExtension } from "./writer";
  */
 export interface PanelArraySearchOptions {
   /**
-   * Query length at or below which the array is returned unfiltered
-   * (default: `0`).
+   * Query length at or below which the array is returned unfiltered, `0`
+   * when omitted.
    */
   min?: number;
-  /** Field to search in (default: `"text"`). */
+  /** Field to search in, `"text"` when omitted. */
   field?: string;
   /** Maximum results to return. */
   limit?: number;
@@ -781,13 +781,13 @@ export type PanelUploadResultCallback = (
  * @source panel/src/helpers/upload.ts
  */
 export interface PanelUploadParams {
-  /** Upload endpoint URL (default: `"/"`). */
+  /** Upload endpoint URL, `"/"` when omitted. */
   url?: string;
-  /** HTTP method (default: `"POST"`). */
+  /** HTTP method, `"POST"` when omitted. */
   method?: string;
-  /** Form field name (default: `"file"`). */
+  /** Form field name, `"file"` when omitted. */
   field?: string;
-  /** Filename sent with the file (default: the file's name). */
+  /** Filename sent with the file, the file's name when omitted. */
   filename?: string;
   headers?: Record<string, string>;
   /** Additional `FormData` entries; values are coerced to strings. */
@@ -859,9 +859,9 @@ export interface PanelThrottledFunction<T extends (...args: any[]) => any> {
  * @source panel/src/helpers/sort.ts
  */
 export interface PanelSortOptions {
-  /** Descending order (default: `false`). */
+  /** Descending order, `false` when omitted. */
   desc?: boolean;
-  /** Case-insensitive comparison (default: `false`). */
+  /** Case-insensitive comparison, `false` when omitted. */
   insensitive?: boolean;
 }
 

@@ -14,8 +14,8 @@ export interface PanelApiRequestOptions extends Omit<
   "csrf" | "external" | "on"
 > {
   /**
-   * Content language code sent as the `x-language` header. Omitted or empty,
-   * it falls back to the current content language.
+   * Content language code sent as the `x-language` header, the current
+   * content language when omitted or empty.
    */
   language?: string | null;
   /** HTTP method, `GET` when omitted; the verb helpers overwrite it. */
@@ -42,7 +42,10 @@ export interface PanelApiPagination {
    * last page.
    */
   page?: number;
-  /** Items per page; the `pagination.limit` option, or `20`, when omitted. */
+  /**
+   * Items per page, the `pagination.limit` option when omitted (`20` unless
+   * configured).
+   */
   limit?: number;
 }
 
@@ -478,7 +481,7 @@ export interface PanelApiPageCreateData {
     /** Slug of the page in this language. */
     slug?: string;
   }[];
-  /** Whether the page starts as a draft, `true` by default – `false` creates an unlisted page. */
+  /** Whether the page starts as a draft, `true` when omitted – `false` creates an unlisted page. */
   draft?: boolean;
 }
 
@@ -486,9 +489,9 @@ export interface PanelApiPageCreateData {
  * @source panel/src/api/pages.ts
  */
 export interface PanelApiPageDuplicateOptions {
-  /** Whether to copy the page's children, `false` by default. */
+  /** Whether to copy the page's children, `false` when omitted. */
   children?: boolean;
-  /** Whether to copy the page's files, `false` by default. */
+  /** Whether to copy the page's files, `false` when omitted. */
   files?: boolean;
 }
 
@@ -512,7 +515,8 @@ export interface PanelApiPages {
    * Gets available blueprints for a page.
    *
    * @param parent - Page ID
-   * @param field - Field name to narrow the blueprints to; when omitted, the templates the page can change to, its current one included
+   * @param field - Field name to narrow the blueprints to (default: the
+   *   templates the page can change to, its current one included)
    */
   blueprints: (
     parent: string,
@@ -733,7 +737,7 @@ export interface PanelApiSite {
   ) => Promise<PanelApiCollectionResponse<PanelApiPageCompact>>;
 
   /**
-   * @param query - Query parameters, `{ view: "panel" }` when omitted
+   * @param query - Query parameters (default: `{ view: "panel" }`)
    */
   get: (query?: Record<string, any>) => Promise<any>;
 
@@ -997,7 +1001,8 @@ export interface PanelApiUsers {
    * Gets the page blueprints a user's `pagelist` fields accept.
    *
    * @param id - User ID
-   * @param field - Field name to narrow the blueprints to; all fields when omitted
+   * @param field - Field name to narrow the blueprints to (default: all
+   *   fields)
    */
   blueprints: (
     id: string,
@@ -1186,7 +1191,7 @@ export interface PanelApi {
    *
    * @param path - API path
    * @param data - Request body
-   * @param method - HTTP method, `POST` by default
+   * @param method - HTTP method (default: `POST`)
    * @param silent - Skip loading indicator
    */
   post: <T = any>(

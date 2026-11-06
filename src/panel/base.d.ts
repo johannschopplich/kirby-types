@@ -287,13 +287,13 @@ export interface PanelResponseActions {
  * @source src/Panel/Response/DrawerResponse.php
  */
 export interface PanelModalSubmitResponse extends PanelResponseActions {
-  /** Whether to emit the global `"success"` event (default: `true`). */
+  /** Whether to emit the global `"success"` event, `true` when omitted. */
   emit?: boolean;
   /** URL to navigate to, taking precedence over `redirect`. */
   route?: PanelResponseActions["redirect"];
   /**
    * Whether to reload the view, or its reload options, when neither `route`
-   * nor `redirect` is set (default: `true`).
+   * nor `redirect` is set, `true` when omitted.
    */
   reload?: boolean | PanelRequestOptions;
   [key: string]: any;
@@ -423,7 +423,7 @@ export interface PanelModal<
    * otherwise as a POST request to the modal's path. Does nothing while
    * loading.
    *
-   * @param value - Form value (defaults to `props.value`)
+   * @param value - Form value (default: `props.value`)
    * @returns The `submit` listener's result if one is registered, `false` if
    *   the request fails, otherwise the `success()` result; `undefined` while
    *   loading or when closing without a path
@@ -577,7 +577,7 @@ export interface PanelRequestOptions extends Omit<
   language?: string | null;
   /**
    * CSRF token sent as the `x-csrf` header.
-   * Defaults to the system token; `false` omits the header.
+   * The system token when omitted; `false` omits the header.
    */
   csrf?: string | false;
   /**
@@ -587,7 +587,7 @@ export interface PanelRequestOptions extends Omit<
   globals?: string | string[];
   /**
    * Referrer path sent as the `x-panel-referrer` header.
-   * Defaults to the current view path; `false` omits the header.
+   * The current view path when omitted; `false` omits the header.
    */
   referrer?: string | false;
   /**
@@ -602,7 +602,7 @@ export interface PanelRequestOptions extends Omit<
  * @source panel/src/panel/feature.ts
  */
 export interface PanelRefreshOptions extends PanelRequestOptions {
-  /** URL to refresh from (defaults to current URL). */
+  /** URL to refresh from, the current URL when omitted. */
   url?: string | URL;
 }
 // #endregion
