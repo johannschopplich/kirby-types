@@ -332,6 +332,7 @@ export interface WriterEditor {
 
 /**
  * @source panel/src/components/Forms/Writer/Editor.ts
+ * @source panel/src/components/Forms/Writer/Extensions.ts
  */
 export interface WriterEditorOptions {
   autofocus?: boolean | "start" | "end" | number;
@@ -665,6 +666,7 @@ export interface WriterExtensionContext {
  * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
  * @source panel/src/components/Forms/Input/WriterInput.props.ts
+ * @source panel/public/js/plugins.js
  */
 export interface WriterExtension {
   /** Unique name of the extension. */
@@ -767,6 +769,8 @@ export interface WriterExtension {
  * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/helpers/writer.ts
+ * @source panel/src/components/Forms/Input/WriterInput.vue
+ * @source panel/public/js/plugins.js
  */
 export interface WriterMarkExtension {
   // #region Instance Properties (available via `this` in extension methods)
@@ -989,6 +993,7 @@ export interface WriterMarkExtension {
  * @source panel/src/helpers/writer.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
  * @source panel/src/components/Forms/Input/WriterInput.props.ts
+ * @source panel/public/js/plugins.js
  */
 export interface WriterNodeExtension {
   // #region Instance Properties (available via `this` in extension methods)
