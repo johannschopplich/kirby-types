@@ -195,11 +195,7 @@ export interface PanelHelpersString {
 
   escapeHTML: (string: unknown) => string;
 
-  /**
-   * Checks if the value is a string containing an emoji. Digits, `#`, and `*`
-   * count as emoji unless the string consists only of lowercase letters,
-   * digits, `_`, and `-`.
-   */
+  /** Checks if the value is a string containing an emoji. */
   hasEmoji: (string: unknown) => boolean;
 
   /**
@@ -575,6 +571,7 @@ export interface PanelHelpersField {
 
 /**
  * @source panel/src/helpers/file.ts
+ * @source panel/src/helpers/number.ts
  */
 export interface PanelHelpersFile {
   /**
@@ -615,6 +612,7 @@ export interface PanelHelpersKeyboard {
 // #region Link Helpers
 
 /**
+ * @source panel/src/components/Forms/Field/LinkField.vue
  * @source panel/src/helpers/link.ts
  */
 export interface PanelLinkType {
@@ -774,7 +772,7 @@ export type PanelUploadProgressCallback = (
 export type PanelUploadResultCallback = (
   xhr: XMLHttpRequest,
   file: File,
-  response: unknown,
+  response: any,
 ) => void;
 
 /**
@@ -792,17 +790,14 @@ export interface PanelUploadParams {
   headers?: Record<string, string>;
   /** Additional `FormData` entries; values are coerced to strings. */
   attributes?: Record<string, string | number>;
-  /**
-   * Signal that cancels the request when it aborts during the upload; no
-   * further callback runs.
-   */
+  /** Signal that cancels the request when it aborts during the upload. */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
   /** Receives the parsed response once the upload succeeds. */
   success?: PanelUploadResultCallback;
   /**
-   * Receives the error response when the server reports an error or returns
-   * a body that is not JSON.
+   * Receives the error response when the server reports an error, returns a
+   * body that is not JSON, or the request fails.
    */
   error?: PanelUploadResultCallback;
 }
@@ -1055,9 +1050,9 @@ export interface PanelHelpers {
    *
    * @returns Promise resolving to the parsed JSON response; rejects with the
    *   server's error response, or a generic `{ status: "error", message }`
-   *   object when the body is not JSON; stays pending once `abort` fires.
+   *   object when the body is not JSON or the request fails.
    */
-  upload: (file: File, params: PanelUploadParams) => Promise<unknown>;
+  upload: (file: File, params: PanelUploadParams) => Promise<any>;
 
   url: PanelHelpersUrl;
 
