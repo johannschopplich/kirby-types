@@ -411,7 +411,14 @@ export interface PanelDayjsLocale extends Partial<
 export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
   (
     date?: ConfigType,
-    options?: { locale?: string; utc?: boolean },
+    options?: {
+      /**
+       * Registered locale name, such as `pt-br` – not a Kirby code like
+       * `pt_BR`.
+       */
+      locale?: string;
+      utc?: boolean;
+    },
   ): PanelDayjsInstance;
 
   /** Registers a plugin once and returns the dayjs function for chaining. */
