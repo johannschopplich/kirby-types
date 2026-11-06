@@ -56,28 +56,28 @@ expectAssignable<KirbyQuery<"product" | "category">>("product.price");
 
 // #region Query Parsing
 
-expectType<{ model: "site"; chain: [] }>({} as ParseKirbyQuery<"site">);
-expectType<{ model: "page"; chain: [] }>({} as ParseKirbyQuery<"page">);
+expectType<{ root: "site"; chain: [] }>({} as ParseKirbyQuery<"site">);
+expectType<{ root: "page"; chain: [] }>({} as ParseKirbyQuery<"page">);
 
 expectType<{
-  model: "site";
+  root: "site";
   chain: [{ type: "property"; name: "title" }];
 }>({} as ParseKirbyQuery<"site.title">);
 
 expectType<{
-  model: "page";
+  root: "page";
   chain: [{ type: "method"; name: "page"; params: '"notes"' }];
 }>({} as ParseKirbyQuery<'page("notes")'>);
 
 expectType<{
-  model: "page";
+  root: "page";
   chain: [
     { type: "method"; name: "page"; params: '"blog"' },
     { type: "property"; name: "children" },
   ];
 }>({} as ParseKirbyQuery<'page("blog").children'>);
 
-expectType<{ model: "customModel"; chain: [] }>(
+expectType<{ root: "customModel"; chain: [] }>(
   {} as ParseKirbyQuery<"customModel", "customModel">,
 );
 

@@ -47,7 +47,7 @@ export * from "./src/panel/index";
 export type {
   KirbyQuery,
   KirbyQueryChain,
-  KirbyQueryModel,
+  KirbyQueryRoot,
   ParseKirbyQuery,
 } from "./src/query";
 // #endregion

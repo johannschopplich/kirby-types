@@ -21,12 +21,12 @@
  * @example
  * ```ts
  * // Built-in roots
- * const siteRoot: KirbyQueryModel = "site";
- * const pageRoot: KirbyQueryModel = "page";
+ * const siteRoot: KirbyQueryRoot = "site";
+ * const pageRoot: KirbyQueryRoot = "page";
  *
  * // Custom roots
  * type CustomRoots = "product" | "category";
- * const customRoot: KirbyQueryModel<CustomRoots> = "product";
+ * const customRoot: KirbyQueryRoot<CustomRoots> = "product";
  * ```
  *
  * @template CustomModel - Additional custom root names to include
@@ -37,7 +37,7 @@
  * @source src/Option/OptionsQuery.php
  * @source src/Option/OptionsApi.php
  */
-export type KirbyQueryModel<CustomModel extends string = never> =
+export type KirbyQueryRoot<CustomModel extends string = never> =
   | "collection"
   | "kirby"
   | "site"
@@ -67,7 +67,7 @@ type FunctionOnlyQueryModel = "collection" | "t" | "qr";
  * @internal
  */
 type AccessibleQueryModel<M extends string = never> =
-  Exclude<KirbyQueryModel, FunctionOnlyQueryModel> | M;
+  Exclude<KirbyQueryRoot, FunctionOnlyQueryModel> | M;
 
 /**
  * Root that a query can call, as in `page("id")`: a global query function or a
@@ -76,7 +76,7 @@ type AccessibleQueryModel<M extends string = never> =
  */
 type CallableQueryModel<M extends string = never> =
   | Exclude<
-      KirbyQueryModel,
+      KirbyQueryRoot,
       "model" | "item" | "arrayItem" | "structureItem" | "block" | "this"
     >
   | M;
@@ -100,22 +100,50 @@ type FunctionNotationQuery<M extends string = never> =
   | `${CallableQueryModel<M>}(${string})${string}`;
 
 /**
- * Operator expression on a bare root, such as `root ?? fallback` or
- * `root ? a : b`.
+ * Binary or ternary operator the parser accepts after an expression.
+ * @internal
+ */
+type QueryOperator =
+  | "??"
+  | "?:"
+  | "?"
+  | "||"
+  | "OR"
+  | "&&"
+  | "AND"
+  | "=="
+  | "==="
+  | "!="
+  | "!=="
+  | "<"
+  | "<="
+  | ">"
+  | ">="
+  | "+"
+  | "-"
+  | "*"
+  | "/"
+  | "%";
+
+/**
+ * Operator expression on a bare root, such as `root ?? fallback`,
+ * `root ? a : b`, or `root && other`.
  * @internal
  */
 type OperatorQuery<M extends string = never> =
-  `${AccessibleQueryModel<M>} ${"??" | "?:" | "?"} ${string}`;
+  `${AccessibleQueryModel<M>} ${QueryOperator} ${string}`;
 
 /**
  * Query that starts with a root and continues with property access, method
  * calls, or an operator:
  *
  * - **Dot notation**: `root.property.method()`, `root?.property`, or `root[key]`.
- * - **Function calls**: `page(params)`, calling a global function or custom
- *   root.
+ * - **Function calls**: `page(params)`, calling a global query function. A
+ *   custom root takes `(` only when a plugin registers it as one; a custom
+ *   root from the query data throws when called.
  * - **Mixed chains**: `page(params).property.method()`.
- * - **Operators**: `root ?? fallback`, `root ?: fallback`, or `root ? a : b`.
+ * - **Operators**: `root ?? fallback`, `root ?: fallback`, `root ? a : b`,
+ *   or a logical, comparison, or arithmetic operator such as `root && other`.
  *
  * @example
  * ```ts
@@ -136,23 +164,23 @@ type OperatorQuery<M extends string = never> =
  *
  * @source src/Query/Parser/Parser.php
  * @source src/Query/Parser/Tokenizer.php
+ * @source src/Query/Visitors/DefaultVisitor.php
  */
 export type KirbyQueryChain<M extends string = never> =
   DotNotationQuery<M> | FunctionNotationQuery<M> | OperatorQuery<M>;
 
 /**
- * Kirby Query Language (KQL) string, checked against the known roots. It
- * accepts:
+ * Kirby query string, checked against the known roots. It accepts:
  * - Bare roots (e.g., `"site"`, `"page"`)
  * - Property chains (e.g., `"page.children.listed"`)
  * - Method calls (e.g., `'page("home")'`, `'page.children.filterBy("status", "listed")'`)
  * - Complex mixed queries (e.g., `'page("blog").children.filterBy("featured", true).sortBy("date")'`).
  *
  * A query is a type error unless it starts with a known root, alone or followed
- * by `.`, `?.`, `[`, `(`, or a spaced `??`, `?:`, or `?` – `!page.isListed`,
- * `page == site`, and `page??fallback` fail. `collection`, `t`, and `qr` only
- * work as calls; `model`, `item`, `arrayItem`, `structureItem`, `block`, and
- * `this` never take `(`. The rest of the chain is not checked.
+ * by `.`, `?.`, `[`, `(`, or a spaced operator such as `??`, `?:`, `?`, `&&`,
+ * `==`, or `+` – `!page.isListed` and `page??fallback` fail. `collection`, `t`,
+ * and `qr` only work as calls; `model`, `item`, `arrayItem`, `structureItem`,
+ * `block`, and `this` never take `(`. The rest of the chain is not checked.
  *
  * @example
  * ```ts
@@ -173,6 +201,10 @@ export type KirbyQueryChain<M extends string = never> =
  * ```
  *
  * @template CustomModel - Optional custom root names to include alongside built-in roots
+ *
+ * @source src/Query/Query.php
+ * @source src/Query/Parser/Parser.php
+ * @source src/Query/Visitors/DefaultVisitor.php
  */
 export type KirbyQuery<CustomModel extends string = never> =
   | AccessibleQueryModel<CustomModel>
@@ -227,24 +259,24 @@ type ParseQueryChain<T extends string> =
     : [ParseQuerySegment<T>];
 
 /**
- * Parses a Kirby Query Language (KQL) string into its root, returned as
- * `model` (e.g., `site`, `page`, `user`), and a `chain` of property accesses
- * and method calls. The chain splits at every dot, including dots inside method
- * arguments other than the root call's, and `?.` reads as `.` everywhere, inside
- * arguments too. `[key]` access and operators such as `??`, `?:`, `==`, or `!`
- * are not parsed: on a bare root the result is `never`; after a chain they stay
- * inside the segment names, split at any dot they contain.
+ * Parses a Kirby query string into its `root` (e.g., `site`, `page`, `user`)
+ * and a `chain` of property accesses and method calls. The chain splits at
+ * every dot, including dots inside method arguments other than the root call's,
+ * and `?.` reads as `.` everywhere, inside arguments too. `[key]` access and
+ * operators such as `??`, `?:`, `==`, or `!` are not parsed: on a bare root the
+ * result is `never`; after a chain they stay inside the segment names, split at
+ * any dot they contain.
  *
  * @example
  * ```ts
  * // Bare root query
  * type Basic = ParseKirbyQuery<"site">;
- * // Result: { model: "site"; chain: [] }
+ * // Result: { root: "site"; chain: [] }
  *
  * // Property chain query
  * type Props = ParseKirbyQuery<"page.children.listed">;
  * // Result: {
- * //   model: "page";
+ * //   root: "page";
  * //   chain: [
  * //     { type: "property"; name: "children" },
  * //     { type: "property"; name: "listed" }
@@ -254,14 +286,14 @@ type ParseQueryChain<T extends string> =
  * // Method call query
  * type Method = ParseKirbyQuery<'page("notes")'>;
  * // Result: {
- * //   model: "page";
+ * //   root: "page";
  * //   chain: [{ type: "method"; name: "page"; params: '"notes"' }]
  * // }
  *
  * // Complex query with mixed property and method calls
  * type Complex = ParseKirbyQuery<'page.children.filterBy("featured", true).sortBy("date")'>;
  * // Result: {
- * //   model: "page";
+ * //   root: "page";
  * //   chain: [
  * //     { type: "property"; name: "children" },
  * //     { type: "method"; name: "filterBy"; params: '"featured", true' },
@@ -272,6 +304,8 @@ type ParseQueryChain<T extends string> =
  *
  * @template T - The query string to parse
  * @template M - Optional custom root names to include in validation
+ *
+ * @source src/Query/Parser/Parser.php
  */
 export type ParseKirbyQuery<T extends string, M extends string = never> =
   // Case 0: Null-safe access parses like a dot (e.g., `page?.title`).
@@ -279,20 +313,20 @@ export type ParseKirbyQuery<T extends string, M extends string = never> =
     ? ParseKirbyQuery<`${Head}.${Tail}`, M>
     : // Case 1: Bare root (e.g., `site`, `page`).
       T extends AccessibleQueryModel<M>
-      ? { model: T; chain: [] }
+      ? { root: T; chain: [] }
       : // Case 2: Method call followed by a chain (e.g., `page("blog").children`).
-        T extends `${infer Model extends CallableQueryModel<M>}(${infer Params}).${infer Chain}`
+        T extends `${infer Root extends CallableQueryModel<M>}(${infer Params}).${infer Chain}`
         ? {
-            model: Model;
+            root: Root;
             chain: [
-              ParseQuerySegment<`${Model}(${Params})`>,
+              ParseQuerySegment<`${Root}(${Params})`>,
               ...ParseQueryChain<Chain>,
             ];
           }
         : // Case 3: Method call only (e.g., `page("blog")`).
-          T extends `${infer Model extends CallableQueryModel<M>}(${string})`
-          ? { model: Model; chain: [ParseQuerySegment<T>] }
+          T extends `${infer Root extends CallableQueryModel<M>}(${string})`
+          ? { root: Root; chain: [ParseQuerySegment<T>] }
           : // Case 4: Dot notation (e.g., `page.children.listed`).
-            T extends `${infer Model extends AccessibleQueryModel<M>}.${infer Chain}`
-            ? { model: Model; chain: ParseQueryChain<Chain> }
+            T extends `${infer Root extends AccessibleQueryModel<M>}.${infer Chain}`
+            ? { root: Root; chain: ParseQueryChain<Chain> }
             : never;
