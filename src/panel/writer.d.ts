@@ -105,6 +105,7 @@ export interface WriterEditorSelectPayload extends WriterEditorTransactionPayloa
  * the event, the slice, and the `moved` flag as separate arguments.
  *
  * @source panel/src/components/Forms/Writer/Editor.ts
+ * @source panel/src/components/Forms/Writer/Marks/Anchor.ts
  * @source panel/src/components/Forms/Writer/Marks/Link.ts
  * @source panel/src/components/Forms/Writer/Marks/Email.ts
  */
@@ -133,6 +134,11 @@ export interface WriterEditorEvents {
  * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/components/Forms/Writer/Emitter.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
+ * @source panel/src/components/Forms/Writer/Utils/getMarkAttrs.ts
+ * @source panel/src/components/Forms/Writer/Utils/getMarkRange.ts
+ * @source panel/src/components/Forms/Writer/Utils/getNodeAttrs.ts
+ * @source panel/src/components/Forms/Writer/Utils/removeMark.ts
+ * @source panel/src/components/Forms/Writer/Utils/updateMark.ts
  */
 export interface WriterEditor {
   // #region Properties
@@ -393,6 +399,7 @@ export interface WriterExtensions {
  *
  * @source panel/src/components/Forms/Writer/Utils/index.ts
  * @source panel/src/components/Forms/Writer/Utils/getMarkAttrs.ts
+ * @source panel/src/components/Forms/Writer/Utils/getMarkRange.ts
  * @source panel/src/components/Forms/Writer/Utils/getNodeAttrs.ts
  * @source panel/src/components/Forms/Writer/Utils/insertNode.ts
  * @source panel/src/components/Forms/Writer/Utils/markInputRule.ts
@@ -798,9 +805,10 @@ export interface WriterMarkExtension {
   schema: MarkSpec;
 
   /**
-   * A single function registers under the mark's `name`, an object under its
-   * keys. A command that returns a function has it run as a ProseMirror
-   * command against the view; any other return value passes through.
+   * Returns the commands this mark provides. A single function registers under
+   * the mark's `name`, an object under its keys. A command that returns a
+   * function has it run as a ProseMirror command against the view; any other
+   * return value passes through.
    *
    * @example
    * ```js
@@ -1020,9 +1028,10 @@ export interface WriterNodeExtension {
   schema: NodeSpec;
 
   /**
-   * A single function registers under the node's `name`, an object under its
-   * keys. A command that returns a function has it run as a ProseMirror
-   * command against the view; any other return value passes through.
+   * Returns the commands this node provides. A single function registers under
+   * the node's `name`, an object under its keys. A command that returns a
+   * function has it run as a ProseMirror command against the view; any other
+   * return value passes through.
    */
   commands?: (
     context: WriterNodeContext,
