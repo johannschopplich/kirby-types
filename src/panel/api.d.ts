@@ -160,15 +160,15 @@ export interface PanelModelData<TContent = Record<string, any>> {
 
 /**
  * @source src/Blueprint/Normalizer.php
+ * @source src/Blueprint/Tab.php
  */
-export interface PanelApiBlueprintColumn {
-  /** Column width, `1/1` by default. */
+export interface PanelBlueprintColumn<TField = Record<string, any>> {
   width: string;
   /**
-   * Field definitions from the blueprint, keyed by field name – not the
-   * resolved field props.
+   * Field definitions from the blueprint in an API response; in a view's
+   * `tab`, the resolved field props keyed by the lowercase field name.
    */
-  fields: Record<string, Record<string, any>>;
+  fields: Record<string, TField>;
   /** Any other key the blueprint sets on the column. */
   [key: string]: any;
 }
@@ -177,7 +177,7 @@ export interface PanelApiBlueprintColumn {
  * @source src/Blueprint/Tab.php
  * @source src/Blueprint/Tabs.php
  */
-export interface PanelApiBlueprintTab {
+export interface PanelBlueprintTab<TField = Record<string, any>> {
   label: string;
   /** `null` when the blueprint omits an icon. */
   icon: string | null;
@@ -185,7 +185,9 @@ export interface PanelApiBlueprintTab {
    * List of columns, or an object keyed by column name when the blueprint
    * names its columns.
    */
-  columns: PanelApiBlueprintColumn[] | Record<string, PanelApiBlueprintColumn>;
+  columns:
+    | PanelBlueprintColumn<TField>[]
+    | Record<string, PanelBlueprintColumn<TField>>;
   link: string;
   name: string;
   /** Any other key the blueprint sets on the tab. */
@@ -201,7 +203,7 @@ export interface PanelApiBlueprintTab {
 export interface PanelApiBlueprint {
   name: string;
   options: Record<string, any>;
-  tabs: PanelApiBlueprintTab[];
+  tabs: PanelBlueprintTab[];
   title: string;
 }
 

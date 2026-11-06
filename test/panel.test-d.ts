@@ -1,10 +1,12 @@
 // Tests representative core types for `src/panel/` – not exhaustive.
+import type { KirbyAnyFieldProps } from "../src/blueprint";
 import type {
   Panel,
   PanelApiRequestOptions,
   PanelConfig,
   PanelPermissions,
   PanelRequestResponse,
+  PanelViewProps,
   PanelViewPropsButton,
 } from "../src/panel";
 import type {
@@ -13,6 +15,7 @@ import type {
   PanelApiRoleCompact,
   PanelApiSearchQuery,
   PanelApiSystemPanel,
+  PanelBlueprintTab,
   PanelModelData,
 } from "../src/panel/api";
 import type {
@@ -265,6 +268,17 @@ expectType<Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>>(
 );
 expectNotAssignable<Parameters<PanelApi["roles"]["list"]>[0]>({
   canBe: "deleted",
+});
+expectType<PanelBlueprintTab<KirbyAnyFieldProps> | undefined>(
+  {} as PanelViewProps["tab"],
+);
+// A blueprint field definition is not a resolved field's props.
+expectNotAssignable<NonNullable<PanelViewProps["tab"]>>({
+  label: "Content",
+  icon: null,
+  columns: [{ width: "1/1", fields: { title: { type: "text" } } }],
+  link: "",
+  name: "content",
 });
 expectAssignable<PanelApi["auth"]>({
   login: async () => ({ code: 200, status: "ok", challenge: "email" }),

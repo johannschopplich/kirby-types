@@ -15,7 +15,7 @@ import type {
   Plugin,
 } from "vue";
 import type { KirbyAnyFieldProps, KirbyModelImage } from "../blueprint";
-import type { PanelApi } from "./api";
+import type { PanelApi, PanelBlueprintTab } from "./api";
 import type {
   PanelContext,
   PanelFeatureDefaults,
@@ -38,8 +38,8 @@ export type {
   PanelApiSearchOptions,
   PanelApiSearchQuery,
   PanelModelData,
-  PanelApiBlueprintColumn,
-  PanelApiBlueprintTab,
+  PanelBlueprintColumn,
+  PanelBlueprintTab,
   PanelApiBlueprint,
   PanelApiPageBlueprintStatus,
   PanelApiPageBlueprint,
@@ -1347,39 +1347,6 @@ export interface PanelViewPropsVersions {
 }
 
 /**
- * @source src/Blueprint/Normalizer.php
- * @source src/Blueprint/Tab.php
- */
-export interface PanelViewPropsTabColumn {
-  /** @default '1/1' */
-  width: string;
-  /** Resolved field props, keyed by the lowercase field name. */
-  fields: Record<string, KirbyAnyFieldProps>;
-  /** Any other key the blueprint sets on the column. */
-  [key: string]: any;
-}
-
-/**
- * Active blueprint tab, its columns carrying the resolved field props.
- * @source src/Blueprint/Tab.php
- * @source src/Blueprint/Tabs.php
- */
-export interface PanelViewPropsTab {
-  label: string;
-  /** `null` when the blueprint omits an icon. */
-  icon: string | null;
-  /**
-   * List of columns, or an object keyed by column name when the blueprint
-   * names its columns.
-   */
-  columns: PanelViewPropsTabColumn[] | Record<string, PanelViewPropsTabColumn>;
-  link: string;
-  name: string;
-  /** Any other key the blueprint sets on the tab. */
-  [key: string]: any;
-}
-
-/**
  * Link to a sibling model, for `next` and `prev`.
  * @source src/Panel/Model.php
  * @source src/Panel/Controller/View/ModelViewController.php
@@ -1429,7 +1396,7 @@ export interface PanelViewProps {
    * first. Blueprint-level fields, sections or columns form a single tab, so
    * it is absent only for an empty blueprint.
    */
-  tab?: PanelViewPropsTab;
+  tab?: PanelBlueprintTab<KirbyAnyFieldProps>;
   /** Link to the next sibling, `null` when there is none. */
   next: PanelViewPropsNavigation | null;
   /** Link to the previous sibling, `null` when there is none. */
