@@ -121,45 +121,6 @@ export interface PanelModelData<TContent = Record<string, any>> {
 }
 // #endregion
 
-// #region Blueprint Types
-
-/**
- * @source src/Blueprint/Normalizer.php
- * @source src/Blueprint/Tab.php
- */
-export interface PanelBlueprintColumn<TField = Record<string, any>> {
-  width: string;
-  /**
-   * Field definitions from the blueprint in an API response; in a view's
-   * `tab`, the resolved field props keyed by the lowercase field name.
-   */
-  fields: Record<string, TField>;
-  /** Any other key the blueprint sets on the column. */
-  [key: string]: any;
-}
-
-/**
- * @source src/Blueprint/Tab.php
- * @source src/Blueprint/Tabs.php
- */
-export interface PanelBlueprintTab<TField = Record<string, any>> {
-  label: string;
-  /** `null` when the blueprint omits an icon. */
-  icon: string | null;
-  /**
-   * List of columns, or an object keyed by column name when the blueprint
-   * names its columns.
-   */
-  columns:
-    | PanelBlueprintColumn<TField>[]
-    | Record<string, PanelBlueprintColumn<TField>>;
-  link: string;
-  name: string;
-  /** Any other key the blueprint sets on the tab. */
-  [key: string]: any;
-}
-// #endregion
-
 // #region Auth API
 
 /**
