@@ -12,7 +12,7 @@
  * @example
  * ```ts
  * const notification: PanelState<PanelNotificationDefaults> = panel.notification;
- * notification.set({ message: "Saved!" });
+ * const { isOpen, message } = notification.state();
  * ```
  *
  * @source panel/src/panel/state.ts
@@ -264,6 +264,7 @@ export type PanelModalEvent =
 /**
  * Actions a response asks the Panel to take; `panel.act()` runs them.
  * @source panel/src/panel/panel.ts
+ * @source src/Panel/Response/JsonResponse.php
  */
 export interface PanelResponseActions {
   /** Global events to emit, each with the response as payload. */
@@ -283,6 +284,7 @@ export interface PanelResponseActions {
  * Success response from modal submission.
  * @source panel/src/panel/modal.ts
  * @source src/Panel/Response/DialogResponse.php
+ * @source src/Panel/Response/DrawerResponse.php
  */
 export interface PanelModalSubmitResponse extends PanelResponseActions {
   /** Whether to emit the global `"success"` event (default: `true`). */
@@ -569,9 +571,8 @@ export interface PanelRequestOptions extends Omit<
   silent?: boolean;
   on?: PanelEventListenerMap;
   /**
-   * Content language code sent as the `x-language` header. Defaults to the
-   * current content language, so each browser tab keeps its own; an empty
-   * value omits the header.
+   * Content language code sent as the `x-language` header, the browser tab's
+   * current content language when omitted; an empty value omits the header.
    */
   language?: string | null;
   /**
@@ -590,8 +591,9 @@ export interface PanelRequestOptions extends Omit<
    */
   referrer?: string | false;
   /**
-   * If `true`, sends the request to a third-party URL with only the given
-   * `headers`; a failure does not mark the Panel offline.
+   * If `true`, sends the request to a third-party URL without the Panel's
+   * headers, adding a JSON `content-type` only when a body is sent. A failed
+   * request throws but does not mark the Panel offline.
    */
   external?: boolean;
 }
@@ -619,7 +621,7 @@ export type PanelContext = "view" | "dialog" | "drawer";
  * Notification type, which decides behavior and persistence. The `success()`
  * and `info()` shortcuts set `theme` and `icon` instead of a type.
  * - `error`: Operation failed, persists until dismissed unless a `timeout`
- *   is passed.
+ *   is passed. In view context only `error()` shows it, as a dialog.
  * - `fatal`: Critical error, displayed in an isolated iframe.
  * @source panel/src/panel/notification.ts
  */
