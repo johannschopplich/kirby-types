@@ -11,6 +11,7 @@ import type {
   KirbyLayoutColumnValue,
   KirbyLayoutFieldProps,
   KirbyLayoutValue,
+  KirbyListFieldProps,
   KirbyModelListFieldProps,
   KirbyNumberFieldProps,
   KirbyObjectFieldProps,
@@ -97,6 +98,7 @@ expectAssignable<KirbyTextFieldProps>({
   disabled: false,
   font: "sans-serif",
   hidden: false,
+  label: "Title",
   name: "title",
   required: false,
   saveable: true,
@@ -113,6 +115,7 @@ expectAssignable<KirbyTextareaFieldProps>({
   disabled: false,
   font: "monospace",
   hidden: false,
+  label: "Code",
   maxlength: 100,
   minlength: 5,
   name: "code",
@@ -137,6 +140,7 @@ expectAssignable<KirbyNumberFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  label: "Quantity",
   name: "quantity",
   required: false,
   saveable: true,
@@ -149,6 +153,7 @@ expectAssignable<KirbyNumberFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  label: "Price",
   max: 100,
   min: 0,
   name: "price",
@@ -167,6 +172,7 @@ expectAssignable<KirbyOptionsFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  label: "Category",
   name: "category",
   options: [
     { disabled: false, icon: null, info: null, text: "News", value: "news" },
@@ -184,6 +190,7 @@ expectAssignable<KirbyOptionsFieldProps>({
   columns: 3,
   disabled: false,
   hidden: false,
+  label: "Tags",
   max: 3,
   min: 1,
   name: "tags",
@@ -207,6 +214,7 @@ expectAssignable<KirbyToggleFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  label: "Featured",
   name: "featured",
   required: false,
   saveable: true,
@@ -219,6 +227,7 @@ expectAssignable<KirbyToggleFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  label: "Status",
   name: "status",
   required: false,
   saveable: true,
@@ -237,6 +246,7 @@ expectAssignable<KirbyDateFieldProps>({
   display: "YYYY-MM-DD",
   format: "Y-m-d",
   hidden: false,
+  label: "Publish date",
   name: "publishDate",
   required: false,
   saveable: true,
@@ -253,6 +263,7 @@ expectAssignable<KirbyDateFieldProps>({
   display: "DD.MM.YYYY",
   format: "Y-m-d",
   hidden: false,
+  label: "Deadline",
   max: "2030-12-31",
   min: "2020-01-01",
   name: "deadline",
@@ -272,6 +283,7 @@ expectAssignable<KirbyPickerFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
+  label: "Images",
   image: false,
   layout: "list",
   link: true,
@@ -292,6 +304,7 @@ expectAssignable<KirbyPickerFieldProps>({
   disabled: false,
   empty: "No files selected",
   hidden: false,
+  label: "Gallery",
   image: { cover: true },
   info: "{{ file.size }}",
   layout: "list",
@@ -331,6 +344,11 @@ const list = {
 } satisfies KirbyModelListFieldProps;
 
 expectNotAssignable<KirbyModelListFieldProps>({ ...list, link: true as const });
+
+expectAssignable<KirbyModelListFieldProps["columns"]>({
+  date: { display: "DD.MM.YYYY", id: "date", label: "Date", type: null },
+  title: { label: "Title", mobile: true, type: "url" },
+});
 // #endregion
 
 // #region Color Field Props
@@ -341,6 +359,7 @@ expectAssignable<KirbyColorFieldProps>({
   disabled: false,
   format: "hex",
   hidden: false,
+  label: "Background",
   mode: "picker",
   name: "background",
   options: [],
@@ -357,6 +376,7 @@ expectAssignable<KirbyColorFieldProps>({
   disabled: false,
   format: "hsl",
   hidden: false,
+  label: "Theme",
   mode: "options",
   name: "theme",
   options: [{ value: "#ff0000", text: "Red" }],
@@ -390,6 +410,7 @@ expectAssignable<KirbyStructureFieldProps>({
     },
   },
   hidden: false,
+  label: "Items",
   name: "items",
   prepend: false,
   required: false,
@@ -428,6 +449,7 @@ expectAssignable<KirbyObjectFieldProps>({
     },
   },
   hidden: false,
+  label: "Address",
   name: "address",
   required: false,
   saveable: true,
@@ -445,6 +467,7 @@ expectAssignable<KirbyBlocksFieldProps>({
   fieldsets: {},
   group: "blocks",
   hidden: false,
+  label: "Content",
   name: "content",
   required: false,
   saveable: true,
@@ -469,6 +492,7 @@ expectAssignable<KirbyLayoutFieldProps>({
   fieldsets: {},
   group: "blocks",
   hidden: false,
+  label: "Builder",
   layouts: [["1/1"], ["1/2", "1/2"], ["1/3", "1/3", "1/3"]],
   name: "builder",
   required: false,
@@ -499,6 +523,7 @@ expectAssignable<KirbyWriterFieldProps>({
   disabled: false,
   headings: [1, 2, 3, 4, 5, 6],
   hidden: false,
+  label: "Text",
   inline: false,
   name: "text",
   required: false,
@@ -514,6 +539,7 @@ expectAssignable<KirbyWriterFieldProps>({
   disabled: false,
   headings: [1, 2, 3],
   hidden: false,
+  label: "Excerpt",
   inline: true,
   marks: ["bold", "italic", "link"],
   maxlength: 500,
@@ -524,6 +550,19 @@ expectAssignable<KirbyWriterFieldProps>({
   saveable: true,
   translate: true,
   type: "writer",
+  width: "1/1",
+});
+expectAssignable<KirbyListFieldProps>({
+  autofocus: false,
+  disabled: false,
+  hidden: false,
+  label: "Ingredients",
+  name: "ingredients",
+  nodes: ["bulletList"],
+  required: false,
+  saveable: true,
+  translate: true,
+  type: "list",
   width: "1/1",
 });
 // #endregion
@@ -589,6 +628,19 @@ expectNotAssignable<KirbyFieldProps>({
   type: "text",
 });
 
+// Input field without its label
+expectNotAssignable<KirbyToggleFieldProps>({
+  autofocus: false,
+  disabled: false,
+  hidden: false,
+  name: "featured",
+  required: false,
+  saveable: true,
+  translate: false,
+  type: "toggle",
+  width: "1/4",
+});
+
 // Wrong type literal
 expectNotAssignable<KirbyTextFieldProps>({
   autofocus: false,
@@ -596,6 +648,7 @@ expectNotAssignable<KirbyTextFieldProps>({
   disabled: false,
   font: "sans-serif",
   hidden: false,
+  label: "Title",
   name: "title",
   required: false,
   saveable: true,
@@ -612,6 +665,7 @@ expectNotAssignable<KirbyTextFieldProps>({
   disabled: false,
   font: "comic-sans", // Should be sans-serif or monospace
   hidden: false,
+  label: "Title",
   name: "title",
   required: false,
   saveable: true,

@@ -11,7 +11,8 @@ import type { HtmlString } from "./panel";
 
 /**
  * Rendered option of an options field like select, radio, checkboxes, or
- * toggles.
+ * toggles. `text` and `info` are HTML, except in a select field, where they
+ * are plain text.
  *
  * @example
  * ```ts
@@ -25,6 +26,7 @@ import type { HtmlString } from "./panel";
  * ```
  *
  * @source src/Option/Option.php
+ * @source src/Form/Field/SelectField.php
  */
 export interface KirbyOption {
   disabled: boolean;
@@ -41,10 +43,9 @@ export interface KirbyOption {
 
 /**
  * Props of a field as the backend sends them; the field-specific types extend
- * them. Input fields always send `autofocus`, `disabled`, `required`, and
- * `translate`; other fields omit them, but receive `disabled` when the current
- * user may not update the model or the field is not translatable into the
- * current language.
+ * them. A field that is not an input field omits `autofocus`, `required`, and
+ * `translate`, and receives `disabled` only when the current user may not
+ * update the model or the field is not translatable into the current language.
  *
  * @example
  * ```ts
@@ -65,6 +66,12 @@ export interface KirbyOption {
  * @source src/Form/Field.php
  * @source src/Form/Field/InputField.php
  * @source src/Form/Fields.php
+ * @source src/Form/Field/HiddenField.php
+ * @source src/Form/Mixin/Help.php
+ * @source src/Form/Mixin/Fields.php
+ * @source src/Form/Mixin/Width.php
+ * @source src/Cms/Fieldset.php
+ * @source src/Panel/Controller/Dialog/ModelCreateDialogController.php
  */
 export interface KirbyFieldProps {
   /** Text shown after the input. */
@@ -102,6 +109,21 @@ export interface KirbyFieldProps {
    * Field width in the grid, e.g. `1/1`, `1/2`, or `1/3`; absent for `hidden`.
    */
   width?: string;
+}
+
+/**
+ * Props of an input field. Every built-in field type that stores a value is
+ * one, except `hidden`.
+ *
+ * @source src/Form/Mixin/Label.php
+ */
+export interface KirbyInputFieldProps extends KirbyFieldProps {
+  autofocus: boolean;
+  disabled: boolean;
+  label: string;
+  required: boolean;
+  translate: boolean;
+  width: string;
 }
 // #endregion
 
@@ -147,6 +169,9 @@ export interface KirbyFieldsetTab {
  * ```
  *
  * @source src/Cms/Fieldset.php
+ * @source panel/src/components/Forms/Blocks/Block.vue
+ * @source panel/src/components/Forms/Blocks/Blocks.vue
+ * @source panel/src/components/Forms/Blocks/Types/Fields.vue
  */
 export interface KirbyFieldsetProps {
   disabled: boolean;
@@ -174,7 +199,11 @@ export interface KirbyFieldsetProps {
    * `disabled` only.
    */
   unset: boolean;
-  /** Whether the block uses WYSIWYG editing. */
+  /**
+   * Whether the block is edited in place: a newly added block gets focus
+   * instead of opening its drawer, and the `fields` preview edits its fields
+   * inline.
+   */
   wysiwyg: boolean;
 }
 
@@ -204,8 +233,12 @@ export interface KirbyFieldsetGroup {
  * @source src/Form/Field/EmailField.php
  * @source src/Form/Field/TelField.php
  * @source src/Form/Field/PasswordField.php
+ * @source src/Form/Field/StringField.php
+ * @source src/Form/Mixin/Converter.php
+ * @source src/Form/Mixin/Font.php
+ * @source panel/src/helpers/string.ts
  */
-export interface KirbyTextFieldProps extends KirbyFieldProps {
+export interface KirbyTextFieldProps extends KirbyInputFieldProps {
   type: "text" | "slug" | "url" | "email" | "tel" | "password";
   /**
    * Regex character class the slug may contain, replacing `a-z0-9` (slug
@@ -259,8 +292,11 @@ export interface KirbyFieldUploads {
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/textarea
  * @source src/Form/Field/TextareaField.php
+ * @source src/Form/Field/StringField.php
+ * @source src/Form/Mixin/Font.php
+ * @source src/Form/Mixin/Upload.php
  */
-export interface KirbyTextareaFieldProps extends KirbyFieldProps {
+export interface KirbyTextareaFieldProps extends KirbyInputFieldProps {
   type: "textarea";
   /**
    * Toolbar buttons: `true` for the default set, `false` for none, or a list
@@ -285,7 +321,7 @@ export interface KirbyTextareaFieldProps extends KirbyFieldProps {
  * @see https://getkirby.com/docs/reference/panel/fields/number
  * @source src/Form/Field/NumberField.php
  */
-export interface KirbyNumberFieldProps extends KirbyFieldProps {
+export interface KirbyNumberFieldProps extends KirbyInputFieldProps {
   type: "number";
   max?: number;
   min?: number;
@@ -299,20 +335,25 @@ export interface KirbyNumberFieldProps extends KirbyFieldProps {
  * @source src/Form/Field/RadioField.php
  * @source src/Form/Field/CheckboxesField.php
  * @source src/Form/Field/TogglesField.php
+ * @source src/Form/Field/OptionsField.php
+ * @source src/Form/Mixin/Min.php
  */
-export interface KirbyOptionsFieldProps extends KirbyFieldProps {
+export interface KirbyOptionsFieldProps extends KirbyInputFieldProps {
   type: "select" | "radio" | "checkboxes" | "toggles";
   /** Whether to show batch select toggle (checkboxes only). */
   batch?: boolean;
   /** Number of columns for layout (radio, checkboxes). */
   columns?: number;
-  /** Whether toggles should span full width. */
+  /** Whether the toggles span the full width (toggles only). */
   grow?: boolean;
-  /** Whether to show labels for icon-only toggles. */
+  /** Whether to show labels for icon-only toggles (toggles only). */
   labels?: boolean;
   /** Maximum number of selected options (checkboxes only). */
   max?: number;
-  /** Minimum number of selected options (checkboxes only). */
+  /**
+   * Minimum number of selected options (checkboxes only); `1` when unset on a
+   * required field, and setting it makes the field required.
+   */
   min?: number;
   options: KirbyOption[];
   /** Whether a toggle can be deactivated on click (toggles only). */
@@ -323,29 +364,35 @@ export interface KirbyOptionsFieldProps extends KirbyFieldProps {
  * @see https://getkirby.com/docs/reference/panel/fields/toggle
  * @source src/Form/Field/ToggleField.php
  */
-export interface KirbyToggleFieldProps extends KirbyFieldProps {
+export interface KirbyToggleFieldProps extends KirbyInputFieldProps {
   type: "toggle";
   /** Text next to the toggle, or a pair of texts for off and on. */
   text?: string | [string, string];
 }
 
 /**
+ * `min` and `max` are formatted `Y-m-d`, `Y-m-d H:i:s` with a `time` input,
+ * or `H:i:s` for `time`.
+ *
  * @see https://getkirby.com/docs/reference/panel/fields/date
  * @source src/Form/Field/DateField.php
  * @source src/Form/Field/TimeField.php
  * @source src/Form/Field/DateTimeField.php
  */
-export interface KirbyDateFieldProps extends KirbyFieldProps {
+export interface KirbyDateFieldProps extends KirbyInputFieldProps {
   type: "date" | "time";
   /** Whether to show the dropdown calendar (date only). */
   calendar?: boolean;
   /** Date/time display format (dayjs tokens). */
   display: string;
-  /** Format the value is saved in. */
+  /**
+   * PHP `date()` format the value is saved in; when unset, `Y-m-d`,
+   * `Y-m-d H:i:s` with a `time` input, or `H:i:s` for `time`.
+   */
   format: string;
-  /** Maximum date/time. */
+  /** Latest allowed value. */
   max?: string;
-  /** Minimum date/time. */
+  /** Earliest allowed value. */
   min?: string;
   /** Hour notation (time only). */
   notation?: 12 | 24;
@@ -362,6 +409,7 @@ export interface KirbyDateFieldProps extends KirbyFieldProps {
  * `srcset` are set only when the model has an image file.
  *
  * @source src/Panel/Model.php
+ * @source src/Panel/User.php
  */
 export interface KirbyModelImage {
   /** Background behind the image or icon, such as `"pattern"` or `"black"`. */
@@ -380,38 +428,30 @@ export interface KirbyModelImage {
 }
 
 /**
- * Picker item data as returned by the Panel API.
+ * Picker item data as returned by the Panel API. An item the current user may
+ * not list, or whose model no longer exists, stands in with the stored
+ * reference as `id` and `uuid`, plain-string `text`, `info: null`,
+ * `link: false`, and empty `permissions`.
  *
  * @source src/Panel/Ui/Item.php
  * @source src/Panel/Ui/Item/ModelItem.php
  * @source src/Panel/Ui/Item/ProtectedItem.php
+ * @source src/Panel/Ui/Item/MissingItem.php
  */
 export interface KirbyPickerItem {
-  /**
-   * Model ID; the stored reference for an item the current user may not list.
-   */
   id: string;
-  /**
-   * Model UUID, `null` with UUIDs disabled; the stored reference for an item
-   * the current user may not list.
-   */
+  /** `null` with UUIDs disabled. */
   uuid: string | null;
   /** Display text, an `HtmlString` for every layout except `table`. */
   text: string | HtmlString;
-  /**
-   * Info text, an `HtmlString` for every layout except `table`; `null` for an
-   * item the current user may not list.
-   */
+  /** Info text, an `HtmlString` for every layout except `table`. */
   info: string | HtmlString | null;
   image: KirbyModelImage | null;
-  /** Panel path, `false` for an item the current user may not list. */
+  /** Panel path of the model. */
   link: string | false;
   /** Layout of the field the item belongs to. */
   layout: "list" | "cardlets" | "cards" | "table";
-  /**
-   * Current user's permissions on the model; an empty array for an item the
-   * current user may not list.
-   */
+  /** Current user's permissions on the model. */
   permissions: Record<string, boolean> | [];
   [key: string]: any;
 }
@@ -421,8 +461,11 @@ export interface KirbyPickerItem {
  * @source src/Form/Field/ModelPickerField.php
  * @source src/Form/Field/FilePickerField.php
  * @source src/Form/Field/PagePickerField.php
+ * @source src/Form/Mixin/ItemSize.php
+ * @source src/Form/Mixin/Min.php
+ * @source src/Blueprint/Normalizer.php
  */
-export interface KirbyPickerFieldProps extends KirbyFieldProps {
+export interface KirbyPickerFieldProps extends KirbyInputFieldProps {
   /** Picker type, also for blueprints that set `files`, `pages`, or `users`. */
   type: "filepicker" | "pagepicker" | "userpicker";
   /** Placeholder text when no items are selected. */
@@ -440,7 +483,10 @@ export interface KirbyPickerFieldProps extends KirbyFieldProps {
   link: boolean;
   /** Maximum number of items. */
   max?: number;
-  /** Minimum number of items. */
+  /**
+   * Minimum number of items; `1` when unset on a required field, and setting
+   * it makes the field required.
+   */
   min?: number;
   /** Whether multiple selection is allowed. */
   multiple: boolean;
@@ -466,12 +512,45 @@ export interface KirbyPickerFieldProps extends KirbyFieldProps {
 }
 
 /**
+ * Column of a files or pages list in `layout: table`.
+ *
+ * @source src/Form/Field/ModelListField.php
+ * @source src/Form/Field/PageListField.php
+ */
+export interface KirbyModelListColumn {
+  label: string;
+  width?: string;
+  /**
+   * Field type for display; `null` or absent when no field of the listed
+   * models' blueprint matches the column.
+   */
+  type?: string | null;
+  /** Whether the column shows on mobile. */
+  mobile?: boolean;
+  align?: "left" | "center" | "right";
+  /** Text shown before the value. */
+  before?: string;
+  /** Text shown after the value. */
+  after?: string;
+  /**
+   * Field the column reads its value from; absent on the built-in `image`,
+   * `title`, `info`, and `flag` columns unless the blueprint redefines them.
+   */
+  id?: string;
+  /** Further options the blueprint sets on the column. */
+  [key: string]: any;
+}
+
+/**
  * List of files or pages, by default the model's own. The entries load from
  * the field's own API endpoint, not from the props.
  *
  * @source src/Form/Field/ModelListField.php
  * @source src/Form/Field/FileListField.php
  * @source src/Form/Field/PageListField.php
+ * @source src/Form/Mixin/Batch.php
+ * @source src/Form/Mixin/ItemSize.php
+ * @source src/Blueprint/Normalizer.php
  */
 export interface KirbyModelListFieldProps extends KirbyFieldProps {
   /** List type, also for blueprints that set a `files` or `pages` section. */
@@ -483,7 +562,7 @@ export interface KirbyModelListFieldProps extends KirbyFieldProps {
   accept?: string;
   batch: boolean;
   /** Column definitions for `layout: table`; an empty array otherwise. */
-  columns: Record<string, Record<string, any>> | [];
+  columns: Record<string, KirbyModelListColumn> | [];
   /** Text for the empty state. */
   empty?: string;
   layout: "list" | "cardlets" | "cards" | "table";
@@ -496,7 +575,7 @@ export interface KirbyModelListFieldProps extends KirbyFieldProps {
   max?: number;
   /** Minimum number of entries. */
   min?: number;
-  /** The blueprint's `search` option. */
+  /** Whether the list offers a search to filter its entries. */
   searchable: boolean;
   /** Card size for `layout: cards`. */
   size: "tiny" | "small" | "medium" | "large" | "huge" | "full" | "auto";
@@ -510,7 +589,7 @@ export interface KirbyModelListFieldProps extends KirbyFieldProps {
 export interface KirbyColorOption {
   /** Color value (hex, rgb, or hsl). */
   value: string;
-  /** Display text. */
+  /** Label of the color; absent when the blueprint lists bare values. */
   text?: string;
 }
 
@@ -518,7 +597,7 @@ export interface KirbyColorOption {
  * @see https://getkirby.com/docs/reference/panel/fields/color
  * @source src/Form/Field/ColorField.php
  */
-export interface KirbyColorFieldProps extends KirbyFieldProps {
+export interface KirbyColorFieldProps extends KirbyInputFieldProps {
   type: "color";
   /** Whether to allow alpha transparency. */
   alpha: boolean;
@@ -534,9 +613,9 @@ export interface KirbyColorFieldProps extends KirbyFieldProps {
  * @source src/Form/Field/RangeField.php
  * @source src/Form/Field/NumberField.php
  */
-export interface KirbyRangeFieldProps extends KirbyFieldProps {
+export interface KirbyRangeFieldProps extends KirbyInputFieldProps {
   type: "range";
-  /** Maximum value (default: `100`). */
+  /** Maximum value, `100` when unset. */
   max: number;
   min?: number;
   /** Step increment, or `"any"` for any decimal value. */
@@ -565,8 +644,11 @@ export interface KirbyTagsSearch {
  * @see https://getkirby.com/docs/reference/panel/fields/multiselect
  * @source src/Form/Field/TagsField.php
  * @source src/Form/Field/MultiselectField.php
+ * @source src/Form/Field/OptionsField.php
+ * @source src/Form/Mixin/Min.php
+ * @source src/Form/Mixin/Separator.php
  */
-export interface KirbyTagsFieldProps extends KirbyFieldProps {
+export interface KirbyTagsFieldProps extends KirbyInputFieldProps {
   type: "tags" | "multiselect";
   /** Accepted input: any (`"all"`) or only the options (`"options"`). */
   accept: "all" | "options";
@@ -575,12 +657,15 @@ export interface KirbyTagsFieldProps extends KirbyFieldProps {
   layout?: "list";
   /** Maximum number of tags. */
   max?: number;
-  /** Minimum number of tags. */
+  /**
+   * Minimum number of tags; `1` when unset on a required field, and setting it
+   * makes the field required.
+   */
   min?: number;
   /** Predefined tag options. */
   options: KirbyOption[];
   search: boolean | KirbyTagsSearch;
-  /** Tag separator for storage (default: `,`). */
+  /** Separator between the stored tags, `,` when unset. */
   separator: string;
   /** Whether to sort tags by dropdown position. */
   sort: boolean;
@@ -590,7 +675,7 @@ export interface KirbyTagsFieldProps extends KirbyFieldProps {
  * @see https://getkirby.com/docs/reference/panel/fields/link
  * @source src/Form/Field/LinkField.php
  */
-export interface KirbyLinkFieldProps extends KirbyFieldProps {
+export interface KirbyLinkFieldProps extends KirbyInputFieldProps {
   type: "link";
   /** Allowed link types. */
   options: ("anchor" | "url" | "page" | "file" | "email" | "tel" | "custom")[];
@@ -613,13 +698,21 @@ export interface KirbyStructureColumn {
   before?: string;
   /** Text shown after the value. */
   after?: string;
+  /** Further options the blueprint sets on the column, such as `display`. */
+  [key: string]: any;
 }
 
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/structure
  * @source src/Form/Field/StructureField.php
+ * @source src/Form/Mixin/Batch.php
+ * @source src/Form/Mixin/Duplicate.php
+ * @source src/Form/Mixin/Min.php
+ * @source src/Form/Mixin/Prepend.php
+ * @source src/Form/Mixin/Sortable.php
+ * @source src/Form/Mixin/SortBy.php
  */
-export interface KirbyStructureFieldProps extends KirbyFieldProps {
+export interface KirbyStructureFieldProps extends KirbyInputFieldProps {
   type: "structure";
   /** Whether to enable batch editing. */
   batch: boolean;
@@ -635,7 +728,10 @@ export interface KirbyStructureFieldProps extends KirbyFieldProps {
   limit?: number;
   /** Maximum number of entries. */
   max?: number;
-  /** Minimum number of entries. */
+  /**
+   * Minimum number of entries; `1` when unset on a required field, and setting
+   * it makes the field required.
+   */
   min?: number;
   /** Whether to prepend new entries. */
   prepend: boolean;
@@ -649,7 +745,7 @@ export interface KirbyStructureFieldProps extends KirbyFieldProps {
  * @see https://getkirby.com/docs/reference/panel/fields/object
  * @source src/Form/Field/ObjectField.php
  */
-export interface KirbyObjectFieldProps extends KirbyFieldProps {
+export interface KirbyObjectFieldProps extends KirbyInputFieldProps {
   type: "object";
   /** Placeholder text when no data exists. */
   empty?: string;
@@ -660,8 +756,9 @@ export interface KirbyObjectFieldProps extends KirbyFieldProps {
 /**
  * @see https://getkirby.com/docs/reference/panel/fields/blocks
  * @source src/Form/Field/BlocksField.php
+ * @source src/Form/Mixin/Min.php
  */
-export interface KirbyBlocksFieldProps extends KirbyFieldProps {
+export interface KirbyBlocksFieldProps extends KirbyInputFieldProps {
   type: "blocks";
   /** Placeholder text when no blocks exist. */
   empty?: string;
@@ -672,7 +769,10 @@ export interface KirbyBlocksFieldProps extends KirbyFieldProps {
   group: string;
   /** Maximum number of blocks. */
   max?: number;
-  /** Minimum number of blocks. */
+  /**
+   * Minimum number of blocks; `1` when unset on a required field, and setting
+   * it makes the field required.
+   */
   min?: number;
 }
 
@@ -680,8 +780,10 @@ export interface KirbyBlocksFieldProps extends KirbyFieldProps {
  * @see https://getkirby.com/docs/reference/panel/fields/layout
  * @source src/Form/Field/LayoutField.php
  * @source src/Form/Field/BlocksField.php
+ * @source src/Form/Mixin/Min.php
+ * @source panel/src/components/Forms/Layouts/LayoutSelector.vue
  */
-export interface KirbyLayoutFieldProps extends KirbyFieldProps {
+export interface KirbyLayoutFieldProps extends KirbyInputFieldProps {
   type: "layout";
   /** Placeholder text when no layouts exist. */
   empty?: string;
@@ -694,11 +796,16 @@ export interface KirbyLayoutFieldProps extends KirbyFieldProps {
   layouts: string[][];
   /** Maximum number of layouts. */
   max?: number;
-  /** Minimum number of layouts. */
+  /**
+   * Minimum number of layouts; `1` when unset on a required field, and setting
+   * it makes the field required.
+   */
   min?: number;
   /** Size and column count of the layout selector. */
   selector?: {
+    /** Dialog size, `medium` when omitted. */
     size?: "small" | "medium" | "large" | "huge";
+    /** Number of columns, `3` when omitted. */
     columns?: number;
   };
   /** Fieldset for each layout's settings. */
@@ -709,8 +816,11 @@ export interface KirbyLayoutFieldProps extends KirbyFieldProps {
  * @see https://getkirby.com/docs/reference/panel/fields/writer
  * @source src/Form/Field/WriterField.php
  * @source src/Form/Field/ProseMirrorField.php
+ * @source src/Form/Field/StringField.php
+ * @source src/Form/Mixin/Counter.php
+ * @source panel/src/helpers/writer.ts
  */
-export interface KirbyWriterFieldProps extends KirbyFieldProps {
+export interface KirbyWriterFieldProps extends KirbyInputFieldProps {
   type: "writer";
   /** Whether to show the character counter. */
   counter: boolean;
@@ -740,12 +850,40 @@ export interface KirbyWriterFieldProps extends KirbyFieldProps {
 }
 
 /**
+ * @see https://getkirby.com/docs/reference/panel/fields/list
+ * @source src/Form/Field/ListField.php
+ * @source src/Form/Field/ProseMirrorField.php
+ * @source src/Form/Field/StringField.php
+ * @source panel/src/components/Forms/Input/ListInput.vue
+ */
+export interface KirbyListFieldProps extends KirbyInputFieldProps {
+  type: "list";
+  /**
+   * Allowed marks out of `bold`, `clear`, `code`, `email`, `italic`, `link`,
+   * `strike`, `sub`, `sup`, and `underline`, `true`/`false` for all or none,
+   * or an object keyed by mark where `false` excludes one.
+   */
+  marks?: string[] | boolean | Record<string, any>;
+  /** Maximum character length. */
+  maxlength?: number;
+  /** Minimum character length. */
+  minlength?: number;
+  /** Allowed list types out of `bulletList` and `orderedList`. */
+  nodes?: string[] | boolean | Record<string, any>;
+  spellcheck?: boolean;
+  /** Toolbar options `inline`, `marks`, and `nodes`; a boolean has no effect. */
+  toolbar?: boolean | Record<string, any>;
+}
+
+/**
  * Simplified structure field with a single field per entry.
  *
  * @see https://getkirby.com/docs/reference/panel/fields/entries
  * @source src/Form/Field/EntriesField.php
+ * @source src/Form/Mixin/Min.php
+ * @source src/Form/Mixin/Sortable.php
  */
-export interface KirbyEntriesFieldProps extends KirbyFieldProps {
+export interface KirbyEntriesFieldProps extends KirbyInputFieldProps {
   type: "entries";
   /** Placeholder text when no entries exist. */
   empty?: string;
@@ -753,7 +891,10 @@ export interface KirbyEntriesFieldProps extends KirbyFieldProps {
   field: KirbyFieldProps;
   /** Maximum number of entries. */
   max?: number;
-  /** Minimum number of entries. */
+  /**
+   * Minimum number of entries; `1` when unset on a required field, and setting
+   * it makes the field required.
+   */
   min?: number;
   /** Whether entries are sortable via drag & drop. */
   sortable: boolean;
@@ -786,12 +927,13 @@ export interface KirbyStatsReport {
  * @see https://getkirby.com/docs/reference/panel/fields/stats
  * @source src/Form/Field/StatsField.php
  * @source src/Panel/Ui/Stats.php
+ * @source panel/src/components/Layout/Stats.vue
  */
 export interface KirbyStatsFieldProps extends KirbyFieldProps {
   type: "stats";
   /** Reports, resolved from a query if the blueprint sets a string. */
   reports: KirbyStatsReport[];
-  /** Card size. */
+  /** Text size of each report's value, `large` when unset. */
   size: "tiny" | "small" | "medium" | "large" | "huge";
 }
 // #endregion
@@ -844,6 +986,7 @@ export interface KirbyLayoutValue {
 
 export type KirbyAnyFieldProps =
   | KirbyFieldProps
+  | KirbyInputFieldProps
   | KirbyTextFieldProps
   | KirbyTextareaFieldProps
   | KirbyNumberFieldProps
@@ -862,5 +1005,6 @@ export type KirbyAnyFieldProps =
   | KirbyBlocksFieldProps
   | KirbyLayoutFieldProps
   | KirbyWriterFieldProps
+  | KirbyListFieldProps
   | KirbyStatsFieldProps;
 // #endregion
