@@ -35,6 +35,7 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 - **redundant**: TS member without runtime backing.
 - **signatureMismatch**: wrong arity, param types, or return type, or a doc naming a shape the type rejects.
 - **soft**: JSDoc shape narrower than `any` / `Record<string, any>` widening allows; lower severity.
+- **Kirby bug** findings, as JSDoc Style defines them, file in the bucket the finding would otherwise take, the `note` or `rationale` opening with `Kirby bug` and naming the call that triggers it.
 - **Defaults members** are reported and patched on the `*Defaults` interface, their declaration site (`PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`).
 
 ## Skip – Never Report
@@ -70,7 +71,8 @@ Beyond these, the looseness ends where Kirby sets the keys: an `any` or `Record<
 
 - **Body describes runtime behavior.** What a plugin author passes, gets, and must avoid, never how Kirby produces it: "pass `admin` for an admin account", not "the installer sends `admin`". A mechanism stays only as its consequence – "pings while the Panel is online", not when the ping is scheduled. No data flow, no step-by-step retelling of the implementation, no list of which fields Kirby reads for what, no "as … reflects", no reason Kirby has for a value. PHP/JS class names, `Foo::bar()` references, factory names, controller names, internal property names (`$actions`/`$defaults`), file paths, and internal constants such as intervals or batch sizes – none belong in JSDoc prose. The default of an option the user sets stays. Provenance belongs in `@source`.
 - **A doc that repeats the name and the type is not written.** `/** Icon name */` above `icon?: string` earns nothing, and neither does `/** Files API */` above `files: PanelApiFiles`. Add the member bare.
-- **Length follows substance.** Edge cases, fallbacks, units, empty values, ordering, and gotchas a caller can hit stay however many lines they take. A trim cuts only filler ("Useful for…", "Can be used to…"), a pointer to a sibling, and mechanism; a trim that sends the reader to the source got worse.
+- **Length follows substance.** What correct use meets – edge cases, fallbacks, units, empty values, ordering, gotchas – stays however many lines it takes; what the runtime does with input the type or doc rules out goes unwritten. A trim cuts only filler ("Useful for…", "Can be used to…"), a pointer to a sibling, and mechanism; a trim that sends the reader to the source got worse.
+- **A Kirby bug stays out of the types and the JSDoc**, even where correct use meets it: runtime behavior that breaks Kirby's own contract – `$helper.upload()` never settles on a network error, because its error listener throws – not a disagreement the Authority Order settles. A doc line stating one is dropped.
 - **Each fact lives once, on the member it describes.** A default sits on its field, not again on the method that applies it; a fact true of every member sits on the interface.
 - **Prose ends with a period**, one line or twenty: `/** Text shown after the input. */`. A block-tag description that continues the signature ends at its last word and takes none – `@param event - Event name to listen for`, `@since 6.1.0`, `@source panel/src/panel/state.ts`. Once a tag's text runs to a sentence it is prose and is punctuated as prose.
 - **Values take backticks wherever a doc names them** – body, `@param`, `@returns`: ``@returns `true` if empty``.
