@@ -17,9 +17,8 @@ expectAssignable<KirbyLayoutColumnWidth>("1/4");
 expectAssignable<KirbyLayoutColumnWidth>("1/12");
 expectAssignable<KirbyLayoutColumnWidth>("12/12");
 
-expectNotAssignable<KirbyLayoutColumnWidth>("1/5");
-expectNotAssignable<KirbyLayoutColumnWidth>("full");
-expectNotAssignable<KirbyLayoutColumnWidth>("50%");
+expectAssignable<KirbyLayoutColumnWidth>("1/5");
+expectNotAssignable<KirbyLayoutColumnWidth>(12);
 
 expectAssignable<KirbyLayoutColumn>({
   id: "col-1",
@@ -72,7 +71,7 @@ expectNotAssignable<KirbyLayout>({
 
 expectNotAssignable<KirbyLayoutColumn>({
   id: "col-1",
-  width: "invalid",
+  width: 0.5,
   blocks: [],
 });
 // #endregion

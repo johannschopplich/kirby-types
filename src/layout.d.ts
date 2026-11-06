@@ -1,10 +1,11 @@
 import type { KirbyBlock } from "./blocks";
 
 /**
- * Column width as a fraction of the row, such as `"1/2"` for half.
+ * Column width as a fraction of the row, such as `"1/2"` for half. A
+ * blueprint's `layouts` may list any fraction, such as `"1/5"`.
  *
- * @see https://getkirby.com/docs/reference/panel/fields/layout#defining-your-own-layouts__available-widths
  * @source src/Cms/LayoutColumn.php
+ * @source src/Form/Field/LayoutField.php
  * @source panel/src/components/Layout/Grid.vue
  */
 export type KirbyLayoutColumnWidth =
@@ -35,30 +36,35 @@ export type KirbyLayoutColumnWidth =
   | "9/12"
   | "10/12"
   | "11/12"
-  | "12/12";
+  | "12/12"
+  | (string & {});
 
 /**
  * Column of a layout row.
  *
- * @see https://getkirby.com/docs/reference/panel/fields/layout
- *
  * @example
  * ```ts
  * const column: KirbyLayoutColumn = {
- *   id: "col-abc123",
+ *   id: "9d4b2f1e-6c3a-4e8b-a5d7-2f1c8e9b0a34",
  *   width: "1/2",
  *   blocks: [
- *     { id: "block-1", type: "text", isHidden: false, content: { text: "Hello" } }
+ *     {
+ *       id: "e2a7c5d9-1b4f-4a6e-8c3d-7f9e0b2a1c56",
+ *       type: "text",
+ *       isHidden: false,
+ *       content: { text: "Hello" }
+ *     }
  *   ]
  * };
  * ```
  *
  * @source src/Cms/LayoutColumn.php
+ * @source src/Cms/Item.php
  */
 export interface KirbyLayoutColumn {
   /** UUID v4. */
   id: string;
-  /** Fraction of the row, `"1/1"` if unset. */
+  /** `"1/1"` when unset. */
   width: KirbyLayoutColumnWidth;
   blocks: KirbyBlock[];
 }
@@ -66,38 +72,28 @@ export interface KirbyLayoutColumn {
 /**
  * Row of a layout field, split into columns.
  *
- * @see https://getkirby.com/docs/reference/panel/fields/layout
- *
  * @example
  * ```ts
  * const layout: KirbyLayout = {
- *   id: "layout-xyz789",
+ *   id: "3f8a1c6e-2d4b-4b9a-9e7f-5c0d1a2b3e48",
  *   attrs: { class: "highlight" },
  *   columns: [
- *     { id: "col-1", width: "1/2", blocks: [] },
- *     { id: "col-2", width: "1/2", blocks: [] }
- *   ]
- * };
- * ```
- *
- * @example
- * ```ts
- * // Layout with empty attrs (as array)
- * const simpleLayout: KirbyLayout = {
- *   id: "layout-abc",
- *   attrs: [],
- *   columns: [
- *     { id: "col-1", width: "1/1", blocks: [] }
+ *     { id: "7b2e9d4c-8a1f-4c3e-b6d5-0e9f2a1b4c67", width: "1/2", blocks: [] },
+ *     { id: "c5d0a3f7-4e2b-4d8c-a1e9-6b7f3c2d0e95", width: "1/2", blocks: [] }
  *   ]
  * };
  * ```
  *
  * @source src/Cms/Layout.php
+ * @source src/Cms/Item.php
  */
 export interface KirbyLayout {
   /** UUID v4. */
   id: string;
-  /** Values of the layout's settings fields. */
+  /**
+   * Values of the layout's settings fields; an empty array, not an object,
+   * when there are none.
+   */
   attrs: Record<string, any>;
   columns: KirbyLayoutColumn[];
 }
