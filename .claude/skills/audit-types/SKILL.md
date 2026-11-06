@@ -31,7 +31,7 @@ It empties `.review/.raw/` and writes `<KIRBY_TYPES_ROOT>/.review/source-map.jso
 - **`DIRTY-TREE`**: have the user commit or stash the changes `git status --short -- src test '*.d.ts'` lists, then re-probe.
 - **`SHALLOW-HISTORY`**: run the command the flag names and re-probe.
 - **`UNOWNED-TYPES`**: add each listed type to the [topology](references/topology.md) cluster whose symbols reference it, else to the cluster of its file whose modules hold its source, then re-probe.
-- **Only `DEAD-SOURCE`, or no flag**: launch without asking. A `deadSources` entry outside `src/` goes to the report, not to pass 2.
+- **Only `DEAD-SOURCE`, or no flag**: launch without asking. A `deadSources` entry for a declaration outside kirby-types' `src/` goes to the report, not to pass 2.
 
 ## Pass 1
 
@@ -66,7 +66,7 @@ Then restore every file `pnpm add` rewrote â€“ `git status --short` lists them â
 
 ## Report
 
-Per `.d.ts`: the ACTs applied, the patches skipped, and the DEFERs; then every pass-2 rationale opening with `Kirby bug`, ACTs included, with the call that triggers it; then the check results, the kirbyuse and sibling hits and the fixes left uncommitted in each repo, and the source map's `base`. Name a dropped agent as unchecked. Delete `.review/`.
+Per `.d.ts`: the ACTs applied, the patches skipped, and the DEFERs; then every pass-2 rationale opening with `Kirby bug`, ACTs included, with the call that triggers it; then the check results, the kirbyuse and sibling hits and the fixes left uncommitted in each repo, the `deadSources` entries for a declaration outside `src/`, and the source map's `base`. Name a dropped agent as unchecked. Delete `.review/`.
 
 ## Commit
 

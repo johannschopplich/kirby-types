@@ -318,7 +318,7 @@ if (dirty) {
 const dead = deadSources();
 if (dead.length > 0) {
   flags.push(
-    `DEAD-SOURCE: ${dead.length} @source path(s) their root lacks, listed under deadSources -> pass 2 re-points or drops them.`,
+    `DEAD-SOURCE: ${dead.length} @source path(s) their root lacks, listed under deadSources -> pass 2 re-points or drops those of a declaration under src/; the rest go to the report.`,
   );
 }
 
