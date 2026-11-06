@@ -38,20 +38,35 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
    * this.command("insert", (input, selection) => selection.toUpperCase());
    * ```
    */
-  command: (
-    name:
-      "dialog" | "insert" | "prepend" | "toggle" | "upload" | "wrap" | "file",
-    ...args: any[]
-  ) => void;
+  command: {
+    (name: "dialog", dialog: string): void;
+    (
+      name: "insert",
+      text:
+        string | ((input: HTMLTextAreaElement, selection: string) => string),
+    ): void;
+    (name: "prepend", text: string): void;
+    (name: "toggle" | "wrap", before: string, after?: string): void;
+    (name: "upload" | "file"): void;
+  };
 
   /** Closes all dropdowns. */
   close: () => void;
+
+  /**
+   * Runs the `click` of the first button whose `shortcut` is the given key
+   * and calls `preventDefault()` on the event; does nothing without a match.
+   */
+  shortcut: (shortcut: string, event: KeyboardEvent) => void;
 
   /**
    * Button names from the field's `buttons` option, or `true` for the
    * default toolbar. A `"|"` entry renders a separator.
    */
   buttons: string[] | true;
+
+  /** Button names of the default toolbar, used when `buttons` is `true`. */
+  default: string[];
 
   /**
    * Upload options from the field's `uploads` option, or `false` when
@@ -92,6 +107,7 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
  * @source panel/src/components/Dropdowns/Dropdown.vue
  * @source panel/src/components/Navigation/Button.vue
+ * @source panel/src/components/Navigation/Link.vue
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  */
 export interface TextareaButton {
@@ -132,7 +148,8 @@ export interface TextareaButton {
    *
    * Fires with Cmd/Ctrl + the key while the textarea has focus and no other
    * modifier is held. Matched against `KeyboardEvent.key`. Still runs `click`
-   * when `when` hides the button or `disabled` is set.
+   * when `when` hides the button or `disabled` is set. When several listed
+   * buttons share a key, only the first in toolbar order runs.
    *
    * @example
    * ```js
@@ -140,6 +157,12 @@ export interface TextareaButton {
    * ```
    */
   shortcut?: string;
+
+  /**
+   * Runs on `keydown` while the toolbar button itself has focus. `this` is
+   * the button object, not the toolbar, so `command()` is out of reach.
+   */
+  key?: (event: KeyboardEvent) => void;
 
   /**
    * Dropdown menu items. A `"-"` entry renders a separator.
