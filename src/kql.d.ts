@@ -4,8 +4,6 @@ import type { KirbyQuery } from "./query";
 /**
  * KQL (Kirby Query Language) query with an optional, nestable field selection.
  *
- * @see https://github.com/getkirby/kql
- *
  * @example
  * ```ts
  * // Simple query
@@ -32,14 +30,21 @@ import type { KirbyQuery } from "./query";
  *   }
  * };
  * ```
+ *
+ * @source src/Kql/Kql.php
  */
 export interface KirbyQuerySchema {
-  /** Query whose result the selection applies to. Defaults to `site`. */
+  /**
+   * Query whose result the selection applies to, `site` when omitted. Over the
+   * KQL API, a page or file query starts at a call, such as `page("about")`.
+   */
   query?: KirbyQuery;
   /**
    * Field names as an array or a comma-separated string, `"?"` for help on the
    * result, or an object that maps each key to `true`, `false` (skip), a query
-   * string, or a nested query.
+   * string, or a nested query. Without it, an object result comes with its
+   * default keys. On an array result, a comma-separated string fails and each
+   * key takes the array's value as-is.
    */
   select?:
     | string
@@ -51,9 +56,29 @@ export interface KirbyQuerySchema {
  * KQL alias of an object that a nested query can start at, besides the core
  * query roots.
  * @internal
+ *
+ * @source src/Kql/Interceptors/Cms/Blocks.php
+ * @source src/Kql/Interceptors/Blueprint/Blueprint.php
+ * @source src/Kql/Interceptors/Content/Content.php
+ * @source src/Kql/Interceptors/Content/Field.php
+ * @source src/Kql/Interceptors/Cms/Files.php
+ * @source src/Kql/Interceptors/Cms/Layout.php
+ * @source src/Kql/Interceptors/Cms/LayoutColumn.php
+ * @source src/Kql/Interceptors/Cms/LayoutColumns.php
+ * @source src/Kql/Interceptors/Cms/Layouts.php
+ * @source src/Kql/Interceptors/Content/Lock.php
+ * @source src/Kql/Interceptors/Toolkit/Obj.php
+ * @source src/Kql/Interceptors/Cms/Pages.php
+ * @source src/Kql/Interceptors/Panel/Model.php
+ * @source src/Kql/Interceptors/Cms/Role.php
+ * @source src/Kql/Interceptors/Cms/Structure.php
+ * @source src/Kql/Interceptors/Cms/Translation.php
+ * @source src/Kql/Interceptors/Content/Version.php
+ * @source src/Kql/Interceptors/Content/VersionId.php
  */
 type KirbyQueryObjectAlias =
   | "blocks"
+  | "blueprint"
   | "content"
   | "field"
   | "files"
@@ -71,12 +96,16 @@ type KirbyQueryObjectAlias =
   | "version"
   | "versionId";
 
-/** @internal */
+/**
+ * @internal
+ *
+ * @source src/Kql/Kql.php
+ */
 interface KirbyQueryNestedRequest extends Omit<KirbyQueryRequest, "query"> {
   /**
-   * Query whose result the selection applies to. Can also start at the parent
-   * object's KQL alias, such as `layout` or `field`, used without a call.
-   * Defaults to the field or method of the same key on the parent object.
+   * Query whose result the selection applies to, the parent object's field or
+   * method of the same key when omitted. Can also start at the parent object's
+   * KQL alias, such as `layout` or `field`, used without a call.
    */
   query?: Exclude<
     KirbyQuery<KirbyQueryObjectAlias>,
@@ -87,8 +116,6 @@ interface KirbyQueryNestedRequest extends Omit<KirbyQueryRequest, "query"> {
 /**
  * KQL request: a {@link KirbyQuerySchema} with optional pagination, or a set
  * of named queries.
- *
- * @see https://github.com/getkirby/kql
  *
  * @example
  * ```ts
@@ -106,6 +133,8 @@ interface KirbyQueryNestedRequest extends Omit<KirbyQueryRequest, "query"> {
  *   }
  * };
  * ```
+ *
+ * @source src/Kql/Kql.php
  */
 export interface KirbyQueryRequest extends KirbyQuerySchema {
   /**
@@ -122,11 +151,14 @@ export interface KirbyQueryRequest extends KirbyQuerySchema {
    */
   pagination?: {
     /**
-     * Maximum number of items to return. Defaults to the `pagination.limit`
-     * option, or `20`.
+     * Maximum number of items to return, at least `1`; `20` when omitted
+     * (unless the `pagination.limit` option is configured).
      */
     limit?: number;
-    /** Page number, 1-indexed. */
+    /**
+     * Page number, 1-indexed. A page past the last one fails the request with a
+     * `404` error.
+     */
     page?: number;
   };
 }
@@ -136,8 +168,6 @@ export interface KirbyQueryRequest extends KirbyQuerySchema {
  *
  * @typeParam T - Type of the result data
  * @typeParam Pagination - Whether `result` is `{ data, pagination }`
- *
- * @see https://github.com/getkirby/kql
  *
  * @example
  * ```ts
@@ -180,6 +210,9 @@ export interface KirbyQueryRequest extends KirbyQuerySchema {
  *   }
  * };
  * ```
+ *
+ * @source extensions/api.php
+ * @source src/Kql/Kql.php
  */
 export type KirbyQueryResponse<
   T = any,
@@ -189,9 +222,9 @@ export type KirbyQueryResponse<
     ? {
         data: T;
         pagination: {
-          /** Current page, 1-indexed. */
+          /** Current page, 1-indexed; `0` for an empty result. */
           page: number;
-          /** Total number of pages. */
+          /** Total number of pages; `0` for an empty result. */
           pages: number;
           /** Number of items skipped. */
           offset: number;

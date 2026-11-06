@@ -15,7 +15,7 @@ expectAssignable<KirbyQueryRequest>({
 });
 
 expectAssignable<KirbyQueryRequest>({
-  query: "page.children.listed",
+  query: 'page("blog").children.listed',
   select: ["id", "title", "slug", "content"],
 });
 
@@ -32,7 +32,7 @@ expectAssignable<KirbyQueryRequest>({
 
 // Nested query starting at a KQL object alias
 expectAssignable<KirbyQueryRequest>({
-  query: "page.layouts",
+  query: 'page("home").layouts',
   select: { columns: { query: "layout.columns", select: ["width"] } },
 });
 
@@ -84,7 +84,7 @@ expectNotAssignable<KirbyQueryRequest>({
 
 // An alias takes no call.
 expectNotAssignable<KirbyQueryRequest>({
-  query: "page.layouts",
+  query: 'page("home").layouts',
   select: { columns: { query: 'layout("x")', select: { width: true } } },
 } as const);
 
