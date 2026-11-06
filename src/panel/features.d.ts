@@ -50,8 +50,7 @@ export interface PanelActivationDefaults {
 }
 
 /**
- * License activation card; once closed, it stays hidden in the same tab,
- * across reloads.
+ * License activation card.
  *
  * @source panel/src/panel/activation.ts
  */
@@ -187,18 +186,29 @@ export interface PanelLanguage
 // #region Menu
 
 /**
+ * Badge on the top-right corner of a button.
+ *
+ * @source panel/src/components/Navigation/Button.vue
+ */
+export interface PanelBadge {
+  text: string | number;
+  /** Theme of the badge, the button's `theme` when omitted. */
+  theme?: string;
+}
+
+/**
  * Props of a menu button.
  *
  * Only `disabled`, `responsive`, and `type` are always present; unset props
  * are left out.
  *
+ * @source panel/src/components/Navigation/Button.vue
  * @source src/Panel/Ui/Button.php
  * @source src/Panel/Ui/Component.php
  * @source src/Panel/Menu.php
  */
 export interface PanelMenuButtonProps {
-  /** Badge shown on the top-right corner of the button. */
-  badge?: { text: string | number; theme?: string };
+  badge?: PanelBadge;
   class?: string;
   /**
    * Whether the entry is currently active; a string sets its `aria-current`
@@ -257,7 +267,7 @@ export interface PanelMenuItem {
    * Props of a button item; a custom component item sends only its `class`,
    * `style`, and own attributes.
    */
-  props: PanelMenuButtonProps;
+  props: Partial<PanelMenuButtonProps> & Record<string, any>;
 }
 
 /**
@@ -346,7 +356,11 @@ export interface PanelNotificationDefaults {
  */
 export interface PanelErrorObject {
   message?: string;
-  /** Extra details, listed by the error dialog that opens in view context. */
+  /**
+   * Extra details the error dialog lists in view context, each entry a
+   * `{ label, message }` object whose `message` is a string or a list of
+   * strings; `fatal()` ignores them.
+   */
   details?: Record<string, any>;
 }
 
@@ -402,10 +416,10 @@ export interface PanelNotification
   error: (error: unknown) => PanelNotificationDefaults;
 
   /**
-   * Creates a fatal error notification, displayed in an isolated iframe.
-   * A response that cannot be parsed shows its raw text. A plain object
-   * contributes its `message`; without one the notification reads
-   * `Something went wrong`.
+   * Creates a fatal error notification, rendering the message as an HTML
+   * document in an isolated iframe. A response that cannot be parsed shows
+   * its raw text. A plain object contributes its `message`; without one the
+   * notification reads `Something went wrong`.
    *
    * @param error - Error object, string, or plain `{ message }` object
    */
@@ -583,6 +597,7 @@ export interface PanelUser
  * @source panel/src/panel/view.ts
  * @source panel/src/components/Navigation/Breadcrumb.vue
  * @source src/Panel/Page.php
+ * @source src/Panel/Controller/View/PageViewController.php
  */
 export interface PanelBreadcrumbItem {
   label: string;
@@ -595,15 +610,16 @@ export interface PanelBreadcrumbItem {
    * Tooltip text, e.g. why a page's crumb is redacted. Falls back to `label`.
    */
   title?: string;
-  /** Icon for plugin-supplied breadcrumbs; core views never set it. */
   icon?: string;
 }
 
 /**
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
+ * @source panel/src/components/View/Topbar.vue
  * @source src/Panel/State.php
  * @source src/Panel/Area.php
+ * @source src/Panel/Ui/View.php
  */
 export interface PanelViewDefaults extends PanelFeatureDefaults {
   /**
@@ -620,7 +636,10 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
   path: string;
   /** Previous path for navigation and redirects. */
   referrer: string;
-  /** Default search type. */
+  /**
+   * Search type that `panel.search()` and the search dialog use when called
+   * without one.
+   */
   search: string;
   /** Server time in milliseconds when the view was sent. */
   timestamp: number;
@@ -732,9 +751,9 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   ) => Promise<PanelDrawerDefaults>;
 
   /**
-   * Switches drawer tabs.
-   * If `tab` is omitted, falls back to the first key of `props.tabs`.
-   * A `tab` name missing from `props.tabs` throws.
+   * Switches to `tab`, or to the first key of `props.tabs` when omitted,
+   * and fires the `tab` listener; does nothing when the drawer has no tabs
+   * and `tab` is omitted.
    *
    * @param tab - Tab name to switch to
    */
@@ -819,11 +838,7 @@ export interface PanelDropdownOption {
   /** Design theme, such as `"negative"` for a destructive entry. */
   theme?: string;
 
-  /**
-   * Colored badge on the option. Its `theme` falls back to the option's
-   * `theme`.
-   */
-  badge?: { text: string | number; theme?: string };
+  badge?: PanelBadge;
 
   [key: string]: any;
 }
@@ -833,10 +848,11 @@ export interface PanelDropdownOption {
  *
  * @source panel/src/panel/dropdown.ts
  * @source panel/src/panel/feature.ts
+ * @source panel/src/components/Dropdowns/Dropdown.vue
  * @source src/Panel/Response/DropdownResponse.php
  */
 export interface PanelDropdown extends PanelFeature<PanelFeatureDefaults> {
-  /** Closes the dropdown and resets state. */
+  /** Fires the `close` listener, then resets the dropdown state. */
   close: () => void;
 
   /**
@@ -901,11 +917,15 @@ export interface PanelContentEnv {
 export interface PanelContentLock {
   /** Whether the lock comes from a legacy `.lock` file. */
   isLegacy: boolean;
-  /** Whether content is locked by another user. */
+  /**
+   * Whether another user edited the content recently, in any language;
+   * always `false` with the `content.locking` option off.
+   */
   isLocked: boolean;
   /**
    * Lock modification timestamp. Initially an ISO 8601 string from the
    * server; after a successful save the Panel replaces it with a `Date`.
+   * `null` while the content has no unpublished changes.
    */
   modified: string | Date | null;
   /**
@@ -945,6 +965,7 @@ export interface PanelContentVersions {
  *
  * @source panel/src/panel/content.ts
  * @source panel/src/helpers/throttle.ts
+ * @source config/api/routes/changes.php
  */
 export interface PanelContent {
   /** `panel.dialog` while the lock dialog is open, `undefined` otherwise. */
@@ -1027,7 +1048,10 @@ export interface PanelContent {
    */
   lock: (env?: PanelContentEnv) => PanelContentLock;
 
-  /** Opens the lock dialog to inform about other edits. */
+  /**
+   * Opens the lock dialog to inform about other edits; closing it reloads
+   * the current view.
+   */
   lockDialog: (lock: PanelContentLock) => void;
 
   /**
@@ -1263,13 +1287,14 @@ export interface PanelUploadReplaceFile {
  * File in the upload queue.
  *
  * @source panel/src/panel/upload.ts
+ * @source panel/src/helpers/file.ts
  */
 export interface PanelUploadFile {
   /** Unique file ID. */
   id: string;
   /** Original File object. */
   src: File;
-  /** File name without extension. */
+  /** File name without extension; changing it renames the upload. */
   name: string;
   /** File extension without dot. */
   extension: string;
@@ -1306,6 +1331,7 @@ export interface PanelUploadFile {
  * @source panel/src/panel/upload.ts
  * @source src/Panel/Ui/Upload.php
  * @source src/Form/Field/ModelListField.php
+ * @source src/Form/Field/FileListField.php
  */
 export interface PanelUploadDefaults {
   /** Accepted file types. */
@@ -1342,7 +1368,10 @@ export interface PanelUploadDefaults {
   url: string | null;
 }
 
-type PanelUploadOptions = Partial<PanelUploadDefaults>;
+/** Upload options; a `null` value falls back to the default. */
+type PanelUploadOptions = {
+  [K in keyof PanelUploadDefaults]?: PanelUploadDefaults[K] | null;
+};
 
 /**
  * File upload with selection, progress, and completion. Large files upload in
@@ -1511,12 +1540,14 @@ export interface PanelEventEmitter {
  * - `keydown.cmd.s` emits `<context>.save`; `dialog.save` and `drawer.save`
  *   submit the open dialog or drawer
  * - `keydown.cmd.shift.f` and `keydown.cmd./` open the search dialog
- * - `clipboard.write` copies its payload and shows a success notification.
+ * - `clipboard.write` copies its payload, a non-string as pretty-printed
+ *   JSON, and shows a success notification.
  *
  * @source panel/src/panel/events.ts
  * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.ts
+ * @source panel/src/helpers/clipboard.ts
  */
 export interface PanelEvents extends PanelEventEmitter {
   /**

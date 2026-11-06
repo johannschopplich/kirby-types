@@ -26,6 +26,7 @@ import type {
   PanelDialog,
   PanelDialogDefaults,
   PanelDrawer,
+  PanelMenuItem,
   PanelNotification,
   PanelNotificationDefaults,
   PanelSearchResponse,
@@ -133,6 +134,9 @@ expectAssignable<Parameters<PanelUpload["pick"]>[0]>({
   on: { done: () => {} },
   immediate: true,
 });
+expectAssignable<Parameters<PanelUpload["pick"]>[0]>({ accept: null });
+expectAssignable<PanelMenuItem["props"]>({ class: "k-my-item", "data-id": 1 });
+expectType<string | undefined>(({} as PanelMenuItem["props"]).icon);
 // #endregion
 
 // #region Panel State
