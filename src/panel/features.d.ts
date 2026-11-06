@@ -327,6 +327,7 @@ export interface PanelMenu
 
 /**
  * @source panel/src/panel/notification.ts
+ * @source panel/src/components/View/Notifications.vue
  */
 export interface PanelNotificationDefaults {
   /** Context where notification appears. */
@@ -354,6 +355,7 @@ export interface PanelNotificationDefaults {
  * Plain error object that `error()` and `fatal()` accept. Its `message` is
  * shown, or `Something went wrong` without one.
  * @source panel/src/panel/notification.ts
+ * @source panel/src/components/Dialogs/ErrorDialog.vue
  */
 export interface PanelErrorObject {
   message?: string;
@@ -390,6 +392,7 @@ export interface PanelNotificationOptions {
  * auto-close timer.
  *
  * @source panel/src/panel/notification.ts
+ * @source panel/src/components/View/Notifications.vue
  */
 export interface PanelNotification
   extends PanelState<PanelNotificationDefaults>, PanelNotificationDefaults {
@@ -618,6 +621,8 @@ export interface PanelBreadcrumbItem {
  * @source panel/src/panel/view.ts
  * @source panel/src/panel/feature.ts
  * @source panel/src/components/View/Topbar.vue
+ * @source panel/src/panel/panel.ts
+ * @source panel/src/components/Dialogs/SearchDialog.vue
  * @source src/Panel/State.php
  * @source src/Panel/Area.php
  * @source src/Panel/Ui/View.php
@@ -690,6 +695,7 @@ export interface PanelDialogDefaults extends PanelModalDefaults {}
  *
  * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/modal.ts
+ * @source panel/src/helpers/history.ts
  * @source src/Panel/Response/DialogResponse.php
  */
 export interface PanelDialog extends PanelModal<PanelDialogDefaults> {
@@ -722,6 +728,7 @@ export interface PanelDrawerDefaults extends PanelModalDefaults {}
  *
  * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.ts
+ * @source panel/src/helpers/history.ts
  * @source src/Panel/Response/DrawerResponse.php
  */
 export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
@@ -779,6 +786,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
  * @source panel/src/components/Dropdowns/Dropdown.vue
  * @source panel/src/components/Navigation/Button.vue
  * @source panel/src/components/Navigation/Link.vue
+ * @source panel/src/components/Dropdowns/DropdownItem.vue
  */
 export interface PanelDropdownOption {
   /** Text shown in place of `text`. */
@@ -914,6 +922,7 @@ export interface PanelContentEnv {
  * Content lock state of a view.
  * @source panel/src/panel/content.ts
  * @source src/Content/Lock.php
+ * @source src/Cms/ModelWithContent.php
  */
 export interface PanelContentLock {
   /** Whether the lock comes from a legacy `.lock` file. */
@@ -930,8 +939,9 @@ export interface PanelContentLock {
    */
   modified: string | Date | null;
   /**
-   * User who holds the lock; both fields are `null` when no user is set or
-   * the user is not listable.
+   * User who last edited the content, or the current user when there are no
+   * unpublished changes; both fields are `null` when that user is unknown or
+   * not listable.
    */
   user: { id: string | null; email: string | null };
 }
@@ -967,6 +977,7 @@ export interface PanelContentVersions {
  * @source panel/src/panel/content.ts
  * @source panel/src/helpers/throttle.ts
  * @source config/api/routes/changes.php
+ * @source src/Content/LockedContentException.php
  */
 export interface PanelContent {
   /** `panel.dialog` while the lock dialog is open, `undefined` otherwise. */
@@ -1056,7 +1067,8 @@ export interface PanelContent {
   lockDialog: (lock: PanelContentLock) => void;
 
   /**
-   * Merges new values with current changes.
+   * Merges the values into the current changes version in place and returns
+   * that version.
    *
    * @throws Error if called for another view
    */
@@ -1085,7 +1097,12 @@ export interface PanelContent {
    */
   renewLock: (env?: PanelContentEnv) => void;
 
-  /** Sends a content API request. */
+  /**
+   * Posts the values to `<api>/changes/<method>`. A `save` request is silent,
+   * and `cancelSaving()` aborts it.
+   *
+   * @param method - Content action (default: `save`)
+   */
   request: (
     method?: "save" | "publish" | "discard",
     values?: Record<string, any>,
@@ -1094,7 +1111,7 @@ export interface PanelContent {
 
   /**
    * Saves the given values to the changes version without merging them into
-   * the view.
+   * the view. Cancels ongoing saves and any pending `saveLazy()` call first.
    *
    * @returns `true` if saved, `false` if locked or replaced by a newer save
    */
@@ -1195,6 +1212,7 @@ export interface PanelSearchOptions {
  * @source src/Panel/Controller/Search/ModelsSearchController.php
  * @source src/Panel/Response/SearchResponse.php
  * @source src/Panel/Response/JsonResponse.php
+ * @source src/Panel/Router.php
  */
 export interface PanelSearchResponse {
   /**
@@ -1372,7 +1390,10 @@ export interface PanelUploadDefaults {
   url: string | null;
 }
 
-/** Upload options; a `null` value falls back to the default. */
+/**
+ * Upload options; a `null` value falls back to the default.
+ * @source panel/src/panel/state.ts
+ */
 type PanelUploadOptions = {
   [K in keyof PanelUploadDefaults]?: PanelUploadDefaults[K] | null;
 };
@@ -1525,7 +1546,6 @@ export interface PanelUpload
  * @source panel/src/panel/events.ts
  */
 export interface PanelEventEmitter {
-  /** Emits an event with a single payload; further arguments are dropped. */
   emit: (event: string, payload?: any) => void;
   on: (event: string, handler: (...args: any[]) => void) => void;
   /**
@@ -1551,6 +1571,8 @@ export interface PanelEventEmitter {
  * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.ts
+ * @source panel/src/panel/panel.ts
+ * @source panel/src/panel/search.ts
  * @source panel/src/helpers/clipboard.ts
  */
 export interface PanelEvents extends PanelEventEmitter {
@@ -1662,11 +1684,7 @@ export interface PanelEvents extends PanelEventEmitter {
    */
   subscribe: () => void;
 
-  /**
-   * Detaches the listeners that `subscribe()` attached, except the
-   * capture-phase `blur`, `copy`, `focus`, and `paste` listeners on
-   * `document`, which stay attached.
-   */
+  /** Detaches the listeners that `subscribe()` attached. */
   unsubscribe: () => void;
 }
 // #endregion
