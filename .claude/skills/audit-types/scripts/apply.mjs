@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Apply the ACT patches of every `.review/.raw/<TS_FILE>.pass2.json`, its path
-// under `.raw/` that of the declaration file under `src/`, first match wins:
+// Apply the ACT patches of every `.review/.raw/<TS_FILE>.pass2.json` to
+// `src/<TS_FILE>`, unless a patch names its own `file`, first match wins:
 // an insertion already present is skipped, an `old_string` found once is
 // replaced, an `old_string` gone with its `new_string` present is skipped as
 // applied, and anything else – an ACT without a patch included – is skipped and

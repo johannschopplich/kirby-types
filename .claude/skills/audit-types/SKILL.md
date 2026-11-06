@@ -51,7 +51,7 @@ One verifier per `.d.ts` in the topology, with the [Pass 2 template](references/
 node <SKILL_DIR>/scripts/apply.mjs <KIRBY_TYPES_ROOT>
 ```
 
-It applies every ACT patch of `.review/.raw/<TS_FILE>.pass2.json` and lists the ones it skipped, for the report. Re-apply by hand a skipped patch whose target another verifier edited, against the edited text.
+It applies the ACT patches of every `.review/.raw/<TS_FILE>.pass2.json` and lists the ones it skipped, for the report. Re-apply by hand a skipped patch whose target another verifier edited, against the edited text.
 
 Run the checks on `<KIRBY_TYPES_ROOT>`'s own install. Done when `pnpm exec tsc --noEmit`, `pnpm test`, and `pnpm lint` exit clean and `node <SKILL_DIR>/scripts/check-versions.mjs <KIRBY_TYPES_ROOT>` lists no hit, with the `test/*.test-d.ts` assertions the new types broke updated in the same pass. A narrowed member fails `tsc` on an interface that extends it and overrides it wider: narrow that override too, or `Omit` the member there. A failure you cannot fix within its finding's claim: revert that patch and report it as skipped.
 

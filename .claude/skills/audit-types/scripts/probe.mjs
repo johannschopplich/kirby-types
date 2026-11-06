@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Probe the live Kirby checkout and write a fresh source map to
-// <KIRBY_TYPES_ROOT>/.review/source-map.json (emptying .review/.raw/ for pass 1).
+// Probe the live Kirby and KQL checkouts and the sibling repos, and write a
+// fresh source map to <KIRBY_TYPES_ROOT>/.review/source-map.json (emptying
+// .review/.raw/ for pass 1).
 // Volatile facts are discovered here, so topology.md holds only stable ones.
 //
 // Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> <KQL_ROOT> <SIBLINGS_ROOT>
@@ -151,7 +152,8 @@ function deadSources() {
     const text = fs.readFileSync(path.join(TYPES, file), "utf8");
     for (const [, source] of text.matchAll(/@source\s+(\S+)/g)) {
       const root = sourceRoot(file);
-      // A package path (`@types/…`) is not the root's to check.
+      // A path whose top directory the root lacks, such as a package path
+      // (`@types/…`), is not the root's to check.
       const topDir = source.split("/")[0];
       if (!fs.existsSync(path.join(root, topDir))) continue;
       if (!fs.existsSync(path.join(root, source)))
