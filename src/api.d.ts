@@ -3,8 +3,7 @@
  * errors.
  *
  * Model, collection, and upload endpoints return their payload under `data`,
- * not `result`. A file that fails to upload is reported under `message`, or
- * under `errors` when several files were sent, with `status` but no `code`.
+ * not `result`.
  *
  * @typeParam T - Type of the result data
  *
@@ -42,6 +41,9 @@
  * ```
  *
  * @source src/Api/Api.php
+ * @source src/Api/Collection.php
+ * @source src/Api/Model.php
+ * @source src/Api/Upload.php
  */
 export interface KirbyApiResponse<T = any> {
   /**
