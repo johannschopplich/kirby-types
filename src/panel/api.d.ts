@@ -74,7 +74,8 @@ export interface PanelApiSearchQuery {
   /**
    * Search term, or a term with search options: an options object, or the
    * fields to search as a `|`-separated string. An empty string returns every
-   * item.
+   * item; a term shorter than the `minlength` option (`2` when omitted), or an
+   * object without a `query`, returns none.
    */
   search?: string | { query?: string; options?: string | Record<string, any> };
   /** Maximum number of items searched – `paginate` limits the results. */
@@ -144,6 +145,8 @@ export interface PanelApiLoginData {
  * @source config/api/routes/auth.php
  * @source src/Api/Api.php
  * @source src/Auth/Status.php
+ * @source src/Auth/Auth.php
+ * @source src/Auth/Method/PasswordMethod.php
  */
 export interface PanelApiAuth {
   /**
@@ -192,6 +195,8 @@ export interface PanelApiAuth {
  * @source src/Cms/Find.php
  * @source src/Cms/App.php
  * @source src/Cms/FileActions.php
+ * @source src/Cms/Files.php
+ * @source src/Uuid/HasUuids.php
  */
 export interface PanelApiFiles {
   /**
@@ -339,8 +344,12 @@ export interface PanelApiPageCompact {
 export interface PanelApiPageCreateData {
   /** Page slug, derived from `content.title` when omitted. */
   slug?: string;
+  /** Template name, `default` when omitted. */
   template?: string;
-  /** Initial content. */
+  /**
+   * Initial content, run through the fields' save handlers; blueprint
+   * defaults fill the fields it omits.
+   */
   content?: Record<string, any>;
   /**
    * Content per language on a multi-language site. Each translation's
@@ -376,6 +385,9 @@ export interface PanelApiPageDuplicateOptions {
  * @source src/Form/Field/PageListField.php
  * @source src/Cms/PageActions.php
  * @source src/Guards/PageValidators.php
+ * @source config/api/models/Page.php
+ * @source config/api/routes/site.php
+ * @source config/api/routes/files.php
  */
 export interface PanelApiPages {
   /**
@@ -403,7 +415,7 @@ export interface PanelApiPages {
 
   /**
    * @param id - Page ID
-   * @param position - Sort position of a `listed` page
+   * @param position - Sort position of a `listed` page, starting at `1`; the end when omitted, and ignored unless the blueprint's `num` is `default`
    * @returns Updated page
    */
   changeStatus: (
@@ -587,7 +599,6 @@ export interface PanelApiRoles {
  * @source src/Cms/ModelWithContent.php
  * @source src/Form/Field/PageListField.php
  * @source config/api/collections.php
- * @source src/Http/Router.php
  */
 export interface PanelApiSite {
   blueprint: () => Promise<any>;
@@ -611,9 +622,6 @@ export interface PanelApiSite {
   get: (query?: Record<string, any>) => Promise<any>;
 
   /**
-   * Sends the content as a `POST`, which no `site` route accepts, so the call
-   * rejects – send `panel.api.patch("site", data)` instead.
-   *
    * @param data - Content data
    */
   update: (data: Record<string, any>) => Promise<any>;
@@ -694,6 +702,7 @@ export interface PanelApiTranslation {
  * @source config/api/routes/translations.php
  * @source src/Api/Api.php
  * @source config/api/collections.php
+ * @source config/api/models/Translation.php
  */
 export interface PanelApiTranslations {
   /**
@@ -940,7 +949,8 @@ export interface PanelApi {
   endpoint: string;
   /**
    * Whether requests other than `GET` and `POST` go out as `POST` with an
-   * `x-http-method-override` header.
+   * `x-http-method-override` header – the `api.methodOverride` option
+   * (`true` unless configured).
    */
   methodOverride: boolean;
 
@@ -956,7 +966,10 @@ export interface PanelApi {
   /** Number of API requests in flight. The loading indicator stops once it drops to `0`. */
   requests: number;
 
-  /** Code of the current content language; `null` without one. */
+  /**
+   * Content language code, refreshed at the start of each request; `null`
+   * without one.
+   */
   language: string | null;
 
   /**
