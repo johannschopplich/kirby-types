@@ -209,8 +209,7 @@ const allowsMajor = (range, major) =>
       new RegExp(`^\\s*(\\^|~|>=?|=)?\\s*v?${major}(?!\\d)`).test(alternative),
     );
 
-// Every repo under the siblings root that depends on kirby-types 2. An
-// unreadable entry is skipped.
+// Every repo under the siblings root that depends on kirby-types 2.
 function siblingRepos() {
   return fs
     .readdirSync(SIBLINGS)
@@ -231,18 +230,21 @@ function siblingRepos() {
 }
 
 // Every name the sibling repos import from kirby-types in a braced `import`,
-// with the repos that import it. An unreadable directory is skipped.
+// with the repos that import it.
 function siblingImports(repos) {
   const SKIP = new Set(["node_modules", "dist", ".git", ".nuxt", ".output"]);
   const imports = {};
-  const walk = (dir, repo) => {
-    let entries;
+  const read = (fn) => {
     try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
+      return fn();
     } catch {
-      return;
+      return null;
     }
-    for (const entry of entries) {
+  };
+  const walk = (dir, repo) => {
+    for (const entry of read(() =>
+      fs.readdirSync(dir, { withFileTypes: true }),
+    ) ?? []) {
       if (SKIP.has(entry.name)) continue;
       const p = path.join(dir, entry.name);
       if (entry.isDirectory()) walk(p, repo);
@@ -250,11 +252,11 @@ function siblingImports(repos) {
         /\.(ts|mts|tsx|vue)$/.test(entry.name) &&
         !entry.name.endsWith(".d.ts")
       )
-        for (const [, names] of fs
-          .readFileSync(p, "utf8")
-          .matchAll(
-            /import\s+(?:type\s+)?\{([^}]*)\}\s*from\s*["']kirby-types[^"']*["']/g,
-          ))
+        for (const [, names] of (
+          read(() => fs.readFileSync(p, "utf8")) ?? ""
+        ).matchAll(
+          /import\s+(?:type\s+)?\{([^}]*)\}\s*from\s*["']kirby-types[^"']*["']/g,
+        ))
           for (const name of names.split(",")) {
             const id = name
               .trim()

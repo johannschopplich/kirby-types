@@ -24,7 +24,7 @@ Use the absolute paths the user names; default the rest without asking to this c
 node <SKILL_DIR>/scripts/probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> <KQL_ROOT> <SIBLINGS_ROOT>
 ```
 
-It empties `.review/.raw/` and writes `<KIRBY_TYPES_ROOT>/.review/source-map.json`: the Kirby major and `@since` baseline, the audit's `base` commit, `modules` with each module's file types, `helperRegistrations`, `panelSingletons`, `deadSources`, `unownedTypes`, `siblingRepos` – every repo under `<SIBLINGS_ROOT>` on kirby-types 2 – and `siblingImports`, each kirby-types name those repos import, mapped to the repos that import it. Done when `modules` is non-empty. Then branch on `flags`:
+It empties `.review/.raw/` and writes `<KIRBY_TYPES_ROOT>/.review/source-map.json`: the Kirby major and `@since` baseline, the audit's `base` commit, `modules` with each module's file types, `helperRegistrations`, `panelSingletons`, `deadSources`, `unownedTypes`, `siblingRepos` – every repo under `<SIBLINGS_ROOT>` on kirby-types 2 – and `siblingImports`, each kirby-types name those repos import in a braced `import`, mapped to the repos that import it. Done when `modules` is non-empty. Then branch on `flags`:
 
 - **`KIRBY-MISMATCH` or `NOT-GIT`**: get a matching, full-history root from the user.
 - **`KQL-MISMATCH`**: get a KQL root on the branch that requires Kirby 6 from the user.
@@ -59,7 +59,7 @@ Run the checks on `<KIRBY_TYPES_ROOT>`'s own install. Done when `pnpm exec tsc -
 
 kirbyuse builds on these types. Install them into `<KIRBYUSE_ROOT>` as a tarball: `pnpm pack --pack-destination "$TMPDIR"` in `<KIRBY_TYPES_ROOT>`, then `pnpm add <tarball>` in `<KIRBYUSE_ROOT>`. Not `pnpm link`: it pulls in a second Vue copy that breaks kirbyuse's build. Then:
 
-- **Grep** its `src/` and README for every member pass 2 deleted, renamed, or retyped, and for comments naming kirby-types (`//.*kirby-types`), the marker of a workaround for a types gap. Grep every other repo `siblingRepos` lists for the same members.
+- **Grep** its `src/` and README for every member pass 2 deleted, renamed, or retyped, and for comments naming kirby-types (`//.*kirby-types`), the marker of a workaround for a types gap. Grep every other repo `siblingRepos` lists for the same members, outside `node_modules` and `dist`.
 - **Check** `pnpm test:types`, `pnpm lint`, and `pnpm build`.
 
 Then restore every file `pnpm add` rewrote – `git status --short` lists them – and `pnpm install`. Done when every hit is fixed or reported, the checks passed against the tarball, `dist/index.d.ts` still declares what `src/index.ts` hands its users (`window.panel` or the `kirby-types/panel-globals` re-export), and `git status --short` in `<KIRBYUSE_ROOT>` lists only the fixes beyond what it listed before the install.
