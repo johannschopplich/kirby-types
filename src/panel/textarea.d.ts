@@ -15,6 +15,7 @@ import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
  *
  * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  * @source panel/src/components/Forms/Toolbar/Toolbar.vue
+ * @source panel/src/components/Forms/Toolbar/index.ts
  * @source panel/src/components/Forms/Input/TextareaInput.vue
  * @source src/Form/Field/TextareaField.php
  * @source src/Form/Mixin/Upload.php
@@ -22,11 +23,11 @@ import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
 export interface TextareaToolbarContext extends PanelGlobalProperties {
   /**
    * Runs a command on the textarea:
-   * - `"dialog"`: Opens the toolbar dialog of the given name, such as `"link"`, `"email"`, or a plugin's `k-toolbar-<name>-dialog`; the submitted text replaces the selection.
+   * - `"dialog"`: Opens the toolbar dialog of the given name, such as `"link"`, `"email"`, or a plugin's `k-toolbar-<name>-dialog`. The dialog gets the selection as its `value` prop, `{ href, title }` – `href` is `null` unless the selection is a link – and the text it emits with `submit` replaces the selection.
    * - `"insert"`: Replaces the current selection with the given text, or with the return value of an `(input, selection)` callback.
    * - `"prepend"`: Prepends the given text and a space to the current selection.
    * - `"toggle"`: Toggles wrapping of the current selection in the given `before` text and the optional `after` text, `before` when omitted.
-   * - `"upload"`: Opens the native file picker and the upload dialog, then inserts the uploaded file's tag.
+   * - `"upload"`: Opens the native file picker and the upload dialog, then inserts the uploaded file's tag. The upload fails when `uploads` is `false`.
    * - `"wrap"`: Wraps the current selection in the given `before` text and the optional `after` text, `before` when omitted.
    * - `"file"`: Opens a dialog to select existing files and inserts their tags.
    *
