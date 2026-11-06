@@ -1135,8 +1135,7 @@ export interface Panel {
 
   /**
    * Opens the search dialog with the search type preselected, or runs the
-   * search when given a query. Without a type, both use the current view's
-   * search type.
+   * search when given a query.
    *
    * @param type - Search type, such as `"pages"`, `"files"`, or `"users"`
    * @param options - Search options (`page`, `limit`)
