@@ -23,11 +23,14 @@ trap 'git -C "$root" worktree remove --force "$worktree"; rm -rf "$tmp"' EXIT
 ln -s "$root/node_modules" "$worktree/node_modules"
 
 status=0
-shipped_check_versions=.claude/skills/audit-panel-types/scripts/check-versions.mjs
 for commit in $commits; do
   git -C "$worktree" checkout --quiet "$commit"
-  check_versions=$worktree/$shipped_check_versions
-  [ -f "$check_versions" ] || check_versions=$scripts/check-versions.mjs
+  check_versions=$scripts/check-versions.mjs
+  # Older commits ship the skill under its former name, audit-panel-types.
+  for skill in audit-types audit-panel-types; do
+    shipped=$worktree/.claude/skills/$skill/scripts/check-versions.mjs
+    if [ -f "$shipped" ]; then check_versions=$shipped; break; fi
+  done
   if output=$( (cd "$worktree" && pnpm exec tsc --noEmit -p . && pnpm -s test && pnpm -s lint && node "$check_versions" .) 2>&1); then
     echo "OK   $(git -C "$root" log --oneline -1 "$commit")"
   else

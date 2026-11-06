@@ -5,24 +5,26 @@ Substitute the `<placeholders>`: `<SKILL_DIR>` and the roots from SKILL.md, and 
 ## Pass 1
 
 ```
-ROLE: You review TypeScript augmentation types that describe Kirby Panel's runtime `window.panel`. Your one write is the JSON at OUTPUT PATH.
+ROLE: You review the kirby-types declarations of Kirby's runtime shapes: the Panel's `window.panel`, the field props it receives, and the content, query, and KQL shapes a frontend builds or reads. Your one write is the JSON at OUTPUT PATH.
 
 OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<CLUSTER>.json
 
-TS FILE TO REVIEW: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
+TS FILE TO REVIEW: <KIRBY_TYPES_ROOT>/src/<TS_FILE>
 
 RUBRIC: <SKILL_DIR>/references/rubric.md. Read it in full before step 1.
 
 KIRBY ROOT: <KIRBY_ROOT>. PHP authority at `src/`, Panel source at `panel/src/`, full git history for `@since`.
 
-SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json. Each module's file types and the `$helper`/singleton registrations.
+KQL ROOT: <KQL_ROOT>. The PHP authority of `kql.d.ts`.
+
+SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json. Each module's file types, the `$helper`/singleton registrations, and the `siblingImports`.
 
 SYMBOLS YOU OWN:
 <COMMA-SEPARATED LIST FROM TOPOLOGY>
 
 MODULES (extension-free):
 <the topology Modules bullet verbatim, or "none – PHP-rooted">
-PHP: <the topology PHP bullet verbatim, or "silent">. A path KIRBY ROOT lacks has moved: find it by resolver or method name, and cite that.
+PHP: <the topology PHP bullet verbatim, or "silent">. A path its root lacks – KIRBY ROOT, or KQL ROOT for `kql.d.ts` – has moved: find it by resolver or method name, and cite that.
 WATCH: <from topology: the file section's preamble, the cluster's preamble, and every cluster bullet besides Symbols, Modules and PHP – or "none">
 
 JOB:
@@ -44,7 +46,7 @@ OUTPUT (written to OUTPUT PATH; the reply carries only the summary and the count
     "soft": [{ "symbol": "...", "name": "...", "note": "..." }]
   },
   "intentional": [{ "symbol": "...", "name": "...", "note": "..." }],
-  "outOfScope": [{ "file": "<the .d.ts it belongs to>", "note": "..." }],
+  "outOfScope": [{ "file": "<the .d.ts it belongs to, its path under src/>", "note": "..." }],
   "summary": "1-3 sentences."
 }
 
@@ -54,19 +56,21 @@ OUTPUT (written to OUTPUT PATH; the reply carries only the summary and the count
 ## Pass 2
 
 ```
-ROLE: Pass-2 verifier for kirby-types Panel types. Re-verify the pass-1 findings and emit `{old_string, new_string}` patches for the confirmed ones. Your one write is the JSON at OUTPUT PATH.
+ROLE: Pass-2 verifier for kirby-types declarations. Re-verify the pass-1 findings and emit `{old_string, new_string}` patches for the confirmed ones. Your one write is the JSON at OUTPUT PATH.
 
 OUTPUT PATH: <KIRBY_TYPES_ROOT>/.review/.raw/<TS_FILE>.pass2.json
 
-TS FILE: <KIRBY_TYPES_ROOT>/src/panel/<TS_FILE>
+TS FILE: <KIRBY_TYPES_ROOT>/src/<TS_FILE>
 
 RUBRIC: <SKILL_DIR>/references/rubric.md. Read it in full before step 1.
 
 KIRBY ROOT: <KIRBY_ROOT>
 
+KQL ROOT: <KQL_ROOT>
+
 WATCH: <from topology: this file section's preamble and every Watch bullet of its clusters – or "none">
 
-SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json. Its `deadSources` entries for this file are its dead `@source` lines.
+SOURCE MAP: <KIRBY_TYPES_ROOT>/.review/source-map.json. Its `deadSources` entries for this file are its dead `@source` lines; its `siblingImports` name the types each sibling repo imports.
 
 PASS-1 FINDINGS, read each:
 - <KIRBY_TYPES_ROOT>/.review/.raw/<cluster1>.json

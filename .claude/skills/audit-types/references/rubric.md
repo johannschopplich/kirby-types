@@ -2,9 +2,9 @@
 
 ## Latest Release
 
-kirby-types types Kirby 6, for Vue 3 plugins. Its `@since` baseline lives in `scripts/kirby.mjs`, and the probe copies it into the source map.
+kirby-types types Kirby 6, for Vue 3 Panel plugins and for the frontends that read Kirby's content through the API or KQL. Its `@since` baseline lives in `scripts/kirby.mjs`, and the probe copies it into the source map.
 
-Types and docs describe Kirby 6's **latest release** and nothing beyond it. Until its first stable release, `v6/develop` stands in for the latest release; a prerelease tag is no release. An older Kirby 6 release shows only as `@since` on a member or declaration it lacked. The latest release's shape is the whole type:
+Types and docs describe Kirby 6's **latest release** and nothing beyond it. Until its first stable release, `v6/develop` stands in for the latest release; a prerelease tag is no release. KQL counts the same way: until its first release for Kirby 6, its `v6` branch stands in. An older Kirby 6 release shows only as `@since` on a member or declaration it lacked. The latest release's shape is the whole type:
 
 - A member a later release removed is deleted.
 - A member the latest release always sets is required, even where older releases omitted it.
@@ -65,13 +65,13 @@ Beyond these, the looseness ends where Kirby sets the keys: an `any` or `Record<
 ## `@since`
 
 - **Git from a full-history root.** `git log -S <symbol>` for the introducing commit, then `git tag --contains <commit> | grep -E '^[0-9]' | sort -V | head -1` for the earliest release. Read the file at that tag and at the previous release tag (`git show <tag>:<path>`) before writing the version: a patch release often carries the change (`6.1.1`, not `6.1.0` or `6.2.0`). A prerelease tag, or an untagged commit on the develop branch standing in for the latest release, dates to its release: a member first tagged `6.0.0-alpha.2` is present at the 6.0.0 baseline.
-- **Nothing present at the baseline carries `@since`.**
+- **Nothing present at the baseline carries `@since`.** Nor does anything in `kql.d.ts`: KQL versions apart from Kirby.
 
 ## JSDoc Style
 
-- **Body describes runtime behavior.** What a plugin author passes, gets, and must avoid: "pass `admin` for an admin account", not "the installer sends `admin`". A mechanism stays only as its consequence – "pings while the Panel is online", not when the ping is scheduled. The default of an option the user sets stays. PHP/JS class names, `Foo::bar()` references, factory and controller names, internal property names (`$actions`/`$defaults`), file paths, and internal constants such as intervals or batch sizes stay out of the prose; provenance belongs in `@source`.
+- **Body describes runtime behavior.** What a plugin or frontend author passes, gets, and must avoid: "pass `admin` for an admin account", not "the installer sends `admin`". A mechanism stays only as its consequence – "pings while the Panel is online", not when the ping is scheduled. The default of an option the user sets stays. PHP/JS class names, `Foo::bar()` references, factory and controller names, internal property names (`$actions`/`$defaults`), file paths, and internal constants such as intervals or batch sizes stay out of the prose; provenance belongs in `@source`.
 - **A doc that repeats the name and the type is not written.** `/** Icon name */` above `icon?: string` earns nothing, and neither does `/** Files API */` above `files: PanelApiFiles`. Add the member bare.
-- **A doc carries only actionable facts**: ones that change the code a plugin author writes – edge cases, fallbacks, units, empty values, ordering, gotchas – however many lines they take. Two stay out even so: what the runtime does with input the type or doc rules out, and a Kirby bug. A trim cuts what is not actionable – filler ("Useful for…"), a pointer to a sibling, how Kirby derives a value, a response fallback no caller branches on; a trim that sends the reader to the source got worse.
+- **A doc carries only actionable facts**: ones that change the code a plugin or frontend author writes – edge cases, fallbacks, units, empty values, ordering, gotchas – however many lines they take. Two stay out even so: what the runtime does with input the type or doc rules out, and a Kirby bug. A trim cuts what is not actionable – filler ("Useful for…"), a pointer to a sibling, how Kirby derives a value, a response fallback no caller branches on; a trim that sends the reader to the source got worse.
 - **A Kirby bug** is runtime behavior that breaks Kirby's own contract – a promise that never settles, a callback that fires twice – not a disagreement the Authority Order settles. It stays out of the types too, even where correct use meets it, and a doc line stating one is dropped.
 - **Each fact lives once, on the member it describes.** A default sits on its field, not again on the method that applies it; a fact true of every member sits on the interface.
 - **Defaults read one way**: an input's as "`x` when omitted", a config option's as "(`x` unless configured)", a `@param`'s as "(default: `x`)", a value the runtime fills in as "`x` when unset". No `@default` tag.
@@ -80,4 +80,4 @@ Beyond these, the looseness ends where Kirby sets the keys: an `any` or `Record<
 - **Callables open with a third-person verb, everything else takes a noun phrase.** `key: () => string` gets "Returns the state key, such as `"view"` or `"dialog"`."; `timestamp: number | null` gets "Server time in milliseconds when the view was sent; `null` on other features." A function-typed property is a callable and takes the verb.
 - **Bulleted lists** completing a colon lead-in are punctuated once, on the last item. Items keyed by a label are independent descriptions and each take a period. A list of literal values under a label is verbatim and takes none.
 - **Sections are `// #region Name` … `// #endregion`,** never a rule-line banner and never a bare label. Regions nest – `WriterUtils` and `PanelEvents` group members inside an interface that way.
-- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface: a file that backs a member's type or a doc fact on that declaration. File-only paths, no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see`. A **dead `@source`** is one the source map lists under `deadSources`: re-point it to the file that now holds the code, or drop it when the code is gone.
+- **`@source` carries provenance.** One `@source <file>` per authoritative file on the wrapping interface: a file that backs a member's type or a doc fact on that declaration. File-only paths relative to the Kirby root – in `kql.d.ts`, to the KQL root – with no `:line` suffix. Children inherit; never duplicate a parent's path. No `@see`. A **dead `@source`** is one the source map lists under `deadSources`: re-point it to the file that now holds the code, or drop it when the code is gone.

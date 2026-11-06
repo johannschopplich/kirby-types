@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Apply the ACT patches of every `.review/.raw/*.pass2.json`, first match wins:
+// Apply the ACT patches of every `.review/.raw/<TS_FILE>.pass2.json`, its path
+// under `.raw/` that of the declaration file under `src/`, first match wins:
 // an insertion already present is skipped, an `old_string` found once is
 // replaced, an `old_string` gone with its `new_string` present is skipped as
 // applied, and anything else – an ACT without a patch included – is skipped and
@@ -21,14 +22,10 @@ const skipped = [];
 let applied = 0;
 
 for (const report of fs
-  .readdirSync(rawDir)
+  .readdirSync(rawDir, { recursive: true })
   .filter((f) => f.endsWith(".pass2.json"))
   .sort()) {
-  const tsFile = path.join(
-    "src",
-    "panel",
-    report.replace(/\.pass2\.json$/, ""),
-  );
+  const tsFile = path.join("src", report.replace(/\.pass2\.json$/, ""));
   const { verifications = [], annotations = [] } = JSON.parse(
     fs.readFileSync(path.join(rawDir, report), "utf8"),
   );

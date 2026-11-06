@@ -1,6 +1,8 @@
 # Topology
 
-## base.d.ts
+One `##` section per declaration file, its path relative to `src/`; one `###` cluster per pass-1 agent.
+
+## panel/base.d.ts
 
 ### `base`
 
@@ -9,13 +11,13 @@
 - **PHP**: `src/Panel/Response/{View,Dialog,Drawer,Json}Response.php` (response keys)
 - **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer`.
 
-## features.d.ts
+## panel/features.d.ts
 
 Hybrid clusters: defaults-as-runtime fallacy.
 
 ### `features-stateonly`
 
-- **Symbols**: PanelTimer, PanelActivation*, PanelDrag*, PanelTheme*, PanelThemeValue, PanelLanguage*, PanelMenu*, PanelSystem*, PanelTranslation*, PanelUser*
+- **Symbols**: PanelTimer, PanelBadge, PanelActivation*, PanelDrag*, PanelTheme*, PanelThemeValue, PanelLanguage*, PanelMenu*, PanelSystem*, PanelTranslation*, PanelUser*
 - **Modules**: `panel/src/panel/{activation,drag,theme,language,menu,system,translation,user}`, `panel/src/helpers/timer`
 - **PHP**: `src/Panel/State.php` (`$translation`, `$system`, `$language`, `$user`, `$menu` resolvers)
 - **Watch**: `PanelSystem.title` stays `string` (PHP overrules Panel TS). Menu state is `items` of `{component, key, props}` UI-Button wrappers. `PanelLanguage` lacks `locale`/`url`: `state.set()` strips them before they reach `panel.language` – they belong on `PanelLanguageInfo`, not here.
@@ -52,7 +54,7 @@ Hybrid clusters: defaults-as-runtime fallacy.
 - **Modules**: `panel/src/panel/{dropdown,dialog,drawer,events,modal,feature}`
 - **PHP**: `src/Panel/State.php` (`$dialogs`/`$drawers`/`$dropdowns` config endpoints), `src/Panel/Response/{Dialog,Drawer}Response.php`
 
-## api.d.ts
+## panel/api.d.ts
 
 Signatures come from the JS/TS client, response shapes from each cluster's PHP: the route returns a model or collection, and its view sets the keys.
 
@@ -80,7 +82,7 @@ Signatures come from the JS/TS client, response shapes from each cluster's PHP: 
 - **Modules**: `panel/src/api/{translations,system}`
 - **PHP**: `config/api/routes/{translations,system}.php`, `config/api/models/{Translation,System}.php`
 
-## helpers.d.ts
+## panel/helpers.d.ts
 
 JS/TS source is the runtime contract. Every `helperRegistrations` entry of the source map is a `PanelHelpers` member, else a `missing` finding.
 
@@ -104,7 +106,7 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 - **Modules**: `panel/src/helpers/{debounce,throttle,isComponent,isUploadEvent,upload}`
 - **Watch**: `queue` and `regex` live outside `$helper` (regex is a side-effect augment of `RegExp.escape`). `isComponent` takes the Vue `app`.
 
-## libraries.d.ts
+## panel/libraries.d.ts
 
 ### `libraries`
 
@@ -112,7 +114,7 @@ JS/TS source is the runtime contract. Every `helperRegistrations` entry of the s
 - **Modules**: `panel/src/libraries/{index,colors,colors-checks,colors-func,dayjs,dayjs-iso,dayjs-pattern,dayjs-round,dayjs-validate,dayjs-locale,dayjs-parse}` (+ `@types/autosize`)
 - **Watch**: the Panel uses `declare module 'dayjs'` to globally augment `Dayjs`; kirby-types intentionally keeps a `Dayjs & PanelDayjsExtensions` intersection on chainable returns – note it as intentional divergence.
 
-## writer.d.ts
+## panel/writer.d.ts
 
 Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings (command `attrs`, `keys` accepting `Command`, `view` returning `MarkView`/`NodeView`).
 
@@ -131,7 +133,7 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 - **Symbols**: WriterNodeExtension
 - **Modules**: `panel/src/components/Forms/Writer/Node`, `panel/src/components/Forms/Writer/Nodes/*`
 
-## textarea.d.ts
+## panel/textarea.d.ts
 
 ### `textarea`
 
@@ -139,7 +141,7 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 - **Modules**: `panel/src/components/Forms/Toolbar/{TextareaToolbar,Toolbar,index,EmailDialog,LinkDialog}` (Vue components + index), `panel/src/components/Forms/Input/TextareaInput`, `panel/src/components/Dropdowns/Dropdown` (renders the dropdown items), `panel/src/components/Navigation/{Button,Link}` (render the buttons and their links)
 - **Watch**: the Toolbar is Vue, not migrated to TS – the `.vue` source is the contract. `plugins` only widens `textareaButtons` to `Record<string, unknown>` (no button-shape opinion).
 
-## index.d.ts
+## panel/index.d.ts
 
 ### `index-panel`
 
@@ -169,3 +171,66 @@ PHP-rooted. PHP `props()` / `toArray()` is the response shape.
 - **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,TabColumn,Navigation,Model,Button}, PanelFileViewProps, PanelUserViewProps
 - **PHP**: `src/Panel/{Model,Page,File,User,Site}.php`, `src/Panel/Controller/View/ModelViewController.php`, `src/Blueprint/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Button/ViewButton{,s}.php`, `src/Content/Lock.php`
 - **Watch**: `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. The Panel's `ViewState` in `view` is JS-side state; the props type follows the server payload.
+
+## blueprint.d.ts
+
+Field props as PHP sends them to the Panel: the field class's props are the shape, the Panel field components consume it.
+
+### `blueprint-fields`
+
+- **Symbols**: KirbyOption, KirbyFieldProps, KirbyFieldUploads, KirbyTextFieldProps, KirbyTextareaFieldProps, KirbyNumberFieldProps, KirbyOptionsFieldProps, KirbyToggleFieldProps, KirbyDateFieldProps, KirbyColorOption, KirbyColorFieldProps, KirbyRangeFieldProps, KirbyTagsSearch, KirbyTagsFieldProps, KirbyLinkFieldProps, KirbyAnyFieldProps
+- **Modules**: `panel/src/components/Forms/Field/*`
+- **PHP**: `src/Form/{Field,Fields,FieldOptions}.php`, `src/Form/Field/*.php`, `src/Form/Mixin/*.php`, `src/Option/*.php`
+- **Watch**: `KirbyAnyFieldProps` unions every field props interface of the file: a props interface added or deleted moves it too.
+
+### `blueprint-models`
+
+- **Symbols**: KirbyFieldsetTab, KirbyFieldsetProps, KirbyFieldsetGroup, KirbyModelImage, KirbyPickerItem, KirbyPickerFieldProps, KirbyModelListFieldProps, KirbyStructureColumn, KirbyStructureFieldProps, KirbyObjectFieldProps, KirbyBlocksFieldProps, KirbyLayoutFieldProps, KirbyWriterFieldProps, KirbyEntriesFieldProps, KirbyStatsReport, KirbyStatsFieldProps, KirbyBlockValue, KirbyLayoutColumnValue, KirbyLayoutValue
+- **Modules**: `panel/src/components/Forms/Field/*`, `panel/src/components/Forms/Blocks/*`, `panel/src/components/Forms/Layouts/*`
+- **PHP**: `src/Form/Field/*.php`, `src/Form/Mixin/*.php`, `src/Cms/{Fieldset,Fieldsets}.php`, `src/Panel/Ui/{Item,Stat,Stats}.php`, `src/Panel/Ui/Item/*.php`, `src/Panel/Model.php`
+- **Watch**: `KirbyBlockValue`, `KirbyLayoutColumnValue`, and `KirbyLayoutValue` type the `value` the Panel edits; `blocks.d.ts` and `layout.d.ts` type the content a frontend reads.
+
+## blocks.d.ts
+
+PHP-rooted: a block's `toArray()` is the shape a frontend reads through the API or KQL.
+
+### `blocks`
+
+- **Symbols**: KirbyCodeLanguage, KirbyDefaultBlocks, KirbyBlock, KirbyDefaultBlockType, KirbyDefaultBlock
+- **PHP**: `src/Cms/{Block,Blocks}.php`, `config/blocks/*/*.yml`, `src/Parsley/Schema/Blocks.php`
+- **Watch**: a default block's `content` keys follow the fields of its `config/blocks` blueprint.
+
+## layout.d.ts
+
+### `layout`
+
+- **Symbols**: KirbyLayoutColumnWidth, KirbyLayoutColumn, KirbyLayout
+- **Modules**: `panel/src/components/Layout/Grid` (the column widths)
+- **PHP**: `src/Cms/{Layout,Layouts,LayoutColumn,LayoutColumns}.php`
+
+## query.d.ts
+
+PHP-rooted: the grammar comes from the parser, the models from the query's default scope.
+
+### `query`
+
+- **Symbols**: KirbyQueryModel, KirbyQueryChain, KirbyQuery, ParseKirbyQuery
+- **PHP**: `src/Query/Parser/*.php`, `src/Query/AST/*.php`, `src/Query/Runners/Scope.php`, `src/Query/Query.php`, `src/Cms/ModelWithContent.php`, `src/Option/{OptionsQuery,OptionsApi}.php`
+- **Watch**: `ParseKirbyQuery` computes at the type level – review it against the grammar; `test/query.test-d.ts` pins its parse results.
+
+## api.d.ts
+
+### `api`
+
+- **Symbols**: KirbyApiResponse
+- **PHP**: `src/Api/Api.php` (the success and error envelopes)
+
+## kql.d.ts
+
+PHP-rooted in `<KQL_ROOT>`: a request body a frontend builds, and the response it reads.
+
+### `kql`
+
+- **Symbols**: KirbyQuerySchema, KirbyQueryRequest, KirbyQueryResponse
+- **PHP**: `<KQL_ROOT>`: `src/Kql/{Kql,Query,Interceptor}.php`, `src/Kql/Interceptors/**`, `extensions/*`
+- **Watch**: KQL wraps its result in `KirbyApiResponse` from `api.d.ts`; import it, never redeclare it.

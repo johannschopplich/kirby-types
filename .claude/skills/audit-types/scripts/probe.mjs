@@ -3,19 +3,22 @@
 // <KIRBY_TYPES_ROOT>/.review/source-map.json (emptying .review/.raw/ for pass 1).
 // Volatile facts are discovered here, so topology.md holds only stable ones.
 //
-// Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>
+// Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> <KQL_ROOT> <SIBLINGS_ROOT>
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { TARGET } from "./kirby.mjs";
 
-const [KIRBY, TYPES] = process.argv.slice(2);
-if (!KIRBY || !TYPES) {
+const [KIRBY, TYPES, KQL, SIBLINGS] = process.argv.slice(2);
+if (!KIRBY || !TYPES || !KQL || !SIBLINGS) {
   process.stderr.write(
-    "Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT>\n",
+    "Usage: node probe.mjs <KIRBY_ROOT> <KIRBY_TYPES_ROOT> <KQL_ROOT> <SIBLINGS_ROOT>\n",
   );
   process.exit(1);
 }
+
+// The `@source` paths of kql.d.ts are relative to the KQL root.
+const sourceRoot = (file) => (file === "src/kql.d.ts" ? KQL : KIRBY);
 
 // Every directory a topology.md **Modules** path sits in, scanned whole rather
 // than named per module since file extensions drift between releases: a module
@@ -26,6 +29,9 @@ const SCAN_DIRS = [
   "api",
   "helpers",
   "libraries",
+  "components/Forms/Field",
+  "components/Forms/Blocks",
+  "components/Forms/Layouts",
   "components/Forms/Writer",
   "components/Forms/Writer/Marks",
   "components/Forms/Writer/Nodes",
@@ -33,6 +39,7 @@ const SCAN_DIRS = [
   "components/Forms/Input",
   "components/Forms/Toolbar",
   "components/Dropdowns",
+  "components/Layout",
   "components/Navigation",
   "types",
 ];
@@ -62,14 +69,11 @@ function moduleMap() {
   );
 }
 
-function version() {
+function readJson(file) {
   try {
-    const j = JSON.parse(
-      fs.readFileSync(path.join(KIRBY, "composer.json"), "utf8"),
-    );
-    return j.version || "unknown";
+    return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch {
-    return "unknown";
+    return {};
   }
 }
 
@@ -133,7 +137,7 @@ function panelSingletons() {
   return [];
 }
 
-// Every `@source` path in the kirby-types declarations that the Kirby root lacks.
+// Every `@source` path in the kirby-types declarations that its root lacks.
 function deadSources() {
   const files = [
     ...fs.readdirSync(TYPES).filter((f) => f.endsWith(".d.ts")),
@@ -146,17 +150,18 @@ function deadSources() {
   for (const file of files.sort()) {
     const text = fs.readFileSync(path.join(TYPES, file), "utf8");
     for (const [, source] of text.matchAll(/@source\s+(\S+)/g)) {
-      // A package path (`@types/…`) is not Kirby's to check.
+      const root = sourceRoot(file);
+      // A package path (`@types/…`) is not the root's to check.
       const topDir = source.split("/")[0];
-      if (!fs.existsSync(path.join(KIRBY, topDir))) continue;
-      if (!fs.existsSync(path.join(KIRBY, source)))
+      if (!fs.existsSync(path.join(root, topDir))) continue;
+      if (!fs.existsSync(path.join(root, source)))
         dead.push(`${file}: ${source}`);
     }
   }
   return [...new Set(dead)];
 }
 
-// Every type exported from src/panel that no topology cluster lists under **Symbols**.
+// Every type exported from src/ that no topology cluster lists under **Symbols**.
 function unownedTypes() {
   const topology = fs.readFileSync(
     new URL("../references/topology.md", import.meta.url),
@@ -178,9 +183,9 @@ function unownedTypes() {
     owners.some((o) =>
       o.endsWith("*") ? name.startsWith(o.slice(0, -1)) : name === o,
     );
-  const dir = path.join(TYPES, "src/panel");
+  const dir = path.join(TYPES, "src");
   return fs
-    .readdirSync(dir)
+    .readdirSync(dir, { recursive: true })
     .filter((f) => f.endsWith(".d.ts"))
     .sort()
     .flatMap((f) =>
@@ -195,7 +200,74 @@ function unownedTypes() {
     );
 }
 
-const kirbyVersion = version();
+// Every repo under the siblings root that depends on kirby-types 2. An
+// unreadable entry is skipped.
+function siblingRepos() {
+  return fs
+    .readdirSync(SIBLINGS)
+    .sort()
+    .filter((repo) => {
+      try {
+        const root = path.join(SIBLINGS, repo);
+        if (fs.realpathSync(root) === fs.realpathSync(TYPES)) return false;
+        const pkg = readJson(path.join(root, "package.json"));
+        const range = { ...pkg.dependencies, ...pkg.devDependencies }[
+          "kirby-types"
+        ];
+        return Boolean(range) && /(^|[^\d.])2\./.test(range);
+      } catch {
+        return false;
+      }
+    });
+}
+
+// Every name the sibling repos import from kirby-types in a braced `import`,
+// with the repos that import it. An unreadable directory is skipped.
+function siblingImports(repos) {
+  const SKIP = new Set(["node_modules", "dist", ".git", ".nuxt", ".output"]);
+  const imports = {};
+  const walk = (dir, repo) => {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (SKIP.has(entry.name)) continue;
+      const p = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(p, repo);
+      else if (
+        /\.(ts|mts|tsx|vue)$/.test(entry.name) &&
+        !entry.name.endsWith(".d.ts")
+      )
+        for (const [, names] of fs
+          .readFileSync(p, "utf8")
+          .matchAll(
+            /import\s+(?:type\s+)?\{([^}]*)\}\s*from\s*["']kirby-types[^"']*["']/g,
+          ))
+          for (const name of names.split(",")) {
+            const id = name
+              .trim()
+              .replace(/^type\s+/, "")
+              .split(/\s+as\s+/)[0];
+            if (/^\w+$/.test(id)) (imports[id] ??= new Set()).add(repo);
+          }
+    }
+  };
+  for (const repo of repos) walk(path.join(SIBLINGS, repo), repo);
+  return Object.fromEntries(
+    Object.keys(imports)
+      .sort()
+      .map((id) => [id, [...imports[id]].sort()]),
+  );
+}
+
+const repos = siblingRepos();
+const kirbyVersion =
+  readJson(path.join(KIRBY, "composer.json")).version || "unknown";
+const kqlCms =
+  readJson(path.join(KQL, "composer.json")).require?.["getkirby/cms"] ?? "";
 const flags = [];
 
 if (!kirbyVersion.startsWith(`${TARGET.major}.`)) {
@@ -219,6 +291,12 @@ if (reach.unreadable) {
   );
 }
 
+if (!new RegExp(`\\^${TARGET.major}\\b`).test(kqlCms)) {
+  flags.push(
+    `KQL-MISMATCH: the KQL root requires getkirby/cms "${kqlCms || "nothing"}", not Kirby ${TARGET.major} -> ask for the KQL branch that does.`,
+  );
+}
+
 const dirty = run(
   `git -C "${TYPES}" status --porcelain -- src test '*.d.ts'`,
 ).trim();
@@ -231,7 +309,7 @@ if (dirty) {
 const dead = deadSources();
 if (dead.length > 0) {
   flags.push(
-    `DEAD-SOURCE: ${dead.length} @source path(s) the Kirby root lacks, listed under deadSources -> pass 2 re-points or drops them.`,
+    `DEAD-SOURCE: ${dead.length} @source path(s) their root lacks, listed under deadSources -> pass 2 re-points or drops them.`,
   );
 }
 
@@ -252,12 +330,15 @@ fs.writeFileSync(
       ...TARGET,
       base: run(`git -C "${TYPES}" rev-parse HEAD`).trim(),
       kirbyVersion,
+      kqlCms,
       historyReach: reach,
       flags,
       helperRegistrations: helperRegistrations(),
       panelSingletons: panelSingletons(),
       deadSources: dead,
       unownedTypes: unowned,
+      siblingRepos: repos,
+      siblingImports: siblingImports(repos),
       modules: moduleMap(),
     },
     null,
