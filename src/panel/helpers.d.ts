@@ -392,7 +392,8 @@ export interface PanelHelpersUrl {
    * Builds a full URL object with query parameters. A `URL` passed as `url`
    * is updated in place and returned.
    *
-   * @param origin - Base for a relative `url` (default: the base URL)
+   * @param origin - Base for a `url` that is not an `http(s)` URL (default:
+   *   the base URL)
    */
   buildUrl: (
     url?: string | URL,
@@ -425,14 +426,15 @@ export interface PanelHelpersUrl {
    * Prefixes a path with `origin`; a path starting with `http://` or
    * `https://` comes back unchanged.
    *
-   * @param origin - Base for a relative path (default: the base URL)
+   * @param origin - Base for the path (default: the base URL)
    */
   makeAbsolute: (path: string | URL, origin?: string | URL) => string;
 
   /**
    * Converts a URL string to a URL object; a `URL` instance comes back as-is.
    *
-   * @param origin - Base for a relative path (default: the base URL)
+   * @param origin - Base for a `url` that is not an `http(s)` URL (default:
+   *   the base URL)
    */
   toObject: (url: string | URL, origin?: string | URL) => URL;
 }

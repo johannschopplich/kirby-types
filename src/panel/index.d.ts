@@ -274,14 +274,16 @@ export interface PanelConfig {
   api: {
     /**
      * Whether API requests other than `GET` and `POST` are sent as `POST` with
-     * an `X-HTTP-Method-Override` header.
+     * an `x-http-method-override` header, from the `api.methodOverride` option
+     * (`true` unless configured).
      */
     methodOverride: boolean;
   };
   debug: boolean;
   /**
    * Whether the textarea toolbar writes links and emails as KirbyText tags
-   * instead of Markdown, from the `panel.kirbytext` option.
+   * instead of Markdown, from the `panel.kirbytext` option (`true` unless
+   * configured).
    */
   kirbytext: boolean;
   /**
@@ -290,8 +292,8 @@ export interface PanelConfig {
    */
   theme: string;
   /**
-   * Interface language code from the `panel.language` option, `"en"` unless
-   * configured. The active interface translation lives on
+   * Interface language code from the `panel.language` option (`"en"` unless
+   * configured). The active interface translation lives on
    * `panel.translation`.
    */
   translation: string;
@@ -418,6 +420,7 @@ interface PanelPermissionsUser {
 /**
  * Permissions of the logged-in user's role. A model's blueprint `options`
  * can override them – read a model view's `permissions` prop for that model.
+ * Empty while no user is logged in.
  *
  * @source panel/src/panel/panel.ts
  * @source src/Cms/AppPlugins.php
@@ -521,7 +524,7 @@ export interface PanelRequestResponse {
     /**
      * Parsed JSON body. On a Panel request, each `<key>` entry arrives renamed
      * to `key`, its strings wrapped as `HtmlString`. On an external request,
-     * `null` unless the response is valid JSON.
+     * `null` unless the response has a JSON content type and parses.
      */
     json: any;
     ok: boolean;
@@ -582,6 +585,7 @@ export interface PanelRequestResponse {
  * @source panel/public/js/plugins.js
  * @source panel/src/panel/plugins.ts
  * @source panel/src/panel/app.ts
+ * @source panel/src/components/Misc/Icons.vue
  */
 export interface PanelPluginExtensions {
   /**
@@ -924,7 +928,10 @@ export interface Panel {
     resize: ResizeObserver;
   };
 
-  /** Wraps a value as trusted, pre-escaped HTML. */
+  /**
+   * Wraps a value as trusted, pre-escaped HTML. `null` and `undefined`
+   * become an empty `HtmlString`; an `HtmlString` comes back as is.
+   */
   html: PanelHtml;
   // #endregion
 
@@ -1113,9 +1120,8 @@ export interface Panel {
   ) => Promise<PanelFeatures.PanelViewDefaults | false>;
 
   /**
-   * Sends a request through the Panel router. A cross-origin URL or a
-   * non-JSON response rejects with a redirect error, which `panel.error()`
-   * turns into a page navigation.
+   * Sends a request through the Panel router. Rejects on a non-OK status or
+   * an unparsable body.
    *
    * With `external: true`, sends a plain request to a third-party URL instead,
    * rejecting on a non-OK status.
@@ -1182,10 +1188,12 @@ export interface Panel {
   };
 
   /**
-   * Creates a URL object for a Panel path.
+   * Creates a URL object for a Panel path. A `URL` passed as `path` comes
+   * back itself, its query rewritten in place.
    *
    * @param path - Path or URL to build (default: empty string)
-   * @param origin - Base for a relative `path` (default: the base URL)
+   * @param origin - Base for a `path` that is not an `http(s)` URL (default:
+   *   the base URL)
    */
   url: (
     path?: string | URL,
@@ -1391,6 +1399,7 @@ export interface PanelViewPropsNavigation {
  * @source src/Panel/Controller/View/SiteViewController.php
  * @source src/Panel/Controller/View/FileViewController.php
  * @source src/Panel/Controller/View/UserViewController.php
+ * @source src/Panel/Model.php
  * @source src/Panel/Ui/View.php
  * @source src/Panel/Ui/Component.php
  * @source src/Blueprint/Tab.php
