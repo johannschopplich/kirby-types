@@ -260,6 +260,12 @@ export type PanelComponentExtension =
  *
  * @source panel/src/panel/panel.ts
  * @source src/Panel/State.php
+ * @source panel/src/api/index.ts
+ * @source panel/src/panel/theme.ts
+ * @source panel/src/panel/upload.ts
+ * @source panel/src/components/Forms/Toolbar/LinkDialog.vue
+ * @source panel/src/components/Forms/Toolbar/EmailDialog.vue
+ * @source src/Api/Upload.php
  */
 export interface PanelConfig {
   api: {
@@ -378,6 +384,7 @@ interface PanelPermissionsSite {
 /**
  * User management permissions (for other users).
  * @source src/Cms/Permissions.php
+ * @source src/Guards/UserPermissions.php
  */
 interface PanelPermissionsUsers {
   access: boolean;
@@ -395,6 +402,7 @@ interface PanelPermissionsUsers {
 /**
  * Current user permissions (for own account).
  * @source src/Cms/Permissions.php
+ * @source src/Guards/UserPermissions.php
  */
 interface PanelPermissionsUser {
   access: boolean;
@@ -409,14 +417,14 @@ interface PanelPermissionsUser {
 }
 
 /**
- * Permissions of the logged-in user's role. A model's blueprint `options`
- * can override them – read a model view's `permissions` prop for that model.
- * Empty while no user is logged in.
+ * Permissions of a role. A model's blueprint `options` can override them –
+ * read a model view's `permissions` prop for that model.
  *
  * @source panel/src/panel/panel.ts
  * @source src/Cms/AppPlugins.php
  * @source src/Cms/Permissions.php
- * @source src/Panel/State.php
+ * @source src/Plugin/Plugin.php
+ * @source src/Guards/ModelPermissions.php
  */
 export interface PanelPermissions {
   access: PanelPermissionsAccess;
@@ -482,6 +490,7 @@ export interface PanelSearches {
 /**
  * @source panel/src/panel/panel.ts
  * @source src/Panel/State.php
+ * @source src/Panel/Assets.php
  */
 export interface PanelUrls {
   api: string;
@@ -731,6 +740,8 @@ export interface PanelPlugins {
  * @source panel/src/panel/panel.ts
  * @source src/Cms/Language.php
  * @source src/Panel/State.php
+ * @source src/Http/Url.php
+ * @source src/Toolkit/Locale.php
  */
 export interface PanelLanguageInfo {
   /** Language code (e.g., `"en"`, `"de"`). */
@@ -871,6 +882,11 @@ export interface PanelHtml {
  * @source panel/src/panel/request.ts
  * @source panel/src/panel/search.ts
  * @source panel/src/panel/translation.ts
+ * @source panel/src/panel/events.ts
+ * @source panel/src/panel/feature.ts
+ * @source panel/src/panel/notification.ts
+ * @source panel/src/api/index.ts
+ * @source panel/src/components/Views/SearchView.vue
  * @source panel/src/helpers/url.ts
  * @source panel/public/js/plugins.js
  * @source src/Panel/State.php
@@ -991,6 +1007,10 @@ export interface Panel {
 
   multilang: boolean;
 
+  /**
+   * Permissions of the logged-in user's role; empty while no user is logged
+   * in.
+   */
   permissions: PanelPermissions;
 
   plugins: PanelPlugins;
@@ -1112,7 +1132,9 @@ export interface Panel {
 
   /**
    * Sends a request through the Panel router. Rejects on a non-OK status or
-   * an unparsable body.
+   * an unparsable body. A cross-origin URL or a response with a non-JSON
+   * content type rejects with a redirect error, which `error()` answers by
+   * navigating the browser to that URL.
    *
    * With `external: true`, sends a plain request to a third-party URL instead,
    * rejecting on a non-OK status.
@@ -1182,6 +1204,8 @@ export interface Panel {
    * back itself, its query rewritten in place.
    *
    * @param path - Path or URL to build (default: empty string)
+   * @param query - Query parameters. Nested objects become `parent[child]`
+   *   keys; `null` removes a param, even one already in `path`.
    * @param origin - Base for a `path` that is not an `http(s)` URL (default:
    *   the base URL)
    */
@@ -1246,34 +1270,6 @@ export interface PanelViewPropsButton {
 }
 
 /**
- * User who last edited the content, or the current user when there are no
- * unsaved changes. Both fields are `null` when that user is unknown or not
- * listable.
- * @source src/Content/Lock.php
- */
-export interface PanelViewPropsLockUser {
-  id: string | null;
-  email: string | null;
-}
-
-/**
- * Content lock state.
- * @source src/Content/Lock.php
- * @source src/Panel/Controller/View/ModelViewController.php
- * @source panel/src/panel/content.ts
- */
-export interface PanelViewPropsLock {
-  isLegacy: boolean;
-  isLocked: boolean;
-  /**
-   * ISO 8601 timestamp of the last change. The Panel replaces it with a
-   * `Date` after each save of the current view.
-   */
-  modified: string | Date | null;
-  user: PanelViewPropsLockUser;
-}
-
-/**
  * Content permissions for a view.
  * @source src/Guards/ModelGuards.php
  * @source src/Blueprint/PageBlueprint.php
@@ -1327,18 +1323,9 @@ export interface PanelViewPropsPermissions {
 }
 
 /**
- * Form values of the saved (`latest`) and the unsaved (`changes`) content in
- * the current language. `changes` equals `latest` when nothing is unsaved.
- * @source src/Panel/Controller/View/ModelViewController.php
- */
-export interface PanelViewPropsVersions {
-  latest: Record<string, any>;
-  changes: Record<string, any>;
-}
-
-/**
  * @source src/Blueprint/Normalizer.php
  * @source src/Blueprint/Tab.php
+ * @source src/Form/Fields.php
  */
 export interface PanelViewPropsTabColumn {
   width: string;
@@ -1392,6 +1379,8 @@ export interface PanelViewPropsNavigation {
  * @source src/Panel/Ui/Component.php
  * @source src/Blueprint/Tab.php
  * @source src/Blueprint/Tabs.php
+ * @source src/Panel/Ui/Button/ViewButtons.php
+ * @source src/Uuid/Uuids.php
  */
 export interface PanelViewProps {
   api: string;
@@ -1399,7 +1388,7 @@ export interface PanelViewProps {
   buttons: (PanelViewPropsButton | "-")[];
   id: string;
   link: string;
-  lock: PanelViewPropsLock;
+  lock: PanelFeatures.PanelContentLock;
   permissions: PanelViewPropsPermissions;
   /** Tab bar entries. `fields` lists the lowercase names of the tab's fields. */
   tabs: {
@@ -1411,7 +1400,7 @@ export interface PanelViewProps {
   }[];
   /** Absent when the `content.uuid` option is `false`. */
   uuid?: string;
-  versions: PanelViewPropsVersions;
+  versions: PanelFeatures.PanelContentVersions;
   /**
    * Active blueprint tab: the one the `tab` query parameter names, else the
    * first. Blueprint-level fields, sections or columns form a single tab, so
@@ -1461,6 +1450,7 @@ export interface PanelFileViewProps extends PanelViewProps {
  *
  * @source src/Panel/Controller/View/UserViewController.php
  * @source src/Panel/Model.php
+ * @source src/Panel/Controller/View/AccountViewController.php
  */
 export interface PanelUserViewProps extends PanelViewProps {
   avatar?: string;
