@@ -10,6 +10,8 @@ import type {
   PanelApi,
   PanelApiCollectionResponse,
   PanelApiRoleCompact,
+  PanelApiSearchQuery,
+  PanelApiSystemPanel,
   PanelModelData,
 } from "../src/panel/api";
 import type {
@@ -246,6 +248,17 @@ expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
 expectType<void>(panel.api.ping());
+expectType<Promise<PanelApiSystemPanel>>(panel.api.system.get());
+expectType<Promise<any>>(panel.api.system.get({ view: "login" }));
+expectType<Promise<any>>(
+  panel.api.system.get({} as Record<string, any> | undefined),
+);
+expectAssignable<PanelApiSearchQuery>({
+  search: { query: "a", options: { fields: ["title"], fuzzy: true } },
+});
+expectNotAssignable<PanelApiSearchQuery>({
+  search: { query: "a", options: { fields: "title" } },
+});
 expectType<Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>>(
   panel.api.roles.list(),
 );

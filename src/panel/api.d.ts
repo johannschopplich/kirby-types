@@ -8,7 +8,6 @@ import type { Panel, PanelLanguageInfo, PanelPermissions } from "./index";
 /**
  * @source panel/src/api/index.ts
  * @source panel/src/panel/request.ts
- * @source src/Panel/State.php
  */
 export interface PanelApiRequestOptions extends Omit<
   PanelRequestOptions,
@@ -19,12 +18,7 @@ export interface PanelApiRequestOptions extends Omit<
    * it falls back to the current content language.
    */
   language?: string | null;
-  /**
-   * HTTP method, `GET` when omitted; the verb helpers overwrite it. While the
-   * `api.methodOverride` option is on, as it is by default, any method other
-   * than `GET` and `POST` goes out as `POST` with the method in the
-   * `x-http-method-override` header.
-   */
+  /** HTTP method, `GET` when omitted; the verb helpers overwrite it. */
   method?: string;
   /**
    * Referrer path sent as the `x-panel-referrer` header. API requests send
@@ -40,6 +34,7 @@ export interface PanelApiRequestOptions extends Omit<
  * @source src/Api/Collection.php
  * @source src/Toolkit/Pagination.php
  * @source src/Cms/Pagination.php
+ * @source src/Api/Api.php
  */
 export interface PanelApiPagination {
   /**
@@ -63,8 +58,46 @@ export interface PanelApiCollectionResponse<T = Record<string, any>> {
 }
 
 /**
+ * Response of an action that has nothing to return but success.
+ * @source src/Api/Api.php
+ */
+export interface PanelApiOkResponse {
+  status: "ok";
+  message: "ok";
+  code: 200;
+}
+
+/**
+ * @source config/components.php
+ */
+export interface PanelApiSearchOptions {
+  /**
+   * Fields to search, compared case-insensitively; every field when omitted
+   * or empty.
+   */
+  fields?: string[];
+  /**
+   * Minimum length of the term and of each word searched, `2` when omitted;
+   * a shorter term finds nothing.
+   */
+  minlength?: number;
+  /**
+   * Score multiplier per lowercase field name, `1` for any field left out;
+   * a page's `id` and `title` default to `64`.
+   */
+  score?: Record<string, number>;
+  /** Words dropped from the term before searching. */
+  stopwords?: string[];
+  /** Whether to match whole words only, `false` when omitted. */
+  words?: boolean;
+  /** Any other option a custom `search` component reads. */
+  [key: string]: any;
+}
+
+/**
  * Search request body.
  * @source src/Api/Api.php
+ * @source src/Api/Collection.php
  * @source config/api/routes/users.php
  * @source config/api/routes/files.php
  * @source src/Cms/Collection.php
@@ -74,14 +107,19 @@ export interface PanelApiCollectionResponse<T = Record<string, any>> {
 export interface PanelApiSearchQuery {
   /**
    * Search term, or a term with search options: an options object, or the
-   * fields to search as a `|`-separated string.
+   * fields to search as a `|`-separated string. An empty string returns every
+   * item.
    */
-  search?: string | { query?: string; options?: string | Record<string, any> };
+  search?:
+    string | { query?: string; options?: string | PanelApiSearchOptions };
   /** Maximum number of items searched – `paginate` limits the results. */
   limit?: number;
   /** Number of items skipped before searching. */
   offset?: number;
-  /** Page size, or page and page size, to paginate the results by. */
+  /**
+   * Page size, or page and page size, to paginate the results by; the first
+   * page of `100` items when omitted.
+   */
   paginate?: number | PanelApiPagination;
 }
 // #endregion
@@ -115,6 +153,91 @@ export interface PanelModelData<TContent = Record<string, any>> {
   /** Title of a page or the site – files and users carry `name` instead. */
   title?: string;
   content: TContent;
+}
+// #endregion
+
+// #region Blueprint Types
+
+/**
+ * @source src/Blueprint/Normalizer.php
+ */
+export interface PanelApiBlueprintColumn {
+  /** Column width, `1/1` by default. */
+  width: string;
+  /**
+   * Field definitions from the blueprint, keyed by field name – not the
+   * resolved field props.
+   */
+  fields: Record<string, Record<string, any>>;
+  /** Any other key the blueprint sets on the column. */
+  [key: string]: any;
+}
+
+/**
+ * @source src/Blueprint/Tab.php
+ * @source src/Blueprint/Tabs.php
+ */
+export interface PanelApiBlueprintTab {
+  label: string;
+  /** `null` when the blueprint omits an icon. */
+  icon: string | null;
+  /**
+   * List of columns, or an object keyed by column name when the blueprint
+   * names its columns.
+   */
+  columns: PanelApiBlueprintColumn[] | Record<string, PanelApiBlueprintColumn>;
+  link: string;
+  name: string;
+  /** Any other key the blueprint sets on the tab. */
+  [key: string]: any;
+}
+
+/**
+ * Blueprint of the site or a user.
+ * @source config/api/models/SiteBlueprint.php
+ * @source config/api/models/UserBlueprint.php
+ * @source src/Blueprint/Blueprint.php
+ */
+export interface PanelApiBlueprint {
+  name: string;
+  options: Record<string, any>;
+  tabs: PanelApiBlueprintTab[];
+  title: string;
+}
+
+/**
+ * @source src/Blueprint/PageBlueprint.php
+ */
+export interface PanelApiPageBlueprintStatus {
+  label: string;
+  text: string | null;
+  icon: string;
+  theme: string;
+  /** Any other key the blueprint sets on the status. */
+  [key: string]: any;
+}
+
+/**
+ * @source config/api/models/PageBlueprint.php
+ * @source src/Blueprint/PageBlueprint.php
+ */
+export interface PanelApiPageBlueprint extends PanelApiBlueprint {
+  /** Sorting mode – `default`, `zero`, `date`, or a query for the number. */
+  num: string;
+  /**
+   * Preview URL from the blueprint, else whether the page may be
+   * previewed.
+   */
+  preview: string | boolean;
+  /**
+   * Status options of the page; `draft` is missing for the home and error
+   * page.
+   */
+  status: {
+    draft?: PanelApiPageBlueprintStatus;
+    unlisted?: PanelApiPageBlueprintStatus;
+    listed?: PanelApiPageBlueprintStatus;
+  };
 }
 // #endregion
 
@@ -157,10 +280,10 @@ export interface PanelApiAuth {
   >;
 
   /** Logs out the current user. */
-  logout: () => Promise<{ status: "ok"; message: "ok"; code: 200 }>;
+  logout: () => Promise<PanelApiOkResponse>;
 
   /** Pings the server to keep the session alive. */
-  ping: () => Promise<{ status: "ok"; message: "ok"; code: 200 }>;
+  ping: () => Promise<PanelApiOkResponse>;
 
   /** Gets the current user. */
   user: (query?: Record<string, any>) => Promise<any>;
@@ -180,7 +303,7 @@ export interface PanelApiAuth {
 // #region Files API
 
 /**
- * `parent` is the API path of the file's parent model – `site`,
+ * `parent` is the API path of the file's parent model – `site`, `account`,
  * `pages/blog+post`, or `users/abc` – or `null` to address the file by its
  * UUID or permalink alone, or a site file by its filename.
  *
@@ -202,7 +325,10 @@ export interface PanelApiFiles {
     to: string,
   ) => Promise<any>;
 
-  delete: (parent: string | null, filename: string) => Promise<any>;
+  delete: (
+    parent: string | null,
+    filename: string,
+  ) => Promise<PanelApiOkResponse>;
 
   get: (
     parent: string | null,
@@ -250,11 +376,19 @@ export interface PanelApiFiles {
 /**
  * Language data for `create()` and `update()`.
  * @source src/Cms/Language.php
+ * @source src/Toolkit/Locale.php
  */
 export interface PanelApiLanguageCreateData {
+  /** Language code, slugified on create. */
   code: string;
+  /** Display name, the code when omitted. */
   name?: string;
+  /** Text direction, `ltr` when omitted. */
   direction?: "ltr" | "rtl";
+  /**
+   * Whether the language is the default; the first language created always
+   * is.
+   */
   default?: boolean;
   /** Locale, or a locale per category keyed by `LC_*` constant name. */
   locale?: string | Record<string, string>;
@@ -276,6 +410,7 @@ export type PanelApiLanguage = Omit<PanelLanguageInfo, "hasCustomDomain">;
  * @source panel/src/api/languages.ts
  * @source config/api/routes.php
  * @source config/api/routes/languages.php
+ * @source src/Cms/Language.php
  */
 export interface PanelApiLanguages {
   create: (data: PanelApiLanguageCreateData) => Promise<PanelApiLanguage>;
@@ -283,7 +418,7 @@ export interface PanelApiLanguages {
   /**
    * @param code - Language code
    */
-  delete: (code: string) => Promise<any>;
+  delete: (code: string) => Promise<PanelApiOkResponse>;
 
   /**
    * @param code - Language code
@@ -307,6 +442,7 @@ export interface PanelApiLanguages {
 /**
  * @source config/api/models/Page.php
  * @source src/Cms/Page.php
+ * @source src/Uuid/Uuids.php
  */
 export interface PanelApiPageCompact {
   id: string;
@@ -357,6 +493,7 @@ export interface PanelApiPageDuplicateOptions {
 /**
  * @source panel/src/api/pages.ts
  * @source config/api/routes/pages.php
+ * @source config/api/collections.php
  * @source src/Cms/Page.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Form/Field/PageListField.php
@@ -367,7 +504,7 @@ export interface PanelApiPages {
   /**
    * @param parent - Page ID
    */
-  blueprint: (parent: string) => Promise<any>;
+  blueprint: (parent: string) => Promise<PanelApiPageBlueprint>;
 
   /**
    * Gets available blueprints for a page.
@@ -430,7 +567,10 @@ export interface PanelApiPages {
    * @param data - Delete options
    * @param data.force - Force delete even if the page has children or drafts
    */
-  delete: (id: string, data?: { force?: boolean }) => Promise<any>;
+  delete: (
+    id: string,
+    data?: { force?: boolean },
+  ) => Promise<PanelApiOkResponse>;
 
   /**
    * @param id - Page ID
@@ -537,9 +677,15 @@ export interface PanelApiRole extends PanelApiRoleCompact {
 }
 
 /**
+ * Only the roles the current user may access; `get()` rejects any other as
+ * not found.
+ *
  * @source panel/src/api/roles.ts
  * @source config/api/routes/roles.php
+ * @source config/api/collections.php
+ * @source src/Api/Collection.php
  * @source src/Cms/Roles.php
+ * @source src/Cms/Find.php
  */
 export interface PanelApiRoles {
   get: (name: string) => Promise<PanelApiRole>;
@@ -565,9 +711,11 @@ export interface PanelApiRoles {
  * @source config/api/routes/site.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Form/Field/PageListField.php
+ * @source config/api/collections.php
+ * @source src/Http/Router.php
  */
 export interface PanelApiSite {
-  blueprint: () => Promise<any>;
+  blueprint: () => Promise<PanelApiBlueprint>;
 
   /** Gets the page blueprints the site's `pagelist` fields accept. */
   blueprints: () => Promise<{ name: string; title: string }[]>;
@@ -623,6 +771,72 @@ export interface PanelApiSystemRegisterData {
 }
 
 /**
+ * System data in the `panel` view.
+ * @source config/api/models/System.php
+ * @source config/api/models/License.php
+ * @source src/Cms/System.php
+ * @source src/Cms/LicenseStatus.php
+ */
+export interface PanelApiSystemPanel {
+  /** ASCII character replacements for slugs. */
+  ascii: Record<string, string>;
+  /** Code of the default Panel interface language. */
+  defaultLanguage: string;
+  isInstalled: boolean;
+  /** Whether the Panel runs in a local development environment. */
+  isLocal: boolean;
+  /** Whether every folder in `requirements` is writable. */
+  isOk: boolean;
+  /** The `panel.kirbytext` option. */
+  kirbytext: boolean;
+  /** Languages of a multi-language site, empty otherwise. */
+  languages: PanelApiLanguage[];
+  /** License data; each key is `null` without access to the system area. */
+  license: {
+    /**
+     * License code, masked for a non-admin; `null` for a free license or
+     * without a license file.
+     */
+    code: string | null;
+    status:
+      | "active"
+      | "acknowledged"
+      | "demo"
+      | "inactive"
+      | "legacy"
+      | "missing"
+      | "unknown"
+      | null;
+    /** Label of the license type. */
+    type: string | null;
+  };
+  /**
+   * Locale of each interface translation, keyed by translation code
+   * (e.g. `{ de: "de_DE" }`).
+   */
+  locales: Record<string, string>;
+  multilang: boolean;
+  /** Whether each of these folders is writable. */
+  requirements: {
+    accounts: boolean;
+    content: boolean;
+    media: boolean;
+    sessions: boolean;
+  };
+  /** Site title, or the site blueprint's title when the site has none. */
+  site: string;
+  /** Slug character replacements of the current language. */
+  slugs: Record<string, string>;
+  /** Site title as stored, `null` when unset. */
+  title: string | null;
+  translation: PanelApiTranslation;
+  /** Current user, `null` for a guest. */
+  user: Record<string, any> | null;
+  /** Kirby version, `null` without access to the system area. */
+  version: string | null;
+}
+
+/**
  * @source panel/src/api/system.ts
  * @source config/api/routes/system.php
  * @source src/Api/Api.php
@@ -630,9 +844,13 @@ export interface PanelApiSystemRegisterData {
  */
 export interface PanelApiSystem {
   /**
-   * @param query - Query parameters, `{ view: "panel" }` when omitted
+   * Gets the system data in the `panel` view, or in the view or selection a
+   * query names.
    */
-  get: (query?: Record<string, any>) => Promise<any>;
+  get: {
+    (): Promise<PanelApiSystemPanel>;
+    (query?: Record<string, any>): Promise<any>;
+  };
 
   /**
    * Creates the first user and logs them in. Rejects once the Panel is
@@ -646,9 +864,7 @@ export interface PanelApiSystem {
    * Registers a license. Rejects without access to the system area, or for
    * an invalid license code or email.
    */
-  register: (
-    data: PanelApiSystemRegisterData,
-  ) => Promise<{ status: "ok"; message: "ok"; code: 200 }>;
+  register: (data: PanelApiSystemRegisterData) => Promise<PanelApiOkResponse>;
 }
 // #endregion
 
@@ -672,6 +888,7 @@ export interface PanelApiTranslation {
  * @source panel/src/api/translations.ts
  * @source config/api/routes/translations.php
  * @source src/Api/Api.php
+ * @source config/api/collections.php
  */
 export interface PanelApiTranslations {
   /**
@@ -696,6 +913,8 @@ export interface PanelApiTranslations {
  * @source config/api/models/File.php
  * @source config/api/models/FileVersion.php
  * @source src/Cms/User.php
+ * @source src/Cms/FileModifications.php
+ * @source src/Uuid/Uuids.php
  */
 export interface PanelApiUserCompact {
   /**
@@ -725,11 +944,17 @@ export interface PanelApiUserCompact {
  * @source src/Cms/UserActions.php
  * @source src/Cms/User.php
  * @source src/Cms/ModelWithContent.php
+ * @source src/Guards/UserValidators.php
+ * @source src/Auth/Passwords.php
  */
 export interface PanelApiUserCreateData {
   /** User ID, generated when omitted. */
   id?: string;
   email: string;
+  /**
+   * Password, checked against the `auth.passwords` policy; a user created
+   * without one has no password.
+   */
   password?: string;
   name?: string;
   /**
@@ -754,15 +979,17 @@ export interface PanelApiUserCreateData {
 /**
  * @source panel/src/api/users.ts
  * @source config/api/routes/users.php
+ * @source config/api/collections.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Form/Field/PageListField.php
  * @source src/Cms/User.php
+ * @source src/Cms/UserActions.php
  */
 export interface PanelApiUsers {
   /**
    * @param id - User ID
    */
-  blueprint: (id: string) => Promise<any>;
+  blueprint: (id: string) => Promise<PanelApiBlueprint>;
 
   /**
    * Gets the page blueprints a user's `pagelist` fields accept.
@@ -819,12 +1046,12 @@ export interface PanelApiUsers {
   /**
    * @param id - User ID
    */
-  delete: (id: string) => Promise<any>;
+  delete: (id: string) => Promise<PanelApiOkResponse>;
 
   /**
    * @param id - User ID
    */
-  deleteAvatar: (id: string) => Promise<any>;
+  deleteAvatar: (id: string) => Promise<PanelApiOkResponse>;
 
   /**
    * @param id - User ID
@@ -839,14 +1066,14 @@ export interface PanelApiUsers {
    */
   link: (id: string, path?: string) => string;
 
-  /** Queries users through the `users/search` endpoint. */
   list: (
     query?: PanelApiSearchQuery,
   ) => Promise<PanelApiCollectionResponse<PanelApiUserCompact>>;
 
   /**
    * Returns the roles the user can be switched to, as select options – only
-   * their current role when the current user may not change it.
+   * their current role when the current user may not change it, and none
+   * when that role is not accessible to them.
    *
    * @param id - User ID
    */
@@ -854,7 +1081,6 @@ export interface PanelApiUsers {
     id: string,
   ) => Promise<{ info: string; text: string; value: string }[]>;
 
-  /** Searches users – the same request as `list()`. */
   search: (
     query?: PanelApiSearchQuery,
   ) => Promise<PanelApiCollectionResponse<PanelApiUserCompact>>;
@@ -898,12 +1124,18 @@ export interface PanelApiUsers {
  *
  * @source panel/src/api/index.ts
  * @source panel/src/panel/request.ts
+ * @source src/Panel/State.php
  */
 export interface PanelApi {
   /** CSRF token for requests, read live from the system. */
   readonly csrf: string;
 
+  /** API URL, without a trailing slash. */
   endpoint: string;
+  /**
+   * Whether requests other than `GET` and `POST` go out as `POST` with an
+   * `x-http-method-override` header.
+   */
   methodOverride: boolean;
 
   /** Panel instance the client belongs to, the same object as `window.panel`. */
@@ -918,10 +1150,7 @@ export interface PanelApi {
   /** Number of API requests in flight. The loading indicator stops once it drops to `0`. */
   requests: number;
 
-  /**
-   * Code of the Panel's active language, sent with each request; `null`
-   * without an active language.
-   */
+  /** Code of the current content language; `null` without one. */
   language: string | null;
 
   /**
