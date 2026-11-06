@@ -83,7 +83,7 @@ JOB, for every pass-1 finding, OUT OF SCOPE entry, and dead `@source` line:
 1. Re-verify against the authority the rubric and WATCH name. Re-read the cited source for each ACT, and DEFER when the re-read leaves it ambiguous.
 2. Decide:
    - **ACT**: confirmed and the fix is straightforward. A narrowing an extending interface overrides wider carries a patch narrowing that override too, or `Omit`ting the member there.
-   - **DEFER**: real, but costs more than it gives (deep PHP types, server-hydrated nullability no consumer observes). A Kirby bug is a DEFER too; a doc line stating one, or what the runtime does with input the type or doc rules out, is an ACT whose patch drops it.
+   - **DEFER**: real, but costs more than it gives (deep PHP types, server-hydrated nullability no consumer observes). A Kirby bug is a DEFER too; a doc line the rubric's JSDoc Style keeps out is an ACT whose patch drops it.
    - **DISMISS**: pass 1 was wrong.
 3. A rename is ACT only when approved; otherwise DEFER with `user did not approve rename`.
 4. Merge findings several clusters report for the same member into one patch. A new type two `.d.ts` files need is declared by the verifier of the file whose cluster lists its source module; the other verifier only imports it and names the import in `summary`. Patch another `.d.ts` only for an import or re-export.
