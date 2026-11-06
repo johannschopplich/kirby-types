@@ -6,7 +6,7 @@ One `##` section per declaration file, its path relative to `src/`; one `###` cl
 
 ### `base`
 
-- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalDefaults, PanelModalEvent, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelResponseActions, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
+- **Symbols**: PanelState, PanelFeature, PanelFeatureDefaults, PanelModal, PanelModalDefaults, PanelModalListeners, PanelModalSubmitResponse, PanelHistory, PanelHistoryMilestone, PanelResponseActions, PanelEventCallback, PanelEventListenerMap, PanelEventListeners, PanelRequestOptions, PanelRefreshOptions, PanelContext, NotificationType, NotificationTheme
 - **Modules**: `panel/src/panel/{state,feature,modal,listeners,request,notification}`, `panel/src/helpers/history`
 - **PHP**: `src/Panel/Response/{View,Dialog,Drawer,Json}Response.php` (response keys)
 - **Watch**: request emits `x-panel`, `x-panel-globals`, `x-panel-referrer`.
@@ -168,7 +168,7 @@ PHP-rooted. PHP `toArray()` is the shape; JS only consumes the JSON.
 
 PHP-rooted. PHP `props()` / `toArray()` is the response shape.
 
-- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,TabColumn,Navigation,Button}, PanelFileViewProps, PanelUserViewProps
+- **Symbols**: PanelViewProps, PanelViewProps{Permissions,Tab,TabColumn,Navigation,Button}, PanelFileViewProps, PanelUserViewProps
 - **PHP**: `src/Panel/{Model,Page,File,User,Site}.php`, `src/Panel/Controller/View/ModelViewController.php`, `src/Blueprint/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Button/ViewButton{,s}.php`, `src/Content/Lock.php`
 - **Watch**: `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. The Panel's `ViewState` in `view` is JS-side state; the props type follows the server payload.
 
@@ -214,7 +214,7 @@ PHP-rooted: the grammar comes from the parser, the models from the query's defau
 
 ### `query`
 
-- **Symbols**: KirbyQueryModel, KirbyQueryChain, KirbyQuery, ParseKirbyQuery
+- **Symbols**: KirbyQueryRoot, KirbyQueryChain, KirbyQuery, ParseKirbyQuery
 - **PHP**: `src/Query/Parser/*.php`, `src/Query/AST/*.php`, `src/Query/Runners/Scope.php`, `src/Query/Query.php`, `src/Cms/ModelWithContent.php`, `src/Option/{OptionsQuery,OptionsApi}.php`
 - **Watch**: `ParseKirbyQuery` computes at the type level – review it against the grammar; `test/query.test-d.ts` pins its parse results.
 
