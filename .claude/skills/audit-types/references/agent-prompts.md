@@ -43,7 +43,8 @@ OUTPUT (written to OUTPUT PATH; the reply carries only the summary and the count
     "missing": [{ "symbol": "...", "name": "...", "where": "...", "note": "..." }],
     "redundant": [{ "symbol": "...", "name": "...", "note": "..." }],
     "signatureMismatch": [{ "symbol": "...", "name": "...", "tsSig": "...", "sourceSig": "...", "note": "..." }],
-    "soft": [{ "symbol": "...", "name": "...", "note": "..." }]
+    "soft": [{ "symbol": "...", "name": "...", "note": "..." }],
+    "loosen": [{ "symbol": "...", "name": "...", "note": "..." }]
   },
   "intentional": [{ "symbol": "...", "name": "...", "note": "..." }],
   "outOfScope": [{ "file": "<the .d.ts it belongs to, its path under src/>", "note": "..." }],
@@ -76,7 +77,7 @@ PASS-1 FINDINGS, read each:
 - <KIRBY_TYPES_ROOT>/.review/.raw/<cluster1>.json
 - ...
 
-A pass-1 finding is every entry of `tighten`, `renameCandidates`, `annotations`, and each `findings` bucket; a pass-1 `annotations` entry becomes a pass-2 `annotations` entry. `intentional` entries need none.
+A pass-1 finding is every entry of `tighten`, `renameCandidates`, `annotations`, and each `findings` bucket, `loosen` included; a pass-1 `annotations` entry becomes a pass-2 `annotations` entry. `intentional` entries need none.
 
 OUT OF SCOPE: <every pass-1 `outOfScope` entry whose `file` is this file, or "none">
 
@@ -106,7 +107,7 @@ OUTPUT (written to OUTPUT PATH; the reply carries only the summary and every DEF
   "verifications": [
     {
       "finding": "<short identifier>",
-      "bucket": "tighten|renameCandidate|missing|redundant|signatureMismatch|soft|outOfScope|deadSource",
+      "bucket": "tighten|renameCandidate|missing|redundant|signatureMismatch|soft|loosen|outOfScope|deadSource",
       "decision": "ACT|DEFER|DISMISS",
       "rationale": "<1-2 sentences citing a source path>",
       "patch": { "file": "<optional, relative to the root; default the TS file>", "old_string": "...", "new_string": "..." }

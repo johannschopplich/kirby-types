@@ -35,6 +35,7 @@ For a property PHP fills, JS `defaults()` is bootstrap state, not runtime contra
 - **redundant**: TS member without runtime backing.
 - **signatureMismatch**: wrong arity, param types, or return type, or a doc naming a shape the type rejects.
 - **soft**: JSDoc shape narrower than `any` / `Record<string, any>` widening allows; lower severity.
+- **loosen**: a typed shape that is not actionable, as Intentional Looseness defines it. Its keys give way to `any` or `Record<string, any>`, and a named type no other declaration uses is deleted – unless the source map's `siblingImports` lists it, which makes the deletion a DEFER naming the repos.
 - **Kirby bug** findings, as JSDoc Style defines them, file in the bucket the finding would otherwise take, the `note` or `rationale` opening with `Kirby bug` and naming the call that triggers it.
 - **Defaults members** are reported and patched on the `*Defaults` interface, their declaration site (`PanelUser extends PanelState<PanelUserDefaults>, PanelUserDefaults`).
 
@@ -54,7 +55,7 @@ Each goes under `intentional` and stays as typed:
 - A page, file, user, or site in any view but `compact` – `default`, `panel`, `auth`, `selector` – whatever keys PHP fixes
 - Deep PHP class shapes too cumbersome to mirror (per-blueprint model permissions, locale arrays keyed by `LC_*` constants)
 
-Beyond these, the looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over a shape PHP builds with fixed keys is a **tighten**, inside a blueprint-driven value or an API response too. A tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them; `users.list` returns each user in the `compact` view of `config/api/models/User.php`. A model without a `default` view returns every field: `roles.get` includes `permissions`, which Role's `compact` view leaves out. Leave out a key the runtime may lack: a user's `avatar` is a File or a FileVersion, so its type holds only the keys both views share.
+Beyond these, a shape earns typed keys only when it is **actionable**: a plugin or frontend builds it or reads its keys – an input, a field's or view's props, a block's content, a KQL request, the compact model a list renders. A response the caller passes on or never opens stays `any` or `Record<string, any>`, however fixed Kirby sets its keys: a blueprint, the system data, an `ok` body – a failed call rejects instead – or the free-form `options` a request forwards to a Kirby component, such as the search `options`. Within an actionable shape, the looseness ends where Kirby sets the keys: an `any` or `Record<string, any>` over keys PHP fixes is a **tighten**. A view tab's `columns` hold `{ width, fields }` whatever fields the blueprint puts in them; `users.list` returns each user in the `compact` view of `config/api/models/User.php`. A model without a `default` view returns every field: `roles.get` includes `permissions`, which Role's `compact` view leaves out. Leave out a key the runtime may lack: a user's `avatar` is a File or a FileVersion, so its type holds only the keys both views share.
 
 ## Panel TS Evidence
 
