@@ -161,14 +161,14 @@ Prosemirror-typed. Where the map shows a module `ts`, expect `tighten` findings 
 
 PHP-rooted. PHP `toArray()` is the shape; JS only consumes the JSON.
 
-- **Symbols**: PanelPermissions, PanelPermissions{Access,Files,Languages,Pages,Site,Users,User}
+- **Symbols**: PanelPermissions
 - **PHP**: `src/Cms/{Permissions,UserPermissions,FilePermissions,PagePermissions,SitePermissions,LanguagePermissions}.php`, `src/Panel/State.php`
 
 ### `index-viewprops`
 
 PHP-rooted. PHP `props()` / `toArray()` is the response shape.
 
-- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,TabColumn,Navigation,Model,Button}, PanelFileViewProps, PanelUserViewProps
+- **Symbols**: PanelViewProps, PanelViewProps{LockUser,Lock,Permissions,Versions,Tab,TabColumn,Navigation,Button}, PanelFileViewProps, PanelUserViewProps
 - **PHP**: `src/Panel/{Model,Page,File,User,Site}.php`, `src/Panel/Controller/View/ModelViewController.php`, `src/Blueprint/{Page,File,User,Site}Blueprint.php`, `src/Panel/Ui/Button.php`, `src/Panel/Ui/Button/ViewButton{,s}.php`, `src/Content/Lock.php`
 - **Watch**: `ModelViewController` builds the props – always-present `next`/`prev`/`title`, no nested `model`; `component`/`breadcrumb`/`search` sit on the view envelope, not in `props`. The Panel's `ViewState` in `view` is JS-side state; the props type follows the server payload.
 
