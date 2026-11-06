@@ -50,8 +50,6 @@ export type KirbyCodeLanguage =
 /**
  * Content shape of each default block type, keyed by type name.
  *
- * @see https://getkirby.com/docs/reference/panel/blocks
- *
  * @example
  * ```ts
  * // Access content type for a specific block
@@ -70,17 +68,16 @@ export type KirbyCodeLanguage =
  * @source config/blocks/table/table.yml
  * @source config/blocks/text/text.yml
  * @source config/blocks/video/video.yml
+ * @source src/Form/Field/BlocksField.php
  * @source src/Parsley/Schema/Blocks.php
  */
 export interface KirbyDefaultBlocks {
-  /** @see https://getkirby.com/docs/reference/panel/blocks/code */
   code: {
     code: string;
     /** Language key, `""` for none, or any `language-*` class suffix of parsed HTML. */
     language: KirbyCodeLanguage | "" | (string & {});
   };
 
-  /** @see https://getkirby.com/docs/reference/panel/blocks/gallery */
   gallery: {
     images: string[];
     caption: string;
@@ -88,7 +85,6 @@ export interface KirbyDefaultBlocks {
     crop: boolean;
   };
 
-  /** @see https://getkirby.com/docs/reference/panel/blocks/heading */
   heading: {
     /** Heading tag, or `""` for content saved without a level. */
     level: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "";
@@ -97,10 +93,7 @@ export interface KirbyDefaultBlocks {
     id?: string;
   };
 
-  /**
-   * Kirby image file or external image URL, discriminated by `location`.
-   * @see https://getkirby.com/docs/reference/panel/blocks/image
-   */
+  /** Kirby image file or external image URL, discriminated by `location`. */
   image:
     | {
         /** Internal Kirby image file. */
@@ -132,26 +125,18 @@ export interface KirbyDefaultBlocks {
         crop?: boolean;
       };
 
-  /**
-   * Horizontal divider with no content fields.
-   * @see https://getkirby.com/docs/reference/panel/blocks/line
-   */
-  line: Record<string, never>;
+  /** Horizontal divider with no content fields. */
+  line: Record<string, never> | [];
 
-  /**
-   * Bulleted or numbered list.
-   * @see https://getkirby.com/docs/reference/panel/blocks/list
-   */
+  /** Bulleted or numbered list. */
   list: {
     text: string;
   };
 
-  /** @see https://getkirby.com/docs/reference/panel/blocks/markdown */
   markdown: {
     text: string;
   };
 
-  /** @see https://getkirby.com/docs/reference/panel/blocks/quote */
   quote: {
     text: string;
     /** Citation, `null` for HTML parsed without a `<footer>`. */
@@ -164,18 +149,12 @@ export interface KirbyDefaultBlocks {
    */
   table: Record<string, any>;
 
-  /**
-   * Rich text from a WYSIWYG editor.
-   * @see https://getkirby.com/docs/reference/panel/blocks/text
-   */
+  /** Rich text from a WYSIWYG editor. */
   text: {
     text: string;
   };
 
-  /**
-   * Kirby video file or external video URL, discriminated by `location`.
-   * @see https://getkirby.com/docs/reference/panel/blocks/video
-   */
+  /** Kirby video file or external video URL, discriminated by `location`. */
   video:
     | {
         /** External video source, `""` for pasted HTML, missing for parsed HTML. */
@@ -207,9 +186,7 @@ export interface KirbyDefaultBlocks {
  * Without type arguments, any block.
  *
  * @typeParam T - Block type name
- * @typeParam U - Custom content shape, overriding the default content of `T`
- *
- * @see https://getkirby.com/docs/guide/page-builder
+ * @typeParam U - Custom content shape with lowercase keys, overriding the default content of `T`
  *
  * @example
  * ```ts
@@ -231,6 +208,9 @@ export interface KirbyDefaultBlocks {
  * ```
  *
  * @source src/Cms/Block.php
+ * @source src/Cms/Item.php
+ * @source src/Content/Content.php
+ * @source src/Content/FieldMethods.php
  */
 export interface KirbyBlock<
   T extends string = string,
@@ -245,7 +225,10 @@ export interface KirbyBlock<
   content: U;
   /** UUID v4. */
   id: string;
-  /** Whether the block is hidden in the frontend output. */
+  /**
+   * `true` for a block hidden in the Panel. `toBlocks` drops hidden blocks; the
+   * raw field value keeps them.
+   */
   isHidden: boolean;
   type: T;
 }
