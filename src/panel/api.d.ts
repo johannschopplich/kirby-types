@@ -61,43 +61,6 @@ export interface PanelApiCollectionResponse<T = Record<string, any>> {
 }
 
 /**
- * Response of an action that has nothing to return but success.
- * @source src/Api/Api.php
- */
-export interface PanelApiOkResponse {
-  status: "ok";
-  message: "ok";
-  code: 200;
-}
-
-/**
- * @source config/components.php
- */
-export interface PanelApiSearchOptions {
-  /**
-   * Fields to search, compared case-insensitively; every field when omitted
-   * or empty.
-   */
-  fields?: string[];
-  /**
-   * Minimum length of the term and of each word searched, `2` when omitted;
-   * a shorter term finds nothing.
-   */
-  minlength?: number;
-  /**
-   * Score multiplier per lowercase field name, `1` for any field left out;
-   * a page's `id` and `title` default to `64`.
-   */
-  score?: Record<string, number>;
-  /** Words dropped from the term before searching. */
-  stopwords?: string[];
-  /** Whether to match whole words only, `false` when omitted. */
-  words?: boolean;
-  /** Any other option a custom `search` component reads. */
-  [key: string]: any;
-}
-
-/**
  * Search request body.
  * @source src/Api/Api.php
  * @source src/Api/Collection.php
@@ -113,8 +76,7 @@ export interface PanelApiSearchQuery {
    * fields to search as a `|`-separated string. An empty string returns every
    * item.
    */
-  search?:
-    string | { query?: string; options?: string | PanelApiSearchOptions };
+  search?: string | { query?: string; options?: string | Record<string, any> };
   /** Maximum number of items searched – `paginate` limits the results. */
   limit?: number;
   /** Number of items skipped before searching. */
@@ -196,54 +158,6 @@ export interface PanelBlueprintTab<TField = Record<string, any>> {
   /** Any other key the blueprint sets on the tab. */
   [key: string]: any;
 }
-
-/**
- * Blueprint of the site or a user.
- * @source config/api/models/SiteBlueprint.php
- * @source config/api/models/UserBlueprint.php
- * @source src/Blueprint/Blueprint.php
- */
-export interface PanelApiBlueprint {
-  name: string;
-  options: Record<string, any>;
-  tabs: PanelBlueprintTab[];
-  title: string;
-}
-
-/**
- * @source src/Blueprint/PageBlueprint.php
- */
-export interface PanelApiPageBlueprintStatus {
-  label: string;
-  text: string | null;
-  icon: string;
-  theme: string;
-  /** Any other key the blueprint sets on the status. */
-  [key: string]: any;
-}
-
-/**
- * @source config/api/models/PageBlueprint.php
- * @source src/Blueprint/PageBlueprint.php
- */
-export interface PanelApiPageBlueprint extends PanelApiBlueprint {
-  /** Sorting mode – `default`, `zero`, `date`, or a query for the number. */
-  num: string;
-  /**
-   * Preview URL from the blueprint, else whether the page may be
-   * previewed.
-   */
-  preview: string | boolean;
-  /**
-   * Status options of the page; `draft` is missing for the home and error
-   * page.
-   */
-  status: {
-    draft?: PanelApiPageBlueprintStatus;
-    unlisted?: PanelApiPageBlueprintStatus;
-    listed?: PanelApiPageBlueprintStatus;
-  };
-}
 // #endregion
 
 // #region Auth API
@@ -285,10 +199,10 @@ export interface PanelApiAuth {
   >;
 
   /** Logs out the current user. */
-  logout: () => Promise<PanelApiOkResponse>;
+  logout: () => Promise<any>;
 
   /** Pings the server to keep the session alive. */
-  ping: () => Promise<PanelApiOkResponse>;
+  ping: () => Promise<any>;
 
   /** Gets the current user. */
   user: (query?: Record<string, any>) => Promise<any>;
@@ -330,10 +244,7 @@ export interface PanelApiFiles {
     to: string,
   ) => Promise<any>;
 
-  delete: (
-    parent: string | null,
-    filename: string,
-  ) => Promise<PanelApiOkResponse>;
+  delete: (parent: string | null, filename: string) => Promise<any>;
 
   get: (
     parent: string | null,
@@ -423,7 +334,7 @@ export interface PanelApiLanguages {
   /**
    * @param code - Language code
    */
-  delete: (code: string) => Promise<PanelApiOkResponse>;
+  delete: (code: string) => Promise<any>;
 
   /**
    * @param code - Language code
@@ -509,7 +420,7 @@ export interface PanelApiPages {
   /**
    * @param parent - Page ID
    */
-  blueprint: (parent: string) => Promise<PanelApiPageBlueprint>;
+  blueprint: (parent: string) => Promise<any>;
 
   /**
    * Gets available blueprints for a page.
@@ -573,10 +484,7 @@ export interface PanelApiPages {
    * @param data - Delete options
    * @param data.force - Force delete even if the page has children or drafts
    */
-  delete: (
-    id: string,
-    data?: { force?: boolean },
-  ) => Promise<PanelApiOkResponse>;
+  delete: (id: string, data?: { force?: boolean }) => Promise<any>;
 
   /**
    * @param id - Page ID
@@ -721,7 +629,7 @@ export interface PanelApiRoles {
  * @source src/Http/Router.php
  */
 export interface PanelApiSite {
-  blueprint: () => Promise<PanelApiBlueprint>;
+  blueprint: () => Promise<any>;
 
   /** Gets the page blueprints the site's `pagelist` fields accept. */
   blueprints: () => Promise<{ name: string; title: string }[]>;
@@ -777,72 +685,6 @@ export interface PanelApiSystemRegisterData {
 }
 
 /**
- * System data in the `panel` view.
- * @source config/api/models/System.php
- * @source config/api/models/License.php
- * @source src/Cms/System.php
- * @source src/Cms/LicenseStatus.php
- */
-export interface PanelApiSystemPanel {
-  /** ASCII character replacements for slugs. */
-  ascii: Record<string, string>;
-  /** Code of the default Panel interface language. */
-  defaultLanguage: string;
-  isInstalled: boolean;
-  /** Whether the Panel runs in a local development environment. */
-  isLocal: boolean;
-  /** Whether every folder in `requirements` is writable. */
-  isOk: boolean;
-  /** The `panel.kirbytext` option. */
-  kirbytext: boolean;
-  /** Languages of a multi-language site, empty otherwise. */
-  languages: PanelApiLanguage[];
-  /** License data; each key is `null` without access to the system area. */
-  license: {
-    /**
-     * License code, masked for a non-admin; `null` for a free license or
-     * without a license file.
-     */
-    code: string | null;
-    status:
-      | "active"
-      | "acknowledged"
-      | "demo"
-      | "inactive"
-      | "legacy"
-      | "missing"
-      | "unknown"
-      | null;
-    /** Label of the license type. */
-    type: string | null;
-  };
-  /**
-   * Locale of each interface translation, keyed by translation code
-   * (e.g. `{ de: "de_DE" }`).
-   */
-  locales: Record<string, string>;
-  multilang: boolean;
-  /** Whether each of these folders is writable. */
-  requirements: {
-    accounts: boolean;
-    content: boolean;
-    media: boolean;
-    sessions: boolean;
-  };
-  /** Site title, or the site blueprint's title when the site has none. */
-  site: string;
-  /** Slug character replacements of the current language. */
-  slugs: Record<string, string>;
-  /** Site title as stored, `null` when unset. */
-  title: string | null;
-  translation: PanelApiTranslation;
-  /** Current user, `null` for a guest. */
-  user: Record<string, any> | null;
-  /** Kirby version, `null` without access to the system area. */
-  version: string | null;
-}
-
-/**
  * @source panel/src/api/system.ts
  * @source config/api/routes/system.php
  * @source src/Api/Api.php
@@ -850,13 +692,9 @@ export interface PanelApiSystemPanel {
  */
 export interface PanelApiSystem {
   /**
-   * Gets the system data in the `panel` view, or in the view or selection a
-   * query names.
+   * @param query - Query parameters (default: `{ view: "panel" }`)
    */
-  get: {
-    (): Promise<PanelApiSystemPanel>;
-    (query?: Record<string, any>): Promise<any>;
-  };
+  get: (query?: Record<string, any>) => Promise<any>;
 
   /**
    * Creates the first user and logs them in. Rejects once the Panel is
@@ -870,7 +708,7 @@ export interface PanelApiSystem {
    * Registers a license. Rejects without access to the system area, or for
    * an invalid license code or email.
    */
-  register: (data: PanelApiSystemRegisterData) => Promise<PanelApiOkResponse>;
+  register: (data: PanelApiSystemRegisterData) => Promise<any>;
 }
 // #endregion
 
@@ -995,7 +833,7 @@ export interface PanelApiUsers {
   /**
    * @param id - User ID
    */
-  blueprint: (id: string) => Promise<PanelApiBlueprint>;
+  blueprint: (id: string) => Promise<any>;
 
   /**
    * Gets the page blueprints a user's `pagelist` fields accept.
@@ -1053,12 +891,12 @@ export interface PanelApiUsers {
   /**
    * @param id - User ID
    */
-  delete: (id: string) => Promise<PanelApiOkResponse>;
+  delete: (id: string) => Promise<any>;
 
   /**
    * @param id - User ID
    */
-  deleteAvatar: (id: string) => Promise<PanelApiOkResponse>;
+  deleteAvatar: (id: string) => Promise<any>;
 
   /**
    * @param id - User ID

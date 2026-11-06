@@ -13,8 +13,6 @@ import type {
   PanelApi,
   PanelApiCollectionResponse,
   PanelApiRoleCompact,
-  PanelApiSearchQuery,
-  PanelApiSystemPanel,
   PanelBlueprintTab,
   PanelModelData,
 } from "../src/panel/api";
@@ -252,17 +250,6 @@ expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
 expectType<void>(panel.api.ping());
-expectType<Promise<PanelApiSystemPanel>>(panel.api.system.get());
-expectType<Promise<any>>(panel.api.system.get({ view: "login" }));
-expectType<Promise<any>>(
-  panel.api.system.get({} as Record<string, any> | undefined),
-);
-expectAssignable<PanelApiSearchQuery>({
-  search: { query: "a", options: { fields: ["title"], fuzzy: true } },
-});
-expectNotAssignable<PanelApiSearchQuery>({
-  search: { query: "a", options: { fields: "title" } },
-});
 expectType<Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>>(
   panel.api.roles.list(),
 );
@@ -282,14 +269,11 @@ expectNotAssignable<NonNullable<PanelViewProps["tab"]>>({
 });
 expectAssignable<PanelApi["auth"]>({
   login: async () => ({ code: 200, status: "ok", challenge: "email" }),
-  logout: async () => ({ status: "ok", message: "ok", code: 200 }),
-  ping: async () => ({ status: "ok", message: "ok", code: 200 }),
+  logout: async () => ({}),
+  ping: async () => ({}),
   user: async () => ({}),
   verifyCode: async () => ({ code: 200, status: "ok", user: {} }),
 });
-expectNotAssignable<PanelApi["auth"]["logout"]>(async () => ({
-  status: "error",
-}));
 
 // Plugin-author surface on the Panel
 expectType<void>(panel.events.on("view.open", () => {}));
