@@ -255,13 +255,6 @@ export interface PanelFeature<
 // #region Modal
 
 /**
- * @source panel/src/panel/modal.ts
- * @source panel/src/panel/feature.ts
- */
-export type PanelModalEvent =
-  "cancel" | "close" | "closed" | "input" | "open" | "submit" | "success";
-
-/**
  * Actions a response asks the Panel to take; `panel.act()` runs them.
  * @source panel/src/panel/panel.ts
  * @source src/Panel/Response/JsonResponse.php

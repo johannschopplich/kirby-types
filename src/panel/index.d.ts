@@ -71,7 +71,6 @@ export type {
   PanelEventListeners,
   PanelFeatureDefaults,
   PanelFeature,
-  PanelModalEvent,
   PanelResponseActions,
   PanelModalSubmitResponse,
   PanelModalDefaults,
