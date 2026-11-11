@@ -908,8 +908,8 @@ export interface Panel {
   readonly direction: "ltr" | "rtl";
 
   /**
-   * Document title. Setting it appends `" | "` and the system title when the
-   * system has one.
+   * Document title. Setting it joins the title and the system title with
+   * `" | "`, leaving out an empty one.
    */
   get title(): string;
   set title(title: string | null);
