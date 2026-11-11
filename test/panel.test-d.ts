@@ -283,6 +283,9 @@ expectType<URL>(panel.url("/pages/home"));
 expectType<URL>(panel.url("/pages/home", { tab: "content" }));
 expectType<Promise<any>>(panel.get("/api/pages/home"));
 expectType<Promise<any>>(panel.post("/api/pages/home", { title: "Home" }));
+expectType<Promise<{ id: string }>>(
+  panel.post<{ id: string }>("/api/pages", { title: "Home" }),
+);
 // @ts-expect-error A number is not a request body.
 panel.post("/api/pages/home", 42);
 expectType<Promise<PanelRequestResponse>>(panel.request("/api/pages/home"));

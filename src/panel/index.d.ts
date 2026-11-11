@@ -1056,7 +1056,10 @@ export interface Panel {
    * @returns Response data; `{}` for a `null` body, or for an external
    *   request whose response is not JSON
    */
-  get: (url: string | URL, options?: PanelRequestOptions) => Promise<any>;
+  get: <T = any>(
+    url: string | URL,
+    options?: PanelRequestOptions,
+  ) => Promise<T>;
 
   /**
    * Opens a URL through the Panel router and sets the Panel state from the
@@ -1107,11 +1110,11 @@ export interface Panel {
    * @param data - Request body
    * @returns Response data
    */
-  post: (
+  post: <T = any>(
     url: string | URL,
     data?: PanelRequestOptions["body"],
     options?: PanelRequestOptions,
-  ) => Promise<any>;
+  ) => Promise<T>;
 
   /**
    * Throws a redirect error that the Panel's error handler catches and
