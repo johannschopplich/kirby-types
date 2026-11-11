@@ -1527,7 +1527,8 @@ export interface PanelUpload
    * `model`, and emits `file.upload` on `panel.events`. On failure, including
    * a call before `submit()` has set `abort`, it resets `progress` to `0` and
    * emits `file.upload.error` there. A thrown `Error` also stores its message
-   * in `error`; a server-rejected upload leaves `error` unset.
+   * in `error`; a server-rejected upload leaves `error` unset. An upload
+   * aborted in flight keeps its `progress` and emits nothing.
    *
    * @param file - File to upload
    * @param attributes - Form data sent with the file

@@ -790,7 +790,10 @@ export interface PanelUploadParams {
   headers?: Record<string, string>;
   /** Additional `FormData` entries; values are coerced to strings. */
   attributes?: Record<string, string | number>;
-  /** Signal that cancels the request when it aborts during the upload. */
+  /**
+   * Signal that cancels the request when it aborts during the upload, without
+   * calling `error`.
+   */
   abort?: AbortSignal;
   progress?: PanelUploadProgressCallback;
   /** Receives the parsed response once the upload succeeds. */
@@ -1049,8 +1052,9 @@ export interface PanelHelpers {
    * Uploads a file via `XMLHttpRequest`.
    *
    * @returns Promise resolving to the parsed JSON response; rejects with the
-   *   server's error response, or a generic `{ status: "error", message }`
-   *   object when the body is not JSON or the request fails.
+   *   server's error response, a generic `{ status: "error", message }`
+   *   object when the body is not JSON or the request fails, or the `abort`
+   *   signal's `reason` when it aborts.
    */
   upload: (file: File, params: PanelUploadParams) => Promise<any>;
 
