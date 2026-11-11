@@ -551,6 +551,19 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
+   * Appends a `"–"` placeholder option for each value without a matching
+   * option, e.g. a deleted page. Values match as strings; `null`, `undefined`,
+   * and `""` get no placeholder.
+   *
+   * @param value - Field value, a single value or an array
+   * @unstable
+   */
+  options: <T extends { value: any }>(
+    options: T[],
+    value: unknown,
+  ) => (T | { text: string; value: any })[];
+
+  /**
    * Gives each subfield the parent's `model` endpoint and, as its `field`
    * endpoint, the parent's `field` endpoint plus `+` and the subfield name.
    * Without parent endpoints, the subfields keep theirs.
