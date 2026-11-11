@@ -168,7 +168,7 @@ export interface WriterEditor {
   activeNodeAttrs: Record<string, Record<string, any>>;
   /**
    * Fresh `doc`, `text`, and `paragraph` nodes on every read, not bound to the
-   * editor; `[]` with `useBuiltInExtensions: false`.
+   * editor.
    */
   builtInExtensions: WriterNodeExtension[];
   /**
@@ -362,7 +362,6 @@ export interface WriterEditorOptions {
   inline?: boolean;
   parseOptions?: ParseOptions;
   topNode?: string;
-  useBuiltInExtensions?: boolean;
 }
 
 /**
