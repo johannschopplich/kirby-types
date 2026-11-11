@@ -238,6 +238,9 @@ declare const editor: WriterEditor;
 editor.on("update", (payload) => {
   expectType<WriterEditorTransactionPayload>(payload);
 });
+editor.on("drop", ({ moved }) => {
+  expectType<boolean>(moved);
+});
 editor.on("custom", (...args) => {
   expectType<any[]>(args);
 });

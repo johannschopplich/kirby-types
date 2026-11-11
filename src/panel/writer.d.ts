@@ -14,6 +14,7 @@ import type {
   ParseOptions,
   Node as ProseMirrorNode,
   Schema,
+  Slice,
 } from "prosemirror-model";
 import type {
   Command,
@@ -101,8 +102,7 @@ export interface WriterEditorSelectPayload extends WriterEditorTransactionPayloa
 /**
  * Payloads of the editor events and of the events the built-in `link` and
  * `email` marks send, keyed by event name. Each listener receives its payload
- * as the only argument. `drop` is left out: it passes the view,
- * the event, the slice, and the `moved` flag as separate arguments.
+ * as the only argument.
  *
  * @source panel/src/components/Forms/Writer/Editor.ts
  * @source panel/src/components/Forms/Writer/Marks/Anchor.ts
@@ -112,6 +112,7 @@ export interface WriterEditorSelectPayload extends WriterEditorTransactionPayloa
 export interface WriterEditorEvents {
   blur: { event: FocusEvent; state: EditorState; view: EditorView };
   deselect: WriterEditorSelectPayload;
+  drop: { event: DragEvent; moved: boolean; slice: Slice; view: EditorView };
   /** The editor, sent when the email toolbar button is clicked without Alt or Meta held. */
   email: WriterEditor;
   focus: { event: FocusEvent; state: EditorState; view: EditorView };
