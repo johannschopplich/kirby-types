@@ -1,10 +1,10 @@
 // Tests representative core types for `src/layout.d.ts` – not exhaustive.
-import type { KirbyBlock } from "../src/blocks";
+import type { KirbyBlock } from "../src/blocks.js";
 import type {
   KirbyLayout,
   KirbyLayoutColumn,
   KirbyLayoutColumnWidth,
-} from "../src/layout";
+} from "../src/layout.js";
 import { expectAssignable, expectNotAssignable } from "tsd";
 
 // #region Layout Types

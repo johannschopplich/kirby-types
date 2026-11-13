@@ -1,5 +1,5 @@
 // Tests representative core types for `src/kql.d.ts` – not exhaustive.
-import type { KirbyQueryRequest, KirbyQueryResponse } from "../src/kql";
+import type { KirbyQueryRequest, KirbyQueryResponse } from "../src/kql.js";
 import { expectAssignable, expectNotAssignable } from "tsd";
 
 // #region Query Request & Response

@@ -25,7 +25,7 @@ import type {
   KirbyTextFieldProps,
   KirbyToggleFieldProps,
   KirbyWriterFieldProps,
-} from "../src/blueprint";
+} from "../src/blueprint.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Kirby Option

@@ -1,9 +1,9 @@
 // Tests the opt-in `kirby-types/panel-globals` augmentation. Runs in its own tsd
 // program, since the augmentation would reach every other test file.
-import type { Panel } from "../src/panel";
+import type { Panel } from "../src/panel/index.js";
 import { expectType } from "tsd";
 import { defineComponent } from "vue";
-import "../panel-globals";
+import "../panel-globals.js";
 
 expectType<Panel>(window.panel);
 

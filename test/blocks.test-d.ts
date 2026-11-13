@@ -5,7 +5,7 @@ import type {
   KirbyDefaultBlock,
   KirbyDefaultBlocks,
   KirbyDefaultBlockType,
-} from "../src/blocks";
+} from "../src/blocks.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Block Types

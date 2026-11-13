@@ -1,20 +1,10 @@
 // Tests representative core types for `src/panel/` – not exhaustive.
 import type {
-  Panel,
-  PanelApiRequestOptions,
-  PanelConfig,
-  PanelPermissions,
-  PanelRequestResponse,
-  PanelViewProps,
-  PanelViewPropsButton,
-  PanelViewPropsTab,
-} from "../src/panel";
-import type {
   PanelApi,
   PanelApiCollectionResponse,
   PanelApiRoleCompact,
   PanelModelData,
-} from "../src/panel/api";
+} from "../src/panel/api.js";
 import type {
   PanelEventListenerMap,
   PanelFeature,
@@ -23,7 +13,7 @@ import type {
   PanelHistoryMilestone,
   PanelModal,
   PanelModalListeners,
-} from "../src/panel/base";
+} from "../src/panel/base.js";
 import type {
   PanelContent,
   PanelDialog,
@@ -38,12 +28,22 @@ import type {
   PanelUploadFile,
   PanelUser,
   PanelUserDefaults,
-} from "../src/panel/features";
+} from "../src/panel/features.js";
 import type {
   PanelHelpersPage,
   PanelPageStatusFlag,
   PanelPageStatusProps,
-} from "../src/panel/helpers";
+} from "../src/panel/helpers.js";
+import type {
+  Panel,
+  PanelApiRequestOptions,
+  PanelConfig,
+  PanelPermissions,
+  PanelRequestResponse,
+  PanelViewProps,
+  PanelViewPropsButton,
+  PanelViewPropsTab,
+} from "../src/panel/index.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Configuration

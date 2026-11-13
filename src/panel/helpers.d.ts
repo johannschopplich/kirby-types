@@ -3,8 +3,8 @@
  */
 
 import type { App } from "vue";
-import type { KirbyPickerItem } from "../blueprint";
-import type { WriterMarkExtension, WriterNodeExtension } from "./writer";
+import type { KirbyPickerItem } from "../blueprint.js";
+import type { WriterMarkExtension, WriterNodeExtension } from "./writer.js";
 
 // #region Array Helpers
 

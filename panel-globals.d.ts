@@ -10,7 +10,7 @@
  * @source panel/src/types/global.d.ts
  */
 
-import type { Panel, PanelGlobalProperties } from "./src/panel/index";
+import type { Panel, PanelGlobalProperties } from "./src/panel/index.js";
 
 declare module "vue" {
   interface ComponentCustomProperties extends PanelGlobalProperties {}

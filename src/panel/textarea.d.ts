@@ -2,8 +2,8 @@
  * Types for custom textarea toolbar buttons.
  */
 
-import type { KirbyFieldUploads } from "../blueprint";
-import type { PanelDropdownOption, PanelGlobalProperties } from "./index";
+import type { KirbyFieldUploads } from "../blueprint.js";
+import type { PanelDropdownOption, PanelGlobalProperties } from "./index.js";
 
 // #region Textarea Toolbar Context
 

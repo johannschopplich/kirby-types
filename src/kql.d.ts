@@ -1,5 +1,5 @@
-import type { KirbyApiResponse } from "./api";
-import type { KirbyQuery } from "./query";
+import type { KirbyApiResponse } from "./api.js";
+import type { KirbyQuery } from "./query.js";
 
 /**
  * KQL (Kirby Query Language) query with an optional, nestable field selection.

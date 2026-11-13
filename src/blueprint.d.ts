@@ -5,7 +5,7 @@
  * @see https://getkirby.com/docs/reference/panel/blueprints
  */
 
-import type { HtmlString } from "./panel";
+import type { HtmlString } from "./panel/index.js";
 
 // #region Field Options
 

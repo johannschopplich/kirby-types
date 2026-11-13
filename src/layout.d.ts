@@ -1,4 +1,4 @@
-import type { KirbyBlock } from "./blocks";
+import type { KirbyBlock } from "./blocks.js";
 
 /**
  * Column width as a fraction of the row, such as `"1/2"` for half. A

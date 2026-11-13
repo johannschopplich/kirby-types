@@ -1,7 +1,7 @@
 /** Types for the Panel API client and its resource modules. */
 
-import type { PanelRequestOptions } from "./base";
-import type { Panel, PanelLanguageInfo, PanelPermissions } from "./index";
+import type { PanelRequestOptions } from "./base.js";
+import type { Panel, PanelLanguageInfo, PanelPermissions } from "./index.js";
 
 // #region Request Types
 

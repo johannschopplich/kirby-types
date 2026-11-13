@@ -1,5 +1,5 @@
 // Tests representative core types for `src/query.d.ts` – not exhaustive.
-import type { KirbyQuery, ParseKirbyQuery } from "../src/query";
+import type { KirbyQuery, ParseKirbyQuery } from "../index.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Query Validation

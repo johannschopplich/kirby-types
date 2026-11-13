@@ -14,19 +14,19 @@ import type {
   DefineComponent,
   Plugin,
 } from "vue";
-import type { KirbyAnyFieldProps, KirbyModelImage } from "../blueprint";
-import type { PanelApi } from "./api";
+import type { KirbyAnyFieldProps, KirbyModelImage } from "../blueprint.js";
+import type { PanelApi } from "./api.js";
 import type {
   PanelContext,
   PanelFeatureDefaults,
   PanelRequestOptions,
   PanelResponseActions,
-} from "./base";
-import type * as PanelFeatures from "./features";
-import type { PanelHelpers } from "./helpers";
-import type { PanelLibrary } from "./libraries";
-import type { TextareaButton } from "./textarea";
-import type { WriterMarkExtension, WriterNodeExtension } from "./writer";
+} from "./base.js";
+import type * as PanelFeatures from "./features.js";
+import type { PanelHelpers } from "./helpers.js";
+import type { PanelLibrary } from "./libraries.js";
+import type { TextareaButton } from "./textarea.js";
+import type { WriterMarkExtension, WriterNodeExtension } from "./writer.js";
 
 // #region Re-exports from api.d.ts
 
@@ -59,7 +59,7 @@ export type {
   PanelApiUserCreateData,
   PanelApiUsers,
   PanelApi,
-} from "./api";
+} from "./api.js";
 // #endregion
 
 // #region Re-exports from base.d.ts
@@ -83,7 +83,7 @@ export type {
   PanelContext,
   NotificationType,
   NotificationTheme,
-} from "./base";
+} from "./base.js";
 // #endregion
 
 // #region Re-exports from features.d.ts
@@ -124,22 +124,22 @@ export type {
   PanelUpload,
   PanelEventEmitter,
   PanelEvents,
-} from "./features";
+} from "./features.js";
 // #endregion
 
 // #region Re-exports from helpers.d.ts
 
-export type { PanelHelpers } from "./helpers";
+export type { PanelHelpers } from "./helpers.js";
 // #endregion
 
 // #region Re-exports from libraries.d.ts
 
-export type { PanelLibrary } from "./libraries";
+export type { PanelLibrary } from "./libraries.js";
 // #endregion
 
 // #region Re-exports from textarea.d.ts
 
-export type { TextareaToolbarContext, TextareaButton } from "./textarea";
+export type { TextareaToolbarContext, TextareaButton } from "./textarea.js";
 // #endregion
 
 // #region Re-exports from writer.d.ts
@@ -157,7 +157,7 @@ export type {
   WriterExtension,
   WriterMarkExtension,
   WriterNodeExtension,
-} from "./writer";
+} from "./writer.js";
 // #endregion
 
 // #region Panel App

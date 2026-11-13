@@ -17,8 +17,8 @@ import type {
   WriterMarkExtension,
   WriterNodeExtension,
   WriterToolbarButton,
-} from "../src/panel";
-import type { PanelDayjsInstance } from "../src/panel/libraries";
+} from "../src/panel/index.js";
+import type { PanelDayjsInstance } from "../src/panel/libraries.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 import { defineComponent } from "vue";
 

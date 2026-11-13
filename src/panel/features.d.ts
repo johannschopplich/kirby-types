@@ -1,7 +1,7 @@
 /** Types for the Panel's state objects, features, and modals. */
 
 import type { ComponentPublicInstance } from "vue";
-import type { KirbyModelImage } from "../blueprint";
+import type { KirbyModelImage } from "../blueprint.js";
 import type {
   NotificationTheme,
   NotificationType,
@@ -16,8 +16,8 @@ import type {
   PanelModalListeners,
   PanelRequestOptions,
   PanelState,
-} from "./base";
-import type { HtmlString } from "./index";
+} from "./base.js";
+import type { HtmlString } from "./index.js";
 
 // #region Timer
 
