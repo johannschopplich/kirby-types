@@ -43,7 +43,7 @@ Until Kirby 6 has a stable release, v2 is published under the `next` tag, and a 
 
 ### Optional Dependencies
 
-`vue`, `dayjs`, and six `prosemirror-*` packages are optional peer dependencies. With `skipLibCheck: true`, install only the peers behind the types you use – none for the content and KQL types. With `skipLibCheck: false`, TypeScript reports each missing peer as a module it cannot find, so install all eight.
+`vue`, `dayjs`, and six `prosemirror-*` packages are optional peer dependencies. Install only the peers behind the types you use – none for the content and KQL types.
 
 `vue` is the peer every Panel plugin needs:
 
