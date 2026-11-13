@@ -51,7 +51,7 @@ Until Kirby 6 has a stable release, v2 is published under the `next` tag, and a 
 pnpm add -D vue@^3.5.0
 ```
 
-`dayjs` powers the [`$library.dayjs` types](./src/panel/libraries.d.ts), including Kirby's plugin extensions (`toISO`, `parse`, `pattern`, …):
+`dayjs` types [`$library.dayjs`](./src/panel/libraries.d.ts):
 
 ```bash
 pnpm add -D dayjs
@@ -222,30 +222,6 @@ window.panel.plugin("my/plugin", {
 });
 ```
 
-Every `window.panel` member is verified against the PHP response shape (`toArray()`/`props()`) and the Panel source, and follows PHP where the two disagree.
-
-Common Panel operations:
-
-```ts
-// Notifications
-window.panel.notification.success("Changes saved");
-window.panel.notification.error("Something went wrong");
-
-// Theme
-window.panel.theme.set("dark");
-
-// Navigation
-await window.panel.view.open("/pages/blog");
-await window.panel.dialog.open("pages/create");
-
-// API calls
-const page = await window.panel.api.pages.get("blog");
-await window.panel.api.pages.update("blog", { title: "New Title" });
-
-// Content state
-const currentContent = window.panel.content.version("changes");
-```
-
 ### Type a Writer Extension
 
 Install the `prosemirror-*` [peer dependencies](#optional-dependencies) to type a Writer extension:
@@ -341,23 +317,13 @@ window.panel.plugin("my/plugin", {
 
 | Type                                               | Description                      |
 | -------------------------------------------------- | -------------------------------- |
-| [`KirbyTextFieldProps`](./src/blueprint.d.ts)      | Text field props                 |
-| [`KirbyTextareaFieldProps`](./src/blueprint.d.ts)  | Textarea field props             |
-| [`KirbyNumberFieldProps`](./src/blueprint.d.ts)    | Number field props               |
 | [`KirbyDateFieldProps`](./src/blueprint.d.ts)      | Date and time field props        |
 | [`KirbyPickerFieldProps`](./src/blueprint.d.ts)    | Files/pages/users picker props   |
 | [`KirbyModelListFieldProps`](./src/blueprint.d.ts) | File and page list field props   |
 | [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)   | Select/radio/checkboxes/toggles  |
-| [`KirbyToggleFieldProps`](./src/blueprint.d.ts)    | Toggle (boolean) field props     |
-| [`KirbyColorFieldProps`](./src/blueprint.d.ts)     | Color picker field props         |
-| [`KirbyRangeFieldProps`](./src/blueprint.d.ts)     | Range slider field props         |
 | [`KirbyTagsFieldProps`](./src/blueprint.d.ts)      | Tags and multiselect field props |
-| [`KirbyLinkFieldProps`](./src/blueprint.d.ts)      | Link field props                 |
-| [`KirbyObjectFieldProps`](./src/blueprint.d.ts)    | Object field props               |
-| [`KirbyWriterFieldProps`](./src/blueprint.d.ts)    | Writer (rich text) field props   |
-| [`KirbyListFieldProps`](./src/blueprint.d.ts)      | List field props                 |
-| [`KirbyEntriesFieldProps`](./src/blueprint.d.ts)   | Entries field props              |
-| [`KirbyStatsFieldProps`](./src/blueprint.d.ts)     | Stats field props                |
+
+The other field prop types are named after their field, such as `KirbyTextFieldProps` or `KirbyWriterFieldProps`.
 
 </details>
 
