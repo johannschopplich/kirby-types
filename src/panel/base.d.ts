@@ -11,8 +11,7 @@
  *
  * @example
  * ```ts
- * const notification: PanelState<PanelNotificationDefaults> = panel.notification;
- * const { isOpen, message } = notification.state();
+ * const { isOpen, message } = panel.notification.state();
  * ```
  *
  * @source panel/src/panel/state.ts
