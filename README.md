@@ -275,10 +275,10 @@ window.panel.plugin("my/plugin", {
 | [`KirbyQueryRequest`](./src/kql.d.ts)        | KQL request with pagination or named queries                              |
 | [`KirbyQueryResponse<T, P>`](./src/kql.d.ts) | KQL response with optional pagination                                     |
 | [`KirbyQuerySchema`](./src/kql.d.ts)         | `query` and `select` of a KQL request                                     |
-| [`KirbyQuery<M>`](./src/query.d.ts)          | Valid Kirby query string                                                  |
-| [`KirbyQueryRoot<M>`](./src/query.d.ts)      | Root a query starts from, such as `site` or `page`; `M` adds custom roots |
-| [`KirbyQueryChain<M>`](./src/query.d.ts)     | Query that continues after its root, such as `page.children.listed`       |
-| [`ParseKirbyQuery<T, M>`](./src/query.d.ts)  | Query string parsed into its root and chain                               |
+| [`KirbyQuery<R>`](./src/query.d.ts)          | Valid Kirby query string                                                  |
+| [`KirbyQueryRoot<R>`](./src/query.d.ts)      | Root a query starts from, such as `site` or `page`; `R` adds custom roots |
+| [`KirbyQueryChain<R>`](./src/query.d.ts)     | Query that continues after its root, such as `page.children.listed`       |
+| [`ParseKirbyQuery<T, R>`](./src/query.d.ts)  | Query string parsed into its root and chain                               |
 
 ### Panel Types
 

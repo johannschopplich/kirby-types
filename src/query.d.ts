@@ -29,15 +29,13 @@
  * const customRoot: KirbyQueryRoot<CustomRoots> = "product";
  * ```
  *
- * @template CustomModel - Additional custom root names to include
- *
  * @source src/Query/Query.php
  * @source src/Query/Runners/Scope.php
  * @source src/Cms/ModelWithContent.php
  * @source src/Option/OptionsQuery.php
  * @source src/Option/OptionsApi.php
  */
-export type KirbyQueryRoot<CustomModel extends string = never> =
+export type KirbyQueryRoot<R extends string = never> =
   | "collection"
   | "kirby"
   | "site"
@@ -53,51 +51,51 @@ export type KirbyQueryRoot<CustomModel extends string = never> =
   | "structureItem"
   | "block"
   | "this"
-  | CustomModel;
+  | R;
 
 /**
  * Root that a query can only call, as in `t("key")`: its function requires
  * arguments and no query data supplies it bare.
  * @internal
  */
-type FunctionOnlyQueryModel = "collection" | "t" | "qr";
+type FunctionOnlyQueryRoot = "collection" | "t" | "qr";
 
 /**
  * Root that a query can use without a call, as in `page.title`.
  * @internal
  */
-type AccessibleQueryModel<M extends string = never> =
-  Exclude<KirbyQueryRoot, FunctionOnlyQueryModel> | M;
+type AccessibleQueryRoot<R extends string = never> =
+  Exclude<KirbyQueryRoot, FunctionOnlyQueryRoot> | R;
 
 /**
  * Root that a query can call, as in `page("id")`: a global query function or a
  * custom root.
  * @internal
  */
-type CallableQueryModel<M extends string = never> =
+type CallableQueryRoot<R extends string = never> =
   | Exclude<
       KirbyQueryRoot,
       "model" | "item" | "arrayItem" | "structureItem" | "block" | "this"
     >
-  | M;
+  | R;
 
 /**
  * Dot notation query, such as `root.property.method`, `root?.property`, or
  * `root[key]`.
  * @internal
  */
-type DotNotationQuery<M extends string = never> =
-  | `${AccessibleQueryModel<M>}.${string}`
-  | `${AccessibleQueryModel<M>}?.${string}`
-  | `${AccessibleQueryModel<M>}[${string}`;
+type DotNotationQuery<R extends string = never> =
+  | `${AccessibleQueryRoot<R>}.${string}`
+  | `${AccessibleQueryRoot<R>}?.${string}`
+  | `${AccessibleQueryRoot<R>}[${string}`;
 
 /**
  * Function notation query, such as `page(params)` or `page(params).chain`.
  * @internal
  */
-type FunctionNotationQuery<M extends string = never> =
-  | `${CallableQueryModel<M>}(${string})`
-  | `${CallableQueryModel<M>}(${string})${string}`;
+type FunctionNotationQuery<R extends string = never> =
+  | `${CallableQueryRoot<R>}(${string})`
+  | `${CallableQueryRoot<R>}(${string})${string}`;
 
 /**
  * Binary or ternary operator the parser accepts after an expression.
@@ -130,8 +128,8 @@ type QueryOperator =
  * `root ? a : b`, or `root && other`.
  * @internal
  */
-type OperatorQuery<M extends string = never> =
-  `${AccessibleQueryModel<M>} ${QueryOperator} ${string}`;
+type OperatorQuery<R extends string = never> =
+  `${AccessibleQueryRoot<R>} ${QueryOperator} ${string}`;
 
 /**
  * Query that starts with a root and continues with property access, method
@@ -160,14 +158,14 @@ type OperatorQuery<M extends string = never> =
  * const customQuery: KirbyQueryChain<CustomRoots> = "product.price";
  * ```
  *
- * @template M - Optional custom root names to include in validation
+ * @typeParam R - Custom root names to include
  *
  * @source src/Query/Parser/Parser.php
  * @source src/Query/Parser/Tokenizer.php
  * @source src/Query/Visitors/DefaultVisitor.php
  */
-export type KirbyQueryChain<M extends string = never> =
-  DotNotationQuery<M> | FunctionNotationQuery<M> | OperatorQuery<M>;
+export type KirbyQueryChain<R extends string = never> =
+  DotNotationQuery<R> | FunctionNotationQuery<R> | OperatorQuery<R>;
 
 /**
  * Kirby query string, checked against the known roots. It accepts:
@@ -200,17 +198,15 @@ export type KirbyQueryChain<M extends string = never> =
  * // const invalid: KirbyQuery<MyRoots> = "brand"; // ❌ Not a built-in or custom root
  * ```
  *
- * @template CustomModel - Optional custom root names to include alongside built-in roots
+ * @typeParam R - Custom root names to include
  *
  * @source src/Query/Query.php
  * @source src/Query/Parser/Parser.php
  * @source src/Query/Visitors/DefaultVisitor.php
  */
-export type KirbyQuery<CustomModel extends string = never> =
-  | AccessibleQueryModel<CustomModel>
-  | (string extends KirbyQueryChain<CustomModel>
-      ? never
-      : KirbyQueryChain<CustomModel>);
+export type KirbyQuery<R extends string = never> =
+  | AccessibleQueryRoot<R>
+  | (string extends KirbyQueryChain<R> ? never : KirbyQueryChain<R>);
 
 /**
  * Parses a query segment as a property access or a method call.
@@ -302,20 +298,20 @@ type ParseQueryChain<T extends string> =
  * // }
  * ```
  *
- * @template T - The query string to parse
- * @template M - Optional custom root names to include in validation
+ * @typeParam T - The query string to parse
+ * @typeParam R - Custom root names to include
  *
  * @source src/Query/Parser/Parser.php
  */
-export type ParseKirbyQuery<T extends string, M extends string = never> =
+export type ParseKirbyQuery<T extends string, R extends string = never> =
   // Case 0: Null-safe access parses like a dot (e.g., `page?.title`).
   T extends `${infer Head}?.${infer Tail}`
-    ? ParseKirbyQuery<`${Head}.${Tail}`, M>
+    ? ParseKirbyQuery<`${Head}.${Tail}`, R>
     : // Case 1: Bare root (e.g., `site`, `page`).
-      T extends AccessibleQueryModel<M>
+      T extends AccessibleQueryRoot<R>
       ? { root: T; chain: [] }
       : // Case 2: Method call followed by a chain (e.g., `page("blog").children`).
-        T extends `${infer Root extends CallableQueryModel<M>}(${infer Params}).${infer Chain}`
+        T extends `${infer Root extends CallableQueryRoot<R>}(${infer Params}).${infer Chain}`
         ? {
             root: Root;
             chain: [
@@ -324,9 +320,9 @@ export type ParseKirbyQuery<T extends string, M extends string = never> =
             ];
           }
         : // Case 3: Method call only (e.g., `page("blog")`).
-          T extends `${infer Root extends CallableQueryModel<M>}(${string})`
+          T extends `${infer Root extends CallableQueryRoot<R>}(${string})`
           ? { root: Root; chain: [ParseQuerySegment<T>] }
           : // Case 4: Dot notation (e.g., `page.children.listed`).
-            T extends `${infer Root extends AccessibleQueryModel<M>}.${infer Chain}`
+            T extends `${infer Root extends AccessibleQueryRoot<R>}.${infer Chain}`
             ? { root: Root; chain: ParseQueryChain<Chain> }
             : never;
