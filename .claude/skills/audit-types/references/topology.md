@@ -185,10 +185,9 @@ Field props as PHP sends them to the Panel: the field class's props are the shap
 
 ### `blueprint-models`
 
-- **Symbols**: KirbyFieldsetTab, KirbyFieldsetProps, KirbyFieldsetGroup, KirbyModelImage, KirbyPickerItem, KirbyPickerFieldProps, KirbyModelListFieldProps, KirbyModelListColumn, KirbyStructureColumn, KirbyStructureFieldProps, KirbyObjectFieldProps, KirbyBlocksFieldProps, KirbyLayoutFieldProps, KirbyWriterFieldProps, KirbyEntriesFieldProps, KirbyStatsReport, KirbyStatsFieldProps, KirbyBlockValue, KirbyLayoutColumnValue, KirbyLayoutValue
+- **Symbols**: KirbyFieldsetTab, KirbyFieldsetProps, KirbyFieldsetGroup, KirbyModelImage, KirbyPickerItem, KirbyPickerFieldProps, KirbyModelListFieldProps, KirbyModelListColumn, KirbyStructureColumn, KirbyStructureFieldProps, KirbyObjectFieldProps, KirbyBlocksFieldProps, KirbyLayoutFieldProps, KirbyWriterFieldProps, KirbyEntriesFieldProps, KirbyStatsReport, KirbyStatsFieldProps
 - **Modules**: `panel/src/components/Forms/Field/*`, `panel/src/components/Forms/Blocks/*`, `panel/src/components/Forms/Layouts/*`
 - **PHP**: `src/Form/Field/*.php`, `src/Form/Mixin/*.php`, `src/Cms/{Fieldset,Fieldsets}.php`, `src/Panel/Ui/{Item,Stat,Stats}.php`, `src/Panel/Ui/Item/*.php`, `src/Panel/Model.php`
-- **Watch**: `KirbyBlockValue`, `KirbyLayoutColumnValue`, and `KirbyLayoutValue` type the `value` the Panel edits; `blocks.d.ts` and `layout.d.ts` type the content a frontend reads.
 
 ## blocks.d.ts
 
