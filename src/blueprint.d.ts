@@ -938,50 +938,6 @@ export interface KirbyStatsFieldProps extends KirbyFieldProps {
 }
 // #endregion
 
-// #region Block & Layout Values
-
-/**
- * Block value as stored in content.
- *
- * @source src/Cms/Block.php
- */
-export interface KirbyBlockValue {
-  /** Values of the block's fields. */
-  content: Record<string, any>;
-  /** Unique block identifier. */
-  id: string;
-  isHidden: boolean;
-  /** Block type identifier. */
-  type: string;
-}
-
-/**
- * Layout column value as stored in content.
- *
- * @source src/Cms/LayoutColumn.php
- */
-export interface KirbyLayoutColumnValue {
-  blocks: KirbyBlockValue[];
-  /** Unique column identifier. */
-  id: string;
-  /** Column width fraction. */
-  width: string;
-}
-
-/**
- * Layout value as stored in content.
- *
- * @source src/Cms/Layout.php
- */
-export interface KirbyLayoutValue {
-  /** Values of the layout's settings fields. */
-  attrs: Record<string, any>;
-  columns: KirbyLayoutColumnValue[];
-  /** Unique layout identifier. */
-  id: string;
-}
-// #endregion
-
 // #region Union Types
 
 export type KirbyAnyFieldProps =

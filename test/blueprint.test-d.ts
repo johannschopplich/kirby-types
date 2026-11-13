@@ -1,16 +1,13 @@
 // Tests representative core types for `src/blueprint.d.ts` – not exhaustive.
 import type {
   KirbyBlocksFieldProps,
-  KirbyBlockValue,
   KirbyColorFieldProps,
   KirbyDateFieldProps,
   KirbyFieldProps,
   KirbyFieldsetGroup,
   KirbyFieldsetProps,
   KirbyFieldsetTab,
-  KirbyLayoutColumnValue,
   KirbyLayoutFieldProps,
-  KirbyLayoutValue,
   KirbyListFieldProps,
   KirbyModelListFieldProps,
   KirbyNumberFieldProps,
@@ -475,13 +472,6 @@ expectAssignable<KirbyBlocksFieldProps>({
   type: "blocks",
   width: "1/1",
 });
-
-expectAssignable<KirbyBlockValue>({
-  content: { text: "Hello" },
-  id: "block-1",
-  isHidden: false,
-  type: "text",
-});
 // #endregion
 
 // #region Layout Field Props
@@ -500,18 +490,6 @@ expectAssignable<KirbyLayoutFieldProps>({
   translate: true,
   type: "layout",
   width: "1/1",
-});
-
-expectAssignable<KirbyLayoutValue>({
-  attrs: { class: "highlight" },
-  columns: [{ blocks: [], id: "col-1", width: "1/1" }],
-  id: "layout-1",
-});
-
-expectAssignable<KirbyLayoutColumnValue>({
-  blocks: [{ content: {}, id: "b1", isHidden: false, type: "text" }],
-  id: "col-1",
-  width: "1/2",
 });
 // #endregion
 
