@@ -3,10 +3,10 @@
  *
  * Built-in roots:
  * - `site` – The site object.
- * - `page` – The page in context.
- * - `user` – The user in context, else the logged-in user.
+ * - `page` – The page in context; the current page while options are built from a query of pages.
+ * - `user` – The user in context, else the logged-in user; the current user while options are built from a query of users.
  * - `users` – All users.
- * - `file` – The file in context.
+ * - `file` – The file in context; the current file while options are built from a query of files.
  * - `model` – The page, file, user, or site the query runs on.
  * - `collection` – Named collection, called as `collection("name")`.
  * - `kirby` – The Kirby instance.
@@ -160,6 +160,7 @@ type OperatorQuery<R extends string = never> =
  *
  * @typeParam R - Custom root names to include
  *
+ * @source src/Query/Query.php
  * @source src/Query/Parser/Parser.php
  * @source src/Query/Parser/Tokenizer.php
  * @source src/Query/Visitors/DefaultVisitor.php
@@ -202,6 +203,8 @@ export type KirbyQueryChain<R extends string = never> =
  *
  * @source src/Query/Query.php
  * @source src/Query/Parser/Parser.php
+ * @source src/Query/Parser/Tokenizer.php
+ * @source src/Query/Runners/Scope.php
  * @source src/Query/Visitors/DefaultVisitor.php
  */
 export type KirbyQuery<R extends string = never> =
@@ -257,11 +260,11 @@ type ParseQueryChain<T extends string> =
 /**
  * Parses a Kirby query string into its `root` (e.g., `site`, `page`, `user`)
  * and a `chain` of property accesses and method calls. The chain splits at
- * every dot, including dots inside method arguments other than the root call's,
- * and `?.` reads as `.` everywhere, inside arguments too. `[key]` access and
- * operators such as `??`, `?:`, `==`, or `!` are not parsed: on a bare root the
- * result is `never`; after a chain they stay inside the segment names, split at
- * any dot they contain.
+ * every dot, including dots inside method arguments; only a root call's
+ * arguments stay whole, up to their first `).`. `?.` reads as `.` everywhere,
+ * inside arguments too. A query that holds `[key]` access or an operator such
+ * as `??`, `?:`, `==`, or `!` parses to `never` or to segments and params that
+ * contain it.
  *
  * @example
  * ```ts
