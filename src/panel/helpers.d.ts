@@ -36,9 +36,6 @@ export interface PanelHelpersArray {
   /**
    * Filters items whose `options.field` value contains the query,
    * case-insensitively; items with an empty field are dropped.
-   *
-   * @param query - Search query; `null` and `undefined` throw unless
-   *   `options.min` reaches the length of their string form.
    */
   search: <T extends Record<string, any>>(
     array: T[],
@@ -189,6 +186,8 @@ export type PanelSlugRules = Record<string, string>[];
 
 /**
  * @source panel/src/helpers/string.ts
+ * @source panel/src/components/Forms/Writer/Nodes/Doc.ts
+ * @source panel/src/helpers/writer.ts
  */
 export interface PanelHelpersString {
   camelToKebab: (string: string) => string;
@@ -238,7 +237,7 @@ export interface PanelHelpersString {
   /**
    * Sanitizes HTML by only keeping allowed marks and nodes.
    *
-   * @param html - HTML to sanitize; a falsy value resolves to `""`
+   * @param html - HTML to sanitize; a falsy value returns `""`
    * @param options - Allowed marks and nodes
    * @param options.marks - Allowed marks; omitted or `null`, `bold`, `code`,
    *   `italic`, `link`, `strike`, `sub`, `sup`, and `underline`
@@ -252,7 +251,7 @@ export interface PanelHelpersString {
       marks?: PanelWriterAllowed<WriterMarkExtension>;
       nodes?: PanelWriterAllowed<WriterNodeExtension>;
     },
-  ) => Promise<string>;
+  ) => string;
 
   /**
    * Converts string to ASCII slug. Leading and trailing characters outside
@@ -443,9 +442,9 @@ export interface PanelHelpersUrl {
  */
 export interface PanelHelpersClipboard {
   /**
-   * Reads a string as-is or the content of a `ClipboardEvent`, preventing its
-   * default. Prefers HTML over plain text and turns non-breaking spaces into
-   * spaces.
+   * Reads a non-empty string as-is or the content of a `ClipboardEvent`,
+   * preventing its default. Prefers HTML over plain text and turns
+   * non-breaking spaces into spaces.
    *
    * @param event - Clipboard event or string; any other event yields `null`
    * @param plain - Read only the plain text, without the space normalization
@@ -502,15 +501,12 @@ export interface PanelHelpersEmbed {
  */
 export interface PanelFieldDefinition {
   type?: string;
-  name?: string;
   default?: any;
-  disabled?: boolean;
   hidden?: boolean;
   /** Conditional visibility. */
   when?: Record<string, any>;
   /** API endpoint paths of the field and its model. */
   endpoints?: { field?: string; model?: string };
-  fields?: Record<string, PanelFieldDefinition>;
   [key: string]: any;
 }
 
@@ -551,9 +547,9 @@ export interface PanelHelpersField {
   ) => boolean;
 
   /**
-   * Appends a `"–"` placeholder option for each value without a matching
-   * option, e.g. a deleted page. Values match as strings; `null`, `undefined`,
-   * and `""` get no placeholder.
+   * Appends a placeholder option with the text `[unknown]`, in the interface
+   * language, for each value without a matching option, e.g. a deleted page.
+   * Values match as strings; `null`, `undefined`, and `""` get no placeholder.
    *
    * @param value - Field value, a single value or an array
    * @unstable
@@ -570,7 +566,8 @@ export interface PanelHelpersField {
    *
    * @param field - Parent field
    * @param fields - Subfield definitions
-   * @returns The mutated subfield definitions
+   * @returns Shallow copies of the subfield definitions; the passed ones stay
+   *   untouched.
    * @unstable
    */
   subfields: (
@@ -790,6 +787,7 @@ export type PanelUploadResultCallback = (
 
 /**
  * @source panel/src/helpers/upload.ts
+ * @source config/api/authentication.php
  */
 export interface PanelUploadParams {
   /** Upload endpoint URL, `"/"` when omitted. */
@@ -800,6 +798,10 @@ export interface PanelUploadParams {
   field?: string;
   /** Filename sent with the file, the file's name when omitted. */
   filename?: string;
+  /**
+   * Request headers; an upload to Kirby's API from a Panel session needs
+   * `x-csrf` set to `panel.system.csrf`.
+   */
   headers?: Record<string, string>;
   /** Additional `FormData` entries; values are coerced to strings. */
   attributes?: Record<string, string | number>;
@@ -911,6 +913,9 @@ export type PanelComparator = (
  * @source panel/src/helpers/string.ts
  * @source panel/src/helpers/throttle.ts
  * @source panel/src/helpers/upload.ts
+ * @source config/areas/site/requests.php
+ * @source config/areas/users/requests.php
+ * @source src/Form/Field/ModelPickerField.php
  * @source src/Panel/Controller/Request/ModelItemsRequestController.php
  */
 export interface PanelHelpers {
@@ -978,16 +983,19 @@ export interface PanelHelpers {
 
   /**
    * Requests item props by model ID. Calls in the same tick are batched into
-   * shared requests. A blank ID, an unknown ID, a model the user may not
-   * list, or a failed request resolves to `undefined` – the promise never
-   * rejects. A failed request still reaches the Panel's error handling, so an
-   * expired session or a lost connection surfaces to the user.
+   * shared requests. A blank ID or a failed request resolves to `undefined` –
+   * the promise never rejects. A failed request still reaches the Panel's
+   * error handling, so an expired session or a lost connection surfaces to
+   * the user.
    *
-   * @param endpoint - API endpoint: `"items/files"`, `"items/pages"`, or
-   *   `"items/users"`
+   * @param endpoint - `"items/files"`, `"items/pages"`, or `"items/users"`,
+   *   which resolve an unknown ID or a model the user may not list to
+   *   `undefined`; or the full API URL of a picker field's `items` route,
+   *   which applies the field's blueprint `image`, `info`, `layout`, and
+   *   `text` and returns a stand-in item for such an ID.
    * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs
-   * @param query - Query passed on to the endpoint; the item endpoints read
-   *   `image` (a JSON string of image options), `info`, `layout`, and `text`
+   * @param query - Query for the `items/*` endpoints, which read `image` (a
+   *   JSON string of image options), `info`, `layout`, and `text`
    * @returns Item props, or an array of them in the order of the IDs
    */
   items: {
@@ -1021,8 +1029,8 @@ export interface PanelHelpers {
   page: PanelHelpersPage;
 
   /**
-   * Converts aspect ratio to percentage; a zero part returns `"100%"` and a
-   * non-numeric part `"NaN%"`, whatever the `fallback`.
+   * Converts aspect ratio to percentage; a zero part returns `"100%"`,
+   * whatever the `fallback`.
    *
    * @param fraction - Ratio string (default: `"3/2"`)
    * @param fallback - Value returned when the fraction does not split into two

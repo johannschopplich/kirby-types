@@ -31,6 +31,7 @@ import type {
 } from "../src/panel/features.js";
 import type {
   PanelHelpersPage,
+  PanelHelpersString,
   PanelPageStatusFlag,
   PanelPageStatusProps,
 } from "../src/panel/helpers.js";
@@ -319,4 +320,11 @@ expectNotAssignable<PanelPageStatusProps["theme"]>("notice");
 expectAssignable<Parameters<PanelHelpersPage["status"]>[2]>(
   {} as PanelPageStatusFlag,
 );
+// #endregion
+
+// #region String Helpers
+
+declare const stringHelpers: PanelHelpersString;
+
+expectType<string>(stringHelpers.sanitizeHTML("<b>Bold</b>"));
 // #endregion
