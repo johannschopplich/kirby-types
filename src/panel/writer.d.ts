@@ -49,13 +49,17 @@ export interface WriterToolbarButton {
   command?: string;
   /** Icon name from Kirby's icon set. */
   icon: string;
-  /** Display label (usually translated via `window.panel.t()`). */
   label: string;
-  /** Extension name this button belongs to. */
+  /**
+   * Name of the mark or node the button belongs to, filled in for a single
+   * button. A button in an array sets it itself, or the toolbar never marks
+   * the button current.
+   */
   name?: string;
   /**
-   * Node attributes that mark this button as current when they match the
-   * active node's, for nodes with several buttons such as headings.
+   * Node attributes that mark this button as current when they equal the
+   * active node's attributes, for nodes with several buttons such as headings.
+   * List every attribute of the node, in the schema's order.
    */
   attrs?: Record<string, any>;
   /**
@@ -248,12 +252,7 @@ export interface WriterEditor {
    * `false` does nothing.
    */
   focus: (position?: "start" | "end" | number | boolean | null) => void;
-  /**
-   * Returns content as HTML. An inline editor returns only the first
-   * paragraph's inner HTML.
-   *
-   * @param fragment - Fragment to serialize (default: the whole document)
-   */
+  /** @param fragment - Fragment to serialize (default: the whole document) */
   getHTML: (fragment?: Fragment) => string;
   getHTMLStartToSelection: () => string;
   getHTMLSelectionToEnd: () => string;
@@ -268,7 +267,10 @@ export interface WriterEditor {
   getMarkAttrs: <T extends object = Record<string, any>>(
     type?: string | null,
   ) => T | undefined;
-  /** Inserts text at the current selection. */
+  /**
+   * Inserts text at the current selection; with `selected`, selects the
+   * inserted text.
+   */
   insertText: (text: string, selected?: boolean) => void;
   isEditable: () => boolean;
   /**
@@ -319,6 +321,13 @@ export interface WriterEditor {
     emitUpdate?: boolean,
     parseOptions?: ParseOptions,
   ) => void;
+  /**
+   * Selects the range between two positions, each clamped to the document's
+   * first and last text positions.
+   *
+   * @param from - Start position (default: `0`)
+   * @param to - End position (default: `0`)
+   */
   setSelection: (from?: number, to?: number) => void;
   /** Toggles a mark on the current selection. */
   toggleMark: (mark: string) => boolean | undefined;
@@ -479,8 +488,7 @@ export interface WriterUtils {
    * deletes the rest of the group before it, or of the whole match when the
    * pattern has a single group.
    *
-   * @param regexp - Pattern with at least one capture group; the rule throws
-   *                 without one.
+   * @param regexp - Pattern with at least one capture group
    */
   markInputRule: (
     regexp: RegExp,
@@ -497,8 +505,7 @@ export interface WriterUtils {
    * `link` mark, and text whose parent node disallows the mark, stays
    * unmarked.
    *
-   * @param regexp - Pattern with a capture group and the `g` flag; without the
-   *                 flag a match hangs the paste.
+   * @param regexp - Pattern with a capture group and the `g` flag
    */
   markPasteRule: (
     regexp: RegExp,
@@ -531,8 +538,7 @@ export interface WriterUtils {
   /**
    * Creates a paste rule that marks each whole match in pasted text.
    *
-   * @param regexp - Pattern with the `g` flag; without it a match hangs the
-   *                 paste.
+   * @param regexp - Pattern with the `g` flag
    * @deprecated Use `markPasteRule` instead.
    */
   pasteRule: (
@@ -718,8 +724,6 @@ export interface WriterExtension {
   /**
    * Returns keyboard shortcuts. A handler that returns nothing or `false`
    * lets the key fall through to the next binding.
-   *
-   * @returns Object mapping key combinations to command functions
    */
   keys?: (
     context: WriterExtensionContext,
@@ -767,6 +771,7 @@ export interface WriterExtension {
  * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Editor.ts
+ * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/helpers/writer.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
  * @source panel/public/js/plugins.js
@@ -811,7 +816,8 @@ export interface WriterMarkExtension {
    * Returns the commands this mark provides. A single function registers under
    * the mark's `name`, an object under its keys. A command that returns a
    * function has it run as a ProseMirror command against the view; any other
-   * return value passes through.
+   * return value passes through. A command run from the mark's toolbar
+   * button receives the click `MouseEvent` as its argument.
    *
    * @example
    * ```js
@@ -851,8 +857,6 @@ export interface WriterMarkExtension {
   /**
    * Returns keyboard shortcuts. A handler that returns nothing or `false`
    * lets the key fall through to the next binding.
-   *
-   * @returns Object mapping key combinations to command functions
    *
    * @example
    * ```js
@@ -1046,8 +1050,6 @@ export interface WriterNodeExtension {
   /**
    * Returns keyboard shortcuts. A handler that returns nothing or `false`
    * lets the key fall through to the next binding.
-   *
-   * @returns Object mapping key combinations to command functions
    */
   keys?: (context: WriterNodeContext) => Record<string, Command | (() => void)>;
 
