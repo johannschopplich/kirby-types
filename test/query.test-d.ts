@@ -30,6 +30,9 @@ expectAssignable<KirbyQuery>('this["my-key"]');
 // Operators
 expectAssignable<KirbyQuery>("page ?? site");
 
+// Negation
+expectAssignable<KirbyQuery>("!page.isListed");
+
 // Function calls
 expectAssignable<KirbyQuery>('page("notes")');
 expectAssignable<KirbyQuery>('user("admin")');
@@ -96,6 +99,7 @@ expectNotAssignable<KirbyQuery>("content");
 expectNotAssignable<KirbyQuery>('model("x")'); // Not callable
 expectNotAssignable<KirbyQuery>("collection"); // Only works as a call
 expectNotAssignable<KirbyQuery>("t.foo");
+expectNotAssignable<KirbyQuery>("!unknown.isListed");
 expectNotAssignable<KirbyQuery<"customModel">>("otherModel");
 expectNotAssignable<KirbyQuery<"product" | "category">>("brand");
 // #endregion

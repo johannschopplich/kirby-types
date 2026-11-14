@@ -87,6 +87,10 @@ expectNotAssignable<KirbyQueryRequest>({
   query: 'page("home").layouts',
   select: { columns: { query: 'layout("x")', select: { width: true } } },
 } as const);
+expectNotAssignable<KirbyQueryRequest>({
+  query: 'page("home").layouts',
+  select: { columns: { query: '!layout("x")', select: { width: true } } },
+} as const);
 
 // A nested query starts at its parent object, never at a collection alias.
 expectNotAssignable<KirbyQueryRequest>({

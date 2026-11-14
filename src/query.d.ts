@@ -177,9 +177,10 @@ export type KirbyQueryChain<R extends string = never> =
  *
  * A query is a type error unless it starts with a known root, alone or followed
  * by `.`, `?.`, `[`, `(`, or a spaced operator such as `??`, `?:`, `?`, `&&`,
- * `==`, or `+` – `!page.isListed` and `page??fallback` fail. `collection`, `t`,
- * and `qr` only work as calls; `model`, `item`, `arrayItem`, `structureItem`,
- * `block`, and `this` never take `(`. The rest of the chain is not checked.
+ * `==`, or `+` – `page??fallback` fails. A single `!` may negate it, as in
+ * `!page.isListed`. `collection`, `t`, and `qr` only work as calls; `model`,
+ * `item`, `arrayItem`, `structureItem`, `block`, and `this` never take `(`.
+ * The rest of the chain is not checked.
  *
  * @example
  * ```ts
@@ -188,6 +189,7 @@ export type KirbyQueryChain<R extends string = never> =
  * const propertyQuery: KirbyQuery = "page.children.listed";
  * const methodQuery: KirbyQuery = 'page.children.filterBy("featured", true)';
  * const complexQuery: KirbyQuery = 'page("home").children.sortBy("date", "desc").limit(10)';
+ * const negatedQuery: KirbyQuery = "!page.isListed";
  *
  * // Custom roots
  * type MyRoots = "product" | "category";
@@ -209,7 +211,10 @@ export type KirbyQueryChain<R extends string = never> =
  */
 export type KirbyQuery<R extends string = never> =
   | AccessibleQueryRoot<R>
-  | (string extends KirbyQueryChain<R> ? never : KirbyQueryChain<R>);
+  | `!${AccessibleQueryRoot<R>}`
+  | (string extends KirbyQueryChain<R>
+      ? never
+      : KirbyQueryChain<R> | `!${KirbyQueryChain<R>}`);
 
 /**
  * Parses a query segment as a property access or a method call.

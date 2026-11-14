@@ -101,7 +101,7 @@ interface KirbyQueryNestedRequest extends Omit<
    */
   query?: Exclude<
     KirbyQuery<KirbyQueryObjectAlias>,
-    `${KirbyQueryObjectAlias}(${string}`
+    `${KirbyQueryObjectAlias}(${string}` | `!${KirbyQueryObjectAlias}(${string}`
   >;
 }
 
