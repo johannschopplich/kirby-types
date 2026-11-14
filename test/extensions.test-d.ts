@@ -254,6 +254,7 @@ expectType<EditorView>(editor.view);
 expectAssignable<TextareaButton>({
   label: "Bold",
   icon: "bold",
+  class: ["is-bold", { "is-active": true }],
   click() {
     this.command("toggle", "**");
   },
@@ -278,17 +279,7 @@ expectAssignable<TextareaButton>({
     {
       label: "Heading 1",
       icon: "h1",
-      // Arrow function captures outer `this` (toolbar context).
-      click: () => {
-        // In real code: this.command("prepend", "#")
-      },
-    },
-    {
-      label: "Heading 2",
-      icon: "h2",
-      click: () => {
-        // In real code: this.command("prepend", "##")
-      },
+      click: () => {},
     },
   ],
 });
@@ -304,6 +295,7 @@ expectType<void>(
 );
 expectType<void>(context.command("toggle" as "toggle" | "prepend", "**"));
 expectType<void>(context.close());
+expectType<Record<string, any>>(context.commands);
 expectType<string>(context.$t("toolbar.button.bold"));
 expectType<string>(context.$t("key", { n: 1 }));
 // #endregion

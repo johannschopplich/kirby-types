@@ -71,6 +71,13 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
   default: string[];
 
   /**
+   * Built-in buttons by name, such as `bold` or `link`. A plugin button
+   * that replaces a built-in one can still run the original through
+   * `this.commands.<name>.click()`.
+   */
+  commands: Record<string, any>;
+
+  /**
    * Upload options from the field's `uploads` option, or `false` when
    * uploads are disabled. The built-in file button offers its select and
    * upload dropdown only when `uploads` is not `false`.
@@ -117,8 +124,6 @@ export interface TextareaButton {
   label?: string;
 
   /**
-   * Icon name from Kirby's icon set.
-   *
    * The toolbar shows no button text, so a button without an icon renders
    * empty, with its `label` only as the tooltip.
    */
@@ -149,9 +154,8 @@ export interface TextareaButton {
    * Keyboard shortcut key (without modifier).
    *
    * Fires with Cmd/Ctrl + the key while the textarea has focus and no other
-   * modifier is held. Matched against `KeyboardEvent.key`. Still runs `click`
-   * when `when` hides the button or `disabled` is set. When several listed
-   * buttons share a key, only the first in toolbar order runs.
+   * modifier is held. Matched against `KeyboardEvent.key`. When several
+   * listed buttons share a key, only the first in toolbar order runs.
    *
    * @example
    * ```js
@@ -172,11 +176,9 @@ export interface TextareaButton {
    * If non-empty, clicking the button opens the dropdown instead of running
    * `click`. The `shortcut` still runs `click`.
    *
-   * An item's `click` callback gets the dropdown component as `this`, not
-   * the toolbar, and a `textareaButtons` entry is a static object with no
-   * toolbar to close over, so `command()` is out of reach. To react to an
-   * item elsewhere, use the `{ global, payload }` click form, which emits an
-   * event on the global event bus.
+   * An item's `click` cannot reach `command()`: neither its `this` nor a
+   * `textareaButtons` entry has the toolbar. To react to an item elsewhere,
+   * use the `{ global, payload }` click form.
    *
    * @example
    * ```js
@@ -208,6 +210,6 @@ export interface TextareaButton {
   /** Tooltip text used as a fallback when `label` is not set. */
   title?: string;
 
-  class?: string;
+  class?: string | any[] | Record<string, any>;
 }
 // #endregion
