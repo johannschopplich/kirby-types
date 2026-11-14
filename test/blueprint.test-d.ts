@@ -23,6 +23,7 @@ import type {
   KirbyToggleFieldProps,
   KirbyWriterFieldProps,
 } from "../src/blueprint.js";
+import type { HtmlString } from "../src/panel/index.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 
 // #region Kirby Option
@@ -343,8 +344,11 @@ const list = {
 expectNotAssignable<KirbyModelListFieldProps>({ ...list, link: true as const });
 
 expectAssignable<KirbyModelListFieldProps["columns"]>({
-  date: { display: "DD.MM.YYYY", id: "date", label: "Date", type: null },
+  date: { display: "DD.MM.YYYY", id: "date", label: "Date", type: "date" },
   title: { label: "Title", mobile: true, type: "url" },
+});
+expectNotAssignable<KirbyModelListFieldProps["columns"]>({
+  date: { label: "Date", type: null },
 });
 // #endregion
 
@@ -425,6 +429,8 @@ expectAssignable<KirbyStructureColumn>({
   mobile: true,
   align: "left",
 });
+
+expectAssignable<KirbyStructureFieldProps["columns"]>([]);
 // #endregion
 
 // #region Object Field Props
@@ -605,6 +611,8 @@ expectNotAssignable<KirbyFieldProps>({
   name: "title",
   type: "text",
 });
+
+expectAssignable<KirbyFieldProps["help"]>({} as HtmlString);
 
 // Input field without its label
 expectNotAssignable<KirbyToggleFieldProps>({
