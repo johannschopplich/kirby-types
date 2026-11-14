@@ -68,6 +68,7 @@ export interface PanelActivation
 
 /**
  * @source panel/src/panel/drag.ts
+ * @source panel/src/components/Collection/Items.vue
  */
 export interface PanelDragDefaults {
   /** Type of the dragged item; `null` when no drag is in progress. */
@@ -79,6 +80,7 @@ export interface PanelDragDefaults {
  * Type and payload of the drag in progress.
  *
  * @source panel/src/panel/drag.ts
+ * @source panel/src/components/Collection/Items.vue
  */
 export interface PanelDrag
   extends PanelState<PanelDragDefaults>, PanelDragDefaults {
@@ -155,6 +157,7 @@ export interface PanelTheme
 
 /**
  * @source panel/src/panel/language.ts
+ * @source panel/src/panel/panel.ts
  * @source src/Panel/State.php
  * @source src/Cms/Language.php
  */
@@ -328,6 +331,7 @@ export interface PanelMenu
 /**
  * @source panel/src/panel/notification.ts
  * @source panel/src/components/View/Notifications.vue
+ * @source panel/src/helpers/timer.ts
  */
 export interface PanelNotificationDefaults {
   /** Context where notification appears. */
@@ -369,6 +373,7 @@ export interface PanelErrorObject {
 
 /**
  * @source panel/src/panel/notification.ts
+ * @source panel/src/helpers/timer.ts
  */
 export interface PanelNotificationOptions {
   /** Context where notification appears. */
@@ -393,6 +398,10 @@ export interface PanelNotificationOptions {
  *
  * @source panel/src/panel/notification.ts
  * @source panel/src/components/View/Notifications.vue
+ * @source panel/src/panel/request.ts
+ * @source panel/src/components/Misc/Fatal.vue
+ * @source panel/src/components/Dialogs/Elements/Notification.vue
+ * @source panel/src/components/Drawers/Elements/Notification.vue
  */
 export interface PanelNotification
   extends PanelState<PanelNotificationDefaults>, PanelNotificationDefaults {
@@ -598,16 +607,20 @@ export interface PanelUser
 // #region View
 
 /**
+ * Other button props, such as `click`, `dialog`, or `drawer`, pass through to
+ * the rendered button; the breadcrumb sets `disabled` and `variant` itself.
+ *
  * @source panel/src/panel/view.ts
  * @source panel/src/components/Navigation/Breadcrumb.vue
+ * @source panel/src/components/Navigation/Button.vue
  * @source src/Panel/Page.php
  * @source src/Panel/Controller/View/PageViewController.php
  */
 export interface PanelBreadcrumbItem {
   label: string;
   /**
-   * Panel path the crumb links to. Absent for a crumb without a target,
-   * which renders disabled.
+   * Panel path the crumb links to. A crumb without `link`, `click`,
+   * `dialog`, or `drawer` renders disabled.
    */
   link?: string;
   /**
@@ -615,6 +628,7 @@ export interface PanelBreadcrumbItem {
    */
   title?: string;
   icon?: string;
+  [key: string]: any;
 }
 
 /**
@@ -626,6 +640,7 @@ export interface PanelBreadcrumbItem {
  * @source src/Panel/State.php
  * @source src/Panel/Area.php
  * @source src/Panel/Ui/View.php
+ * @source src/Panel/Panel.php
  */
 export interface PanelViewDefaults extends PanelFeatureDefaults {
   /**
@@ -640,7 +655,6 @@ export interface PanelViewDefaults extends PanelFeatureDefaults {
   link: string | null;
   /** Relative path to this view. */
   path: string;
-  /** Previous path for navigation and redirects. */
   referrer: string;
   /**
    * Search type that `panel.search()` and the search dialog use when called
@@ -759,9 +773,10 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
   ) => Promise<PanelDrawerDefaults>;
 
   /**
-   * Switches to `tab`, or to the first key of `props.tabs` when omitted,
-   * and fires the `tab` listener; does nothing when the drawer has no tabs
-   * and `tab` is omitted.
+   * Switches to `tab`, or to the first key of `props.tabs` when omitted:
+   * copies that tab's `fields` into `props.fields`, sets `props.tab` to its
+   * name, fires the `tab` listener, and focuses the drawer. Does nothing when
+   * the drawer has no tabs and `tab` is omitted.
    *
    * @param tab - Tab name to switch to
    */
@@ -787,6 +802,7 @@ export interface PanelDrawer extends PanelModal<PanelDrawerDefaults> {
  * @source panel/src/components/Navigation/Button.vue
  * @source panel/src/components/Navigation/Link.vue
  * @source panel/src/components/Dropdowns/DropdownItem.vue
+ * @source panel/src/helpers/url.ts
  */
 export interface PanelDropdownOption {
   /** Text shown in place of `text`. */
@@ -817,7 +833,12 @@ export interface PanelDropdownOption {
   /** Value of the `aria-current` attribute, for active-state styling. */
   current?: boolean | string;
 
-  /** URL or Panel path the option links to. */
+  /**
+   * URL or Panel path the option links to. A path with a single leading `/`
+   * resolves against the Panel URL unless `target` is set, a bare email
+   * address becomes a `mailto:` link, and a `javascript:` or `data:` URL
+   * renders an empty `href`.
+   */
   link?: string;
 
   /** Link target, such as `"_blank"`. Applies only with `link`. */
@@ -919,7 +940,8 @@ export interface PanelContentEnv {
 }
 
 /**
- * Content lock state of a view.
+ * Content lock state of a view: the lock of a locked language, or of the
+ * current language while none is locked.
  * @source panel/src/panel/content.ts
  * @source src/Content/Lock.php
  * @source src/Cms/ModelWithContent.php
@@ -935,13 +957,13 @@ export interface PanelContentLock {
   /**
    * Lock modification timestamp. Initially an ISO 8601 string from the
    * server; after a successful save the Panel replaces it with a `Date`.
-   * `null` while the content has no unpublished changes.
+   * `null` while that language has no unpublished changes.
    */
   modified: string | Date | null;
   /**
-   * User who last edited the content, or the current user when there are no
-   * unpublished changes; both fields are `null` when that user is unknown or
-   * not listable.
+   * User who last edited that language's content, or the current user while
+   * it has no unpublished changes; both fields are `null` when that user is
+   * unknown or not listable.
    */
   user: { id: string | null; email: string | null };
 }
@@ -1112,6 +1134,8 @@ export interface PanelContent {
   /**
    * Saves the given values to the changes version without merging them into
    * the view. Cancels ongoing saves and any pending `saveLazy()` call first.
+   * Opens the lock dialog when the server reports a lock, and closes it after
+   * a successful save.
    *
    * @returns `true` if saved, `false` if locked or replaced by a newer save
    */
@@ -1312,9 +1336,7 @@ export interface PanelUploadReplaceFile {
  * @source panel/src/helpers/file.ts
  */
 export interface PanelUploadFile {
-  /** Unique file ID. */
   id: string;
-  /** Original File object. */
   src: File;
   /** File name without extension; changing it renames the upload. */
   name: string;
@@ -1337,8 +1359,8 @@ export interface PanelUploadFile {
   progress: number;
   completed: boolean;
   /**
-   * Error message of a name clash or a thrown `Error`, cleared before each
-   * new attempt. A server-rejected upload leaves it unset.
+   * Error message of a name clash or a failed upload, cleared before each
+   * new attempt.
    */
   error?: string;
   /** Server file model, set once the upload completes. */
@@ -1356,7 +1378,10 @@ export interface PanelUploadFile {
  * @source src/Form/Field/FileListField.php
  */
 export interface PanelUploadDefaults {
-  /** Accepted file types. */
+  /**
+   * File types the file picker accepts, as in the input's `accept`
+   * attribute; `"*"` when unset.
+   */
   accept: string;
   /** Additional file attributes. */
   attributes: {
@@ -1370,6 +1395,7 @@ export interface PanelUploadDefaults {
    * the newest `max` files.
    */
   max: number | null;
+  /** Whether the file picker allows several files; `true` when unset. */
   multiple: boolean;
   /**
    * Listeners for the `cancel`, `complete`, `done`, `open`, and `select`
@@ -1386,12 +1412,12 @@ export interface PanelUploadDefaults {
    * dialog.
    */
   replacing: PanelUploadReplaceFile | null;
-  /** Upload endpoint URL. */
   url: string | null;
 }
 
 /**
- * Upload options; a `null` value falls back to the default.
+ * Upload options. An omitted or `null` key falls back to its default, so
+ * options without `files` empty the queue.
  * @source panel/src/panel/state.ts
  */
 type PanelUploadOptions = {
@@ -1526,9 +1552,8 @@ export interface PanelUpload
    * success it marks the file `completed`, stores the server file model in
    * `model`, and emits `file.upload` on `panel.events`. On failure, including
    * a call before `submit()` has set `abort`, it resets `progress` to `0` and
-   * emits `file.upload.error` there. A thrown `Error` also stores its message
-   * in `error`; a server-rejected upload leaves `error` unset. An upload
-   * aborted in flight keeps its `progress` and emits nothing.
+   * emits `file.upload.error` there. An upload aborted in flight keeps its
+   * `progress` and emits nothing.
    *
    * @param file - File to upload
    * @param attributes - Form data sent with the file
@@ -1566,9 +1591,16 @@ export interface PanelEventEmitter {
  *   submit the open dialog or drawer
  * - `keydown.cmd.shift.f` and `keydown.cmd./` open the search dialog
  * - `clipboard.write` copies its payload, a non-string as pretty-printed
- *   JSON, and shows a success notification.
+ *   JSON, and shows a success notification
+ * - `popstate` reopens the current browser URL, for back and forward
+ *   navigation
+ * - `drop` stops the current drag
+ * - on the mobile layout, `keydown.esc` and a `click` outside the menu close
+ *   the menu.
  *
  * @source panel/src/panel/events.ts
+ * @source panel/src/panel/app.ts
+ * @source panel/src/panel/menu.ts
  * @source panel/src/panel/dialog.ts
  * @source panel/src/panel/drawer.ts
  * @source panel/src/panel/modal.ts
@@ -1681,7 +1713,8 @@ export interface PanelEvents extends PanelEventEmitter {
 
   /**
    * Adds the document and window listeners that re-emit their events on the
-   * bus.
+   * bus. The Panel calls it on startup; calling it again re-emits every event
+   * twice.
    */
   subscribe: () => void;
 

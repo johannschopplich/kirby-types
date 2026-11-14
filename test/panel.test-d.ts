@@ -16,6 +16,7 @@ import type {
   PanelRequestOptions,
 } from "../src/panel/base.js";
 import type {
+  PanelBreadcrumbItem,
   PanelContent,
   PanelDialog,
   PanelDialogDefaults,
@@ -297,6 +298,7 @@ expectAssignable<PanelViewPropsButton["props"]["badge"]>({ text: 5 });
 expectNotAssignable<PanelViewPropsButton["props"]["badge"]>({
   theme: "positive",
 });
+expectAssignable<PanelBreadcrumbItem>({ label: "Home", theme: "positive" });
 // #endregion
 
 // #region Model Data
