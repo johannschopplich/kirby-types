@@ -14,6 +14,12 @@ export interface PanelApiRequestOptions extends Omit<
   "csrf" | "external" | "on" | "translation"
 > {
   /**
+   * Request body for `request()`; `post()`, `patch()`, and `delete()` send
+   * their `data` instead. Forms, `FormData`, and objects are sent as JSON;
+   * strings are sent as-is.
+   */
+  body?: string | FormData | HTMLFormElement | Record<string, any> | null;
+  /**
    * Content language code sent as the `x-language` header, the current
    * content language when omitted or empty.
    */
@@ -118,6 +124,10 @@ export interface PanelModelData<TContent = Record<string, any>> {
   id?: string;
   /** Title of a page or the site – files and users carry `name` instead. */
   title?: string;
+  /**
+   * Field values keyed by field name; an empty array, not an object, for a
+   * model without any, except from `pages.get()` and `files.get()`.
+   */
   content: TContent;
 }
 // #endregion
@@ -259,6 +269,7 @@ export interface PanelApiFiles {
  * Language data for `create()` and `update()`.
  * @source src/Cms/Language.php
  * @source src/Toolkit/Locale.php
+ * @source src/Guards/LanguageValidators.php
  */
 export interface PanelApiLanguageCreateData {
   /** Language code, slugified on create. */
@@ -269,12 +280,18 @@ export interface PanelApiLanguageCreateData {
   direction?: "ltr" | "rtl";
   /**
    * Whether the language is the default; the first language created always
-   * is.
+   * is. `create()` rejects `true` while another default exists; `update()`
+   * with `true` makes the language the default in place of the current one,
+   * and rejects `false` on the current default.
    */
   default?: boolean;
   /** Locale, or a locale per category keyed by `LC_*` constant name. */
   locale?: string | Record<string, string>;
-  /** Language variables keyed by translation key. */
+  /**
+   * Language variables keyed by translation key; `update()` replaces every
+   * existing variable with them. A key may not be empty, numeric, or one of
+   * Kirby's own translation keys.
+   */
   translations?: Record<string, any>;
   /** Custom URL for this language, absolute or relative to the site URL. */
   url?: string;
@@ -760,9 +777,13 @@ export interface PanelApiUserCompact {
  * @source src/Cms/ModelWithContent.php
  * @source src/Guards/UserValidators.php
  * @source src/Auth/Passwords.php
+ * @source src/Cms/AppTranslations.php
  */
 export interface PanelApiUserCreateData {
-  /** User ID, generated when omitted. */
+  /**
+   * User ID of letters, digits, `_`, and `-`, generated when omitted;
+   * `account`, `kirby`, and `nobody` are reserved.
+   */
   id?: string;
   email: string;
   /**
@@ -776,7 +797,10 @@ export interface PanelApiUserCreateData {
    * exists.
    */
   role?: string;
-  /** Panel interface language code. */
+  /**
+   * Panel interface language code, one of the Panel's translations; the
+   * `panel.language` option when omitted.
+   */
   language?: string;
   content?: Record<string, any>;
   /**
@@ -791,6 +815,10 @@ export interface PanelApiUserCreateData {
 }
 
 /**
+ * Every `id` also takes the user's email, or `account` for the logged-in
+ * user. A user the current user may not access is not found, and `list()`
+ * and `search()` return only the users they may list.
+ *
  * @source panel/src/api/users.ts
  * @source config/api/routes/users.php
  * @source config/api/collections.php
@@ -798,6 +826,8 @@ export interface PanelApiUserCreateData {
  * @source src/Form/Field/PageListField.php
  * @source src/Cms/User.php
  * @source src/Cms/UserActions.php
+ * @source src/Cms/Find.php
+ * @source src/Cms/Users.php
  */
 export interface PanelApiUsers {
   /**
