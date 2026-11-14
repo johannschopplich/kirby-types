@@ -1,8 +1,6 @@
 /**
  * Blueprint type definitions for Kirby: field, fieldset, and option props as
  * the backend sends them to the Panel.
- *
- * @see https://getkirby.com/docs/reference/panel/blueprints
  */
 
 import type { HtmlString } from "./panel/index.js";
@@ -252,7 +250,6 @@ export interface KirbyFieldsetGroup {
 // #region Field Props (Type-Specific)
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/text
  * @source src/Form/Field/TextField.php
  * @source src/Form/Field/SlugField.php
  * @source src/Form/Field/UrlField.php
@@ -327,7 +324,6 @@ export interface KirbyFieldUploads {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/textarea
  * @source src/Form/Field/TextareaField.php
  * @source src/Form/Mixin/Counter.php
  * @source src/Form/Mixin/Font.php
@@ -359,7 +355,6 @@ export interface KirbyTextareaFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/number
  * @source src/Form/Field/NumberField.php
  */
 export interface KirbyNumberFieldProps extends KirbyInputFieldProps {
@@ -371,7 +366,6 @@ export interface KirbyNumberFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/select
  * @source src/Form/Field/SelectField.php
  * @source src/Form/Field/RadioField.php
  * @source src/Form/Field/CheckboxesField.php
@@ -406,7 +400,6 @@ export interface KirbyOptionsFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/toggle
  * @source src/Form/Field/ToggleField.php
  * @source src/Toolkit/HtmlString.php
  */
@@ -423,7 +416,6 @@ export interface KirbyToggleFieldProps extends KirbyInputFieldProps {
  * `min` and `max` are formatted `Y-m-d`, `Y-m-d H:i:s` with a `time` input,
  * or `H:i:s` for `time`.
  *
- * @see https://getkirby.com/docs/reference/panel/fields/date
  * @source src/Form/Field/DateField.php
  * @source src/Form/Field/TimeField.php
  * @source src/Form/Field/DateTimeField.php
@@ -508,7 +500,6 @@ export interface KirbyModelItem {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/files
  * @source src/Form/Field/ModelPickerField.php
  * @source src/Form/Field/FilePickerField.php
  * @source src/Form/Field/PagePickerField.php
@@ -648,7 +639,6 @@ export interface KirbyColorOption {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/color
  * @source src/Form/Field/ColorField.php
  */
 export interface KirbyColorFieldProps extends KirbyInputFieldProps {
@@ -663,7 +653,6 @@ export interface KirbyColorFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/range
  * @source src/Form/Field/RangeField.php
  * @source src/Form/Field/NumberField.php
  * @source panel/src/components/Forms/Input/RangeInput.vue
@@ -696,8 +685,6 @@ export interface KirbyTagsSearch {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/tags
- * @see https://getkirby.com/docs/reference/panel/fields/multiselect
  * @source src/Form/Field/TagsField.php
  * @source src/Form/Field/MultiselectField.php
  * @source src/Form/Field/OptionsField.php
@@ -730,7 +717,6 @@ export interface KirbyTagsFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/link
  * @source src/Form/Field/LinkField.php
  */
 export interface KirbyLinkFieldProps extends KirbyInputFieldProps {
@@ -761,7 +747,6 @@ export interface KirbyStructureColumn {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/structure
  * @source src/Form/Field/StructureField.php
  * @source src/Form/Mixin/Batch.php
  * @source src/Form/Mixin/Duplicate.php
@@ -805,7 +790,6 @@ export interface KirbyStructureFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/object
  * @source src/Form/Field/ObjectField.php
  * @source src/Form/Mixin/Fields.php
  */
@@ -818,7 +802,6 @@ export interface KirbyObjectFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/blocks
  * @source src/Form/Field/BlocksField.php
  * @source src/Form/Mixin/Min.php
  * @source panel/src/components/Forms/Blocks/Blocks.vue
@@ -842,7 +825,6 @@ export interface KirbyBlocksFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/layout
  * @source src/Form/Field/LayoutField.php
  * @source src/Form/Field/BlocksField.php
  * @source src/Form/Mixin/Min.php
@@ -879,7 +861,6 @@ export interface KirbyLayoutFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/writer
  * @source src/Form/Field/WriterField.php
  * @source src/Form/Field/ProseMirrorField.php
  * @source src/Form/Mixin/Counter.php
@@ -921,7 +902,6 @@ export interface KirbyWriterFieldProps extends KirbyInputFieldProps {
 }
 
 /**
- * @see https://getkirby.com/docs/reference/panel/fields/list
  * @source src/Form/Field/ListField.php
  * @source src/Form/Field/ProseMirrorField.php
  * @source src/Form/Mixin/Maxlength.php
@@ -954,7 +934,6 @@ export interface KirbyListFieldProps extends KirbyInputFieldProps {
 /**
  * Simplified structure field with a single field per entry.
  *
- * @see https://getkirby.com/docs/reference/panel/fields/entries
  * @source src/Form/Field/EntriesField.php
  * @source src/Form/Mixin/Min.php
  * @source src/Form/Mixin/Sortable.php
@@ -999,7 +978,6 @@ export interface KirbyStatsReport {
 /**
  * Field showing reports as cards.
  *
- * @see https://getkirby.com/docs/reference/panel/fields/stats
  * @source src/Form/Field/StatsField.php
  * @source src/Panel/Ui/Stats.php
  * @source panel/src/components/Layout/Stats.vue
