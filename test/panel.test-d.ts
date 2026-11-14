@@ -45,6 +45,7 @@ import type {
   PanelRequestResponse,
   PanelViewProps,
   PanelViewPropsButton,
+  PanelViewPropsPermissions,
   PanelViewPropsTab,
 } from "../src/panel/index.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
@@ -299,6 +300,11 @@ expectNotAssignable<PanelViewPropsButton["props"]["badge"]>({
   theme: "positive",
 });
 expectAssignable<PanelBreadcrumbItem>({ label: "Home", theme: "positive" });
+expectAssignable<PanelViewPropsPermissions>({
+  access: true,
+  update: true,
+  publish: true,
+});
 // #endregion
 
 // #region Model Data

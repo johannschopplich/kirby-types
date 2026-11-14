@@ -173,6 +173,7 @@ export type {
  * ```
  * @source panel/src/panel/panel.ts
  * @source panel/src/panel/legacy.ts
+ * @source panel/src/panel/dropdown.ts
  * @source panel/src/index.ts
  * @source panel/src/helpers/index.ts
  * @source panel/src/libraries/index.ts
@@ -450,9 +451,9 @@ export interface PanelPermissions {
  * @source panel/src/panel/search.ts
  */
 export interface PanelSearchType {
-  /** `"search"` unless the area's search sets an icon. */
+  /** `"search"` when the area's search sets none. */
   icon: string;
-  /** Search id turned into a label unless the area's search sets one. */
+  /** Search id turned into a label when the area's search sets none. */
   label: string;
   id: string;
 }
@@ -589,11 +590,9 @@ export interface PanelRequestResponse {
  */
 export interface PanelPluginExtensions {
   /**
-   * Custom block types for the blocks field.
-   *
-   * Can be either a template string (shorthand) or a component options object.
    * Registered as `k-block-type-${name}` components that extend
-   * `k-block-type-default` unless they set their own `extends`.
+   * `k-block-type-default` unless they set their own `extends`. A string is
+   * the component's template.
    */
   blocks?: Record<string, string | PanelComponentExtension>;
 
@@ -604,11 +603,7 @@ export interface PanelPluginExtensions {
    */
   components?: Record<string, PanelComponentExtension>;
 
-  /**
-   * Custom field types.
-   *
-   * Registered as `k-${name}-field` components.
-   */
+  /** Registered as `k-${name}-field` components. */
   fields?: Record<string, PanelComponentExtension>;
 
   /**
@@ -617,11 +612,7 @@ export interface PanelPluginExtensions {
    */
   icons?: Record<string, string>;
 
-  /**
-   * View button components.
-   *
-   * Registered as `k-${name}-view-button` components.
-   */
+  /** Registered as `k-${name}-view-button` components. */
   viewButtons?: Record<string, PanelComponentExtension>;
 
   /** Vue plugins to install via `app.use()`. */
@@ -744,16 +735,19 @@ export interface PanelPlugins {
  * @source src/Toolkit/Locale.php
  */
 export interface PanelLanguageInfo {
-  /** Language code (e.g., `"en"`, `"de"`). */
+  /** Language code, such as `"en"` or `"de"`. */
   code: string;
   default: boolean;
   direction: "ltr" | "rtl";
   /**
-   * Whether the language is configured with an absolute `url` (e.g.
-   * `https://example.de` or `//example.de`) rather than a path prefix.
+   * Whether the language is configured with an absolute `url`, such as
+   * `https://example.de` or `//example.de`, rather than a path prefix.
    */
   hasCustomDomain: boolean;
-  /** PHP locale settings keyed by `LC_*` integer constants (e.g., `LC_ALL`, `LC_CTYPE`). */
+  /**
+   * PHP locale settings keyed by `LC_*` integer constants, such as `LC_ALL`
+   * or `LC_CTYPE`.
+   */
   locale: Record<number, string>;
   name: string;
   /** Slug transliteration rules, keyed by the text they replace. */
@@ -801,6 +795,9 @@ export interface PanelGlobalState {
  * `redirect` opens that path and skips the rest of the state.
  *
  * @source panel/src/panel/panel.ts
+ * @source panel/src/panel/state.ts
+ * @source panel/src/panel/menu.ts
+ * @source panel/src/panel/feature.ts
  */
 type PanelStateInput = Partial<
   Pick<
@@ -888,6 +885,7 @@ export interface PanelHtml {
  * @source panel/src/api/index.ts
  * @source panel/src/components/Views/SearchView.vue
  * @source panel/src/helpers/url.ts
+ * @source panel/src/helpers/string.ts
  * @source panel/public/js/plugins.js
  * @source src/Panel/State.php
  * @source src/Cms/LicenseStatus.php
@@ -994,6 +992,7 @@ export interface Panel {
 
   config: PanelConfig;
 
+  /** Empty on single-language sites. */
   languages: PanelLanguageInfo[];
 
   license:
@@ -1080,27 +1079,6 @@ export interface Panel {
    * plugin scripts load, before the Panel boots.
    *
    * @param name - Plugin name, by convention `vendor/plugin`, unused by the runtime
-   *
-   * @example
-   * ```ts
-   * window.panel.plugin("my-plugin", {
-   *   fields: {
-   *     "color-picker": {
-   *       extends: "k-text-field",
-   *       template: `<k-field v-bind="$props">...</k-field>`
-   *     }
-   *   },
-   *   textareaButtons: {
-   *     timestamp: {
-   *       label: "Insert Timestamp",
-   *       icon: "clock",
-   *       click() {
-   *         this.command("insert", () => new Date().toISOString());
-   *       }
-   *     }
-   *   }
-   * });
-   * ```
    */
   plugin: (name: string, extensions: PanelPluginExtensions) => void;
 
@@ -1154,6 +1132,7 @@ export interface Panel {
    * search when given a query.
    *
    * @param type - Search type, such as `"pages"`, `"files"`, or `"users"`
+   *   (default: the current view's search type)
    * @param options - Search options (`page`, `limit`)
    * @returns Search results when a query is provided, `undefined` if a newer search aborted the request
    */
@@ -1177,9 +1156,10 @@ export interface Panel {
 
   /**
    * Translates a key into the current interface language, filling
-   * `{placeholder}` values from `data`. A missing key falls back to
-   * `fallback`, then to the key itself; a string second argument is the
-   * fallback.
+   * `{placeholder}` values from `data`. A dotted placeholder such as
+   * `{user.name}` reads a nested value; a placeholder without a value renders
+   * as `…`. A missing key falls back to `fallback`, then to the key itself; a
+   * string second argument is the fallback.
    */
   t: {
     (key: string, fallback: string): string;
@@ -1280,8 +1260,11 @@ export interface PanelViewPropsButton {
  * @source src/Blueprint/UserBlueprint.php
  * @source src/Blueprint/SiteBlueprint.php
  * @source src/Panel/Controller/View/SiteViewController.php
+ * @source src/Blueprint/Normalizer.php
  */
 export interface PanelViewPropsPermissions {
+  /** Any other action the blueprint's `options` sets. */
+  [action: string]: boolean | undefined;
   access: boolean;
   /** Present on User views. */
   changeEmail?: boolean;
@@ -1384,6 +1367,7 @@ export interface PanelViewPropsNavigation {
  * @source src/Blueprint/Tabs.php
  * @source src/Panel/Ui/Button/ViewButtons.php
  * @source src/Uuid/Uuids.php
+ * @source src/Blueprint/Normalizer.php
  */
 export interface PanelViewProps {
   api: string;
@@ -1422,6 +1406,7 @@ export interface PanelViewProps {
  * @source src/Panel/Controller/View/FileViewController.php
  * @source src/Panel/Ui/FilePreview.php
  * @source src/Panel/Ui/FilePreview/ImageFilePreview.php
+ * @source src/Panel/File.php
  */
 export interface PanelFileViewProps extends PanelViewProps {
   extension: string;
@@ -1454,6 +1439,7 @@ export interface PanelFileViewProps extends PanelViewProps {
  * @source src/Panel/Controller/View/UserViewController.php
  * @source src/Panel/Model.php
  * @source src/Panel/Controller/View/AccountViewController.php
+ * @source src/Cms/User.php
  */
 export interface PanelUserViewProps extends PanelViewProps {
   avatar?: string;
