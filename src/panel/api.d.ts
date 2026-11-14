@@ -11,7 +11,7 @@ import type { Panel, PanelLanguageInfo, PanelPermissions } from "./index.js";
  */
 export interface PanelApiRequestOptions extends Omit<
   PanelRequestOptions,
-  "csrf" | "external" | "on" | "translation"
+  "csrf" | "external" | "globals" | "on" | "translation"
 > {
   /**
    * Request body for `request()`; `post()`, `patch()`, and `delete()` send

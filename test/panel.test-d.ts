@@ -251,6 +251,7 @@ expectType<PanelApiRequestOptions | undefined>(
 );
 expectAssignable<PanelRequestOptions>({ translation: "de" });
 expectNotAssignable<PanelApiRequestOptions>({ translation: "de" });
+expectNotAssignable<PanelApiRequestOptions>({ globals: "system" });
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
