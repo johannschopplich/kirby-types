@@ -68,7 +68,11 @@ export type KirbyCodeLanguage =
  * @source config/blocks/table/table.yml
  * @source config/blocks/text/text.yml
  * @source config/blocks/video/video.yml
+ * @source src/Cms/Blocks.php
  * @source src/Form/Field/BlocksField.php
+ * @source src/Form/Field/ModelPickerField.php
+ * @source src/Form/Field/OptionField.php
+ * @source src/Form/Field/ToggleField.php
  * @source src/Parsley/Schema/Blocks.php
  */
 export interface KirbyDefaultBlocks {
