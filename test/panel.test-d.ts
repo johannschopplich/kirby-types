@@ -13,6 +13,7 @@ import type {
   PanelHistoryMilestone,
   PanelModal,
   PanelModalListeners,
+  PanelRequestOptions,
 } from "../src/panel/base.js";
 import type {
   PanelContent,
@@ -246,6 +247,8 @@ expectNotAssignable<Parameters<Panel["set"]>[0]>({ config: { debug: true } });
 expectType<PanelApiRequestOptions | undefined>(
   {} as Parameters<PanelApi["get"]>[2],
 );
+expectAssignable<PanelRequestOptions>({ translation: "de" });
+expectNotAssignable<PanelApiRequestOptions>({ translation: "de" });
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);

@@ -23,16 +23,17 @@ export interface PanelState<TDefaults extends object = Record<string, any>> {
   defaults: () => TDefaults;
 
   /**
-   * Restores the default state by calling `set(defaults())`.
+   * Restores the default state; on a feature, also clears its event
+   * listeners.
    */
   reset: () => void;
 
   /**
-   * Sets a new state, filling missing and `null` properties from defaults.
+   * Sets a new state, filling missing and `null` properties from defaults; on
+   * a feature, also replaces its event listeners with the state's `on`.
    *
    * @param state - Partial state to merge
    * @returns The complete merged state
-   * @throws Error if `state` is not an object
    */
   set: (state: Partial<TDefaults>) => TDefaults;
 
@@ -112,10 +113,7 @@ export interface PanelEventListeners<TEvents extends string = string> {
   /** Removes the listener registered for `event`. */
   removeEventListener: (event: TEvents) => void;
 
-  /**
-   * Clears every registered listener. Called automatically when feature
-   * state is replaced.
-   */
+  /** Clears every registered listener. */
   removeEventListeners: () => void;
 }
 // #endregion
@@ -194,7 +192,9 @@ export interface PanelFeature<
   ) => Promise<Record<string, any> | false>;
 
   /**
-   * Loads a feature from the server and opens it through `panel.open()`.
+   * Loads a feature from the server and opens it. The response may open
+   * other features too, such as a drawer or a notification. Registers the
+   * `on` listeners from `options` after the loaded state is set.
    *
    * @param url - Feature URL to load
    * @returns The feature's state after loading
@@ -338,6 +338,7 @@ export interface PanelModalListeners {
  *
  * @source panel/src/panel/modal.ts
  * @source panel/src/helpers/focus.ts
+ * @source panel/src/panel/panel.ts
  */
 export interface PanelModal<
   TDefaults extends PanelModalDefaults = PanelModalDefaults,
@@ -355,10 +356,12 @@ export interface PanelModal<
   cancel: () => Promise<void>;
 
   /**
-   * Closes the modal, optionally by ID.
-   * Reopens the previous modal when the history holds one.
+   * Closes the modal and reopens the previous one when the history holds
+   * one. An `id` other than the current modal's does nothing. The `close`
+   * listener runs only once no modal remains, the `closed` listener in both
+   * cases.
    *
-   * @param id - Specific modal ID, `true` to close all, or `undefined` for current
+   * @param id - ID of the modal to close, or `true` to close all nested modals
    */
   close: (id?: string | true) => Promise<void>;
 
@@ -543,6 +546,7 @@ export interface PanelHistory<
  * @source panel/src/panel/feature.ts
  * @source panel/src/panel/panel.ts
  * @source panel/src/helpers/url.ts
+ * @source src/Panel/State.php
  */
 export interface PanelRequestOptions extends Omit<
   RequestInit,
@@ -573,7 +577,8 @@ export interface PanelRequestOptions extends Omit<
    */
   csrf?: string | false;
   /**
-   * Globals sent as the `x-panel-globals` header.
+   * Globals to add to the response, sent as the `x-panel-globals` header:
+   * `config`, `system`, `translation`, or `urls`; other names are ignored.
    * Arrays are joined with commas; strings are forwarded as-is.
    */
   globals?: string | string[];
@@ -582,6 +587,13 @@ export interface PanelRequestOptions extends Omit<
    * The current view path when omitted; `false` omits the header.
    */
   referrer?: string | false;
+  /**
+   * Interface translation code sent as the `x-panel-translation` header, the
+   * current interface translation when omitted; an empty value omits the
+   * header. When it differs from the user's interface language, the response
+   * adds the `translation` global.
+   */
+  translation?: string | null;
   /**
    * If `true`, sends the request to a third-party URL without the Panel's
    * headers, adding a JSON `content-type` only when a body is sent. A failed
@@ -602,10 +614,12 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
 // #region Context & Notification Types
 
 /**
- * Layer that is currently active, which decides where notifications appear
- * and which feature has focus.
+ * Layer that is currently active: the open dialog, else the open drawer, else
+ * the view. Decides where notifications appear and which global event the
+ * save shortcut emits: `view.save`, `dialog.save`, or `drawer.save`.
  * @source panel/src/panel/panel.ts
  * @source panel/src/panel/notification.ts
+ * @source panel/src/panel/events.ts
  */
 export type PanelContext = "view" | "dialog" | "drawer";
 

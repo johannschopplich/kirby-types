@@ -11,7 +11,7 @@ import type { Panel, PanelLanguageInfo, PanelPermissions } from "./index.js";
  */
 export interface PanelApiRequestOptions extends Omit<
   PanelRequestOptions,
-  "csrf" | "external" | "on"
+  "csrf" | "external" | "on" | "translation"
 > {
   /**
    * Content language code sent as the `x-language` header, the current
