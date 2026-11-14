@@ -7,28 +7,6 @@
  *
  * @typeParam T - Type of the result data
  *
- * @see https://getkirby.com/docs/reference/api
- *
- * @example
- * ```ts
- * // Typed KQL response for a page
- * interface PageData {
- *   id: string;
- *   title: string;
- *   url: string;
- * }
- *
- * const response: KirbyApiResponse<PageData> = {
- *   code: 200,
- *   status: "ok",
- *   result: {
- *     id: "home",
- *     title: "Home",
- *     url: "/"
- *   }
- * };
- * ```
- *
  * @example
  * ```ts
  * // Error response
@@ -36,7 +14,6 @@
  *   code: 404,
  *   status: "error",
  *   message: "not found"
- *   // result is undefined for errors
  * };
  * ```
  *
