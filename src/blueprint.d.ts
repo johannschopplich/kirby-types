@@ -154,8 +154,11 @@ export interface KirbyInputFieldProps extends KirbyFieldProps {
  * @source panel/src/components/Layout/Tabs.vue
  */
 export interface KirbyFieldsetTab {
-  /** Field definitions in this tab. */
-  fields: Record<string, KirbyFieldProps>;
+  /**
+   * Field definitions in this tab, each with the props of its own field type,
+   * such as a writer's `marks`.
+   */
+  fields: Record<string, KirbyFieldProps & Record<string, any>>;
   /** Tab label; absent when the fieldset defines no `tabs`. */
   label?: string | null;
   /** Tab identifier; absent when the fieldset defines no `tabs`. */

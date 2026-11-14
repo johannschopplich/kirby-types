@@ -590,10 +590,16 @@ expectAssignable<KirbyFieldsetTab>({
       translate: true,
       type: "writer",
       width: "1/1",
+      marks: ["bold", "italic"],
     },
   },
+  icon: "text",
   label: "Content",
   name: "content",
+});
+
+expectNotAssignable<KirbyFieldsetTab>({
+  fields: { text: { hidden: false, name: "text", saveable: true, type: 1 } },
 });
 
 expectAssignable<KirbyFieldsetGroup>({
