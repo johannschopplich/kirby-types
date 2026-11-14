@@ -36,7 +36,8 @@ import type { KirbyQuery } from "./query.js";
 export interface KirbyQuerySchema {
   /**
    * Query whose result the selection applies to, `site` when omitted. Over the
-   * KQL API, a page or file query starts at a call, such as `page("about")`.
+   * KQL API, a page or file query starts at a call, such as `page("about")`. A
+   * query that finds nothing, such as a missing page, gives a `null` result.
    */
   query?: KirbyQuery;
   /**
@@ -57,41 +58,29 @@ export interface KirbyQuerySchema {
  * query roots.
  * @internal
  *
- * @source src/Kql/Interceptors/Cms/Blocks.php
  * @source src/Kql/Interceptors/Blueprint/Blueprint.php
  * @source src/Kql/Interceptors/Content/Content.php
  * @source src/Kql/Interceptors/Content/Field.php
- * @source src/Kql/Interceptors/Cms/Files.php
  * @source src/Kql/Interceptors/Cms/Layout.php
  * @source src/Kql/Interceptors/Cms/LayoutColumn.php
- * @source src/Kql/Interceptors/Cms/LayoutColumns.php
- * @source src/Kql/Interceptors/Cms/Layouts.php
  * @source src/Kql/Interceptors/Content/Lock.php
  * @source src/Kql/Interceptors/Toolkit/Obj.php
- * @source src/Kql/Interceptors/Cms/Pages.php
  * @source src/Kql/Interceptors/Panel/Model.php
  * @source src/Kql/Interceptors/Cms/Role.php
- * @source src/Kql/Interceptors/Cms/Structure.php
  * @source src/Kql/Interceptors/Cms/Translation.php
  * @source src/Kql/Interceptors/Content/Version.php
  * @source src/Kql/Interceptors/Content/VersionId.php
  */
 type KirbyQueryObjectAlias =
-  | "blocks"
   | "blueprint"
   | "content"
   | "field"
-  | "files"
   | "layout"
   | "layoutColumn"
-  | "layoutColumns"
-  | "layouts"
   | "lock"
   | "obj"
-  | "pages"
   | "panel"
   | "role"
-  | "structure"
   | "translation"
   | "version"
   | "versionId";
@@ -101,7 +90,10 @@ type KirbyQueryObjectAlias =
  *
  * @source src/Kql/Kql.php
  */
-interface KirbyQueryNestedRequest extends Omit<KirbyQueryRequest, "query"> {
+interface KirbyQueryNestedRequest extends Omit<
+  KirbyQueryRequest,
+  "query" | "queries"
+> {
   /**
    * Query whose result the selection applies to, the parent object's field or
    * method of the same key when omitted. Can also start at the parent object's
@@ -147,7 +139,7 @@ export interface KirbyQueryRequest extends KirbyQuerySchema {
   /**
    * Pagination of a collection result. Applies only when `query` and `select`
    * are set and the query returns a collection; the result is then
-   * `{ data, pagination }`.
+   * `{ data, pagination }`. An empty object leaves the result unpaginated.
    */
   pagination?: {
     /**
@@ -156,8 +148,8 @@ export interface KirbyQueryRequest extends KirbyQuerySchema {
      */
     limit?: number;
     /**
-     * Page number, 1-indexed. A page past the last one fails the request with a
-     * `404` error.
+     * Page number, 1-indexed; `1` when omitted. A page past the last one fails
+     * the request with a `404` error.
      */
     page?: number;
   };
