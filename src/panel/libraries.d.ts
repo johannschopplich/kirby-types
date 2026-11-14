@@ -7,7 +7,7 @@ import type { ConfigType, Dayjs, PluginFunc, UnitTypeLong } from "dayjs";
 /**
  * @source panel/src/libraries/colors.ts
  */
-export interface PanelColorRGB {
+export interface PanelColorRgb {
   /** Red channel (0-255). */
   r: number;
   /** Green channel (0-255). */
@@ -21,7 +21,7 @@ export interface PanelColorRGB {
 /**
  * @source panel/src/libraries/colors.ts
  */
-export interface PanelColorHSL {
+export interface PanelColorHsl {
   /** Hue (0-360). */
   h: number;
   /** Saturation (0-1). */
@@ -35,7 +35,7 @@ export interface PanelColorHSL {
 /**
  * @source panel/src/libraries/colors.ts
  */
-export interface PanelColorHSV {
+export interface PanelColorHsv {
   /** Hue (0-360). */
   h: number;
   /** Saturation (0-1). */
@@ -49,7 +49,7 @@ export interface PanelColorHSV {
 /**
  * @source panel/src/libraries/colors.ts
  */
-export type PanelColorObject = PanelColorRGB | PanelColorHSL | PanelColorHSV;
+export type PanelColorObject = PanelColorRgb | PanelColorHsl | PanelColorHsv;
 
 /**
  * Any color, as a CSS string or an object.
@@ -88,21 +88,21 @@ export interface PanelLibraryColors {
    */
   convert: {
     (color: string, format: "hex"): string;
-    (color: string, format: "rgb"): PanelColorRGB;
-    (color: string, format: "hsl"): PanelColorHSL;
-    (color: string, format: "hsv"): PanelColorHSV;
-    (color: PanelColorRGB, format: "hex"): string;
-    (color: PanelColorRGB, format: "rgb"): PanelColorRGB;
-    (color: PanelColorRGB, format: "hsl"): PanelColorHSL;
-    (color: PanelColorRGB, format: "hsv"): PanelColorHSV;
-    (color: PanelColorHSL, format: "hex"): string;
-    (color: PanelColorHSL, format: "rgb"): PanelColorRGB;
-    (color: PanelColorHSL, format: "hsl"): PanelColorHSL;
-    (color: PanelColorHSL, format: "hsv"): PanelColorHSV;
-    (color: PanelColorHSV, format: "hex"): string;
-    (color: PanelColorHSV, format: "rgb"): PanelColorRGB;
-    (color: PanelColorHSV, format: "hsl"): PanelColorHSL;
-    (color: PanelColorHSV, format: "hsv"): PanelColorHSV;
+    (color: string, format: "rgb"): PanelColorRgb;
+    (color: string, format: "hsl"): PanelColorHsl;
+    (color: string, format: "hsv"): PanelColorHsv;
+    (color: PanelColorRgb, format: "hex"): string;
+    (color: PanelColorRgb, format: "rgb"): PanelColorRgb;
+    (color: PanelColorRgb, format: "hsl"): PanelColorHsl;
+    (color: PanelColorRgb, format: "hsv"): PanelColorHsv;
+    (color: PanelColorHsl, format: "hex"): string;
+    (color: PanelColorHsl, format: "rgb"): PanelColorRgb;
+    (color: PanelColorHsl, format: "hsl"): PanelColorHsl;
+    (color: PanelColorHsl, format: "hsv"): PanelColorHsv;
+    (color: PanelColorHsv, format: "hex"): string;
+    (color: PanelColorHsv, format: "rgb"): PanelColorRgb;
+    (color: PanelColorHsv, format: "hsl"): PanelColorHsl;
+    (color: PanelColorHsv, format: "hsv"): PanelColorHsv;
     (color: PanelColor, format: PanelColorFormat): string | PanelColorObject;
   };
 
@@ -118,7 +118,7 @@ export interface PanelLibraryColors {
    */
   parse: (
     string: string,
-  ) => string | PanelColorRGB | PanelColorHSL | null | false;
+  ) => string | PanelColorRgb | PanelColorHsl | null | false;
 
   /**
    * Parses a CSS color string and converts it to `format`, if given.
@@ -127,9 +127,9 @@ export interface PanelLibraryColors {
    */
   parseAs: {
     (string: string, format: "hex"): string | null | false;
-    (string: string, format: "rgb"): PanelColorRGB | null | false;
-    (string: string, format: "hsl"): PanelColorHSL | null | false;
-    (string: string, format: "hsv"): PanelColorHSV | null | false;
+    (string: string, format: "rgb"): PanelColorRgb | null | false;
+    (string: string, format: "hsl"): PanelColorHsl | null | false;
+    (string: string, format: "hsv"): PanelColorHsv | null | false;
     (
       string: string,
       format?: PanelColorFormat,
