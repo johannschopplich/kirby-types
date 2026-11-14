@@ -10,11 +10,11 @@ import type {
   KirbyLayoutFieldProps,
   KirbyListFieldProps,
   KirbyModelListFieldProps,
+  KirbyModelPickerFieldProps,
   KirbyNumberFieldProps,
   KirbyObjectFieldProps,
   KirbyOption,
   KirbyOptionsFieldProps,
-  KirbyPickerFieldProps,
   KirbyStatsFieldProps,
   KirbyStructureColumn,
   KirbyStructureFieldProps,
@@ -274,9 +274,9 @@ expectAssignable<KirbyDateFieldProps>({
 });
 // #endregion
 
-// #region Picker Field Props
+// #region Model Picker Field Props
 
-expectAssignable<KirbyPickerFieldProps>({
+expectAssignable<KirbyModelPickerFieldProps>({
   autofocus: false,
   disabled: false,
   hidden: false,
@@ -296,7 +296,7 @@ expectAssignable<KirbyPickerFieldProps>({
   width: "1/1",
 });
 
-expectAssignable<KirbyPickerFieldProps>({
+expectAssignable<KirbyModelPickerFieldProps>({
   autofocus: false,
   disabled: false,
   empty: "No files selected",

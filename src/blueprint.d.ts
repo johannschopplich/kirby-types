@@ -428,17 +428,17 @@ export interface KirbyModelImage {
 }
 
 /**
- * Picker item data as returned by the Panel API. An item the current user may
- * not list, or whose model no longer exists, stands in with the stored
- * reference as `id` and `uuid`, plain-string `text`, `info: null`,
- * `link: false`, and empty `permissions`.
+ * Page, file, or user item as the Panel API returns it for pickers and lists.
+ * An item the current user may not list, or whose model no longer exists,
+ * stands in with the stored reference as `id` and `uuid`, plain-string
+ * `text`, `info: null`, `link: false`, and empty `permissions`.
  *
  * @source src/Panel/Ui/Item.php
  * @source src/Panel/Ui/Item/ModelItem.php
  * @source src/Panel/Ui/Item/ProtectedItem.php
  * @source src/Panel/Ui/Item/MissingItem.php
  */
-export interface KirbyPickerItem {
+export interface KirbyModelItem {
   id: string;
   /** `null` with UUIDs disabled. */
   uuid: string | null;
@@ -465,7 +465,7 @@ export interface KirbyPickerItem {
  * @source src/Form/Mixin/Min.php
  * @source src/Blueprint/Normalizer.php
  */
-export interface KirbyPickerFieldProps extends KirbyInputFieldProps {
+export interface KirbyModelPickerFieldProps extends KirbyInputFieldProps {
   /** Picker type, also for blueprints that set `files`, `pages`, or `users`. */
   type: "filepicker" | "pagepicker" | "userpicker";
   /** Placeholder text when no items are selected. */
@@ -949,7 +949,7 @@ export type KirbyAnyFieldProps =
   | KirbyOptionsFieldProps
   | KirbyToggleFieldProps
   | KirbyDateFieldProps
-  | KirbyPickerFieldProps
+  | KirbyModelPickerFieldProps
   | KirbyModelListFieldProps
   | KirbyColorFieldProps
   | KirbyRangeFieldProps

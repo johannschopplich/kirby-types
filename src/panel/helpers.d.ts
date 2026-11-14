@@ -3,7 +3,7 @@
  */
 
 import type { App } from "vue";
-import type { KirbyPickerItem } from "../blueprint.js";
+import type { KirbyModelItem } from "../blueprint.js";
 import type { WriterMarkExtension, WriterNodeExtension } from "./writer.js";
 
 // #region Array Helpers
@@ -995,12 +995,12 @@ export interface PanelHelpers {
       endpoint: string,
       id: string,
       query?: Record<string, any>,
-    ): Promise<KirbyPickerItem | undefined>;
+    ): Promise<KirbyModelItem | undefined>;
     (
       endpoint: string,
       ids: string[],
       query?: Record<string, any>,
-    ): Promise<(KirbyPickerItem | undefined)[]>;
+    ): Promise<(KirbyModelItem | undefined)[]>;
   };
 
   keyboard: PanelHelpersKeyboard;

@@ -315,14 +315,14 @@ window.panel.plugin("my/plugin", {
 <details>
 <summary>View the remaining field prop types</summary>
 
-| Type                                               | Description                                           |
-| -------------------------------------------------- | ----------------------------------------------------- |
-| [`KirbyTextFieldProps`](./src/blueprint.d.ts)      | Text, slug, URL, email, tel, and password field props |
-| [`KirbyDateFieldProps`](./src/blueprint.d.ts)      | Date and time field props                             |
-| [`KirbyPickerFieldProps`](./src/blueprint.d.ts)    | Files/pages/users picker props                        |
-| [`KirbyModelListFieldProps`](./src/blueprint.d.ts) | File and page list field props                        |
-| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)   | Select/radio/checkboxes/toggles                       |
-| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)      | Tags and multiselect field props                      |
+| Type                                                 | Description                                           |
+| ---------------------------------------------------- | ----------------------------------------------------- |
+| [`KirbyTextFieldProps`](./src/blueprint.d.ts)        | Text, slug, URL, email, tel, and password field props |
+| [`KirbyDateFieldProps`](./src/blueprint.d.ts)        | Date and time field props                             |
+| [`KirbyModelPickerFieldProps`](./src/blueprint.d.ts) | Files/pages/users picker props                        |
+| [`KirbyModelListFieldProps`](./src/blueprint.d.ts)   | File and page list field props                        |
+| [`KirbyOptionsFieldProps`](./src/blueprint.d.ts)     | Select/radio/checkboxes/toggles                       |
+| [`KirbyTagsFieldProps`](./src/blueprint.d.ts)        | Tags and multiselect field props                      |
 
 The other field prop types are named after their one field, such as `KirbyWriterFieldProps`.
 
