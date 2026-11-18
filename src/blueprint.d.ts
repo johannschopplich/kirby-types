@@ -308,18 +308,18 @@ export interface KirbyTextFieldProps extends KirbyInputFieldProps {
  */
 export interface KirbyFieldUploads {
   /**
-   * Accepted file types; those of `template` when set, else the `accept` set
-   * in the blueprint, else `"*"`.
+   * Accepted file types; those of `blueprint` when set, else the configured
+   * `accept`, else `"*"`.
    */
   accept?: string;
+  /** File blueprint assigned to uploaded files. */
+  blueprint?: string;
   /**
    * Query for the model that stores the uploads; the field's model when unset.
    */
   parent?: string;
   /** Image settings of the field's items (`filepicker` only). */
   preview?: string | Record<string, any>;
-  /** File template assigned to uploaded files. */
-  template?: string;
   [key: string]: any;
 }
 
@@ -597,7 +597,7 @@ export interface KirbyModelListFieldProps extends KirbyFieldProps {
   /** List type, also for blueprints that set a `files` or `pages` section. */
   type: "filelist" | "pagelist";
   /**
-   * File types the `template` file blueprint accepts, as an HTML `accept`
+   * File types the field's file blueprint accepts, as an HTML `accept`
    * value (`filelist` only).
    */
   accept?: string;
