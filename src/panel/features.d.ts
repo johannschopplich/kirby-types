@@ -1051,9 +1051,13 @@ export interface PanelContent {
 
   /**
    * Returns `env` with its missing `api` and `language` taken from the
-   * current view.
+   * current view. `api` stays `undefined` in a view without a model, such as
+   * the users list.
    */
-  env: (env?: PanelContentEnv) => Required<PanelContentEnv>;
+  env: (env?: PanelContentEnv) => {
+    api: string | undefined;
+    language: string | null;
+  };
 
   /**
    * Returns whether the content has unpublished changes.

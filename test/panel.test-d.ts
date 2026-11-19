@@ -226,6 +226,7 @@ expectType<PanelNotificationDefaults>(
 declare const content: PanelContent;
 expectType<boolean>(content.hasDiff());
 expectType<boolean>(content.isCurrent());
+expectType<string | undefined>(content.env().api);
 expectType<boolean>(content.isLocked());
 expectType<Promise<boolean>>(content.save());
 expectType<Promise<void>>(content.publish());
