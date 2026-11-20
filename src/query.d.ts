@@ -34,6 +34,7 @@
  * @source src/Cms/ModelWithContent.php
  * @source src/Option/OptionsQuery.php
  * @source src/Option/OptionsApi.php
+ * @source src/Cms/AppUsers.php
  */
 export type KirbyQueryRoot<R extends string = never> =
   | "collection"
@@ -94,8 +95,7 @@ type DotNotationQuery<R extends string = never> =
  * @internal
  */
 type FunctionNotationQuery<R extends string = never> =
-  | `${CallableQueryRoot<R>}(${string})`
-  | `${CallableQueryRoot<R>}(${string})${string}`;
+  `${CallableQueryRoot<R>}(${string})${string}`;
 
 /**
  * Binary or ternary operator the parser accepts after an expression.
@@ -263,9 +263,9 @@ type ParseQueryChain<T extends string> =
     : [ParseQuerySegment<T>];
 
 /**
- * Parses a Kirby query string into its `root` (e.g., `site`, `page`, `user`)
- * and a `chain` of property accesses and method calls. The chain splits at
- * every dot, including dots inside method arguments; only a root call's
+ * Parse result of a Kirby query string: its `root` (e.g., `site`, `page`,
+ * `user`) and a `chain` of property accesses and method calls. The chain splits
+ * at every dot, including dots inside method arguments; only a root call's
  * arguments stay whole, up to their first `).`. `?.` reads as `.` everywhere,
  * inside arguments too. A query that holds `[key]` access or an operator such
  * as `??`, `?:`, `==`, or `!` parses to `never` or to segments and params that
