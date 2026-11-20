@@ -254,6 +254,7 @@ expectType<PanelApiRequestOptions | undefined>(
 expectAssignable<PanelRequestOptions>({ translation: "de" });
 expectNotAssignable<PanelApiRequestOptions>({ translation: "de" });
 expectNotAssignable<PanelApiRequestOptions>({ globals: "system" });
+expectNotAssignable<PanelApiRequestOptions>({ referrer: "/pages/a" });
 expectType<string>({} as PanelApi["csrf"]);
 expectType<string>({} as PanelApi["endpoint"]);
 expectType<ReturnType<typeof setInterval>>({} as PanelApi["pingId"]);
@@ -261,6 +262,7 @@ expectType<void>(panel.api.ping());
 expectType<Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>>(
   panel.api.roles.list(),
 );
+expectAssignable<Parameters<PanelApi["roles"]["list"]>[0]>({ search: "x" });
 expectNotAssignable<Parameters<PanelApi["roles"]["list"]>[0]>({
   canBe: "deleted",
 });

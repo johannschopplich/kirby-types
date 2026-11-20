@@ -11,7 +11,7 @@ import type { Panel, PanelLanguageInfo, PanelPermissions } from "./index.js";
  */
 export interface PanelApiRequestOptions extends Omit<
   PanelRequestOptions,
-  "csrf" | "external" | "globals" | "on" | "translation"
+  "csrf" | "external" | "globals" | "on" | "referrer" | "translation"
 > {
   /**
    * Request body for `request()`; `post()`, `patch()`, and `delete()` send
@@ -26,11 +26,6 @@ export interface PanelApiRequestOptions extends Omit<
   language?: string | null;
   /** HTTP method, `GET` when omitted; the verb helpers overwrite it. */
   method?: string;
-  /**
-   * Referrer path sent as the `x-panel-referrer` header. API requests send
-   * none unless one is passed.
-   */
-  referrer?: string | false;
   /** Whether to skip the loading indicator. */
   silent?: boolean;
 }
@@ -79,9 +74,9 @@ export interface PanelApiCollectionResponse<T = Record<string, any>> {
 export interface PanelApiSearchQuery {
   /**
    * Search term, or a term with search options: an options object, or the
-   * fields to search as a `|`-separated string. An empty string returns every
-   * item; a term shorter than the `minlength` option (`2` when omitted), or an
-   * object without a `query`, returns none.
+   * fields to search as a `|`-separated string. An empty string or `{}`
+   * returns every item; a term shorter than the `minlength` option (`2` when
+   * omitted), or another object without a `query`, returns none.
    */
   search?: string | { query?: string; options?: string | Record<string, any> };
   /** Maximum number of items searched – `paginate` limits the results. */
@@ -114,6 +109,8 @@ export interface PanelApiSearchQuery {
  * }
  * ```
  * @source panel/src/api/index.ts
+ * @source panel/src/api/pages.ts
+ * @source panel/src/api/files.ts
  * @source config/api/models/Page.php
  * @source config/api/models/Site.php
  * @source config/api/models/File.php
@@ -272,9 +269,9 @@ export interface PanelApiFiles {
  * @source src/Guards/LanguageValidators.php
  */
 export interface PanelApiLanguageCreateData {
-  /** Language code, slugified on create. */
+  /** Language code of at least two characters, slugified on create. */
   code: string;
-  /** Display name, the code when omitted. */
+  /** Display name, the code when omitted; a blank name is rejected. */
   name?: string;
   /** Text direction, `ltr` when omitted. */
   direction?: "ltr" | "rtl";
@@ -594,17 +591,19 @@ export interface PanelApiRole extends PanelApiRoleCompact {
 export interface PanelApiRoles {
   get: (name: string) => Promise<PanelApiRole>;
 
-  list: (params?: {
-    /**
-     * `"changed"` keeps the roles whose users the current user may move to
-     * another role, `"created"` the roles the current user may create a user
-     * with; an admin gets every role.
-     */
-    canBe?: "changed" | "created";
-    page?: number;
-    /** Items per page, `100` when omitted. */
-    limit?: number;
-  }) => Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>;
+  list: (
+    params?: {
+      /**
+       * `"changed"` keeps the roles whose users the current user may move to
+       * another role, `"created"` the roles the current user may create a
+       * user with; an admin gets every role.
+       */
+      canBe?: "changed" | "created";
+      page?: number;
+      /** Items per page, `100` when omitted. */
+      limit?: number;
+    } & Record<string, any>,
+  ) => Promise<PanelApiCollectionResponse<PanelApiRoleCompact>>;
 }
 // #endregion
 
@@ -798,8 +797,9 @@ export interface PanelApiUserCreateData {
    */
   role?: string;
   /**
-   * Panel interface language code, one of the Panel's translations; the
-   * `panel.language` option when omitted.
+   * Panel interface language code, one of the Panel's translations. When
+   * omitted, the `panel.language` option, else the default content
+   * language's code without its region, or `en` on a single-language site.
    */
   language?: string;
   content?: Record<string, any>;
