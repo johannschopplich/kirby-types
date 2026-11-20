@@ -176,9 +176,9 @@ export interface PanelHelpersWriter {
 
 /**
  * Ordered character maps applied to the trimmed, lowercased string before
- * slugging; each key is replaced literally by its value, so a key with
- * uppercase letters never matches. A key starting with `/` has its first and
- * last characters stripped first.
+ * slugging. Each key lists characters separated by `|`, and each is replaced
+ * literally by the value, so a key with uppercase letters never matches. A key
+ * starting with `/` has its first and last characters stripped first.
  *
  * @source panel/src/helpers/string.ts
  */
@@ -549,7 +549,8 @@ export interface PanelHelpersField {
   /**
    * Appends a placeholder option with the text `[unknown]`, in the interface
    * language, for each value without a matching option, e.g. a deleted page.
-   * Values match as strings; `null`, `undefined`, and `""` get no placeholder.
+   * Values match as strings; `null`, `undefined`, `""`, and `false` get no
+   * placeholder.
    *
    * @param value - Field value, a single value or an array
    * @unstable
@@ -766,7 +767,7 @@ export interface PanelHelpersPage {
 
 /**
  * Receives the upload progress as a percentage from `0` to `100`, with a
- * final `100` before `success`.
+ * final `100` before `success`, and before `error` on a network failure.
  *
  * @source panel/src/helpers/upload.ts
  */
@@ -788,6 +789,7 @@ export type PanelUploadResultCallback = (
 /**
  * @source panel/src/helpers/upload.ts
  * @source config/api/authentication.php
+ * @source src/Http/Request.php
  */
 export interface PanelUploadParams {
   /** Upload endpoint URL, `"/"` when omitted. */
@@ -914,7 +916,6 @@ export type PanelComparator = (
  * @source panel/src/helpers/throttle.ts
  * @source panel/src/helpers/upload.ts
  * @source config/areas/site/requests.php
- * @source config/areas/users/requests.php
  * @source src/Form/Field/ModelPickerField.php
  * @source src/Panel/Controller/Request/ModelItemsRequestController.php
  */
@@ -994,8 +995,9 @@ export interface PanelHelpers {
    *   which applies the field's blueprint `image`, `info`, `layout`, and
    *   `text` and returns a stand-in item for such an ID.
    * @param id - Model ID, e.g. `"file://abc"`, or an array of model IDs
-   * @param query - Query for the `items/*` endpoints, which read `image` (a
-   *   JSON string of image options), `info`, `layout`, and `text`
+   * @param query - Query for the `items/*` endpoints, which read only `layout`
+   *   and `image`, a JSON string whose `cover` and literal `ratio` – a
+   *   numeric string such as `"1.5"` or a `width/height` string – apply
    * @returns Item props, or an array of them in the order of the IDs
    */
   items: {
