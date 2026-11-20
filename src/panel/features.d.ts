@@ -81,6 +81,7 @@ export interface PanelDragDefaults {
  *
  * @source panel/src/panel/drag.ts
  * @source panel/src/components/Collection/Items.vue
+ * @source panel/src/components/Misc/Draggable.vue
  */
 export interface PanelDrag
   extends PanelState<PanelDragDefaults>, PanelDragDefaults {
@@ -164,6 +165,9 @@ export interface PanelTheme
 export interface PanelLanguageDefaults {
   /** Language code (e.g., `"en"`, `"de"`); `null` on single-language sites. */
   code: string | null;
+  /**
+   * Whether this is the default language; `false` on single-language sites.
+   */
   default: boolean;
   direction: "ltr" | "rtl";
   hasCustomDomain: boolean;
@@ -337,8 +341,8 @@ export interface PanelNotificationDefaults {
   /** Context where notification appears. */
   context: PanelContext | null;
   /**
-   * Details passed to `open()`, unread by the Panel; an empty object by
-   * default.
+   * Details passed to `open()`, unread by the Panel; an empty object when
+   * unset.
    */
   details: Record<string, any>;
   icon: string | null;
@@ -349,7 +353,9 @@ export interface PanelNotificationDefaults {
   isOpen: boolean;
   message: string | null;
   theme: NotificationTheme | null;
-  /** Auto-close timeout in ms; `0`, the default, disables auto-close. */
+  /**
+   * Auto-close delay in ms; `0` or less disables auto-close, `0` when unset.
+   */
   timeout: number;
   /** Error severity; `null` for success and info notifications. */
   type: "error" | "fatal" | null;
@@ -364,9 +370,9 @@ export interface PanelNotificationDefaults {
 export interface PanelErrorObject {
   message?: string;
   /**
-   * Extra details the error dialog lists in view context, each entry a
-   * `{ label, message }` object whose `message` is a string or a list of
-   * strings; `fatal()` ignores them.
+   * Extra details the error dialog lists in view context: an object or array
+   * of `{ label, message }` entries, each `message` a string or a list or
+   * object of strings; `fatal()` ignores them.
    */
   details?: Record<string, any>;
 }
@@ -376,7 +382,7 @@ export interface PanelErrorObject {
  * @source panel/src/helpers/timer.ts
  */
 export interface PanelNotificationOptions {
-  /** Context where notification appears. */
+  /** Context where the notification appears; the current one when omitted. */
   context?: PanelContext | null;
   details?: Record<string, any>;
   icon?: string | null;
@@ -398,6 +404,7 @@ export interface PanelNotificationOptions {
  *
  * @source panel/src/panel/notification.ts
  * @source panel/src/components/View/Notifications.vue
+ * @source panel/src/panel/panel.ts
  * @source panel/src/panel/request.ts
  * @source panel/src/components/Misc/Fatal.vue
  * @source panel/src/components/Dialogs/Elements/Notification.vue
@@ -418,9 +425,9 @@ export interface PanelNotification
   /**
    * Opens an error notification: in view context as an error dialog, in
    * dialog and drawer context as the notification bar. A response that
-   * cannot be parsed becomes a fatal notification, and an authentication
-   * error sends a logged-in user to the logout, which throws a redirect
-   * error.
+   * cannot be parsed becomes a fatal notification. For a logged-in user, an
+   * authentication error throws a redirect error to the logout instead of
+   * returning; `panel.error()` catches it and navigates there.
    *
    * @param error - Error instance, message string, or plain
    *   `{ message, details }` object; any other value shows
@@ -431,8 +438,7 @@ export interface PanelNotification
   /**
    * Creates a fatal error notification, rendering the message as an HTML
    * document in an isolated iframe. A response that cannot be parsed shows
-   * its raw text. A plain object contributes its `message`; without one the
-   * notification reads `Something went wrong`.
+   * its raw text.
    *
    * @param error - Error object, string, or plain `{ message }` object
    */
@@ -450,8 +456,7 @@ export interface PanelNotification
 
   /**
    * Opens a notification; a string opens a success notification. Fields the
-   * options omit reset to their defaults, and `context` is the current one
-   * when omitted.
+   * options omit reset to their defaults.
    *
    * @param notification - Message string or options object
    */
@@ -608,7 +613,8 @@ export interface PanelUser
 
 /**
  * Other button props, such as `click`, `dialog`, or `drawer`, pass through to
- * the rendered button; the breadcrumb sets `disabled` and `variant` itself.
+ * the rendered button; the breadcrumb sets `current`, `disabled`, `size`, and
+ * `variant` itself.
  *
  * @source panel/src/panel/view.ts
  * @source panel/src/components/Navigation/Breadcrumb.vue
@@ -947,8 +953,8 @@ export interface PanelContentEnv {
  * @source src/Cms/ModelWithContent.php
  */
 export interface PanelContentLock {
-  /** Whether the lock comes from a legacy `.lock` file. */
-  isLegacy: boolean;
+  /** @deprecated Kirby no longer reads legacy `.lock` files. */
+  isLegacy: false;
   /**
    * Whether another user edited the content recently, in any language;
    * always `false` with the `content.locking` option off.
@@ -1252,7 +1258,7 @@ export interface PanelSearchResponse {
   /** HTTP status code. */
   code?: number;
   /** Panel path of the search route. */
-  path?: string | null;
+  path?: string;
   /** Query parameters of the search request. */
   query?: Record<string, any>;
   /** Panel path the request came from. */

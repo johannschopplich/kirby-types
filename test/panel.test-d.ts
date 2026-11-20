@@ -228,6 +228,7 @@ expectType<boolean>(content.hasDiff());
 expectType<boolean>(content.isCurrent());
 expectType<string | undefined>(content.env().api);
 expectType<boolean>(content.isLocked());
+expectType<false>(content.lock().isLegacy);
 expectType<Promise<boolean>>(content.save());
 expectType<Promise<void>>(content.publish());
 expectType<Promise<void>>(content.discard());
