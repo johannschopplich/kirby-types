@@ -311,6 +311,7 @@ export interface PanelConfig {
 // #region Panel Permissions
 
 /**
+ * @source src/Cms/AppPlugins.php
  * @source src/Cms/Permissions.php
  */
 interface PanelPermissionsAccess {
@@ -330,92 +331,93 @@ interface PanelPermissionsAccess {
 /**
  * @source src/Cms/Permissions.php
  */
-interface PanelPermissionsFiles {
-  access: boolean;
-  changeName: boolean;
-  changeTemplate: boolean;
-  create: boolean;
-  delete: boolean;
-  list: boolean;
-  read: boolean;
-  replace: boolean;
-  sort: boolean;
-  update: boolean;
-}
+type PanelPermissionsFiles = Record<
+  | "access"
+  | "changeName"
+  | "changeTemplate"
+  | "create"
+  | "delete"
+  | "list"
+  | "read"
+  | "replace"
+  | "sort"
+  | "update",
+  boolean
+>;
 
 /**
  * @source src/Cms/Permissions.php
  */
-interface PanelPermissionsLanguages {
-  create: boolean;
-  delete: boolean;
-  update: boolean;
-}
+type PanelPermissionsLanguages = Record<
+  "create" | "delete" | "update",
+  boolean
+>;
 
 /**
  * @source src/Cms/Permissions.php
  */
-interface PanelPermissionsPages {
-  access: boolean;
-  changeSlug: boolean;
-  changeStatus: boolean;
-  changeTemplate: boolean;
-  changeTitle: boolean;
-  create: boolean;
-  delete: boolean;
-  duplicate: boolean;
-  list: boolean;
-  move: boolean;
-  preview: boolean;
-  read: boolean;
-  sort: boolean;
-  update: boolean;
-}
+type PanelPermissionsPages = Record<
+  | "access"
+  | "changeSlug"
+  | "changeStatus"
+  | "changeTemplate"
+  | "changeTitle"
+  | "create"
+  | "delete"
+  | "duplicate"
+  | "list"
+  | "move"
+  | "preview"
+  | "read"
+  | "sort"
+  | "update",
+  boolean
+>;
 
 /**
  * @source src/Cms/Permissions.php
  */
-interface PanelPermissionsSite {
-  access: boolean;
-  changeTitle: boolean;
-  preview: boolean;
-  update: boolean;
-}
+type PanelPermissionsSite = Record<
+  "access" | "changeTitle" | "preview" | "update",
+  boolean
+>;
 
 /**
  * User management permissions (for other users).
  * @source src/Cms/Permissions.php
  * @source src/Guards/UserPermissions.php
  */
-interface PanelPermissionsUsers {
-  access: boolean;
-  changeEmail: boolean;
-  changeLanguage: boolean;
-  changeName: boolean;
-  changePassword: boolean;
-  changeRole: boolean;
-  create: boolean;
-  delete: boolean;
-  list: boolean;
-  update: boolean;
-}
+type PanelPermissionsUsers = Record<
+  | "access"
+  | "changeEmail"
+  | "changeLanguage"
+  | "changeName"
+  | "changePassword"
+  | "changeRole"
+  | "create"
+  | "delete"
+  | "list"
+  | "update",
+  boolean
+>;
 
 /**
  * Current user permissions (for own account).
  * @source src/Cms/Permissions.php
  * @source src/Guards/UserPermissions.php
  */
-interface PanelPermissionsUser {
-  access: boolean;
-  changeEmail: boolean;
-  changeLanguage: boolean;
-  changeName: boolean;
-  changePassword: boolean;
-  changeRole: boolean;
-  delete: boolean;
-  list: boolean;
-  update: boolean;
-}
+type PanelPermissionsUser = Record<
+  | "access"
+  | "changeEmail"
+  | "changeLanguage"
+  | "changeName"
+  | "changePassword"
+  | "changeRole"
+  | "delete"
+  | "list"
+  | "update",
+  boolean
+>;
 
 /**
  * Permissions of a role. A model's blueprint `options` can override them –
@@ -436,10 +438,11 @@ export interface PanelPermissions {
   users: PanelPermissionsUsers;
   user: PanelPermissionsUser;
   /**
-   * Permission categories registered by plugins, keyed by the plugin name
-   * with `/` replaced by `.` (`acme/shop` registers `acme.shop`).
+   * Custom permission categories. A plugin's are keyed by the plugin name
+   * with `/` replaced by `.` (`acme/shop` registers `acme.shop`); one
+   * registered through the `extensions` option keeps its key as given.
    */
-  [category: `${string}.${string}`]: Record<string, boolean>;
+  [category: string]: Record<string, boolean>;
 }
 // #endregion
 
@@ -584,6 +587,7 @@ export interface PanelRequestResponse {
  * ```
  *
  * @source panel/public/js/plugins.js
+ * @source panel/src/panel/panel.ts
  * @source panel/src/panel/plugins.ts
  * @source panel/src/panel/app.ts
  * @source panel/src/components/Misc/Icons.vue
@@ -1211,6 +1215,7 @@ export interface Panel {
  * @source src/Panel/Ui/Button/ViewButtons.php
  * @source src/Panel/Ui/Component.php
  * @source src/Panel/Ui/Button/LanguagesButton.php
+ * @source panel/src/components/Navigation/Button.vue
  */
 export interface PanelViewPropsButton {
   component: string;

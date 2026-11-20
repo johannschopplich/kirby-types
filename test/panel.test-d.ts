@@ -69,6 +69,8 @@ expectType<boolean>({} as PanelPermissions["pages"]["changeSlug"]);
 expectType<boolean>({} as PanelPermissions["site"]["update"]);
 expectType<boolean>({} as PanelPermissions["users"]["changeRole"]);
 expectType<boolean>({} as PanelPermissions["user"]["delete"]);
+expectType<Record<string, boolean>>({} as PanelPermissions["shop"]);
+expectNotAssignable<PanelPermissions["files"]>({} as Record<string, boolean>);
 // #endregion
 
 // #region State Defaults
