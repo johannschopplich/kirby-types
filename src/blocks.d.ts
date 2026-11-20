@@ -47,8 +47,12 @@ export type KirbyCodeLanguage =
   | "xml"
   | "yaml";
 
+type StoredToggle = boolean | "true" | "false";
+
 /**
- * Content shape of each default block type, keyed by type name.
+ * Content shape of each default block type, keyed by type name. Toggles hold
+ * `"true"` or `"false"` strings as stored and read through the API or KQL,
+ * and booleans in the Panel's form values.
  *
  * @example
  * ```ts
@@ -68,7 +72,9 @@ export type KirbyCodeLanguage =
  * @source config/blocks/table/table.yml
  * @source config/blocks/text/text.yml
  * @source config/blocks/video/video.yml
+ * @source panel/src/components/Forms/Blocks/Types/Table.vue
  * @source src/Cms/Blocks.php
+ * @source src/Cms/Fieldsets.php
  * @source src/Form/Field/BlocksField.php
  * @source src/Form/Field/ModelPickerField.php
  * @source src/Form/Field/OptionField.php
@@ -86,7 +92,7 @@ export interface KirbyDefaultBlocks {
     images: string[];
     caption: string;
     ratio: string;
-    crop: boolean;
+    crop: StoredToggle;
   };
 
   heading: {
@@ -112,7 +118,7 @@ export interface KirbyDefaultBlocks {
         /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. */
         ratio: string;
         /** Whether to crop the image to fit the ratio. */
-        crop: boolean;
+        crop: StoredToggle;
       }
     | {
         /** External image. */
@@ -126,7 +132,7 @@ export interface KirbyDefaultBlocks {
         /** Aspect ratio, such as `"16/9"` or `"1/1"`, or `""` for auto. Missing for parsed HTML. */
         ratio?: string;
         /** Whether to crop the image to fit the ratio. Missing for parsed HTML. */
-        crop?: boolean;
+        crop?: StoredToggle;
       };
 
   /** Horizontal divider with no content fields. */
@@ -177,10 +183,10 @@ export interface KirbyDefaultBlocks {
         poster: string[];
         /** Caption, may contain inline HTML. */
         caption: string;
-        autoplay: boolean;
-        muted: boolean;
-        loop: boolean;
-        controls: boolean;
+        autoplay: StoredToggle;
+        muted: StoredToggle;
+        loop: StoredToggle;
+        controls: StoredToggle;
         preload: "auto" | "metadata" | "none" | "";
       };
 }

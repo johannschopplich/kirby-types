@@ -52,7 +52,7 @@ expectAssignable<KirbyBlock<"image">>({
     caption: "A test image",
     link: "https://example.com",
     ratio: "1/1",
-    crop: true,
+    crop: "false",
   },
   id: "image-1",
   isHidden: false,
