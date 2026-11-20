@@ -291,6 +291,8 @@ expectAssignable<TextareaButton>({
     },
   ],
 });
+
+expectAssignable<TextareaButton["dropdown"]>("my/dropdown");
 // #endregion
 
 // #region Textarea Toolbar Context

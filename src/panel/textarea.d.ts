@@ -71,6 +71,13 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
   default: string[];
 
   /**
+   * Toolbar entries in order: `"|"` for a separator, otherwise the listed
+   * button, with its `click` bound to the toolbar. A listed name without a
+   * built-in or registered button is left out.
+   */
+  layout: (TextareaButton | "|")[];
+
+  /**
    * Built-in buttons by name, such as `bold` or `link`. A plugin button
    * that replaces a built-in one can still run the original through
    * `this.commands.<name>.click()`.
@@ -91,9 +98,9 @@ export interface TextareaToolbarContext extends PanelGlobalProperties {
 /**
  * Custom textarea toolbar button, registered under `textareaButtons` in
  * `window.panel.plugin()`. A button appears only in textarea fields whose
- * `buttons` option lists its name – the default toolbar shows the built-in
- * buttons alone. A registered name that matches a built-in button replaces
- * it.
+ * `buttons` option lists its name – the default toolbar lists only built-in
+ * names. A registered name that matches a built-in button replaces it, in the
+ * default toolbar too.
  *
  * @example
  * ```js
@@ -171,7 +178,8 @@ export interface TextareaButton {
   key?: (event: KeyboardEvent) => void;
 
   /**
-   * Dropdown menu items. A `"-"` entry renders a separator.
+   * Dropdown menu items, or the path of a Panel dropdown route that returns
+   * them. A `"-"` entry renders a separator.
    *
    * If non-empty, clicking the button opens the dropdown instead of running
    * `click`. The `shortcut` still runs `click`.
@@ -197,7 +205,7 @@ export interface TextareaButton {
    * ]
    * ```
    */
-  dropdown?: (PanelDropdownOption | "-")[];
+  dropdown?: (PanelDropdownOption | "-")[] | string;
 
   /** Visibility condition – the button is hidden when `false`. */
   when?: boolean;
