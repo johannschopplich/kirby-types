@@ -1,9 +1,10 @@
 /**
  * Response envelope of the Kirby API for the KQL endpoint `/api/query` and for
- * errors.
+ * errors other than per-file upload errors.
  *
  * Model, collection, and upload endpoints return their payload under `data`,
- * not `result`.
+ * not `result`. A per-file upload error carries no `code`; with several files,
+ * the errors sit under `errors`, keyed by filename, instead of `message`.
  *
  * @typeParam T - Type of the result data
  *
@@ -17,6 +18,7 @@
  * };
  * ```
  *
+ * @source config/api/routes/kql.php
  * @source src/Api/Api.php
  * @source src/Api/Collection.php
  * @source src/Api/Model.php
