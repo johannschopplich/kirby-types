@@ -7,6 +7,8 @@ import type {
   KirbyFieldsetGroup,
   KirbyFieldsetProps,
   KirbyFieldsetTab,
+  KirbyHeadlineFieldProps,
+  KirbyInfoFieldProps,
   KirbyLayoutFieldProps,
   KirbyListFieldProps,
   KirbyModelListFieldProps,
@@ -98,6 +100,7 @@ expectAssignable<KirbyTextFieldProps>({
   hidden: false,
   label: "Title",
   name: "title",
+  preselect: false,
   required: false,
   saveable: true,
   spellcheck: true,
@@ -105,6 +108,8 @@ expectAssignable<KirbyTextFieldProps>({
   type: "text",
   width: "1/1",
 });
+
+expectType<boolean>({} as KirbyTextFieldProps["preselect"]);
 
 expectAssignable<KirbyTextareaFieldProps>({
   autofocus: false,
@@ -431,6 +436,15 @@ expectAssignable<KirbyStructureColumn>({
 });
 
 expectAssignable<KirbyStructureFieldProps["columns"]>([]);
+expectAssignable<KirbyStructureFieldProps["fields"]>({
+  tags: {
+    hidden: false,
+    name: "tags",
+    options: [],
+    saveable: true,
+    type: "tags",
+  },
+});
 // #endregion
 
 // #region Object Field Props
@@ -554,6 +568,29 @@ expectAssignable<KirbyListFieldProps>({
 // #region Stats Field Props
 
 expectAssignable<KirbyStatsFieldProps["size"]>("huge");
+expectNotAssignable<KirbyStatsFieldProps["size"]>("tiny");
+// #endregion
+
+// #region Headline and Info Field Props
+
+expectAssignable<KirbyHeadlineFieldProps>({
+  hidden: false,
+  label: "Intro",
+  name: "intro",
+  saveable: false,
+  type: "headline",
+  width: "1/1",
+});
+
+expectAssignable<KirbyInfoFieldProps>({
+  hidden: false,
+  label: "Note",
+  name: "note",
+  saveable: false,
+  text: "<p>Read this first.</p>",
+  type: "info",
+  width: "1/1",
+});
 // #endregion
 
 // #region Fieldset Props
@@ -642,6 +679,7 @@ expectNotAssignable<KirbyTextFieldProps>({
   hidden: false,
   label: "Title",
   name: "title",
+  preselect: false,
   required: false,
   saveable: true,
   spellcheck: true,
@@ -659,6 +697,7 @@ expectNotAssignable<KirbyTextFieldProps>({
   hidden: false,
   label: "Title",
   name: "title",
+  preselect: false,
   required: false,
   saveable: true,
   spellcheck: true,

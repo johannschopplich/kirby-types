@@ -3,6 +3,7 @@
  * the backend sends them to the Panel.
  */
 
+import type { KirbyLayoutColumnWidth } from "./layout.js";
 import type { HtmlString } from "./panel/index.js";
 
 // #region Field Options
@@ -82,6 +83,7 @@ export interface KirbyOption {
  * @source src/Form/Mixin/Type.php
  * @source src/Form/Mixin/When.php
  * @source src/Form/Mixin/Width.php
+ * @source src/Form/Field/EntriesField.php
  * @source src/Cms/Fieldset.php
  * @source src/Panel/Controller/Dialog/ModelCreateDialogController.php
  * @source src/Toolkit/HtmlString.php
@@ -95,7 +97,8 @@ export interface KirbyFieldProps {
   before?: string;
   /**
    * Default value for new content; sent only for fields in a structure,
-   * object, or fieldset, and in the create dialog.
+   * object, or fieldset, for an entries field's `field`, and in the create
+   * dialog.
    */
   default?: any;
   disabled?: boolean;
@@ -139,6 +142,17 @@ export interface KirbyInputFieldProps extends KirbyFieldProps {
   label: string;
   required: boolean;
   translate: boolean;
+  width: string;
+}
+
+/**
+ * Props of a field that stores no value.
+ *
+ * @source src/Form/Field/DisplayField.php
+ * @source src/Form/Mixin/Label.php
+ */
+export interface KirbyDisplayFieldProps extends KirbyFieldProps {
+  label: string;
   width: string;
 }
 // #endregion
@@ -199,7 +213,10 @@ export interface KirbyFieldsetTab {
  */
 export interface KirbyFieldsetProps {
   disabled: boolean;
-  /** Whether the block can be edited (has fields). */
+  /**
+   * Whether the block can be edited; `false` when the blueprint sets
+   * `editable: false` or the block has no fields.
+   */
   editable: boolean;
   icon: string | null;
   /** Block title template filled from the block content, e.g. `{{ text }}`. */
@@ -211,7 +228,10 @@ export interface KirbyFieldsetProps {
    * and without one the block type's preview applies.
    */
   preview: string | boolean | null;
-  /** Tabs containing field definitions. */
+  /**
+   * Tabs keyed by name; a single `content` tab when the blueprint sets only
+   * `fields`.
+   */
   tabs: Record<string, KirbyFieldsetTab>;
   /** Whether the block is translatable. */
   translate: boolean;
@@ -263,6 +283,7 @@ export interface KirbyFieldsetGroup {
  * @source src/Form/Mixin/Maxlength.php
  * @source src/Form/Mixin/Minlength.php
  * @source src/Form/Mixin/Pattern.php
+ * @source src/Form/Mixin/Preselect.php
  * @source src/Form/Mixin/Spellcheck.php
  * @source panel/src/components/Forms/Field/PasswordField.vue
  * @source panel/src/components/Forms/Field/SlugField.vue
@@ -293,6 +314,8 @@ export interface KirbyTextFieldProps extends KirbyInputFieldProps {
   path?: string;
   /** Validation regex pattern. */
   pattern?: string;
+  /** Whether the input's text is selected when the form loads. */
+  preselect: boolean;
   spellcheck?: boolean;
   /** Field the slug is generated from while it changes (slug only). */
   sync?: string;
@@ -332,13 +355,14 @@ export interface KirbyFieldUploads {
  * @source src/Form/Mixin/Spellcheck.php
  * @source src/Form/Mixin/Upload.php
  * @source panel/src/components/Forms/Input/TextareaInput.vue
+ * @source panel/src/components/Forms/Toolbar/TextareaToolbar.vue
  */
 export interface KirbyTextareaFieldProps extends KirbyInputFieldProps {
   type: "textarea";
   /**
    * Toolbar buttons: `true` for the default set, `false` for none, or a list
    * of `headlines`, `italic`, `bold`, `link`, `email`, `file`, `code`, `ul`,
-   * `ol`, and `|` for a divider.
+   * `ol`, the name of a plugin's textarea button, and `|` for a divider.
    */
   buttons: boolean | string[];
   /** Whether to show the character counter. */
@@ -445,6 +469,8 @@ export interface KirbyDateFieldProps extends KirbyInputFieldProps {
   step: { size: number; unit: string };
   /** Props of the time input, or `false` without one (date only). */
   time?: false | KirbyDateFieldProps;
+  /** Whether to show the dropdown of times (time only). */
+  times?: boolean;
 }
 
 /**
@@ -504,6 +530,7 @@ export interface KirbyModelItem {
  * @source src/Form/Field/FilePickerField.php
  * @source src/Form/Field/PagePickerField.php
  * @source src/Form/Mixin/ItemSize.php
+ * @source src/Form/Mixin/Max.php
  * @source src/Form/Mixin/Min.php
  * @source src/Form/Mixin/Upload.php
  * @source src/Blueprint/Normalizer.php
@@ -590,10 +617,12 @@ export interface KirbyModelListColumn {
  * @source src/Form/Field/FileListField.php
  * @source src/Form/Field/PageListField.php
  * @source src/Form/Mixin/Batch.php
+ * @source src/Form/Mixin/EmptyState.php
  * @source src/Form/Mixin/ItemSize.php
+ * @source src/Form/Mixin/Max.php
  * @source src/Blueprint/Normalizer.php
  */
-export interface KirbyModelListFieldProps extends KirbyFieldProps {
+export interface KirbyModelListFieldProps extends KirbyDisplayFieldProps {
   /** List type, also for blueprints that set a `files` or `pages` section. */
   type: "filelist" | "pagelist";
   /**
@@ -692,6 +721,7 @@ export interface KirbyTagsSearch {
  * @source src/Form/Mixin/Min.php
  * @source src/Form/Mixin/Options.php
  * @source src/Form/Mixin/Separator.php
+ * @source panel/src/components/Navigation/Tags.vue
  */
 export interface KirbyTagsFieldProps extends KirbyInputFieldProps {
   type: "tags" | "multiselect";
@@ -750,12 +780,15 @@ export interface KirbyStructureColumn {
  * @source src/Form/Field/StructureField.php
  * @source src/Form/Mixin/Batch.php
  * @source src/Form/Mixin/Duplicate.php
+ * @source src/Form/Mixin/EmptyState.php
  * @source src/Form/Mixin/Fields.php
+ * @source src/Form/Mixin/Max.php
  * @source src/Form/Mixin/Min.php
  * @source src/Form/Mixin/Prepend.php
  * @source src/Form/Mixin/Sortable.php
  * @source src/Form/Mixin/SortBy.php
  * @source src/Form/Mixin/TableColumns.php
+ * @source panel/src/components/Forms/Field/StructureField.vue
  */
 export interface KirbyStructureFieldProps extends KirbyInputFieldProps {
   type: "structure";
@@ -770,9 +803,9 @@ export interface KirbyStructureFieldProps extends KirbyInputFieldProps {
   duplicate: boolean;
   /** Placeholder text when no entries exist. */
   empty?: string;
-  /** Nested field definitions. */
-  fields: Record<string, KirbyFieldProps>;
-  /** Number of entries per page before pagination. */
+  /** Nested fields, each with the props of its own field type. */
+  fields: Record<string, KirbyFieldProps & Record<string, any>>;
+  /** Number of entries per page before pagination; disables drag & drop. */
   limit?: number;
   /** Maximum number of entries. */
   max?: number;
@@ -791,18 +824,21 @@ export interface KirbyStructureFieldProps extends KirbyInputFieldProps {
 
 /**
  * @source src/Form/Field/ObjectField.php
+ * @source src/Form/Mixin/EmptyState.php
  * @source src/Form/Mixin/Fields.php
  */
 export interface KirbyObjectFieldProps extends KirbyInputFieldProps {
   type: "object";
   /** Placeholder text when no data exists. */
   empty?: string;
-  /** Nested field definitions. */
-  fields: Record<string, KirbyFieldProps>;
+  /** Nested fields, each with the props of its own field type. */
+  fields: Record<string, KirbyFieldProps & Record<string, any>>;
 }
 
 /**
  * @source src/Form/Field/BlocksField.php
+ * @source src/Form/Mixin/EmptyState.php
+ * @source src/Form/Mixin/Max.php
  * @source src/Form/Mixin/Min.php
  * @source panel/src/components/Forms/Blocks/Blocks.vue
  */
@@ -827,6 +863,8 @@ export interface KirbyBlocksFieldProps extends KirbyInputFieldProps {
 /**
  * @source src/Form/Field/LayoutField.php
  * @source src/Form/Field/BlocksField.php
+ * @source src/Form/Mixin/EmptyState.php
+ * @source src/Form/Mixin/Max.php
  * @source src/Form/Mixin/Min.php
  * @source panel/src/components/Forms/Layouts/LayoutColumn.vue
  * @source panel/src/components/Forms/Layouts/LayoutSelector.vue
@@ -840,8 +878,11 @@ export interface KirbyLayoutFieldProps extends KirbyInputFieldProps {
   fieldsetGroups?: Record<string, KirbyFieldsetGroup>;
   /** Unused drag-and-drop group; column blocks always use `layout`. */
   group: string;
-  /** Available layout configurations (column width arrays). */
-  layouts: string[][];
+  /**
+   * Layouts a row can take, each as its column widths; a single
+   * full-width column (`[["1/1"]]`) when unset.
+   */
+  layouts: KirbyLayoutColumnWidth[][];
   /** Maximum number of layouts. */
   max?: number;
   /**
@@ -868,6 +909,7 @@ export interface KirbyLayoutFieldProps extends KirbyInputFieldProps {
  * @source src/Form/Mixin/Minlength.php
  * @source src/Form/Mixin/Spellcheck.php
  * @source panel/src/components/Forms/Input/WriterInput.vue
+ * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/helpers/writer.ts
  */
 export interface KirbyWriterFieldProps extends KirbyInputFieldProps {
@@ -880,9 +922,10 @@ export interface KirbyWriterFieldProps extends KirbyInputFieldProps {
   inline: boolean;
   /**
    * Allowed marks out of `bold`, `clear`, `code`, `email`, `italic`, `link`,
-   * `strike`, `sub`, `sup`, and `underline`, `true`/`false` for all or none,
-   * or an object keyed by mark where `false` excludes one; all marks when
-   * unset.
+   * `strike`, `sub`, `sup`, `underline`, and the marks plugins register,
+   * `true`/`false` for all or none, or an object keyed by mark where `false`
+   * excludes one and an object passes a built-in mark its options; all marks
+   * when unset.
    */
   marks?: string[] | boolean | Record<string, any>;
   /** Maximum character length. */
@@ -891,9 +934,10 @@ export interface KirbyWriterFieldProps extends KirbyInputFieldProps {
   minlength?: number;
   /**
    * Allowed nodes out of `paragraph`, `heading`, `bulletList`, `orderedList`,
-   * `horizontalRule`, and `quote`, `true`/`false` for all or none, or an
-   * object keyed by node where `false` excludes one; `heading`,
-   * `bulletList`, and `orderedList` when unset.
+   * `horizontalRule`, `quote`, and the nodes plugins register, `true`/`false`
+   * for all or none, or an object keyed by node where `false` excludes one and
+   * an object passes a built-in node its options; `heading`, `bulletList`, and
+   * `orderedList` when unset.
    */
   nodes?: string[] | boolean | Record<string, any>;
   spellcheck?: boolean;
@@ -909,15 +953,17 @@ export interface KirbyWriterFieldProps extends KirbyInputFieldProps {
  * @source src/Form/Mixin/Spellcheck.php
  * @source panel/src/components/Forms/Input/ListInput.vue
  * @source panel/src/components/Forms/Input/WriterInput.vue
+ * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/helpers/writer.ts
  */
 export interface KirbyListFieldProps extends KirbyInputFieldProps {
   type: "list";
   /**
    * Allowed marks out of `bold`, `clear`, `code`, `email`, `italic`, `link`,
-   * `strike`, `sub`, `sup`, and `underline`, `true`/`false` for all or none,
-   * or an object keyed by mark where `false` excludes one; all marks when
-   * unset.
+   * `strike`, `sub`, `sup`, `underline`, and the marks plugins register,
+   * `true`/`false` for all or none, or an object keyed by mark where `false`
+   * excludes one and an object passes a built-in mark its options; all marks
+   * when unset.
    */
   marks?: string[] | boolean | Record<string, any>;
   /** Maximum character length. */
@@ -935,6 +981,8 @@ export interface KirbyListFieldProps extends KirbyInputFieldProps {
  * Simplified structure field with a single field per entry.
  *
  * @source src/Form/Field/EntriesField.php
+ * @source src/Form/Mixin/EmptyState.php
+ * @source src/Form/Mixin/Max.php
  * @source src/Form/Mixin/Min.php
  * @source src/Form/Mixin/Sortable.php
  */
@@ -942,8 +990,11 @@ export interface KirbyEntriesFieldProps extends KirbyInputFieldProps {
   type: "entries";
   /** Placeholder text when no entries exist. */
   empty?: string;
-  /** Field each entry holds. */
-  field: KirbyFieldProps;
+  /**
+   * Props of the field each entry holds, with the keys of its own field type,
+   * such as a select's `options`.
+   */
+  field: KirbyFieldProps & Record<string, any>;
   /** Maximum number of entries. */
   max?: number;
   /**
@@ -959,6 +1010,7 @@ export interface KirbyEntriesFieldProps extends KirbyInputFieldProps {
  * Stats report item for the stats field.
  *
  * @source src/Panel/Ui/Stat.php
+ * @source panel/src/components/Layout/Stat.vue
  */
 export interface KirbyStatsReport {
   label: string;
@@ -982,12 +1034,39 @@ export interface KirbyStatsReport {
  * @source src/Panel/Ui/Stats.php
  * @source panel/src/components/Layout/Stats.vue
  */
-export interface KirbyStatsFieldProps extends KirbyFieldProps {
+export interface KirbyStatsFieldProps extends KirbyDisplayFieldProps {
   type: "stats";
   /** Reports, resolved from a query if the blueprint sets a string. */
   reports: KirbyStatsReport[];
   /** Text size of each report's value, `large` when unset. */
-  size: "tiny" | "small" | "medium" | "large" | "huge";
+  size: "small" | "medium" | "large" | "huge";
+}
+
+/**
+ * @source src/Form/Field/HeadlineField.php
+ * @source panel/src/components/Forms/Field/HeadlineField.vue
+ */
+export interface KirbyHeadlineFieldProps extends KirbyDisplayFieldProps {
+  type: "headline";
+}
+
+/**
+ * Field showing text in a box.
+ *
+ * @source src/Form/Field/InfoField.php
+ * @source src/Form/Mixin/Text.php
+ * @source src/Form/Mixin/Theme.php
+ * @source panel/src/components/Forms/Field/InfoField.vue
+ */
+export interface KirbyInfoFieldProps extends KirbyDisplayFieldProps {
+  type: "info";
+  /**
+   * Text in the box, rendered from KirbyText to HTML; an `HtmlString` in the
+   * Panel, absent when empty.
+   */
+  text?: string | HtmlString;
+  /** Theme of the box, `info` when unset. */
+  theme?: string;
 }
 // #endregion
 
@@ -996,6 +1075,7 @@ export interface KirbyStatsFieldProps extends KirbyFieldProps {
 export type KirbyAnyFieldProps =
   | KirbyFieldProps
   | KirbyInputFieldProps
+  | KirbyDisplayFieldProps
   | KirbyTextFieldProps
   | KirbyTextareaFieldProps
   | KirbyNumberFieldProps
@@ -1015,5 +1095,7 @@ export type KirbyAnyFieldProps =
   | KirbyLayoutFieldProps
   | KirbyWriterFieldProps
   | KirbyListFieldProps
-  | KirbyStatsFieldProps;
+  | KirbyStatsFieldProps
+  | KirbyHeadlineFieldProps
+  | KirbyInfoFieldProps;
 // #endregion

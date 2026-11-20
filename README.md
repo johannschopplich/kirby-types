@@ -306,6 +306,7 @@ window.panel.plugin("my/plugin", {
 | -------------------------------------------------- | ---------------------------------------- |
 | [`KirbyFieldProps`](./src/blueprint.d.ts)          | Base field props from `Field->toArray()` |
 | [`KirbyInputFieldProps`](./src/blueprint.d.ts)     | Base props of an input field             |
+| [`KirbyDisplayFieldProps`](./src/blueprint.d.ts)   | Base props of a display field            |
 | [`KirbyFieldsetProps`](./src/blueprint.d.ts)       | Fieldset from `Fieldset->toArray()`      |
 | [`KirbyBlocksFieldProps`](./src/blueprint.d.ts)    | Blocks field props with fieldsets        |
 | [`KirbyStructureFieldProps`](./src/blueprint.d.ts) | Structure field props with nested fields |
