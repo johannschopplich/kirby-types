@@ -1002,6 +1002,10 @@ export interface PanelContentVersions {
  * Content state of the current model view: versions, saving, publishing,
  * and lock handling.
  *
+ * Expects a model view. In a view without a model, such as the users list,
+ * `env().api` is `undefined` and `isLocked()` returns `false`; the members
+ * that read the versions or the lock return `undefined` or throw.
+ *
  * @source panel/src/panel/content.ts
  * @source panel/src/helpers/throttle.ts
  * @source config/api/routes/changes.php
@@ -1057,8 +1061,7 @@ export interface PanelContent {
 
   /**
    * Returns `env` with its missing `api` and `language` taken from the
-   * current view. `api` stays `undefined` in a view without a model, such as
-   * the users list.
+   * current view.
    */
   env: (env?: PanelContentEnv) => {
     api: string | undefined;
