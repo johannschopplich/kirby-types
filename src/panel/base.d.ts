@@ -169,6 +169,7 @@ export interface PanelFeatureDefaults {
  * ```
  *
  * @source panel/src/panel/feature.ts
+ * @source panel/src/panel/panel.ts
  */
 export interface PanelFeature<
   TDefaults extends PanelFeatureDefaults = PanelFeatureDefaults,
@@ -620,6 +621,9 @@ export interface PanelRefreshOptions extends PanelRequestOptions {
  * @source panel/src/panel/panel.ts
  * @source panel/src/panel/notification.ts
  * @source panel/src/panel/events.ts
+ * @source panel/src/components/View/Notifications.vue
+ * @source panel/src/components/Dialogs/Elements/Notification.vue
+ * @source panel/src/components/Drawers/Elements/Notification.vue
  */
 export type PanelContext = "view" | "dialog" | "drawer";
 
@@ -630,6 +634,8 @@ export type PanelContext = "view" | "dialog" | "drawer";
  *   is passed. In view context only `error()` shows it, as a dialog.
  * - `fatal`: Critical error, displayed in an isolated iframe.
  * @source panel/src/panel/notification.ts
+ * @source panel/src/components/View/Notifications.vue
+ * @source panel/src/components/Misc/Fatal.vue
  */
 export type NotificationType = "error" | "fatal";
 
