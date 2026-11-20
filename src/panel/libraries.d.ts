@@ -87,22 +87,10 @@ export interface PanelLibraryColors {
    * @throws If the color is invalid
    */
   convert: {
-    (color: string, format: "hex"): string;
-    (color: string, format: "rgb"): PanelColorRgb;
-    (color: string, format: "hsl"): PanelColorHsl;
-    (color: string, format: "hsv"): PanelColorHsv;
-    (color: PanelColorRgb, format: "hex"): string;
-    (color: PanelColorRgb, format: "rgb"): PanelColorRgb;
-    (color: PanelColorRgb, format: "hsl"): PanelColorHsl;
-    (color: PanelColorRgb, format: "hsv"): PanelColorHsv;
-    (color: PanelColorHsl, format: "hex"): string;
-    (color: PanelColorHsl, format: "rgb"): PanelColorRgb;
-    (color: PanelColorHsl, format: "hsl"): PanelColorHsl;
-    (color: PanelColorHsl, format: "hsv"): PanelColorHsv;
-    (color: PanelColorHsv, format: "hex"): string;
-    (color: PanelColorHsv, format: "rgb"): PanelColorRgb;
-    (color: PanelColorHsv, format: "hsl"): PanelColorHsl;
-    (color: PanelColorHsv, format: "hsv"): PanelColorHsv;
+    (color: PanelColor, format: "hex"): string;
+    (color: PanelColor, format: "rgb"): PanelColorRgb;
+    (color: PanelColor, format: "hsl"): PanelColorHsl;
+    (color: PanelColor, format: "hsv"): PanelColorHsv;
     (color: PanelColor, format: PanelColorFormat): string | PanelColorObject;
   };
 
@@ -375,9 +363,10 @@ export interface PanelDayjsLocaleMonths {
 }
 
 /**
- * Locale data loaded into dayjs. A locale the Panel activates by Kirby
- * translation code has no `formats` or `relativeTime`, and its `months`
- * and `monthsShort` are callables instead of arrays.
+ * Locale data loaded into dayjs. A locale the Panel builds – `en` and any
+ * locale it activates by Kirby translation code – has no `formats` or
+ * `relativeTime`, and its `months` and `monthsShort` are callables instead
+ * of arrays.
  *
  * @source panel/src/libraries/dayjs-locale.ts
  * @source dayjs/locale/types.d.ts
@@ -444,7 +433,10 @@ export interface PanelLibraryDayjs extends PanelDayjsStaticExtensions {
     isLocal?: boolean,
   ) => string;
 
-  /** Loaded locales, keyed by locale name. */
+  /**
+   * Loaded locales, keyed by locale name, e.g. `pt-br`; a name passed as a
+   * string is lowercased.
+   */
   Ls: Record<string, PanelDayjsLocale>;
 
   isDayjs: (value: unknown) => value is PanelDayjsInstance;

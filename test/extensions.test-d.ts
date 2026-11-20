@@ -18,7 +18,11 @@ import type {
   WriterNodeExtension,
   WriterToolbarButton,
 } from "../src/panel/index.js";
-import type { PanelDayjsInstance } from "../src/panel/libraries.js";
+import type {
+  PanelColor,
+  PanelColorRgb,
+  PanelDayjsInstance,
+} from "../src/panel/libraries.js";
 import { expectAssignable, expectNotAssignable, expectType } from "tsd";
 import { defineComponent } from "vue";
 
@@ -443,4 +447,5 @@ app.config.globalProperties.$myHelper = () => 1;
 declare const library: PanelLibrary;
 expectType<PanelDayjsInstance>(library.dayjs("2024-01-15", { locale: "de" }));
 expectNotAssignable<Parameters<PanelLibrary["dayjs"]>[1]>("DD.MM.YYYY");
+expectType<PanelColorRgb>(library.colors.convert({} as PanelColor, "rgb"));
 // #endregion
