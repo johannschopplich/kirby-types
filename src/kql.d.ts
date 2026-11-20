@@ -31,6 +31,8 @@ import type { KirbyQuery } from "./query.js";
  * };
  * ```
  *
+ * @source extensions/api.php
+ * @source src/Kql/Interceptor.php
  * @source src/Kql/Kql.php
  */
 export interface KirbyQuerySchema {
