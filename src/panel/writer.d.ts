@@ -112,6 +112,7 @@ export interface WriterEditorSelectPayload extends WriterEditorTransactionPayloa
  * @source panel/src/components/Forms/Writer/Marks/Anchor.ts
  * @source panel/src/components/Forms/Writer/Marks/Link.ts
  * @source panel/src/components/Forms/Writer/Marks/Email.ts
+ * @source panel/src/components/Forms/Writer/Emitter.ts
  */
 export interface WriterEditorEvents {
   blur: { event: FocusEvent; state: EditorState; view: EditorView };
@@ -153,6 +154,8 @@ export interface WriterEditor {
    * reactive, refreshed after every transaction.
    */
   active: {
+    isCursorAtEnd: boolean;
+    isCursorAtStart: boolean;
     marks: string[];
     nodes: string[];
     markAttrs: Record<string, Record<string, any>>;
@@ -219,7 +222,7 @@ export interface WriterEditor {
   /** Returns toolbar buttons for the given type, `mark` when omitted. */
   buttons: (type?: "mark" | "node") => Record<string, WriterToolbarButton>;
   clearContent: (emitUpdate?: boolean) => void;
-  command: (command: string, ...args: any[]) => void;
+  command: (command: string, attrs?: any) => void;
   /**
    * Creates a ProseMirror document from content.
    *
@@ -569,7 +572,9 @@ export interface WriterUtils {
   /**
    * Creates a command that lifts the selection out of a list of the given type,
    * switches another list whose items fit that type in place, or wraps the
-   * selection in a new list.
+   * selection in a new list. Only `bulletList`, `orderedList`, and `todoList`
+   * nodes count as lists, so inside any other list node it wraps the selection
+   * in a new, nested list.
    */
   toggleList: (type: NodeType, itemType: NodeType) => Command;
 
@@ -807,10 +812,10 @@ export interface WriterMarkExtension {
   defaults?: Record<string, any>;
 
   /**
-   * Mark spec registered in the editor schema under the mark's `name`; the
-   * editor fails to build its schema without one.
+   * Mark spec registered in the editor schema under the mark's `name`, `{}`
+   * when omitted.
    */
-  schema: MarkSpec;
+  schema?: MarkSpec;
 
   /**
    * Returns the commands this mark provides. A single function registers under
@@ -926,24 +931,16 @@ export interface WriterMarkExtension {
   // #region Mark Helper Methods (inherited by every mark)
 
   /**
-   * Toggles this mark on the current selection.
-   *
-   * Shorthand for `this.editor.toggleMark(this.name)`.
+   * Toggles this mark on the current selection. Returns `true` when toggled,
+   * `false` when the mark cannot apply there, and `undefined` for a mark the
+   * schema lacks.
    */
-  toggle?: () => void;
+  toggle?: () => boolean | undefined;
 
-  /**
-   * Removes this mark from the current selection.
-   *
-   * Shorthand for `this.editor.removeMark(this.name)`.
-   */
+  /** Removes this mark from the current selection. */
   remove?: () => void;
 
-  /**
-   * Updates this mark's attributes on the current selection.
-   *
-   * Shorthand for `this.editor.updateMark(this.name, attrs)`.
-   */
+  /** Updates this mark's attributes on the current selection. */
   update?: (attrs: Attrs) => void;
   // #endregion
 }
@@ -993,6 +990,7 @@ export interface WriterMarkExtension {
  * @source panel/src/components/Forms/Writer/Extension.ts
  * @source panel/src/components/Forms/Writer/Extensions.ts
  * @source panel/src/components/Forms/Writer/Editor.ts
+ * @source panel/src/components/Forms/Writer/Toolbar.vue
  * @source panel/src/helpers/writer.ts
  * @source panel/src/components/Forms/Input/WriterInput.vue
  * @source panel/public/js/plugins.js
@@ -1028,17 +1026,20 @@ export interface WriterNodeExtension {
   defaults?: Record<string, any>;
 
   /**
-   * ProseMirror node schema definition, registered under the node's `name`.
+   * ProseMirror node schema definition, registered under the node's `name`,
+   * `{}` when omitted.
    *
    * An inline writer installs only nodes whose spec sets `inline: true`.
    */
-  schema: NodeSpec;
+  schema?: NodeSpec;
 
   /**
    * Returns the commands this node provides. A single function registers under
    * the node's `name`, an object under its keys. A command that returns a
    * function has it run as a ProseMirror command against the view; any other
-   * return value passes through.
+   * return value passes through. A command run from an inline toolbar button
+   * receives the click `MouseEvent` as its argument; one run from the block
+   * dropdown receives none.
    */
   commands?: (
     context: WriterNodeContext,

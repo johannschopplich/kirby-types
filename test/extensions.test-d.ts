@@ -251,6 +251,10 @@ editor.on("custom", (...args) => {
 expectType<ProseMirrorNode>(editor.createDocument("<p>Text</p>"));
 expectType<ProseMirrorNode | false>(editor.createDocument(42 as unknown));
 expectType<EditorView>(editor.view);
+expectType<[command: string, attrs?: any]>(
+  {} as Parameters<WriterEditor["command"]>,
+);
+expectAssignable<WriterMarkExtension>({ name: "highlight" });
 // #endregion
 
 // #region Textarea Button
