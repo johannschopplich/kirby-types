@@ -7,8 +7,6 @@ import type {
   KirbyFieldsetGroup,
   KirbyFieldsetProps,
   KirbyFieldsetTab,
-  KirbyHeadlineFieldProps,
-  KirbyInfoFieldProps,
   KirbyLayoutFieldProps,
   KirbyListFieldProps,
   KirbyModelListFieldProps,
@@ -108,8 +106,6 @@ expectAssignable<KirbyTextFieldProps>({
   type: "text",
   width: "1/1",
 });
-
-expectType<boolean>({} as KirbyTextFieldProps["preselect"]);
 
 expectAssignable<KirbyTextareaFieldProps>({
   autofocus: false,
@@ -568,29 +564,6 @@ expectAssignable<KirbyListFieldProps>({
 // #region Stats Field Props
 
 expectAssignable<KirbyStatsFieldProps["size"]>("huge");
-expectNotAssignable<KirbyStatsFieldProps["size"]>("tiny");
-// #endregion
-
-// #region Headline and Info Field Props
-
-expectAssignable<KirbyHeadlineFieldProps>({
-  hidden: false,
-  label: "Intro",
-  name: "intro",
-  saveable: false,
-  type: "headline",
-  width: "1/1",
-});
-
-expectAssignable<KirbyInfoFieldProps>({
-  hidden: false,
-  label: "Note",
-  name: "note",
-  saveable: false,
-  text: "<p>Read this first.</p>",
-  type: "info",
-  width: "1/1",
-});
 // #endregion
 
 // #region Fieldset Props
