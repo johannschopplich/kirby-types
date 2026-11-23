@@ -27,6 +27,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # changelogithub marks each release "Latest", which belongs to the newest major.
+      - run: gh release edit "$(gh release list --exclude-drafts --exclude-pre-releases --limit 100 --json tagName --jq '.[].tagName' | sort -V | tail -n 1)" --latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish to npm (stable)
         if: ${{ !contains(github.ref_name, '-') }}
         run: npm install -g npm@latest && npm publish --access public
