@@ -25,13 +25,13 @@ A collection of TypeScript types for [Kirby CMS](https://getkirby.com).
 
 ```bash
 # pnpm
-pnpm add -D kirby-types@next
+pnpm add -D kirby-types
 
 # npm
-npm i -D kirby-types@next
+npm i -D kirby-types
 
 # yarn
-yarn add -D kirby-types@next
+yarn add -D kirby-types
 ```
 
 | kirby-types | Kirby   | Panel   |
@@ -39,7 +39,7 @@ yarn add -D kirby-types@next
 | v2          | 6       | Vue 3   |
 | v1          | 4 and 5 | Vue 2.7 |
 
-Until Kirby 6 has a stable release, v2 is published under the `next` tag, and a bare `kirby-types` installs v1.
+For Kirby 4 and 5, install `kirby-types@1`.
 
 ### Optional Dependencies
 
